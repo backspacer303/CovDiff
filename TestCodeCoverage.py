@@ -8,7 +8,7 @@ import shutil
 import json
 import gzip
 import time
-
+from airium import Airium
 
 class CodeCoverage:
 
@@ -31,10 +31,11 @@ class CodeCoverage:
         self.gcdaFileName = None
 
         self.report = None
+        self.linesOfInterest = None # sve linije iz izvestaja ali ne nuzno sve linije izvornog koda
         self.coveredLines = None
-        self.lineCount = None        
+        self.lineHitCount = None        
         self.coveredFunctions = None
-        self.functionCount = None
+        self.functionHitCount = None
 
         self.parseSourceFileName()
 
@@ -113,6 +114,9 @@ class CodeCoverage:
         
         self.coveredLines = set()
         self.coveredFunctions = set()        
+        self.linesOfInterest = set()
+        self.lineHitCount = {}
+        self.functionHitCount = {}
 
         for key in self.report:
 
@@ -124,11 +128,15 @@ class CodeCoverage:
                 for l in lines:
                     if l["count"] != 0:
                         self.coveredLines.add(l["line_number"])
-
+                    
+                    self.linesOfInterest.add(l["line_number"])
+                    self.lineHitCount[l["line_number"]] = l["count"]
+                
                 functions = fileInfo["functions"]
                 for f in functions:
                     if f["execution_count"] != 0:
                         self.coveredFunctions.add(f["name"])
+                    self.functionHitCount[f["name"]] = f["execution_count"]
 
     def runCodeCoverage(self):
         self.copyGcno()
@@ -136,6 +144,113 @@ class CodeCoverage:
         self.runGcov()
         self.saveJsonReport()
         self.parseReport()
+
+class HtmlReport:
+    
+    def __init__(self, sourceFile, codeCoverageReports):
+        self.sourceFile = sourceFile
+        self.codeCoverageReports = codeCoverageReports
+
+    def coveredLinesHtml(self):
+        
+        a = Airium()
+        with open(self.sourceFile, "r") as f:
+            
+            with a.table(id='table_372', style="border-spacing: 30px 0;"):
+                
+                with a.tr(klass='header_row'):
+                    a.th(_t='Line number', style="padding: 10px 0;")
+                    a.th(_t='Line', style="padding: 10px 0;")
+                    a.th(_t='Number of hits', style="padding: 10px 0;")
+                    a.th(_t='Tests that cover line', style="padding: 10px 0;")
+
+                for count, line in enumerate(f):
+                    
+                    lineNumber = count + 1
+                    testsCoveringLine = []
+                    lineNumberOfHits = 0
+                    isLineOfInterest = False
+
+                    for r in self.codeCoverageReports:
+                        if lineNumber in r.coveredLines:
+                            testsCoveringLine.append(r.test)
+                        if lineNumber in r.linesOfInterest:
+                            isLineOfInterest = True
+                            lineNumberOfHits = lineNumberOfHits + r.lineHitCount[lineNumber]
+
+                    lineBgColor = None
+                    lineNumberOfHitsTextValue = None
+
+
+                    if isLineOfInterest:
+                        lineNumberOfHitsTextValue = str(lineNumberOfHits)
+                        if len(testsCoveringLine) != 0:
+                            lineBgColor = "lightgreen"
+                        else:
+                            lineBgColor = "red"
+                    else:
+                        lineNumberOfHitsTextValue = "----"
+                        lineBgColor = "white"
+
+                    
+                    with a.tr():
+                        a.td(_t=str(lineNumber), style="text-align:center")
+                        a.td(_t=line, style="background-color:" + lineBgColor + ";" + "white-space: pre-wrap;")
+                        a.td(_t=lineNumberOfHitsTextValue)
+                        a.td(_t=' - '.join(testsCoveringLine), style="text-align:center")                    
+        
+        return str(a)
+
+    def coveredFunctionsHtml(self):
+        a = Airium()
+
+        functionHitCount = {}
+
+        for r in self.codeCoverageReports:
+            for key, value in r.functionHitCount.items():
+                if key in functionHitCount.keys():
+                    functionHitCount[key] = functionHitCount[key] + value
+                else:
+                    functionHitCount[key] = value
+
+        with a.table(id='table_372', style="border-spacing: 30px 0;"):
+                
+            with a.tr(klass='header_row'):
+                a.th(_t='Function name', style="padding: 10px 0;")
+                a.th(_t='Number of hits', style="padding: 10px 0;")
+            
+            for key, value in functionHitCount.items():
+
+                with a.tr():
+                    a.td(_t=key, style="text-align:center")
+                    a.td(_t=str(value), style="text-align:center")                                        
+
+        return str(a)
+
+    def generateHtml(self):
+        a = Airium()
+
+        a('<!DOCTYPE html>')
+        with a.html():
+            with a.head():
+                a.meta(charset="utf-8")
+                a.title(_t="Code Coverage")
+
+            with a.body():
+                with a.h3(klass='main_header'):
+                    a("Code Coverage") 
+                with a.h3(klass='source_file_header'):
+                    a("Source file: " + self.sourceFile)  
+
+                a(self.coveredLinesHtml())
+                a.br()
+                a(self.coveredFunctionsHtml())
+
+        pageStr = str(a)        
+        
+        with open('CodeCoverage.html', "w") as f:
+            f.write(pageStr)
+
 
 def parse_program_args(parser):
     parser.add_argument('source_file', metavar='source_file', action="store",
@@ -157,11 +272,14 @@ def Main():
     parser = argparse.ArgumentParser(description='Run llvm tests and generate code coverage diff.')
     args = parse_program_args(parser)    
     
+
     #TODO Mozda premestiti u konstruktor klase...
     for i in range(0,len(args.command_arg)):
         if not args.command_arg[i].startswith("-"):
             args.command_arg[i] = "-" + args.command_arg[i]
 
+
+    #TODO NAPRAVITI LISTU TESTOVA NA ULAZU pa i listu CodeCoverage objekata
     test1 = CodeCoverage(args.source_file, args.test1, args.command, args.command_arg, args.coverage_dest)    
     test2 = CodeCoverage(args.source_file, args.test2, args.command, args.command_arg, args.coverage_dest)
     
@@ -180,7 +298,7 @@ def Main():
     except Exception as e:
         print(e)
         exit()
-
+    
     print("\n\n================== Report ========================")
     print("Lines covered with test1 but not test2:")
     print(test1.coveredLines.difference(test2.coveredLines))
@@ -190,6 +308,9 @@ def Main():
     print(test1.coveredLines.intersection(test2.coveredLines))
     print("==================================================")
 
+    #TODO NAPRAVITI LISTU CodeCoverage objekata i proslediti je ovde
+    htmlReport = HtmlReport(args.source_file, [test1, test2])
+    htmlReport.generateHtml()
     
 if __name__ == "__main__":
   Main()
