@@ -167,7 +167,8 @@ class HtmlReport:
                 for count, line in enumerate(f):
                     
                     lineNumber = count + 1
-                    testsCoveringLine = []
+                    testsCoveringLine = [] #zbirna lista testova za jednu liniju
+
                     lineNumberOfHits = 0
                     isLineOfInterest = False
 
@@ -227,6 +228,100 @@ class HtmlReport:
 
         return str(a)
 
+    # generise diff za dva odabrana izvestaja (proslediti indekse izvestaja)
+    def generateCoverageDiffHtml(self, r1_index, r2_index):
+        
+        r1 = self.codeCoverageReports[r1_index]
+        r2 = self.codeCoverageReports[r2_index]
+
+        #linije koje pokriva prvi test a ne pokriva drugi
+        r1Diffr2 = r1.coveredLines.difference(r2.coveredLines)
+        #linije koje pokriva drugi test a ne pokriva prvi
+        r2Diffr1 = r2.coveredLines.difference(r1.coveredLines)
+        
+        a = Airium()
+        
+        with a.table(id='table_372', style="border-spacing: 30px 0;"):
+                
+            with a.tr(klass='header_row'):
+                a.th(_t="Line Num.", style="text-align:center")
+                a.th(_t= r1.test + ' but not ' + r2.test, style="padding: 10px 0;")
+                a.th(_t="Line Num.", style="text-align:center")
+                a.th(_t= r2.test + ' but not ' + r1.test, style="padding: 10px 0;")
+
+            with open(self.sourceFile, "r") as f:
+                for count, line in enumerate(f):
+                    
+                    lineNumber = count + 1
+                                        
+                    with a.tr():
+                        if lineNumber in r1Diffr2:
+                            a.td(_t=str(lineNumber), style="text-align:right")
+                            a.td(_t=line, style="white-space: pre-wrap;background-color:yellow")
+                            a.td(_t=str(lineNumber), style="text-align:right")
+                            a.td(_t=line, style="white-space: pre-wrap;") 
+                        elif lineNumber in r2Diffr1:
+                            a.td(_t=str(lineNumber), style="text-align:right")
+                            a.td(_t=line, style="white-space: pre-wrap;")
+                            a.td(_t=str(lineNumber), style="text-align:right")
+                            a.td(_t=line, style="white-space: pre-wrap;background-color:orange")
+                        else:
+                            a.td(_t=str(lineNumber), style="text-align:right")
+                            a.td(_t=line, style="white-space: pre-wrap;")
+                            a.td(_t=str(lineNumber), style="text-align:right")
+                            a.td(_t=line, style="white-space: pre-wrap;")
+
+        return str(a)
+    
+    def generateSideBySideCoverageHtml(self, r1_index, r2_index):
+        
+        r1 = self.codeCoverageReports[r1_index]
+        r2 = self.codeCoverageReports[r2_index]
+
+        a = Airium()
+        
+        with a.table(id='table_372', style="border-spacing: 30px 0;"):
+                
+            with a.tr(klass='header_row'):
+                a.th(_t="Line Num.", style="text-align:center")
+                a.th(_t= r1.test, style="padding: 10px 0;")
+                a.th(_t="Line Num.", style="text-align:center")
+                a.th(_t= r2.test, style="padding: 10px 0;")
+
+            with open(self.sourceFile, "r") as f:
+                for count, line in enumerate(f):
+
+                    lineNumber = count + 1
+
+                    isCoveredByR1 = lineNumber in r1.coveredLines
+                    isCoveredByR2 = lineNumber in r2.coveredLines
+
+                    with a.tr():
+                        if isCoveredByR1 and isCoveredByR2:
+                            a.td(_t=str(lineNumber), style="text-align:right")
+                            a.td(_t=line, style="white-space: pre-wrap;background-color:lightgreen")
+                            a.td(_t=str(lineNumber), style="text-align:right")
+                            a.td(_t=line, style="white-space: pre-wrap;background-color:lightgreen") 
+                        elif isCoveredByR1:
+                            a.td(_t=str(lineNumber), style="text-align:right")
+                            a.td(_t=line, style="white-space: pre-wrap;background-color:lightgreen")
+                            a.td(_t=str(lineNumber), style="text-align:right")
+                            a.td(_t=line, style="white-space: pre-wrap;") 
+                        elif isCoveredByR2:
+                            a.td(_t=str(lineNumber), style="text-align:right")
+                            a.td(_t=line, style="white-space: pre-wrap;")
+                            a.td(_t=str(lineNumber), style="text-align:right")
+                            a.td(_t=line, style="white-space: pre-wrap;background-color:lightgreen") 
+                        else:
+                            a.td(_t=str(lineNumber), style="text-align:right")
+                            a.td(_t=line, style="white-space: pre-wrap;")
+                            a.td(_t=str(lineNumber), style="text-align:right")
+                            a.td(_t=line, style="white-space: pre-wrap;")
+        
+        return str(a)
+
+
+
     def generateHtml(self):
         a = Airium()
 
@@ -243,8 +338,16 @@ class HtmlReport:
                     a("Source file: " + self.sourceFile)  
 
                 a(self.coveredLinesHtml())
-                a.br()
+                a.br()                
                 a(self.coveredFunctionsHtml())
+                a.hr()
+                with a.h3(klass='main_header'):
+                    a("Coverage Diff") 
+                a(self.generateCoverageDiffHtml(0,1))
+                a.hr()
+                with a.h3(klass='main_header'):
+                    a("Side By Side Comparison") 
+                a(self.generateSideBySideCoverageHtml(0,1))
 
         pageStr = str(a)        
         
@@ -290,8 +393,8 @@ def Main():
         exit()
 
     #Samo za debagovanje
-    #print("Sleep...")
-    #time.sleep(5)
+    print("Sleep...")
+    time.sleep(5)
 
     try:
         test2.runCodeCoverage()
