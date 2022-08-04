@@ -14,13 +14,17 @@ class CodeCoverage:
 
     ID = 1
 
-    def __init__(self, sourceFile, test, command, commandArgs, coverageInfoDest):
+    def __init__(self, sourceFile, test, command, commandArgs, coverageInfoDest, objectFileDest):
         self.sourceFile = sourceFile
-        self.test = test
+        self.test = os.path.basename(test)
         self.ID = CodeCoverage.ID
         self.command = command
         self.commandArgs = commandArgs
-        self.coverageInfoDest = os.path.join(coverageInfoDest, "")
+        self.coverageInfoDest = os.path.join(coverageInfoDest, "")        
+        self.objectFileDest = objectFileDest
+
+        if self.objectFileDest:
+            self.objectFileDest = os.path.join(self.objectFileDest[0], "")
 
         self.sourceFileNameWithExt = None
         self.sourceFileNameWithNoExt = None
@@ -57,6 +61,10 @@ class CodeCoverage:
 
     def copyGcno(self):
         gcnoFileName_tmp = self.sourceFileRoot + '.gcno'
+
+        if self.objectFileDest:
+            gcnoFileName_tmp = self.objectFileDest + self.sourceFileNameWithExt + '.gcno'
+
         if not os.path.exists(gcnoFileName_tmp):
             raise Exception("ERROR: .gcno file does not exist")
         self.makeCoverageInfoDestDir()        
@@ -84,7 +92,11 @@ class CodeCoverage:
         
         processsRetVal.check_returncode()
 
-        gcdaFileName_tmp = self.sourceFileRoot + '.gcda'    
+        gcdaFileName_tmp = self.sourceFileRoot + '.gcda' 
+
+        if self.objectFileDest:
+            gcdaFileName_tmp = self.objectFileDest + self.sourceFileNameWithExt + '.gcda'
+
         if not os.path.exists(gcdaFileName_tmp):
             raise Exception("ERROR: .gcda file does not exist, after running test " + self.test + " " + str(self.ID))                
         
@@ -122,21 +134,29 @@ class CodeCoverage:
 
             if key == "files":
             
-                fileInfo = self.report[key][0]
-                
-                lines = fileInfo["lines"]
-                for l in lines:
-                    if l["count"] != 0:
-                        self.coveredLines.add(l["line_number"])
+                files = self.report[key]
+
+                for fileInfo in files:
                     
-                    self.linesOfInterest.add(l["line_number"])
-                    self.lineHitCount[l["line_number"]] = l["count"]
-                
-                functions = fileInfo["functions"]
-                for f in functions:
-                    if f["execution_count"] != 0:
-                        self.coveredFunctions.add(f["name"])
-                    self.functionHitCount[f["name"]] = f["execution_count"]
+                    sourceFileName = fileInfo["file"]
+                    if sourceFileName == self.sourceFile:
+
+                        print("-------------------------------------->self   " + self.sourceFile)
+                        print("-------------------------------------->report " + sourceFileName)
+                                                
+                        lines = fileInfo["lines"]
+                        for l in lines:
+                            if l["count"] != 0:
+                                self.coveredLines.add(l["line_number"])
+                            
+                            self.linesOfInterest.add(l["line_number"])
+                            self.lineHitCount[l["line_number"]] = l["count"]
+                        
+                        functions = fileInfo["functions"]
+                        for f in functions:
+                            if f["execution_count"] != 0:
+                                self.coveredFunctions.add(f["name"])
+                            self.functionHitCount[f["name"]] = f["execution_count"]
 
     def runCodeCoverage(self):
         self.copyGcno()
@@ -364,6 +384,8 @@ def parse_program_args(parser):
                         help='the second test to be run (ll file)')
     parser.add_argument('coverage_dest', metavar='coverage_dest', action="store",
                         help='directory for storing code coverage information')
+    parser.add_argument('--object_path',  metavar='object_path', action="store", nargs=1,
+                        help="if object file is on other place than source file")
     parser.add_argument('command', metavar='command', action="store",
                         help='command to run the tests')
     parser.add_argument('command_arg', metavar='command_arg', action="store", nargs='*',
@@ -373,9 +395,10 @@ def parse_program_args(parser):
 def Main():
     
     parser = argparse.ArgumentParser(description='Run llvm tests and generate code coverage diff.')
-    args = parse_program_args(parser)    
-    
+    args = parse_program_args(parser)
 
+
+    
     #TODO Mozda premestiti u konstruktor klase...
     for i in range(0,len(args.command_arg)):
         if not args.command_arg[i].startswith("-"):
@@ -383,8 +406,8 @@ def Main():
 
 
     #TODO NAPRAVITI LISTU TESTOVA NA ULAZU pa i listu CodeCoverage objekata
-    test1 = CodeCoverage(args.source_file, args.test1, args.command, args.command_arg, args.coverage_dest)    
-    test2 = CodeCoverage(args.source_file, args.test2, args.command, args.command_arg, args.coverage_dest)
+    test1 = CodeCoverage(args.source_file, args.test1, args.command, args.command_arg, args.coverage_dest, args.object_path)    
+    test2 = CodeCoverage(args.source_file, args.test2, args.command, args.command_arg, args.coverage_dest, args.object_path)
     
     try:
         test1.runCodeCoverage()
