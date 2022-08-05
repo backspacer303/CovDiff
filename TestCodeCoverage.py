@@ -136,7 +136,7 @@ class CodeCoverage:
         
         (root, ext) = os.path.splitext(self.gcdaFileName)
         searchPath = os.path.basename(root)
-        processsRetVal = subprocess.run(["gcov", "--json-format", "--branch-probabilities", "--object-file", searchPath, self.sourceFile])        
+        processsRetVal = subprocess.run(["gcov", "--no-output", "--json-format", "--branch-probabilities", "--object-file", searchPath, self.sourceFile])        
         
         processsRetVal.check_returncode()
 
@@ -165,11 +165,15 @@ class CodeCoverage:
 
                 for fileInfo in files:
                     
+                    #Ako su gcno/gcda u razilicitom direkt. od izvornog onda ce 
+                    #u izvestaju "file" polje biti apsolutna putanja do izvornog fajla
+                    #Ako gcno/gcda u istom direktorijumu kao i izvorni fajl onda ce
+                    #u izvestaju "file" polje biti samo naziv izvornog fajla sa ekstenzijom
                     sourceFileName = fileInfo["file"]
-                    if sourceFileName == self.sourceFile:
+                    if sourceFileName == self.sourceFile or sourceFileName == self.sourceFileNameWithExt:
 
-                        print("-------------------------------------->self   " + self.sourceFile)
-                        print("-------------------------------------->report " + sourceFileName)
+                        #print("-------------------------------------->self   " + self.sourceFile)
+                        #print("-------------------------------------->report " + sourceFileName)
                                                 
                         lines = fileInfo["lines"]
                         for l in lines:
