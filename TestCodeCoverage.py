@@ -60,13 +60,25 @@ class CodeCoverage:
                 print(e) 
 
     def copyGcno(self):
-        gcnoFileName_tmp = self.sourceFileRoot + '.gcno'
+        
+        #Dva slucaja za imenovanje gdno datoteka:
+        #fileName.cpp.gcno ili filename.gcno
+        gcnoFileName_withExt_tmp = self.sourceFileRoot + self.sourceFileExt + '.gcno'
+        gcnoFileName_noExt_tmp = self.sourceFileRoot + '.gcno'
 
+        #Ako je objektni fajl generisan na razlicitom mestu u odnosu na izvorni
+        #Tada se i .gcno generise na mestu gde je objektni fajl
         if self.objectFileDest:
-            gcnoFileName_tmp = self.objectFileDest + self.sourceFileNameWithExt + '.gcno'
-
-        if not os.path.exists(gcnoFileName_tmp):
+            gcnoFileName_withExt_tmp = self.objectFileDest + self.sourceFileNameWithExt + '.gcno'
+            gcnoFileName_noExt_tmp = self.objectFileDest + self.sourceFileNameWithNoExt + '.gcno'
+        
+        if os.path.exists(gcnoFileName_withExt_tmp):            
+            gcnoFileName_tmp = gcnoFileName_withExt_tmp
+        elif os.path.exists(gcnoFileName_noExt_tmp):            
+            gcnoFileName_tmp = gcnoFileName_noExt_tmp
+        else:
             raise Exception("ERROR: .gcno file does not exist")
+
         self.makeCoverageInfoDestDir()        
         shutil.copy2(gcnoFileName_tmp, self.coverageInfoDest + self.sourceFileNameWithNoExt + '_test' + str(self.ID) + '.gcno')
         self.gcnoFileName = self.coverageInfoDest + self.sourceFileNameWithNoExt + '_test' + str(self.ID) + '.gcno'
@@ -86,21 +98,36 @@ class CodeCoverage:
         
         os.remove(archiveName)
 
+    def checkIfGcdaIsCreated(self):
+        #Dva slucaja za imenovanje gcda datoteka:
+        #fileName.cpp.gcda ili filename.gcda
+        gcdaFileName_withExt_tmp = self.sourceFileRoot + self.sourceFileExt + '.gcda' 
+        gcdaFileName_noExt_tmp = self.sourceFileRoot + '.gcda'
+
+        #Ako je objektni fajl generisan na razlicitom mestu u odnosu na izvorni
+        #Tada se i .gcda generise na mestu gde je objektni fajl
+        if self.objectFileDest:
+            gcdaFileName_withExt_tmp = self.objectFileDest + self.sourceFileNameWithExt + '.gcda' 
+            gcdaFileName_noExt_tmp = self.objectFileDest + self.sourceFileNameWithNoExt + '.gcda'
+                               
+        if os.path.exists(gcdaFileName_withExt_tmp):            
+            gcdaFileName_tmp = gcdaFileName_withExt_tmp
+        elif os.path.exists(gcdaFileName_noExt_tmp):            
+            gcdaFileName_tmp = gcdaFileName_noExt_tmp
+        else:
+            raise Exception("ERROR: .gcda file does not exist, after running test: " + self.test)
+
+        return gcdaFileName_tmp
+
     def runTest(self):
                 
         processsRetVal = subprocess.run([self.command, self.test] + self.commandArgs)
         
         processsRetVal.check_returncode()
 
-        gcdaFileName_tmp = self.sourceFileRoot + '.gcda' 
+        gcdaFileName = self.checkIfGcdaIsCreated()
 
-        if self.objectFileDest:
-            gcdaFileName_tmp = self.objectFileDest + self.sourceFileNameWithExt + '.gcda'
-
-        if not os.path.exists(gcdaFileName_tmp):
-            raise Exception("ERROR: .gcda file does not exist, after running test " + self.test + " " + str(self.ID))                
-        
-        self.moveGcda(gcdaFileName_tmp)
+        self.moveGcda(gcdaFileName)
 
     def runGcov(self):        
 
