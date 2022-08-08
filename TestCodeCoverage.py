@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+from cgitb import html
+from ntpath import join
 import sys
 import os
 import subprocess
@@ -198,22 +200,23 @@ class CodeCoverage:
 
 class HtmlReport:
     
-    def __init__(self, sourceFile, codeCoverageReports):
+    def __init__(self, sourceFile, codeCoverageReports, coverageInfoDest):
         self.sourceFile = sourceFile
         self.codeCoverageReports = codeCoverageReports
+        self.coverageInfoDest = os.path.join(coverageInfoDest, "")
 
     def coveredLinesHtml(self):
         
         a = Airium()
         with open(self.sourceFile, "r") as f:
             
-            with a.table(id='table_372', style="border-spacing: 30px 0;"):
+            with a.table():
                 
-                with a.tr(klass='header_row'):
-                    a.th(_t='Line number', style="padding: 10px 0;")
-                    a.th(_t='Line', style="padding: 10px 0;")
-                    a.th(_t='Number of hits', style="padding: 10px 0;")
-                    a.th(_t='Tests that cover line', style="padding: 10px 0;")
+                with a.tr():
+                    a.th(_t='Line number')
+                    a.th(_t='Line')
+                    a.th(_t='Number of hits')
+                    a.th(_t='Tests that cover line')
 
                 for count, line in enumerate(f):
                     
@@ -230,26 +233,29 @@ class HtmlReport:
                             isLineOfInterest = True
                             lineNumberOfHits = lineNumberOfHits + r.lineHitCount[lineNumber]
 
-                    lineBgColor = None
+                    lineStyleClass = None
                     lineNumberOfHitsTextValue = None
 
 
                     if isLineOfInterest:
                         lineNumberOfHitsTextValue = str(lineNumberOfHits)
                         if len(testsCoveringLine) != 0:
-                            lineBgColor = "lightgreen"
+                            lineStyleClass = "coveredLine"
                         else:
-                            lineBgColor = "red"
+                            lineStyleClass = "uncoveredLine"
                     else:
                         lineNumberOfHitsTextValue = "----"
-                        lineBgColor = "white"
+                        lineStyleClass = ""
 
                     
                     with a.tr():
-                        a.td(_t=str(lineNumber), style="text-align:center")
-                        a.td(_t=line, style="background-color:" + lineBgColor + ";" + "white-space: pre-wrap;")
+                        a.td(_t=str(lineNumber), klass="lineNumber")
+                        a.td(_t=line, klass=lineStyleClass)
                         a.td(_t=lineNumberOfHitsTextValue)
-                        a.td(_t=' - '.join(testsCoveringLine), style="text-align:center")                    
+                        with a.td(klass="testName"):
+                            for test in testsCoveringLine:                            
+                                a.span(_t=test, klass="badge")               
+                                                
         
         return str(a)
 
@@ -265,17 +271,17 @@ class HtmlReport:
                 else:
                     functionHitCount[key] = value
 
-        with a.table(id='table_372', style="border-spacing: 30px 0;"):
+        with a.table():
                 
-            with a.tr(klass='header_row'):
-                a.th(_t='Function name', style="padding: 10px 0;")
-                a.th(_t='Number of hits', style="padding: 10px 0;")
+            with a.tr():
+                a.th(_t='Function name')
+                a.th(_t='Number of hits')
             
             for key, value in functionHitCount.items():
 
                 with a.tr():
-                    a.td(_t=key, style="text-align:center")
-                    a.td(_t=str(value), style="text-align:center")                                        
+                    a.td(_t=key, klass="functionName")
+                    a.td(_t=str(value), klass="numberOfCalls")                                        
 
         return str(a)
 
@@ -292,13 +298,13 @@ class HtmlReport:
         
         a = Airium()
         
-        with a.table(id='table_372', style="border-spacing: 30px 0;"):
+        with a.table():
                 
-            with a.tr(klass='header_row'):
-                a.th(_t="Line Num.", style="text-align:center")
-                a.th(_t= r1.test + ' but not ' + r2.test, style="padding: 10px 0;")
-                a.th(_t="Line Num.", style="text-align:center")
-                a.th(_t= r2.test + ' but not ' + r1.test, style="padding: 10px 0;")
+            with a.tr():
+                a.th(_t="Line Number")
+                a.th(_t= r1.test + ' but not ' + r2.test)
+                a.th(_t="Line Number")
+                a.th(_t= r2.test + ' but not ' + r1.test)
 
             with open(self.sourceFile, "r") as f:
                 for count, line in enumerate(f):
@@ -307,20 +313,20 @@ class HtmlReport:
                                         
                     with a.tr():
                         if lineNumber in r1Diffr2:
-                            a.td(_t=str(lineNumber), style="text-align:right")
-                            a.td(_t=line, style="white-space: pre-wrap;background-color:yellow")
-                            a.td(_t=str(lineNumber), style="text-align:right")
-                            a.td(_t=line, style="white-space: pre-wrap;") 
+                            a.td(_t=str(lineNumber), klass="lineNumber")
+                            a.td(_t=line, klass="codeLine diffFirst")
+                            a.td(_t=str(lineNumber), klass="lineNumber")
+                            a.td(_t=line, klass="codeline") 
                         elif lineNumber in r2Diffr1:
-                            a.td(_t=str(lineNumber), style="text-align:right")
-                            a.td(_t=line, style="white-space: pre-wrap;")
-                            a.td(_t=str(lineNumber), style="text-align:right")
-                            a.td(_t=line, style="white-space: pre-wrap;background-color:orange")
+                            a.td(_t=str(lineNumber), klass="lineNumber")
+                            a.td(_t=line, klass="codeline")
+                            a.td(_t=str(lineNumber), klass="lineNumber")
+                            a.td(_t=line, klass="codeLine diffSecond")
                         else:
-                            a.td(_t=str(lineNumber), style="text-align:right")
-                            a.td(_t=line, style="white-space: pre-wrap;")
-                            a.td(_t=str(lineNumber), style="text-align:right")
-                            a.td(_t=line, style="white-space: pre-wrap;")
+                            a.td(_t=str(lineNumber), klass="lineNumber")
+                            a.td(_t=line, klass="codeline")
+                            a.td(_t=str(lineNumber), klass="lineNumber")
+                            a.td(_t=line, klass="codeline")
 
         return str(a)
     
@@ -331,13 +337,13 @@ class HtmlReport:
 
         a = Airium()
         
-        with a.table(id='table_372', style="border-spacing: 30px 0;"):
+        with a.table():
                 
-            with a.tr(klass='header_row'):
-                a.th(_t="Line Num.", style="text-align:center")
-                a.th(_t= r1.test, style="padding: 10px 0;")
-                a.th(_t="Line Num.", style="text-align:center")
-                a.th(_t= r2.test, style="padding: 10px 0;")
+            with a.tr():
+                a.th(_t="Line Number")
+                a.th(_t= r1.test)
+                a.th(_t="Line Number")
+                a.th(_t= r2.test)
 
             with open(self.sourceFile, "r") as f:
                 for count, line in enumerate(f):
@@ -349,60 +355,112 @@ class HtmlReport:
 
                     with a.tr():
                         if isCoveredByR1 and isCoveredByR2:
-                            a.td(_t=str(lineNumber), style="text-align:right")
-                            a.td(_t=line, style="white-space: pre-wrap;background-color:lightgreen")
-                            a.td(_t=str(lineNumber), style="text-align:right")
-                            a.td(_t=line, style="white-space: pre-wrap;background-color:lightgreen") 
+                            a.td(_t=str(lineNumber), klass="lineNumber")
+                            a.td(_t=line, klass="codeLine coveredLine")
+                            a.td(_t=str(lineNumber), klass="lineNumber")
+                            a.td(_t=line, klass="codeLine coveredLine") 
                         elif isCoveredByR1:
-                            a.td(_t=str(lineNumber), style="text-align:right")
-                            a.td(_t=line, style="white-space: pre-wrap;background-color:lightgreen")
-                            a.td(_t=str(lineNumber), style="text-align:right")
-                            a.td(_t=line, style="white-space: pre-wrap;") 
+                            a.td(_t=str(lineNumber), klass="lineNumber")
+                            a.td(_t=line, klass="codeLine coveredLine")
+                            a.td(_t=str(lineNumber), klass="lineNumber")
+                            a.td(_t=line, klass="codeLine") 
                         elif isCoveredByR2:
-                            a.td(_t=str(lineNumber), style="text-align:right")
-                            a.td(_t=line, style="white-space: pre-wrap;")
-                            a.td(_t=str(lineNumber), style="text-align:right")
-                            a.td(_t=line, style="white-space: pre-wrap;background-color:lightgreen") 
+                            a.td(_t=str(lineNumber), klass="lineNumber")
+                            a.td(_t=line, klass="codeLine")
+                            a.td(_t=str(lineNumber), klass="lineNumber")
+                            a.td(_t=line, klass="codeLine coveredLine") 
                         else:
-                            a.td(_t=str(lineNumber), style="text-align:right")
-                            a.td(_t=line, style="white-space: pre-wrap;")
-                            a.td(_t=str(lineNumber), style="text-align:right")
-                            a.td(_t=line, style="white-space: pre-wrap;")
+                            a.td(_t=str(lineNumber), klass="lineNumber")
+                            a.td(_t=line, klass="codeLine")
+                            a.td(_t=str(lineNumber), klass="lineNumber")
+                            a.td(_t=line, klass="codeLine")
         
         return str(a)
 
+    
+    def makeHtmlReportDir(self):
+        path = os.path.join(self.coverageInfoDest, 'html')
+        if os.path.isdir(path):
+            raise Exception("ERROR: html/ directory alredy exists in " + self.coverageInfoDest)
+        os.mkdir(path)
+        stylePath = os.path.join(path, 'Style')
+        os.mkdir(stylePath)
 
+    def copyStyleSheet(self):
+        shutil.copy2('Style/style.css', self.coverageInfoDest + "html/Style/style.css")
 
     def generateHtml(self):
+        
+        self.makeHtmlReportDir()
+        self.copyStyleSheet()
+
         a = Airium()
+
+        #JS kod za reagovanje na klik dugmeta: collapse elementi
+        script = """
+        var coll = document.getElementsByClassName("collapsible");
+        var i;
+        
+        for (i = 0; i < coll.length; i++) {
+        coll[i].addEventListener("click", function() {
+            this.classList.toggle("active");
+            var content = this.nextElementSibling;
+            if (content.style.display === "block") {
+            content.style.display = "none";
+            } else {
+            content.style.display = "block";
+            }
+        });
+        }
+        """
 
         a('<!DOCTYPE html>')
         with a.html():
             with a.head():
                 a.meta(charset="utf-8")
                 a.title(_t="Code Coverage")
+                a.link(rel="stylesheet", href="Style/style.css")
 
-            with a.body():
-                with a.h3(klass='main_header'):
-                    a("Code Coverage") 
-                with a.h3(klass='source_file_header'):
-                    a("Source file: " + self.sourceFile)  
+            with a.body():                
 
-                a(self.coveredLinesHtml())
-                a.br()                
-                a(self.coveredFunctionsHtml())
-                a.hr()
-                with a.h3(klass='main_header'):
-                    a("Coverage Diff") 
-                a(self.generateCoverageDiffHtml(0,1))
-                a.hr()
-                with a.h3(klass='main_header'):
-                    a("Side By Side Comparison") 
-                a(self.generateSideBySideCoverageHtml(0,1))
+                with a.div(klass="header"):
+                    with a.h1():
+                        a("Code Coverage")
+                    with a.p():
+                        a("Source file: " + self.sourceFile) 
+                
+                a.button(_t="Open Summary Report", klass="collapsible", type="button")
+                with a.div(klass="content", style="display: none;"):
+                    a.hr()
+                    a.h3(_t="Summary Report", klass="subheader")
+                    a(self.coveredLinesHtml())
+
+                a.button(_t="Open Functions Report", klass="collapsible", type="button")
+                with a.div(klass="content", style="display: none;"):
+                    a.hr()
+                    a.h3(_t="Functions Report", klass="subheader")
+                    a(self.coveredFunctionsHtml())
+
+                a.button(_t="Open Coverage Diff", klass="collapsible", type="button")
+                with a.div(klass="content", style="display: none;"):
+                    a.hr()
+                    a.h3(_t="Coverage Diff", klass="subheader")
+                    a(self.generateCoverageDiffHtml(0,1))
+
+                a.button(_t="Open Side By Side Comparison", klass="collapsible", type="button")
+                with a.div(klass="content", style="display: none;"):
+                    a.hr()
+                    a.h3(_t="Side By Side Comparison", klass="subheader")
+                    a(self.generateSideBySideCoverageHtml(0,1))
+                            
+
+                
+                a.script(_t=script)
 
         pageStr = str(a)        
         
-        with open('CodeCoverage.html', "w") as f:
+        htmlFileName = self.coverageInfoDest + 'html/' + 'CodeCoverage.html'
+        with open(htmlFileName, "w") as f:
             f.write(pageStr)
 
 
@@ -428,9 +486,6 @@ def Main():
     parser = argparse.ArgumentParser(description='Run llvm tests and generate code coverage diff.')
     args = parse_program_args(parser)
 
-
-    
-    #TODO Mozda premestiti u konstruktor klase...
     for i in range(0,len(args.command_arg)):
         if not args.command_arg[i].startswith("-"):
             args.command_arg[i] = "-" + args.command_arg[i]
@@ -466,7 +521,7 @@ def Main():
     print("==================================================")
 
     #TODO NAPRAVITI LISTU CodeCoverage objekata i proslediti je ovde
-    htmlReport = HtmlReport(args.source_file, [test1, test2])
+    htmlReport = HtmlReport(args.source_file, [test1, test2], args.coverage_dest)
     htmlReport.generateHtml()
     
 if __name__ == "__main__":
