@@ -302,9 +302,15 @@ class HtmlReport:
                 
             with a.tr():
                 a.th(_t="Line Number")
-                a.th(_t= r1.test + ' but not ' + r2.test)
-                a.th(_t="Line Number")
-                a.th(_t= r2.test + ' but not ' + r1.test)
+                with a.th():
+                    a.span(_t=r1.test, klass="badge")
+                    a.span(_t=" BUT NOT ")
+                    a.span(_t=r2.test, klass="badge")
+                a.th(_t="Line Number")                
+                with a.th():
+                    a.span(_t=r2.test, klass="badge")
+                    a.span(_t=" BUT NOT ")
+                    a.span(_t=r1.test, klass="badge")
 
             with open(self.sourceFile, "r") as f:
                 for count, line in enumerate(f):
@@ -341,9 +347,11 @@ class HtmlReport:
                 
             with a.tr():
                 a.th(_t="Line Number")
-                a.th(_t= r1.test)
+                with a.th():
+                    a.span(_t=r1.test, klass="badge")
                 a.th(_t="Line Number")
-                a.th(_t= r2.test)
+                with a.th():
+                    a.span(_t=r2.test, klass="badge")
 
             with open(self.sourceFile, "r") as f:
                 for count, line in enumerate(f):
