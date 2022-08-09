@@ -395,7 +395,8 @@ class HtmlReport:
         os.mkdir(stylePath)
 
     def copyStyleSheet(self):
-        shutil.copy2('Style/style.css', self.coverageInfoDest + "html/Style/style.css")
+        styleSheetPath = os.path.dirname(os.path.abspath(__file__)) + '/Style/style.css'
+        shutil.copy2(styleSheetPath, self.coverageInfoDest + "html/Style/style.css")
 
     def generateHtml(self):
         
@@ -459,13 +460,11 @@ class HtmlReport:
                 with a.div(klass="content", style="display: none;"):
                     a.hr()
                     a.h3(_t="Side By Side Comparison", klass="subheader")
-                    a(self.generateSideBySideCoverageHtml(0,1))
-                            
-
+                    a(self.generateSideBySideCoverageHtml(0,1))                            
                 
                 a.script(_t=script)
 
-        pageStr = str(a)        
+        pageStr = str(a)     
         
         htmlFileName = self.coverageInfoDest + 'html/' + 'CodeCoverage.html'
         with open(htmlFileName, "w") as f:
@@ -508,10 +507,6 @@ def Main():
     except Exception as e:
         print(e)
         exit()
-
-    #Samo za debagovanje
-    print("Sleep...")
-    time.sleep(5)
 
     try:
         test2.runCodeCoverage()
