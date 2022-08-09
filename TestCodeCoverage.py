@@ -1,8 +1,5 @@
 #!/usr/bin/python
 
-from ast import arg
-from cgitb import html
-from ntpath import join
 import sys
 import os
 import subprocess
@@ -10,7 +7,6 @@ import argparse
 import shutil
 import json
 import gzip
-import time
 from airium import Airium
 
 class CodeCoverage:
@@ -481,7 +477,7 @@ def parse_program_args(parser):
                         help='the second test to be run (ll file)')
     parser.add_argument('coverage_dest', metavar='coverage_dest', action="store",
                         help='directory for storing code coverage information')
-    parser.add_argument('--object_path',  metavar='object_path', action="store", nargs=1,
+    parser.add_argument('--object-path',  metavar='object_path', action="store", nargs=1,
                         help="if object file is on other place than source file")
     parser.add_argument('command', metavar='command', action="store",
                         help='command to run the tests')
