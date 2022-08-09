@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+from ast import arg
 from cgitb import html
 from ntpath import join
 import sys
@@ -494,11 +495,10 @@ def Main():
     args = parse_program_args(parser)
 
     for i in range(0,len(args.command_arg)):
-        if not args.command_arg[i].startswith("-"):
+        if not args.command_arg[i].startswith("-") and args.command_arg[i-1] != '-o':
             args.command_arg[i] = "-" + args.command_arg[i]
 
 
-    #TODO NAPRAVITI LISTU TESTOVA NA ULAZU pa i listu CodeCoverage objekata
     test1 = CodeCoverage(args.source_file, args.test1, args.command, args.command_arg, args.coverage_dest, args.object_path)    
     test2 = CodeCoverage(args.source_file, args.test2, args.command, args.command_arg, args.coverage_dest, args.object_path)
     
@@ -523,7 +523,6 @@ def Main():
     print(test1.coveredLines.intersection(test2.coveredLines))
     print("==================================================")
 
-    #TODO NAPRAVITI LISTU CodeCoverage objekata i proslediti je ovde
     htmlReport = HtmlReport(args.source_file, [test1, test2], args.coverage_dest)
     htmlReport.generateHtml()
     
