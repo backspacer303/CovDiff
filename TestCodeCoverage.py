@@ -1,5 +1,8 @@
 #!/usr/bin/python
 
+from email import iterators
+from itertools import count
+from ssl import OPENSSL_VERSION_INFO
 import sys
 import os
 import subprocess
@@ -9,12 +12,46 @@ import json
 import gzip
 from airium import Airium
 
-
+# Pokrivenost celog projekta JEDNIM testom
 class ProjectCodeCoverage:
 
-     def __init__(self):
-        pass
+    def __init__(self, projectDirectory, test, command, commandArgs, coverageInfoDest):
+        
+        self.projectDirectory = os.path.join(projectDirectory, "")
+        self.test = test
+        self.command = command
+        self.commandArgs = commandArgs
+        self.coverageInfoDest = os.path.join(coverageInfoDest, "")
 
+        self.sourceFiles = []        
+        self.numOfSourceFiles = 0
+        self.reports = {}
+
+    def runTest(self):
+        processsRetVal = subprocess.run([self.command, self.test] + self.commandArgs)
+        processsRetVal.check_returncode()
+
+    def searchForGcda(self):
+        counter = 0
+        for root, dirs, files in os.walk(self.projectDirectory):            
+             for file in files:
+                (fileRoot, fileExt) = os.path.splitext(file)
+                if fileExt == ".gcda":
+                    print(os.path.join(root, file))
+                    counter += 1         
+        print(counter)
+    
+    def clearProjectFromGcda(self):
+        for root, dirs, files in os.walk(self.projectDirectory):            
+            for file in files:
+                (fileRoot, fileExt) = os.path.splitext(file)
+                if fileExt == ".gcda":
+                    os.remove(os.path.join(root, file))
+
+    def runProjectCodeCoverage(self):
+            self.clearProjectFromGcda()
+            self.runTest()
+            self.searchForGcda()
 
 class CodeCoverage:
 
@@ -506,6 +543,9 @@ def Main():
     
     parser = argparse.ArgumentParser(description='Run tests and generate code coverage diff.')
     args = parse_program_args(parser)
+    
+    #print(args)
+    #exit()
 
     for i in range(0,len(args.command_arg)):
         if not args.command_arg[i].startswith("-") and args.command_arg[i-1] != '-o':
@@ -541,7 +581,8 @@ def Main():
         htmlReport.generateHtml()
     
     if args.directory_path:
-        pass
+        projectCC = ProjectCodeCoverage(args.directory_path, args.test1, args.command, args.command_arg, args.coverage_dest)
+        projectCC.runProjectCodeCoverage()
     
 if __name__ == "__main__":
   Main()
