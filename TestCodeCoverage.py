@@ -9,6 +9,13 @@ import json
 import gzip
 from airium import Airium
 
+
+class ProjectCodeCoverage:
+
+     def __init__(self):
+        pass
+
+
 class CodeCoverage:
 
     ID = 1
@@ -20,10 +27,11 @@ class CodeCoverage:
         self.command = command
         self.commandArgs = commandArgs
         self.coverageInfoDest = os.path.join(coverageInfoDest, "")        
-        self.objectFileDest = objectFileDest
+        self.objectFileDest = None
 
-        if self.objectFileDest:
-            self.objectFileDest = os.path.join(self.objectFileDest[0], "")
+        if objectFileDest:
+            self.objectFileDest = objectFileDest
+            self.objectFileDest = os.path.join(self.objectFileDest, "")
 
         self.sourceFileNameWithExt = None
         self.sourceFileNameWithNoExt = None
@@ -469,58 +477,71 @@ class HtmlReport:
 
 
 def parse_program_args(parser):
-    parser.add_argument('source_file', metavar='source_file', action="store",
+
+    group = parser.add_mutually_exclusive_group(required=True)
+
+    group.add_argument('--source-file', metavar='source_file', action="store",
                         help='the path to the source file to be tested')
+
+    group.add_argument('--directory-path', metavar='directory_path', action="store",
+                        help="directory to search for all files affected by the test")
+
+    parser.add_argument('--object-path',  metavar='object_path', action="store",
+                        help="if source file is specified and object file is on other place than source file")
+
     parser.add_argument('test1', metavar='test1', action="store",
                         help='the first test to be run (ll file)')
     parser.add_argument('test2', metavar='test2', action="store",
                         help='the second test to be run (ll file)')
     parser.add_argument('coverage_dest', metavar='coverage_dest', action="store",
                         help='directory for storing code coverage information')
-    parser.add_argument('--object-path',  metavar='object_path', action="store", nargs=1,
-                        help="if object file is on other place than source file")
     parser.add_argument('command', metavar='command', action="store",
                         help='command to run the tests')
     parser.add_argument('command_arg', metavar='command_arg', action="store", nargs='*',
                         help='command arguments must be specified in the form -<option>')
+                        
     return parser.parse_args()
 
 def Main():
     
-    parser = argparse.ArgumentParser(description='Run llvm tests and generate code coverage diff.')
+    parser = argparse.ArgumentParser(description='Run tests and generate code coverage diff.')
     args = parse_program_args(parser)
 
     for i in range(0,len(args.command_arg)):
         if not args.command_arg[i].startswith("-") and args.command_arg[i-1] != '-o':
             args.command_arg[i] = "-" + args.command_arg[i]
 
+    if args.source_file:
 
-    test1 = CodeCoverage(args.source_file, args.test1, args.command, args.command_arg, args.coverage_dest, args.object_path)    
-    test2 = CodeCoverage(args.source_file, args.test2, args.command, args.command_arg, args.coverage_dest, args.object_path)
+        test1 = CodeCoverage(args.source_file, args.test1, args.command, args.command_arg, args.coverage_dest, args.object_path)    
+        test2 = CodeCoverage(args.source_file, args.test2, args.command, args.command_arg, args.coverage_dest, args.object_path)
+        
+        try:
+            test1.runCodeCoverage()
+        except Exception as e:
+            print(e)
+            exit()
+
+        try:
+            test2.runCodeCoverage()
+        except Exception as e:
+            print(e)
+            exit()
+        
+        print("\n\n================== Report ========================")
+        print("Lines covered with test1 but not test2:")
+        print(test1.coveredLines.difference(test2.coveredLines))
+        print("Lines covered with test2 but not test1:")
+        print(test2.coveredLines.difference(test1.coveredLines))
+        print("Lines covered with both tests:")
+        print(test1.coveredLines.intersection(test2.coveredLines))
+        print("==================================================")
+
+        htmlReport = HtmlReport(args.source_file, [test1, test2], args.coverage_dest)
+        htmlReport.generateHtml()
     
-    try:
-        test1.runCodeCoverage()
-    except Exception as e:
-        print(e)
-        exit()
-
-    try:
-        test2.runCodeCoverage()
-    except Exception as e:
-        print(e)
-        exit()
-    
-    print("\n\n================== Report ========================")
-    print("Lines covered with test1 but not test2:")
-    print(test1.coveredLines.difference(test2.coveredLines))
-    print("Lines covered with test2 but not test1:")
-    print(test2.coveredLines.difference(test1.coveredLines))
-    print("Lines covered with both tests:")
-    print(test1.coveredLines.intersection(test2.coveredLines))
-    print("==================================================")
-
-    htmlReport = HtmlReport(args.source_file, [test1, test2], args.coverage_dest)
-    htmlReport.generateHtml()
+    if args.directory_path:
+        pass
     
 if __name__ == "__main__":
   Main()
