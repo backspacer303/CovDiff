@@ -1,8 +1,5 @@
 #!/usr/bin/python
 
-from email import iterators
-from itertools import count
-from ssl import OPENSSL_VERSION_INFO
 import sys
 import os
 import subprocess
@@ -15,6 +12,8 @@ from airium import Airium
 # Pokrivenost celog projekta JEDNIM testom
 class ProjectCodeCoverage:
 
+    ID = 1
+
     def __init__(self, projectDirectory, test, command, commandArgs, coverageInfoDest):
         
         self.projectDirectory = os.path.join(projectDirectory, "")
@@ -22,25 +21,173 @@ class ProjectCodeCoverage:
         self.command = command
         self.commandArgs = commandArgs
         self.coverageInfoDest = os.path.join(coverageInfoDest, "")
+    
+        self.ID = ProjectCodeCoverage.ID
+        ProjectCodeCoverage.ID += 1
+
+        self.testResultsDir = os.path.join(self.coverageInfoDest, "test" + str(self.ID))
+
+        # Moze da se desi da postoje dve gcda datoteke sa istim imenom u razlicitim podirekorijumima
+        # Slicno vazi i za gcno
+        # Zato se pri kopiranju/pomeranj gcno/gcda dodaje i ovaj brojcani prefiks
+        self.numOfSameGcdaFileNames = 1 
+        self.numOfSameGcnoFileNames = 1
 
         self.sourceFiles = []        
         self.numOfSourceFiles = 0
         self.reports = {}
 
+    # Pokrece zadati test zadatom komandom
     def runTest(self):
         processsRetVal = subprocess.run([self.command, self.test] + self.commandArgs)
         processsRetVal.check_returncode()
-
-    def searchForGcda(self):
-        counter = 0
-        for root, dirs, files in os.walk(self.projectDirectory):            
-             for file in files:
-                (fileRoot, fileExt) = os.path.splitext(file)
-                if fileExt == ".gcda":
-                    print(os.path.join(root, file))
-                    counter += 1         
-        print(counter)
     
+    # Vrsi pretragu svih gcda datoteka u direktorijumu projekta nakon pokretanja testa.
+    # Svaku od pronadjenih kopira u direktorijum sa rezultatima zajedno sa odgovarajucom gcno datotekom,
+    # pokrece gcov alat, parsira i pamti rezultate
+    def searchForGcda(self):
+        
+        counter = 0
+
+        for root, dirs, files in os.walk(self.projectDirectory, followlinks=False):            
+             
+            for file in files:
+                
+                (fileRoot, fileExt) = os.path.splitext(file)
+                
+                if fileExt == ".gcda":
+                    
+                    gcnoAbsPath = os.path.join(root, fileRoot + ".gcno")
+                    gcdaAbsPath = os.path.join(root, file)                    
+
+                    self.checkIfGcnoExists(gcnoAbsPath, gcdaAbsPath)
+                    self.copyGcno(gcnoAbsPath)
+                    gcda = self.moveGcda(gcdaAbsPath) #vraca apsolutnu putanju do gcda datoteke, pomerene u dir. sa rezultatima
+                    
+                    report = self.runGcov(gcda)
+
+                    self.parseJsonResults(report)
+
+                    counter += 1
+
+        print(counter)    
+
+
+
+
+    # TODO 
+    # Obradjuje json izvestaj za jednu datoteku i cuva informacije u mapi
+    # TODO Obavezno izvuci naziv izvorne datoteke
+    def parseJsonResults(self, report):
+        pass
+
+
+    # Pokrece gcov alat 
+    def runGcov(self, gcda):
+        
+        name = os.path.basename(gcda)        
+
+        currentWorkDir = os.getcwd()
+        os.chdir(self.testResultsDir)  # Kako bi se json fajl generisao u direktorijumu sa rezultatima nakon poziva gcov   
+        
+        processsRetVal = subprocess.run(["gcov", "--no-output", "--json-format", "--branch-probabilities", name],
+                                        stdout=subprocess.DEVNULL,
+                                        stderr=subprocess.DEVNULL
+                                       )
+
+        processsRetVal.check_returncode()
+
+        os.chdir(currentWorkDir)
+
+        # Pravi se ptanja do nastale arhive sa rezultatom nakon poziva gcov alata
+        # i putanja do buduce json datoteke u kojoj ce da se zapamti procitan rezultat
+        archiveName = os.path.join(self.testResultsDir, name + ".gcov.json.gz")
+        jsonReportFileName = os.path.join(self.testResultsDir, name + ".json")
+        
+        # Putanje se prosledjuju metodi readArchiveAndSaveJson() koja vraca ucitani json objekat
+        # pa se taj objekat vraca i iz ove metode
+        return self.readArchiveAndSaveJson(archiveName, jsonReportFileName)
+    
+    # Otvara arhivu i cita json izvesraj iz nje,
+    # pamti json objekat u datoteci na prosedjenoj putanji i
+    # vraca procitani json objekat
+    def readArchiveAndSaveJson(self, archiveName, jsonReportFileName):               
+        
+        if not os.path.exists(archiveName):
+            raise Exception("ERROR: archive that contains json report does not exist")
+
+        with gzip.open(archiveName, 'rb') as f:
+            report = json.load(f)
+        
+        os.remove(archiveName)        
+
+        with open(jsonReportFileName, 'w') as f:
+            json.dump(report, f, indent=4)
+
+        return report
+               
+    
+    # Pomera se gcda datoteku u direktorijum sa rezultatima.
+    # Vrsi se pomeranje kako datoteka ne bi zaostala u projektu i uticala na pokretanje narednih testova
+    def moveGcda(self, gcdaAbsPath):
+
+        base = os.path.basename(gcdaAbsPath)
+        (root, ext) = os.path.splitext(base)
+
+        destination = os.path.join(self.testResultsDir, root + "_test" + str(self.ID) + ext) 
+
+        # Moze da se desi da dve gcda datoteke imaju isto ime a razlicit root pa i da u direktorijumu sa
+        # rezultatima vec postoji datoteka pod "destination" imenom.
+        # U tom slucaju dodaje se jos jedan brojcani sufiks 
+        if os.path.exists(destination):
+            destination = os.path.join(self.testResultsDir, root + "_" + str(self.numOfSameGcdaFileNames) +
+                                                 "_test" + str(self.ID) + ext)
+            self.numOfSameGcdaFileNames += 1 
+
+        shutil.move(gcdaAbsPath, destination)
+
+        # Vraca se nova gcda datoteka kako bi se dalje u programu prosledila gcov alatu
+        return destination
+
+    # Kopiramo gcno datoteku u direktorijum sa rezultatima
+    def copyGcno(self, gcnoAbsPath):
+
+        base = os.path.basename(gcnoAbsPath)
+        (root, ext) = os.path.splitext(base)
+
+        destination = os.path.join(self.testResultsDir, root + "_test" + str(self.ID) + ext)
+
+        # Moze da se desi da dve gcno datoteke imaju isto ime a razlicit root pa i da u direktorijumu sa
+        # rezultatima vec postoji datoteka pod "destination" imenom.
+        # U tom slucaju dodaje se jos jedan brojcani sufiks 
+        if os.path.exists(destination):
+            destination = os.path.join(self.testResultsDir, root + "_" + str(self.numOfSameGcnoFileNames) + 
+                                            "_test" + str(self.ID) + ext)
+            self.numOfSameGcnoFileNames += 1
+
+        shutil.copy2(gcnoAbsPath, destination)
+        
+    # Provera da li postoji gcno datoteka za pronadjenu gcda datoteku
+    def checkIfGcnoExists(self, gcnoAbsPath, gcdaAbsPath):
+        if not os.path.exists(gcnoAbsPath):
+            print(gcnoAbsPath)
+            raise Exception("ERROR: gcno file does not exists in project directory (Gcda file found here:  " + gcdaAbsPath + ")")                
+
+    # Pravi se direktorijum u kojem ce da se pamte svi rezultati
+    def makeCoverageInfoDestDir(self):
+        if not os.path.exists(self.coverageInfoDest):
+            try:
+                os.mkdir(self.coverageInfoDest)
+            except OSError as e:
+                print(e) 
+    
+    # Pravi se folder u koji ce da se sacuvaju gcda, gcno i json datoteke
+    def makeTestResultsDir(self):        
+        if os.path.isdir(self.testResultsDir):
+            raise Exception("ERROR: " + "test" + str(self.ID) + "/" + " directory alredy exists in " + self.coverageInfoDest)
+        os.mkdir(self.testResultsDir)
+
+    # Cisti se ceo projekat od prethodnih pokretanja testova
     def clearProjectFromGcda(self):
         for root, dirs, files in os.walk(self.projectDirectory):            
             for file in files:
@@ -48,10 +195,30 @@ class ProjectCodeCoverage:
                 if fileExt == ".gcda":
                     os.remove(os.path.join(root, file))
 
+    # Samo za debagovanje - IZBRISATI
+    def countGcda(self):
+        counter = 0 
+        for root, dirs, files in os.walk(self.projectDirectory):            
+            for file in files:
+                (fileRoot, fileExt) = os.path.splitext(file)
+                if fileExt == ".gcda":
+                    counter += 1
+        print("Counted gcda:", counter)
+
+    # Ulazna metoda.
+    # Pokrece ceo proces generisanja izvestaja nad projektom
     def runProjectCodeCoverage(self):
-            self.clearProjectFromGcda()
+            #self.clearProjectFromGcda()
+            self.countGcda()
             self.runTest()
+            self.countGcda()
+            self.makeCoverageInfoDestDir()
+            self.makeTestResultsDir()
             self.searchForGcda()
+
+
+#--------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------------
 
 class CodeCoverage:
 
@@ -581,8 +748,14 @@ def Main():
         htmlReport.generateHtml()
     
     if args.directory_path:
+
         projectCC = ProjectCodeCoverage(args.directory_path, args.test1, args.command, args.command_arg, args.coverage_dest)
-        projectCC.runProjectCodeCoverage()
+        
+        try:
+            projectCC.runProjectCodeCoverage()
+        except Exception as e:
+            print(e)
+            exit()
     
 if __name__ == "__main__":
   Main()
