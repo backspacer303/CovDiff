@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+from logging import root
 import sys
 import os
 import subprocess
@@ -8,6 +9,27 @@ import shutil
 import json
 import gzip
 from airium import Airium
+
+class CUCoverageInformation:
+
+    def __init__(self):
+        self.name = None
+        self.report = None        
+        self.linesOfInterest = None # Sve linije iz izvestaja ali ne nuzno sve linije izvornog koda
+        self.coveredLines = None
+        self.lineHitCount = None        
+        self.coveredFunctions = None
+        self.functionHitCount = None
+    
+    def __str__(self):
+        CUstr = ""
+        CUstr += self.name + "\n"        
+        CUstr += "Covered lines: " + str(self.coveredLines) + "\n"
+        CUstr += "Function hit count:" + "\n"
+        for fName, count in self.functionHitCount.items():
+            CUstr += "\t" + fName + "  ----->  " + str(count) + "\n"
+        
+        return CUstr
 
 # Pokrivenost celog projekta JEDNIM testom
 class ProjectCodeCoverage:
@@ -29,13 +51,16 @@ class ProjectCodeCoverage:
 
         # Moze da se desi da postoje dve gcda datoteke sa istim imenom u razlicitim podirekorijumima
         # Slicno vazi i za gcno
-        # Zato se pri kopiranju/pomeranj gcno/gcda dodaje i ovaj brojcani prefiks
+        # Zato se pri kopiranju/pomeranj gcno/gcda dodaje i ovaj brojcani sufiks
         self.numOfSameGcdaFileNames = 1 
         self.numOfSameGcnoFileNames = 1
 
-        self.sourceFiles = []        
-        self.numOfSourceFiles = 0
-        self.reports = {}
+        # Moguce ekstenzije za naziv datoteke sa izvornim kodom jedne kompilacione jedinice
+        # Videti funkciju parseJsonReport()
+        self.sourceFilesPossibleExtensions = [".cpp", ".c", ".cc"]
+
+        # Lista objekata sa informacijama o pokrivenosti za svaku kompilacionu jedinicu
+        self.reports = []
 
     # Pokrece zadati test zadatom komandom
     def runTest(self):
@@ -66,21 +91,77 @@ class ProjectCodeCoverage:
                     
                     report = self.runGcov(gcda)
 
-                    self.parseJsonResults(report)
+                    self.parseJsonReport(report)
 
                     counter += 1
 
         print(counter)    
+        
 
+    def parseJsonReport(self, report):
+        
+        CUCovInfo = CUCoverageInformation()
+        
+        CUCovInfo.linesOfInterest = set()
+        CUCovInfo.coveredLines = set()        
+        CUCovInfo.coveredFunctions = set()
+        CUCovInfo.lineHitCount = {}
+        CUCovInfo.functionHitCount = {}
 
+        CUCovInfo.report = report
 
+        for key in report:
+            
+            if key == "files":
 
-    # TODO 
-    # Obradjuje json izvestaj za jednu datoteku i cuva informacije u mapi
-    # TODO Obavezno izvuci naziv izvorne datoteke
-    def parseJsonResults(self, report):
-        pass
+                files = report[key]
 
+                for fileInfo in files:
+
+                    sourceFileName = fileInfo["file"]
+
+                    # U izvestaju postoji samo jedan objekat koji se odnosi na kompilacionu jedinicu,
+                    # njegovo polje "file" sadrzi naziv (tj putanju do) datoteke sa izvornim kodom.  
+                    # Svi ostali objekti se odnose na heder datoteke koje su ukljucene u izvornu datoteku.
+                    # Ime datoteke sa izvornim kodom se prepoznaje po eksteniziji: ".c", ".cpp" ili ".cc"
+                    
+                    (root, ext) = os.path.splitext(sourceFileName)
+
+                    if ext in self.sourceFilesPossibleExtensions:
+                        
+                        # Pamti se naziv datoteke sa izvornim kodom koja odgovara kompilacionoj jedinici
+                        CUCovInfo.name = sourceFileName
+
+                        # Prolazi se kroz sve linije u izvestaju
+                        lines = fileInfo["lines"]
+                        for line in lines:
+                            
+                            # Sve linije koje postoje u izvestaju su linije od interesa.
+                            # To nisu nuzno sve linije izvornog koda
+                            CUCovInfo.linesOfInterest.add(line["line_number"])
+
+                            # Za svaku liniju od interesa pamti se i koliko je puta izvrsena,
+                            # sto moze biti nula ili vise
+                            CUCovInfo.lineHitCount[line["line_number"]] = line["count"]
+
+                            # Linija se dodaje u skup pokrivenih linija ako je barem jednom izvrsena
+                            if line["count"] != 0:
+                                CUCovInfo.coveredLines.add(line["line_number"])
+                            
+                        # Prolazi se kroz sve funkcije u izvestaju 
+                        functions = fileInfo["functions"]
+                        for function in functions:
+                            
+                            # Za svaku funkciju se pamti koliko je puta izvrsena (pozvana)
+                            # sto moze biti nula ili vise puta
+                            CUCovInfo.functionHitCount[function["name"]] = function["execution_count"]
+                            
+                            # Funkcija se dodaje u skup pokrivenih funkcija ako je baren jednom izvrsena
+                            if function["execution_count"] != 0:
+                                CUCovInfo.coveredFunctions.add(function["name"])
+        
+        # Pamti se objekat sa informacijama o pokrivenosti koda za tekucu kompilacionu jedinicu
+        self.reports.append(CUCovInfo)                    
 
     # Pokrece gcov alat 
     def runGcov(self, gcda):
@@ -205,16 +286,24 @@ class ProjectCodeCoverage:
                     counter += 1
         print("Counted gcda:", counter)
 
+    # Samo za debagovanje - IZBRISATI
+    def printInfoForFile(self, name):
+        for CUReport in self.reports:
+            if CUReport.name == name:
+                print(CUReport)
+
+
     # Ulazna metoda.
     # Pokrece ceo proces generisanja izvestaja nad projektom
     def runProjectCodeCoverage(self):
-            #self.clearProjectFromGcda()
+            self.clearProjectFromGcda()
             self.countGcda()
             self.runTest()
             self.countGcda()
             self.makeCoverageInfoDestDir()
             self.makeTestResultsDir()
             self.searchForGcda()
+            self.printInfoForFile("/home/syrmia/Desktop/llvm-project/llvm/tools/opt/NewPMDriver.cpp")
 
 
 #--------------------------------------------------------------------------------------------------------
