@@ -1,6 +1,5 @@
 #!/usr/bin/python
 
-from logging import root
 import sys
 import os
 import subprocess
@@ -13,8 +12,7 @@ from airium import Airium
 class CUCoverageInformation:
 
     def __init__(self):
-        self.name = None
-        self.report = None        
+        self.name = None       
         self.linesOfInterest = None # Sve linije iz izvestaja ali ne nuzno sve linije izvornog koda
         self.coveredLines = None
         self.lineHitCount = None        
@@ -36,35 +34,36 @@ class ProjectCodeCoverage:
 
     ID = 1
 
-    def __init__(self, projectDirectory, test, command, commandArgs, coverageInfoDest):
+    def __init__(self, projectDirectory, test, command, commandArgs, coverageInfoDest, targetSourceFile, objectPath):
         
         self.projectDirectory = os.path.join(projectDirectory, "")
         self.test = test
         self.command = command
         self.commandArgs = commandArgs
         self.coverageInfoDest = os.path.join(coverageInfoDest, "")
-    
+
+        self.targetSourceFile = targetSourceFile
+        self.objectPath= objectPath
+
         self.ID = ProjectCodeCoverage.ID
         ProjectCodeCoverage.ID += 1
 
         self.testResultsDir = os.path.join(self.coverageInfoDest, "test" + str(self.ID))
 
         # Moze da se desi da postoje dve gcda datoteke sa istim imenom u razlicitim podirekorijumima
-        # Slicno vazi i za gcno
-        # Zato se pri kopiranju/pomeranj gcno/gcda dodaje i ovaj brojcani sufiks
-        self.numOfSameGcdaFileNames = 1 
-        self.numOfSameGcnoFileNames = 1
-
-        # Moguce ekstenzije za naziv datoteke sa izvornim kodom jedne kompilacione jedinice
-        # Videti funkciju parseJsonReport()
-        self.sourceFilesPossibleExtensions = [".cpp", ".c", ".cc"]
+        # Slicno vazi i za gcno. Tada ce i json datoteke sa rezultatima imati isti naziv.
+        # Zato se pri formiranju json datoteke dodaje i ovaj brojcani sufiks, da se ne bi rezultati pregazili
+        self.numOfSameJsonFileNames = 1
 
         # Lista objekata sa informacijama o pokrivenosti za svaku kompilacionu jedinicu
         self.reports = []
 
     # Pokrece zadati test zadatom komandom
     def runTest(self):
-        processsRetVal = subprocess.run([self.command, self.test] + self.commandArgs)
+        processsRetVal = subprocess.run([self.command, self.test] + self.commandArgs,
+                                        stdout=subprocess.DEVNULL,
+                                        stderr=subprocess.DEVNULL
+                                       )
         processsRetVal.check_returncode()
     
     # Vrsi pretragu svih gcda datoteka u direktorijumu projekta nakon pokretanja testa.
@@ -72,7 +71,7 @@ class ProjectCodeCoverage:
     # pokrece gcov alat, parsira i pamti rezultate
     def searchForGcda(self):
         
-        counter = 0
+        gcdaCounter = 0
 
         for root, dirs, files in os.walk(self.projectDirectory, followlinks=False):            
              
@@ -85,93 +84,95 @@ class ProjectCodeCoverage:
                     gcnoAbsPath = os.path.join(root, fileRoot + ".gcno")
                     gcdaAbsPath = os.path.join(root, file)                    
 
-                    self.checkIfGcnoExists(gcnoAbsPath, gcdaAbsPath)
-                    self.copyGcno(gcnoAbsPath)
-                    gcda = self.moveGcda(gcdaAbsPath) #vraca apsolutnu putanju do gcda datoteke, pomerene u dir. sa rezultatima
+                    self.checkIfGcnoExists(gcnoAbsPath, gcdaAbsPath)                    
                     
-                    report = self.runGcov(gcda)
+                    report = self.runGcov(gcdaAbsPath)
 
                     self.parseJsonReport(report)
 
-                    counter += 1
+                    gcdaCounter += 1
 
-        print(counter)    
-        
+        print("Gcda Counter:", gcdaCounter)
+        print("Len of reports list:", len(self.reports))
+        mappedToNames_it = map(lambda r: r.name, self.reports)
+        mappedToNames = list(mappedToNames_it)
+        mappToNames_unique = set(mappedToNames)
+        print("Num of unique source files:", len(mappToNames_unique))
+        if self.targetSourceFile:
+            print(mappToNames_unique)
 
-    def parseJsonReport(self, report):
-        
-        CUCovInfo = CUCoverageInformation()
-        
-        CUCovInfo.linesOfInterest = set()
-        CUCovInfo.coveredLines = set()        
-        CUCovInfo.coveredFunctions = set()
-        CUCovInfo.lineHitCount = {}
-        CUCovInfo.functionHitCount = {}
-
-        CUCovInfo.report = report
-
+    def parseJsonReport(self, report):    
+      
         for key in report:
             
             if key == "files":
 
                 files = report[key]
-
+                                
                 for fileInfo in files:
 
-                    sourceFileName = fileInfo["file"]
-
-                    # U izvestaju postoji samo jedan objekat koji se odnosi na kompilacionu jedinicu,
-                    # njegovo polje "file" sadrzi naziv (tj putanju do) datoteke sa izvornim kodom.  
-                    # Svi ostali objekti se odnose na heder datoteke koje su ukljucene u izvornu datoteku.
-                    # Ime datoteke sa izvornim kodom se prepoznaje po eksteniziji: ".c", ".cpp" ili ".cc"
-                    
-                    (root, ext) = os.path.splitext(sourceFileName)
-
-                    if ext in self.sourceFilesPossibleExtensions:
-                        
-                        # Pamti se naziv datoteke sa izvornim kodom koja odgovara kompilacionoj jedinici
-                        CUCovInfo.name = sourceFileName
-
-                        # Prolazi se kroz sve linije u izvestaju
-                        lines = fileInfo["lines"]
-                        for line in lines:
-                            
-                            # Sve linije koje postoje u izvestaju su linije od interesa.
-                            # To nisu nuzno sve linije izvornog koda
-                            CUCovInfo.linesOfInterest.add(line["line_number"])
-
-                            # Za svaku liniju od interesa pamti se i koliko je puta izvrsena,
-                            # sto moze biti nula ili vise
-                            CUCovInfo.lineHitCount[line["line_number"]] = line["count"]
-
-                            # Linija se dodaje u skup pokrivenih linija ako je barem jednom izvrsena
-                            if line["count"] != 0:
-                                CUCovInfo.coveredLines.add(line["line_number"])
-                            
-                        # Prolazi se kroz sve funkcije u izvestaju 
-                        functions = fileInfo["functions"]
-                        for function in functions:
-                            
-                            # Za svaku funkciju se pamti koliko je puta izvrsena (pozvana)
-                            # sto moze biti nula ili vise puta
-                            CUCovInfo.functionHitCount[function["name"]] = function["execution_count"]
-                            
-                            # Funkcija se dodaje u skup pokrivenih funkcija ako je baren jednom izvrsena
-                            if function["execution_count"] != 0:
-                                CUCovInfo.coveredFunctions.add(function["name"])
+                    CUCovInfo = CUCoverageInformation()
         
-        # Pamti se objekat sa informacijama o pokrivenosti koda za tekucu kompilacionu jedinicu
-        self.reports.append(CUCovInfo)                    
+                    CUCovInfo.linesOfInterest = set()
+                    CUCovInfo.coveredLines = set()        
+                    CUCovInfo.coveredFunctions = set()
+                    CUCovInfo.lineHitCount = {}
+                    CUCovInfo.functionHitCount = {}                    
+
+                    sourceFileName = fileInfo["file"]                                    
+                    
+                    # Pamti se naziv datoteke sa izvornim kodom koja odgovara kompilacionoj jedinici
+                    CUCovInfo.name = sourceFileName
+
+                                        
+                    # Ako je zadata opcija --source-file preskacu se sve kompilacione  jedinice
+                    # cije se ime ne poklapa sa imenom zatadim tom opcijom
+                    if self.targetSourceFile != None and self.targetSourceFile != sourceFileName:                        
+                        continue
+                    
+                    if self.targetSourceFile:
+                        print("sourceFile", self.targetSourceFile)
+                        print("CUCovInfo.name", CUCovInfo.name )
+
+
+                    # Prolazi se kroz sve linije u izvestaju
+                    lines = fileInfo["lines"]
+                    for line in lines:
+                        
+                        # Sve linije koje postoje u izvestaju su linije od interesa.
+                        # To nisu nuzno sve linije izvornog koda
+                        CUCovInfo.linesOfInterest.add(line["line_number"])
+
+                        # Za svaku liniju od interesa pamti se i koliko je puta izvrsena,
+                        # sto moze biti nula ili vise
+                        CUCovInfo.lineHitCount[line["line_number"]] = line["count"]
+
+                        # Linija se dodaje u skup pokrivenih linija ako je barem jednom izvrsena
+                        if line["count"] != 0:
+                            CUCovInfo.coveredLines.add(line["line_number"])
+                        
+                    # Prolazi se kroz sve funkcije u izvestaju 
+                    functions = fileInfo["functions"]
+                    for function in functions:
+                        
+                        # Za svaku funkciju se pamti koliko je puta izvrsena (pozvana)
+                        # sto moze biti nula ili vise puta
+                        CUCovInfo.functionHitCount[function["name"]] = function["execution_count"]
+                        
+                        # Funkcija se dodaje u skup pokrivenih funkcija ako je baren jednom izvrsena
+                        if function["execution_count"] != 0:
+                            CUCovInfo.coveredFunctions.add(function["name"])
+        
+                    # Pamti se objekat sa informacijama o pokrivenosti koda za tekucu kompilacionu jedinicu
+                    self.reports.append(CUCovInfo)                    
 
     # Pokrece gcov alat 
-    def runGcov(self, gcda):
-        
-        name = os.path.basename(gcda)        
+    def runGcov(self, gcda):                        
 
         currentWorkDir = os.getcwd()
         os.chdir(self.testResultsDir)  # Kako bi se json fajl generisao u direktorijumu sa rezultatima nakon poziva gcov   
         
-        processsRetVal = subprocess.run(["gcov", "--no-output", "--json-format", "--branch-probabilities", name],
+        processsRetVal = subprocess.run(["gcov", "--no-output", "--json-format", "--branch-probabilities", gcda],
                                         stdout=subprocess.DEVNULL,
                                         stderr=subprocess.DEVNULL
                                        )
@@ -180,10 +181,18 @@ class ProjectCodeCoverage:
 
         os.chdir(currentWorkDir)
 
+        name = os.path.basename(gcda)
+
         # Pravi se ptanja do nastale arhive sa rezultatom nakon poziva gcov alata
         # i putanja do buduce json datoteke u kojoj ce da se zapamti procitan rezultat
         archiveName = os.path.join(self.testResultsDir, name + ".gcov.json.gz")
         jsonReportFileName = os.path.join(self.testResultsDir, name + ".json")
+        
+        # Ukoliko je vec pronadjena gcda datoteka sa imenom "name"
+        # Tada se menja naziv json dodavanjem brojcanog sufiksa datoteke da se ne bi pregazili rezultati 
+        if os.path.exists(jsonReportFileName):
+            jsonReportFileName = os.path.join(self.testResultsDir, name + str(self.numOfSameJsonFileNames) + ".json")
+            self.numOfSameJsonFileNames += 1
         
         # Putanje se prosledjuju metodi readArchiveAndSaveJson() koja vraca ucitani json objekat
         # pa se taj objekat vraca i iz ove metode
@@ -205,48 +214,7 @@ class ProjectCodeCoverage:
         with open(jsonReportFileName, 'w') as f:
             json.dump(report, f, indent=4)
 
-        return report
-               
-    
-    # Pomera se gcda datoteku u direktorijum sa rezultatima.
-    # Vrsi se pomeranje kako datoteka ne bi zaostala u projektu i uticala na pokretanje narednih testova
-    def moveGcda(self, gcdaAbsPath):
-
-        base = os.path.basename(gcdaAbsPath)
-        (root, ext) = os.path.splitext(base)
-
-        destination = os.path.join(self.testResultsDir, root + "_test" + str(self.ID) + ext) 
-
-        # Moze da se desi da dve gcda datoteke imaju isto ime a razlicit root pa i da u direktorijumu sa
-        # rezultatima vec postoji datoteka pod "destination" imenom.
-        # U tom slucaju dodaje se jos jedan brojcani sufiks 
-        if os.path.exists(destination):
-            destination = os.path.join(self.testResultsDir, root + "_" + str(self.numOfSameGcdaFileNames) +
-                                                 "_test" + str(self.ID) + ext)
-            self.numOfSameGcdaFileNames += 1 
-
-        shutil.move(gcdaAbsPath, destination)
-
-        # Vraca se nova gcda datoteka kako bi se dalje u programu prosledila gcov alatu
-        return destination
-
-    # Kopiramo gcno datoteku u direktorijum sa rezultatima
-    def copyGcno(self, gcnoAbsPath):
-
-        base = os.path.basename(gcnoAbsPath)
-        (root, ext) = os.path.splitext(base)
-
-        destination = os.path.join(self.testResultsDir, root + "_test" + str(self.ID) + ext)
-
-        # Moze da se desi da dve gcno datoteke imaju isto ime a razlicit root pa i da u direktorijumu sa
-        # rezultatima vec postoji datoteka pod "destination" imenom.
-        # U tom slucaju dodaje se jos jedan brojcani sufiks 
-        if os.path.exists(destination):
-            destination = os.path.join(self.testResultsDir, root + "_" + str(self.numOfSameGcnoFileNames) + 
-                                            "_test" + str(self.ID) + ext)
-            self.numOfSameGcnoFileNames += 1
-
-        shutil.copy2(gcnoAbsPath, destination)
+        return report               
         
     # Provera da li postoji gcno datoteka za pronadjenu gcda datoteku
     def checkIfGcnoExists(self, gcnoAbsPath, gcdaAbsPath):
@@ -303,7 +271,7 @@ class ProjectCodeCoverage:
             self.makeCoverageInfoDestDir()
             self.makeTestResultsDir()
             self.searchForGcda()
-            self.printInfoForFile("/home/syrmia/Desktop/llvm-project/llvm/tools/opt/NewPMDriver.cpp")
+            #self.printInfoForFile("/home/syrmia/Desktop/llvm-project/llvm/tools/opt/NewPMDriver.cpp")
 
 
 #--------------------------------------------------------------------------------------------------------
@@ -771,13 +739,13 @@ class HtmlReport:
 
 def parse_program_args(parser):
 
-    group = parser.add_mutually_exclusive_group(required=True)
+    #group = parser.add_mutually_exclusive_group(required=True)
 
-    group.add_argument('--source-file', metavar='source_file', action="store",
-                        help='the path to the source file to be tested')
+    parser.add_argument('directory_path', metavar='directory_path', action="store",
+                    help="directory to search for all files affected by the test")
 
-    group.add_argument('--directory-path', metavar='directory_path', action="store",
-                        help="directory to search for all files affected by the test")
+    parser.add_argument('--source-file', metavar='source_file', action="store",
+                        help='the path to the source file of intrest')
 
     parser.add_argument('--object-path',  metavar='object_path', action="store",
                         help="if source file is specified and object file is on other place than source file")
@@ -807,38 +775,38 @@ def Main():
         if not args.command_arg[i].startswith("-") and args.command_arg[i-1] != '-o':
             args.command_arg[i] = "-" + args.command_arg[i]
 
-    if args.source_file:
+    # if args.source_file:
 
-        test1 = CodeCoverage(args.source_file, args.test1, args.command, args.command_arg, args.coverage_dest, args.object_path)    
-        test2 = CodeCoverage(args.source_file, args.test2, args.command, args.command_arg, args.coverage_dest, args.object_path)
+    #     test1 = CodeCoverage(args.source_file, args.test1, args.command, args.command_arg, args.coverage_dest, args.object_path)    
+    #     test2 = CodeCoverage(args.source_file, args.test2, args.command, args.command_arg, args.coverage_dest, args.object_path)
         
-        try:
-            test1.runCodeCoverage()
-        except Exception as e:
-            print(e)
-            exit()
+    #     try:
+    #         test1.runCodeCoverage()
+    #     except Exception as e:
+    #         print(e)
+    #         exit()
 
-        try:
-            test2.runCodeCoverage()
-        except Exception as e:
-            print(e)
-            exit()
+    #     try:
+    #         test2.runCodeCoverage()
+    #     except Exception as e:
+    #         print(e)
+    #         exit()
         
-        print("\n\n================== Report ========================")
-        print("Lines covered with test1 but not test2:")
-        print(test1.coveredLines.difference(test2.coveredLines))
-        print("Lines covered with test2 but not test1:")
-        print(test2.coveredLines.difference(test1.coveredLines))
-        print("Lines covered with both tests:")
-        print(test1.coveredLines.intersection(test2.coveredLines))
-        print("==================================================")
+    #     print("\n\n================== Report ========================")
+    #     print("Lines covered with test1 but not test2:")
+    #     print(test1.coveredLines.difference(test2.coveredLines))
+    #     print("Lines covered with test2 but not test1:")
+    #     print(test2.coveredLines.difference(test1.coveredLines))
+    #     print("Lines covered with both tests:")
+    #     print(test1.coveredLines.intersection(test2.coveredLines))
+    #     print("==================================================")
 
-        htmlReport = HtmlReport(args.source_file, [test1, test2], args.coverage_dest)
-        htmlReport.generateHtml()
+    #     htmlReport = HtmlReport(args.source_file, [test1, test2], args.coverage_dest)
+    #     htmlReport.generateHtml()
     
     if args.directory_path:
 
-        projectCC = ProjectCodeCoverage(args.directory_path, args.test1, args.command, args.command_arg, args.coverage_dest)
+        projectCC = ProjectCodeCoverage(args.directory_path, args.test1, args.command, args.command_arg, args.coverage_dest, args.source_file, args.object_path)
         
         try:
             projectCC.runProjectCodeCoverage()
