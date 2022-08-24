@@ -12,6 +12,7 @@ from airium import Airium
 class CUCoverageInformation:
 
     def __init__(self):
+
         self.name = None       
         self.linesOfInterest = None # Sve linije iz izvestaja ali ne nuzno sve linije izvornog koda
         self.coveredLines = None
@@ -20,14 +21,77 @@ class CUCoverageInformation:
         self.functionHitCount = None
     
     def __str__(self):
+
         CUstr = ""
         CUstr += self.name + "\n"        
         CUstr += "Covered lines: " + str(self.coveredLines) + "\n"
         CUstr += "Function hit count:" + "\n"
         for fName, count in self.functionHitCount.items():
             CUstr += "\t" + fName + "  ----->  " + str(count) + "\n"
-        
         return CUstr
+
+
+class MiniReport:
+
+    def __init__(self, gcdaCounter, reports):
+        
+        # Broj pronadjenih gcda datoteka
+        self.gcdaCounter = gcdaCounter
+        # Ukupan broj procitanih izvestaja
+        self.numOfReports = None
+        # Broj datoteka koje pogadja test
+        self.numOfUniqueFiles = None
+        # Ekstenzije datoteka koje pogadja test
+        self.fileExtensions = None
+        # Broj datoteka po svakoj ekstenziji
+        self.extensionsCounter = None
+        
+        self.makeReport(reports)
+
+    def makeReport(self, reports):
+
+        self.numOfReports = len(reports)
+
+        # Mapiraju se CUCoverageInformation u imena datoteka koja sadrze
+        # Koristi se skup da se uklone duplikati
+        mappedToNames_it = map(lambda r: r.name, reports)
+        mappedToNames = list(mappedToNames_it)
+        uniqeFileNames = set(mappedToNames)
+        self.numOfUniqueFiles = len(uniqeFileNames)
+        
+        # Pomocna funkcija koja vraca ekstenziju imena datoteke
+        def toExt(e):
+            (root, extension) = os.path.splitext(e)
+            return extension
+
+        # Mapiraju se dobijena imena datoteka u ekstenzije
+        # Koristi se skup da se ukolne duplikati
+        mappedToExt_it = map(lambda e: toExt(e), mappedToNames)
+        mappedToExt = list(mappedToExt_it)        
+        self.fileExtensions = set(mappedToExt)
+
+        # Za svkau eksteniziju se pamti koliko datoteka se njome zavrsava
+        self.extensionsCounter = {}
+        for name in uniqeFileNames:
+            extension = toExt(name)            
+            if extension in self.extensionsCounter.keys():
+                self.extensionsCounter[extension] += 1
+            else:
+                self.extensionsCounter[extension] = 1
+        
+        self.printReport()        
+
+    def printReport(self):
+        print("=========================== Mini Report ===========================")
+        print("Gcda Counter:", self.gcdaCounter)
+        print("Number of reports:", self.numOfReports)
+        print("Number of unique files affected by test:", self.numOfUniqueFiles)
+        print("Extensions of the affected files:", self.fileExtensions)
+        print("Extensions counter:")
+        for key, value in self.extensionsCounter.items():
+            print("\t" + "\"" + key + "\"" + " : " + str(value))
+        print("===================================================================")
+
 
 # Pokrivenost celog projekta JEDNIM testom
 class ProjectCodeCoverage:
@@ -58,17 +122,21 @@ class ProjectCodeCoverage:
         # Lista objekata sa informacijama o pokrivenosti za svaku kompilacionu jedinicu
         self.reports = []
 
+        # Mali izvestaj o uticaju testa 
+        # Videti klasu MiniReport
+        self.miniReport = None
+
+
     # Pokrece zadati test zadatom komandom
     def runTest(self):
         processsRetVal = subprocess.run([self.command, self.test] + self.commandArgs,
                                         stdout=subprocess.DEVNULL,
                                         stderr=subprocess.DEVNULL
                                        )
-        processsRetVal.check_returncode()
+        processsRetVal.check_returncode()    
     
     # Vrsi pretragu svih gcda datoteka u direktorijumu projekta nakon pokretanja testa.
-    # Svaku od pronadjenih kopira u direktorijum sa rezultatima zajedno sa odgovarajucom gcno datotekom,
-    # pokrece gcov alat, parsira i pamti rezultate
+    # Za svaku od pronadjenih gcda datoteka pokrece gcov alat, parsira i pamti rezultate
     def searchForGcda(self):
         
         gcdaCounter = 0
@@ -92,14 +160,8 @@ class ProjectCodeCoverage:
 
                     gcdaCounter += 1
 
-        print("Gcda Counter:", gcdaCounter)
-        print("Len of reports list:", len(self.reports))
-        mappedToNames_it = map(lambda r: r.name, self.reports)
-        mappedToNames = list(mappedToNames_it)
-        mappToNames_unique = set(mappedToNames)
-        print("Num of unique source files:", len(mappToNames_unique))
-        if self.targetSourceFile:
-            print(mappToNames_unique)
+        self.miniReport = MiniReport(gcdaCounter, self.reports)
+
 
     def parseJsonReport(self, report):    
       
@@ -214,7 +276,7 @@ class ProjectCodeCoverage:
         with open(jsonReportFileName, 'w') as f:
             json.dump(report, f, indent=4)
 
-        return report               
+        return report     
         
     # Provera da li postoji gcno datoteka za pronadjenu gcda datoteku
     def checkIfGcnoExists(self, gcnoAbsPath, gcdaAbsPath):
