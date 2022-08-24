@@ -204,7 +204,8 @@ class ProjectCodeCoverage:
                                         
                     # Ako je zadata opcija --source-file preskacu se sve kompilacione  jedinice
                     # cije se ime ne poklapa sa imenom zatadim tom opcijom
-                    if self.targetSourceFile != None and self.targetSourceFile != sourceFileName:                        
+                    if self.targetSourceFile != None and self.targetSourceFile != sourceFileName:
+                        processedReportsCounter += 1                        
                         continue
                     
                     if self.targetSourceFile:
