@@ -33,16 +33,25 @@ class CUCoverageInformation:
 
 class MiniReport:
 
-    def __init__(self, gcdaCounter, reports):
+    def __init__(self, gcdaCounter, numOfProcessedReports, reports):
         
         # Broj pronadjenih gcda datoteka
         self.gcdaCounter = gcdaCounter
-        # Ukupan broj procitanih izvestaja
-        self.numOfReports = None
+
+        # Broj obradjenih izvestaja 
+        # Ovaj broj je veci od broja gcda datoteka jer jedna gcda datoteka
+        # moze imati izvestaje za vise izvornih datoteka
+        self.numOfProcessedReports = numOfProcessedReports
+
+        # Broj sacuvanih CUCoverageInformation objekata
+        self.numOfSavedCUCovInfoObjects = None
+
         # Broj datoteka koje pogadja test
         self.numOfUniqueFiles = None
+
         # Ekstenzije datoteka koje pogadja test
         self.fileExtensions = None
+
         # Broj datoteka po svakoj ekstenziji
         self.extensionsCounter = None
         
@@ -50,7 +59,7 @@ class MiniReport:
 
     def makeReport(self, reports):
 
-        self.numOfReports = len(reports)
+        self.numOfSavedCUCovInfoObjects = len(reports)
 
         # Mapiraju se CUCoverageInformation u imena datoteka koja sadrze
         # Koristi se skup da se uklone duplikati
@@ -82,9 +91,11 @@ class MiniReport:
         self.printReport()        
 
     def printReport(self):
+
         print("=========================== Mini Report ===========================")
         print("Gcda Counter:", self.gcdaCounter)
-        print("Number of reports:", self.numOfReports)
+        print("Number of processed reports:", self.numOfProcessedReports)
+        print("Number of saved CUCovInfo objects:", self.numOfSavedCUCovInfoObjects)
         print("Number of unique files affected by test:", self.numOfUniqueFiles)
         print("Extensions of the affected files:", self.fileExtensions)
         print("Extensions counter:")
@@ -119,8 +130,9 @@ class ProjectCodeCoverage:
         # Zato se pri formiranju json datoteke dodaje i ovaj brojcani sufiks, da se ne bi rezultati pregazili
         self.numOfSameJsonFileNames = 1
 
-        # Lista objekata sa informacijama o pokrivenosti za svaku kompilacionu jedinicu
-        self.reports = []
+        # Mapa objekata sa informacijama o pokrivenosti za svaku kompilacionu jedinicu
+        # Imena datoteka sa izvornim kodom se preslikavaju u reference na CUCoverageInformation objekte 
+        self.reports = {}
 
         # Mali izvestaj o uticaju testa 
         # Videti klasu MiniReport
@@ -140,6 +152,7 @@ class ProjectCodeCoverage:
     def searchForGcda(self):
         
         gcdaCounter = 0
+        numOfProcessedReports = 0
 
         for root, dirs, files in os.walk(self.projectDirectory, followlinks=False):            
              
@@ -156,15 +169,17 @@ class ProjectCodeCoverage:
                     
                     report = self.runGcov(gcdaAbsPath)
 
-                    self.parseJsonReport(report)
+                    numOfProcessedReports += self.parseJsonReport(report)
 
                     gcdaCounter += 1
 
-        self.miniReport = MiniReport(gcdaCounter, self.reports)
+        self.miniReport = MiniReport(gcdaCounter, numOfProcessedReports, self.reports.values())
 
 
     def parseJsonReport(self, report):    
-      
+        
+        processedReportsCounter = 0
+
         for key in report:
             
             if key == "files":
@@ -225,8 +240,67 @@ class ProjectCodeCoverage:
                         if function["execution_count"] != 0:
                             CUCovInfo.coveredFunctions.add(function["name"])
         
-                    # Pamti se objekat sa informacijama o pokrivenosti koda za tekucu kompilacionu jedinicu
-                    self.reports.append(CUCovInfo)                    
+                    # Pamti se objekat sa informacijama o pokrivenosti koda za tekucu kompilacionu jedinicu                                        
+                    self.addReport(CUCovInfo)
+                    processedReportsCounter += 1
+
+        return processedReportsCounter
+
+    
+    def addReport(self, CUCovInfo):
+        
+        fileName = CUCovInfo.name
+
+        # Ukoliko vec postoji obejtak sa informacijama o datoteci sa izvornim kodom tada se
+        # azuriraju informacije koje on sadrzi
+        if fileName in self.reports.keys():
+            
+            # Dohvat se referenca na postojeci objekat sa informacijala o izvornoj datoteci 
+            existingReportRef = self.reports[fileName]
+
+            # Prvai se unija skupa linija od interesa, pokrivenih linija i pokrivenih funkcija
+            existingReportRef.linesOfInterest = existingReportRef.linesOfInterest.union(CUCovInfo.linesOfInterest)
+            existingReportRef.coveredLines = existingReportRef.coveredLines.union(CUCovInfo.coveredLines)
+            existingReportRef.coveredFunctions = existingReportRef.coveredFunctions.union(CUCovInfo.coveredFunctions)
+
+            # Azurira se broj izvrsavanja linija u postojecem objektu
+            # Prolazi se kroz mapu koja cuva broj izvrsavanja svake linije u okviru novog objekta
+            for lineNum, hitCount in CUCovInfo.lineHitCount.items():
+                
+                # Proveravase da li ista ta mapa postojeceg objekta vec sadrzi neku vrednost za broj izvrsavanja tekuce linije
+                if lineNum in existingReportRef.lineHitCount.keys():
+                    
+                    # Ako je to slucaj, postojeci broj izvrsavanja linije se uvecava za vrednost iz novog objekta
+                    existingReportRef.lineHitCount[lineNum] += hitCount
+                
+                else:
+
+                    # Ako to nije slucaj, dodaje se novi par (linija, br.izvrsavanja) u pstojeci objekat sa vrednostima iz novog objekta
+                    existingReportRef.lineHitCount[lineNum] = hitCount
+
+
+            # Azurira se broj izvrsavanja funkcija u postojecem objektu
+            # Prolazi se kroz mapu koja cuva broj izvrsavanja svake funkcije u okviru novog objekta 
+            for fnName, execCount in CUCovInfo.functionHitCount.items():
+                
+                # Proveravase da li ista ta mapa postojeceg objekta vec sadrzi neku vrednost za broj izvrsavanja tekuce funkcije
+                if fnName in existingReportRef.functionHitCount.keys():
+                    
+                    # Ako je to slucaj, postojeci broj izvrsavanja funkcije se uvecava za vrednost iz novog objekta
+                    existingReportRef.functionHitCount[fnName] += execCount
+                
+                else:
+                    
+                    # Ako to nije slucaj, dodaje se novi par (funkcija, br.izvrsavanja) u pstojeci objekat sa vrednostima iz novog objekta
+                    existingReportRef.functionHitCount[fnName] = execCount
+
+        # Ukoliko ne postoji obejtak sa informacijama o datoteci sa izvornim kodom tada se
+        # novi objekat pamti u mapi   
+        else:
+
+            self.reports[fileName] = CUCovInfo
+
+
 
     # Pokrece gcov alat 
     def runGcov(self, gcda):                        
@@ -318,7 +392,7 @@ class ProjectCodeCoverage:
 
     # Samo za debagovanje - IZBRISATI
     def printInfoForFile(self, name):
-        for CUReport in self.reports:
+        for CUReport in self.reports.values():
             if CUReport.name == name:
                 print(CUReport)
 
