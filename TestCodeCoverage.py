@@ -1,6 +1,5 @@
 #!/usr/bin/python
 
-from ntpath import join
 import sys
 import os
 import subprocess
@@ -139,13 +138,6 @@ class ProjectCodeCoverage:
 
         self.ID = ProjectCodeCoverage.ID
         ProjectCodeCoverage.ID += 1
-
-        self.testResultsDir = os.path.join(self.coverageInfoDest, "test" + str(self.ID))
-
-        # Moze da se desi da postoje dve gcda datoteke sa istim imenom u razlicitim podirekorijumima
-        # Slicno vazi i za gcno. Tada ce i json datoteke sa rezultatima imati isti naziv.
-        # Zato se pri formiranju json datoteke dodaje i ovaj brojcani sufiks, da se ne bi rezultati pregazili
-        self.numOfSameJsonFileNames = 1
 
         # Mapa objekata sa informacijama o pokrivenosti za svaku kompilacionu jedinicu
         # Imena datoteka sa izvornim kodom se preslikavaju u reference na CUCoverageInformation objekte 
@@ -393,7 +385,7 @@ class ProjectCodeCoverage:
     def runGcov(self, gcda):                        
 
         currentWorkDir = os.getcwd()
-        os.chdir(self.testResultsDir)  # Kako bi se json fajl generisao u direktorijumu sa rezultatima nakon poziva gcov   
+        os.chdir(self.coverageInfoDest)  # Kako bi se json fajl generisao u direktorijumu sa rezultatima nakon poziva gcov   
         
         processsRetVal = subprocess.run(["gcov", "--no-output", "--json-format", "--branch-probabilities", gcda],
                                         stdout=subprocess.DEVNULL,
@@ -408,23 +400,16 @@ class ProjectCodeCoverage:
 
         # Pravi se ptanja do nastale arhive sa rezultatom nakon poziva gcov alata
         # i putanja do buduce json datoteke u kojoj ce da se zapamti procitan rezultat
-        archiveName = os.path.join(self.testResultsDir, name + ".gcov.json.gz")
-        jsonReportFileName = os.path.join(self.testResultsDir, name + ".json")
-        
-        # Ukoliko je vec pronadjena gcda datoteka sa imenom "name"
-        # Tada se menja naziv json dodavanjem brojcanog sufiksa datoteke da se ne bi pregazili rezultati 
-        if os.path.exists(jsonReportFileName):
-            jsonReportFileName = os.path.join(self.testResultsDir, name + str(self.numOfSameJsonFileNames) + ".json")
-            self.numOfSameJsonFileNames += 1
+        archiveName = os.path.join(self.coverageInfoDest, name + ".gcov.json.gz")
         
         # Putanje se prosledjuju metodi readArchiveAndSaveJson() koja vraca ucitani json objekat
         # pa se taj objekat vraca i iz ove metode
-        return self.readArchiveAndSaveJson(archiveName, jsonReportFileName)
+        return self.readArchiveAndSaveJson(archiveName)
     
     # Otvara arhivu i cita json izvesraj iz nje,
     # pamti json objekat u datoteci na prosedjenoj putanji i
     # vraca procitani json objekat
-    def readArchiveAndSaveJson(self, archiveName, jsonReportFileName):               
+    def readArchiveAndSaveJson(self, archiveName):               
         
         if not os.path.exists(archiveName):
             raise Exception("ERROR: archive that contains json report does not exist")
@@ -433,9 +418,6 @@ class ProjectCodeCoverage:
             report = json.load(f)
         
         os.remove(archiveName)        
-
-        with open(jsonReportFileName, 'w') as f:
-            json.dump(report, f, indent=4)
 
         return report     
         
@@ -451,13 +433,7 @@ class ProjectCodeCoverage:
             try:
                 os.mkdir(self.coverageInfoDest)
             except OSError as e:
-                print(e) 
-    
-    # Pravi se folder u koji ce da se sacuvaju gcda, gcno i json datoteke
-    def makeTestResultsDir(self):        
-        if os.path.isdir(self.testResultsDir):
-            raise Exception("ERROR: " + "test" + str(self.ID) + "/" + " directory alredy exists in " + self.coverageInfoDest)
-        os.mkdir(self.testResultsDir)
+                print(e)     
 
     # Cisti se ceo projekat od prethodnih pokretanja testova
     def clearProjectFromGcda(self):
@@ -492,9 +468,8 @@ class ProjectCodeCoverage:
             self.runTest()
             self.countGcda()
             self.makeCoverageInfoDestDir()
-            self.makeTestResultsDir()
             self.searchForGcda()
-            self.printInfoForFile("/home/syrmia/Desktop/llvm-project/llvm/tools/opt/NewPMDriver.cpp")
+            #self.printInfoForFile("/home/syrmia/Desktop/llvm-project/llvm/tools/opt/NewPMDriver.cpp")
 
 
 #--------------------------------------------------------------------------------------------------------
