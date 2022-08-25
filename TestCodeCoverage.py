@@ -785,45 +785,22 @@ def Main():
     for i in range(0,len(args.command_arg)):
         if not args.command_arg[i].startswith("-") and args.command_arg[i-1] != '-o':
             args.command_arg[i] = "-" + args.command_arg[i]
+            
 
-    # if args.source_file:
-
-    #     test1 = CodeCoverage(args.source_file, args.test1, args.command, args.command_arg, args.coverage_dest, args.object_path)    
-    #     test2 = CodeCoverage(args.source_file, args.test2, args.command, args.command_arg, args.coverage_dest, args.object_path)
-        
-    #     try:
-    #         test1.runCodeCoverage()
-    #     except Exception as e:
-    #         print(e)
-    #         exit()
-
-    #     try:
-    #         test2.runCodeCoverage()
-    #     except Exception as e:
-    #         print(e)
-    #         exit()
-        
-    #     print("\n\n================== Report ========================")
-    #     print("Lines covered with test1 but not test2:")
-    #     print(test1.coveredLines.difference(test2.coveredLines))
-    #     print("Lines covered with test2 but not test1:")
-    #     print(test2.coveredLines.difference(test1.coveredLines))
-    #     print("Lines covered with both tests:")
-    #     print(test1.coveredLines.intersection(test2.coveredLines))
-    #     print("==================================================")
-
-    #     htmlReport = HtmlReport(args.source_file, [test1, test2], args.coverage_dest)
-    #     htmlReport.generateHtml()
+    projectCCTest1 = ProjectCodeCoverage(args.directory_path, args.test1, args.command, args.command_arg, args.coverage_dest, args.source_file, args.object_path)
+    projectCCTest2 = ProjectCodeCoverage(args.directory_path, args.test2, args.command, args.command_arg, args.coverage_dest, args.source_file, args.object_path)
     
-    if args.directory_path:
+    try:
+        projectCCTest1.runProjectCodeCoverage()
+    except Exception as e:
+        print(e)
+        exit()
 
-        projectCC = ProjectCodeCoverage(args.directory_path, args.test1, args.command, args.command_arg, args.coverage_dest, args.source_file, args.object_path)
-        
-        try:
-            projectCC.runProjectCodeCoverage()
-        except Exception as e:
-            print(e)
-            exit()
+    try:
+        projectCCTest2.runProjectCodeCoverage()
+    except Exception as e:
+        print(e)
+        exit()
     
 if __name__ == "__main__":
   Main()
