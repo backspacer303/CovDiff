@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+from ntpath import join
 import sys
 import os
 import subprocess
@@ -33,11 +34,11 @@ class CUCoverageInformation:
 
 class MiniReport:
 
-    def __init__(self, gcdaCounter, numOfProcessedReports, listOfProcessedFileNames, reports):
+    def __init__(self, gcdaCounter, numOfProcessedReports, listOfProcessedFileNames, reports, ifObjectPath):
         
         # Broj pronadjenih gcda datoteka
         self.gcdaCounter = gcdaCounter
-
+    
         # Broj obradjenih izvestaja 
         # Ovaj broj je veci od broja gcda datoteka jer jedna gcda datoteka
         # moze imati izvestaje za vise izvornih datoteka
@@ -56,6 +57,13 @@ class MiniReport:
         # (jedinstvena imena iz liste self.listOfProcessedFileNames)
         self.numOfUniqueFiles = None
 
+        # Ukoliko je na ulazu zadata opcija --object-path ne moze se znati
+        # tacan broj fajlova koje test pokriva jer je obradjena samo jedna
+        # gcda datoteka. Ekvivalentno, u listi self.listOfProcessedFileNames
+        # se tada nalaze samo imena izvornih datoteka iz jedne gcda datoteke
+        # ifObjectPath je indikator za --object-path
+        self.ifObjectPath = ifObjectPath
+
         # Ekstenzije datoteka koje pogadja test
         self.fileExtensions = None
 
@@ -71,6 +79,11 @@ class MiniReport:
         # Koristi se skup da se uklone duplikati
         uniqeFileNames = set(self.listOfProcessedFileNames)
         self.numOfUniqueFiles = len(uniqeFileNames)
+
+        # U slucaju zadate opcije --object-path ne moze se govoriti o 
+        # broju jedinstvenih datoteka koje test pokriva
+        if self.ifObjectPath:
+            self.numOfUniqueFiles = None
         
         # Pomocna funkcija koja vraca ekstenziju imena datoteke
         def toExt(e):
@@ -113,7 +126,7 @@ class ProjectCodeCoverage:
 
     ID = 1
 
-    def __init__(self, projectDirectory, test, command, commandArgs, coverageInfoDest, targetSourceFile, objectPath):
+    def __init__(self, projectDirectory, test, command, commandArgs, coverageInfoDest, targetSourceFile, targetObjectPath):
         
         self.projectDirectory = os.path.join(projectDirectory, "")
         self.test = test
@@ -122,7 +135,7 @@ class ProjectCodeCoverage:
         self.coverageInfoDest = os.path.join(coverageInfoDest, "")
 
         self.targetSourceFile = targetSourceFile
-        self.objectPath= objectPath
+        self.targetObjectPath = targetObjectPath
 
         self.ID = ProjectCodeCoverage.ID
         ProjectCodeCoverage.ID += 1
@@ -159,29 +172,91 @@ class ProjectCodeCoverage:
         numOfProcessedReports = 0
         listOfProcessedFileNames = []
 
-        for root, dirs, files in os.walk(self.projectDirectory, followlinks=False):            
-             
-            for file in files:
+        # Ukoliko su na ulazu zatade obe opcije --source-file i --object-path
+        # ne vrsi se pretraga celog direktorijuma projekta vec se gcda datoteka
+        # trazi direkno na zadatoj --object-path putanji
+        if self.targetSourceFile and self.targetObjectPath:
+            
+            sourceFileBasename = os.path.basename(self.targetSourceFile)
+            (sourceFileRoot, _) = os.path.splitext(sourceFileBasename)
+
+
+            # Ime gcda datoteke moze biti zadato na jedan od sledeca dva nacina:
+            # <sourceFileName>.gcda
+            # ili
+            # <sourceFileName>.<sourceFileExt>.gcda
+            # Proveravaju se oba slucaja a ako gcda datoteka nije pronadjena ni u jednom
+            # prijavljuje se greska
+            gcdaBaseName = sourceFileRoot + ".gcda"
+            gcdaAbsPath = os.path.join(self.targetObjectPath, gcdaBaseName)
+        
+            if not os.path.exists(gcdaAbsPath):
+
+                gcdaBaseName = sourceFileBasename + ".gcda"
+                gcdaAbsPath = os.path.join(self.targetObjectPath, gcdaBaseName)
+
+                if not os.path.exists(gcdaAbsPath):
+
+                    raise Exception("ERROR: No gcda file found at specified object path which corresponds to the source file")
+            
+            # Formira se putanja do gcno datoteke
+            (gcdaRoot, _) = os.path.splitext(gcdaAbsPath)
+            gcnoAbsPath = gcdaRoot + ".gcno"
+
+            # Proverava se da li gcno datoteka postoji
+            self.checkIfGcnoExists(gcnoAbsPath, gcdaAbsPath)
+
+            # Pokrece se gcov alat
+            report = self.runGcov(gcdaAbsPath)
+
+            # Parsira se dobijeni izvestaj
+            (numOfReports, listOfFiles)  = self.parseJsonReport(report)
+
+            numOfProcessedReports += numOfReports
+            listOfProcessedFileNames += listOfFiles
+
+            gcdaCounter += 1
+
+            # # Formira se mali izvestaj 
+            self.miniReport = MiniReport(gcdaCounter, numOfProcessedReports, listOfProcessedFileNames, 
+                                         self.reports.values(), self.targetObjectPath != None
+                                        )
+        
+        # Ukoliko nije zadata --object-path opcija na ulazu,
+        # vrsi se pretraga celog direktorijuma projekta kako bi se pronasle
+        # gcda datoteke
+        else:
+
+            for root, dirs, files in os.walk(self.projectDirectory, followlinks=False):            
                 
-                (fileRoot, fileExt) = os.path.splitext(file)
-                
-                if fileExt == ".gcda":
+                for file in files:
                     
-                    gcnoAbsPath = os.path.join(root, fileRoot + ".gcno")
-                    gcdaAbsPath = os.path.join(root, file)                    
-
-                    self.checkIfGcnoExists(gcnoAbsPath, gcdaAbsPath)                    
+                    (fileRoot, fileExt) = os.path.splitext(file)
                     
-                    report = self.runGcov(gcdaAbsPath)
+                    if fileExt == ".gcda":
+                        
+                        # Formiraju se putanje do gcda i gcno datoteka
+                        gcnoAbsPath = os.path.join(root, fileRoot + ".gcno")
+                        gcdaAbsPath = os.path.join(root, file)                    
 
-                    (numOfReports, listOfFiles)  = self.parseJsonReport(report)
-                    
-                    numOfProcessedReports += numOfReports
-                    listOfProcessedFileNames += listOfFiles
+                        # Proverava se da li gcno datoteka postoji
+                        self.checkIfGcnoExists(gcnoAbsPath, gcdaAbsPath)                    
+                        
+                        # Pokrece se gcov alat
+                        report = self.runGcov(gcdaAbsPath)
 
-                    gcdaCounter += 1
+                        # Parsira se dobijeni izvestaj
+                        (numOfReports, listOfFiles)  = self.parseJsonReport(report)
+                        
+                        numOfProcessedReports += numOfReports
+                        listOfProcessedFileNames += listOfFiles
 
-        self.miniReport = MiniReport(gcdaCounter, numOfProcessedReports, listOfProcessedFileNames, self.reports.values())
+                        gcdaCounter += 1
+            
+            # Formira se mali izvestaj
+            self.miniReport = MiniReport(gcdaCounter, numOfProcessedReports, listOfProcessedFileNames, 
+                                         self.reports.values(), self.targetObjectPath != None
+                                        )
 
 
     def parseJsonReport(self, report):    
@@ -419,7 +494,7 @@ class ProjectCodeCoverage:
             self.makeCoverageInfoDestDir()
             self.makeTestResultsDir()
             self.searchForGcda()
-            #self.printInfoForFile("/home/syrmia/Desktop/llvm-project/llvm/tools/opt/NewPMDriver.cpp")
+            self.printInfoForFile("/home/syrmia/Desktop/llvm-project/llvm/tools/opt/NewPMDriver.cpp")
 
 
 #--------------------------------------------------------------------------------------------------------
