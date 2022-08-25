@@ -33,7 +33,7 @@ class CUCoverageInformation:
 
 class MiniReport:
 
-    def __init__(self, gcdaCounter, numOfProcessedReports, reports):
+    def __init__(self, gcdaCounter, numOfProcessedReports, listOfProcessedFileNames, reports):
         
         # Broj pronadjenih gcda datoteka
         self.gcdaCounter = gcdaCounter
@@ -41,12 +41,19 @@ class MiniReport:
         # Broj obradjenih izvestaja 
         # Ovaj broj je veci od broja gcda datoteka jer jedna gcda datoteka
         # moze imati izvestaje za vise izvornih datoteka
+        # odgovara duzini liste self.listOfProcessedFileNames
         self.numOfProcessedReports = numOfProcessedReports
+
+        # Sva moguca imena datoteka na koja se naislo pri parsiranju
+        # Mnoga se ponavljaju vise puta 
+        # (npr. imena header datoteka ukljucenih u razliciite izvorne datoteka)
+        self.listOfProcessedFileNames = listOfProcessedFileNames
 
         # Broj sacuvanih CUCoverageInformation objekata
         self.numOfSavedCUCovInfoObjects = None
 
         # Broj datoteka koje pogadja test
+        # (jedinstvena imena iz liste self.listOfProcessedFileNames)
         self.numOfUniqueFiles = None
 
         # Ekstenzije datoteka koje pogadja test
@@ -60,12 +67,9 @@ class MiniReport:
     def makeReport(self, reports):
 
         self.numOfSavedCUCovInfoObjects = len(reports)
-
-        # Mapiraju se CUCoverageInformation u imena datoteka koja sadrze
+        
         # Koristi se skup da se uklone duplikati
-        mappedToNames_it = map(lambda r: r.name, reports)
-        mappedToNames = list(mappedToNames_it)
-        uniqeFileNames = set(mappedToNames)
+        uniqeFileNames = set(self.listOfProcessedFileNames)
         self.numOfUniqueFiles = len(uniqeFileNames)
         
         # Pomocna funkcija koja vraca ekstenziju imena datoteke
@@ -75,7 +79,7 @@ class MiniReport:
 
         # Mapiraju se dobijena imena datoteka u ekstenzije
         # Koristi se skup da se ukolne duplikati
-        mappedToExt_it = map(lambda e: toExt(e), mappedToNames)
+        mappedToExt_it = map(lambda e: toExt(e), self.listOfProcessedFileNames)
         mappedToExt = list(mappedToExt_it)        
         self.fileExtensions = set(mappedToExt)
 
@@ -153,6 +157,7 @@ class ProjectCodeCoverage:
         
         gcdaCounter = 0
         numOfProcessedReports = 0
+        listOfProcessedFileNames = []
 
         for root, dirs, files in os.walk(self.projectDirectory, followlinks=False):            
              
@@ -169,16 +174,20 @@ class ProjectCodeCoverage:
                     
                     report = self.runGcov(gcdaAbsPath)
 
-                    numOfProcessedReports += self.parseJsonReport(report)
+                    (numOfReports, listOfFiles)  = self.parseJsonReport(report)
+                    
+                    numOfProcessedReports += numOfReports
+                    listOfProcessedFileNames += listOfFiles
 
                     gcdaCounter += 1
 
-        self.miniReport = MiniReport(gcdaCounter, numOfProcessedReports, self.reports.values())
+        self.miniReport = MiniReport(gcdaCounter, numOfProcessedReports, listOfProcessedFileNames, self.reports.values())
 
 
     def parseJsonReport(self, report):    
         
         processedReportsCounter = 0
+        processedReportsFileNames = []
 
         for key in report:
             
@@ -205,7 +214,8 @@ class ProjectCodeCoverage:
                     # Ako je zadata opcija --source-file preskacu se sve kompilacione  jedinice
                     # cije se ime ne poklapa sa imenom zatadim tom opcijom
                     if self.targetSourceFile != None and self.targetSourceFile != sourceFileName:
-                        processedReportsCounter += 1                        
+                        processedReportsCounter += 1
+                        processedReportsFileNames.append(sourceFileName)                        
                         continue
                     
                     if self.targetSourceFile:
@@ -244,8 +254,9 @@ class ProjectCodeCoverage:
                     # Pamti se objekat sa informacijama o pokrivenosti koda za tekucu kompilacionu jedinicu                                        
                     self.addReport(CUCovInfo)
                     processedReportsCounter += 1
+                    processedReportsFileNames.append(sourceFileName) 
 
-        return processedReportsCounter
+        return processedReportsCounter, processedReportsFileNames
 
     
     def addReport(self, CUCovInfo):
