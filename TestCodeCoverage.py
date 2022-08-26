@@ -472,10 +472,201 @@ class ProjectCodeCoverage:
             #self.printInfoForFile("/home/syrmia/Desktop/llvm-project/llvm/tools/opt/NewPMDriver.cpp")
 
 
+class HtmlReport:
+
+    def __init__(self, buildCoverage1, buildCoverage2, coverageInfoDest):
+        
+        self.buildCoverage1 = buildCoverage1
+        self.buildCoverage2 = buildCoverage2
+        self.coverageInfoDest = coverageInfoDest
+
+        self.reports_1 = self.buildCoverage1.reports
+        self.reports_2 = self.buildCoverage2.reports
+
+        self.script = """
+        var coll = document.getElementsByClassName("collapsible");
+        var i;
+        
+        for (i = 0; i < coll.length; i++) {
+        coll[i].addEventListener("click", function() {
+            this.classList.toggle("active");
+            var content = this.nextElementSibling;
+            if (content.style.display === "block") {
+            content.style.display = "none";
+            } else {
+            content.style.display = "block";
+            }
+        });
+        }
+        """
+
+    def generateHomePage(self):
+
+        a = Airium()
+
+        a('<!DOCTYPE html>')
+        with a.html():
+            with a.head():
+                a.meta(charset="utf-8")
+                a.title(_t="Code Coverage")
+                a.link(rel="stylesheet", href="Style/style.css")
+            
+            with a.body():                
+                
+                # Naslov
+                with a.div(klass="headerDiv"):
+                    with a.h1():
+                        a("Build Code Coverage")
+                
+                # MiniReport izvestaji
+                with a.div(klass="parent"):
+
+                    with a.div(klass="float-child"):
+                        a(self.generateMiniReport(self.buildCoverage1.miniReport, self.buildCoverage1.test))
+
+                    with a.div(klass="float-child"):
+                        a(self.generateMiniReport(self.buildCoverage2.miniReport, self.buildCoverage2.test))
+                
+                # Tabela u padajucem elementu sa svim pokrivenih datotekama 
+                a.button(_t="Open All Compilation Unit Code Coverage", klass="collapsible", type="button")
+                with a.div(klass="content", style="display: none;"):
+                    a.hr()
+                    a.h3(_t="All Compilation Unit Code Coverage", klass="subheader")
+                    a(self.generateAllCUList())
+
+
+                a.script(_t=self.script)
+
+
+
+        pageStr = str(a)             
+
+        htmlFileName = os.path.join(self.coverageInfoDest, 'html/' + 'CodeCoverage.html')
+        with open(htmlFileName, "w") as f:
+            f.write(pageStr)
+
+
+    def generateAllCUList(self):
+        a = Airium()
+
+        # Generise se tabela sa informacijama za sve kompilacione jedinice
+        with a.table(klass="mainTable"):
+            
+            # Gnerise se zaglavlje tabele
+            with a.tr(klass="mainTr"):
+                
+                a.th(_t="Source file apbsolute path", klass="mainTh")
+                
+                with a.th(klass="mainTh"):
+                    a.span(_t=self.buildCoverage1.test, klass="badge")
+                
+                with a.th(klass="mainTh"):
+                    a.span(_t=self.buildCoverage2.test, klass="badge")
+
+            # Pravi se unija CU koje su pokrivene i jednim i drugim testom
+            # To ce biti unija kljuceva recnika 
+            sourceFileUnion = set(self.reports_1.keys()).union(set(self.reports_2.keys()))
+            print(len(sourceFileUnion))
+
+            for file in sourceFileUnion:
+                
+                # Ispisujemo svaku CU kao link na koje ce kasnije moci da se klikne
+                # cime se otvara stranica sa detaljnijim izvestajem za tu CU
+                with a.tr(klass="mainTr"):
+                    with a.td():
+                        a.a(_t=file, href="", target="_blank")
+
+                    # Za tekucu CU racunamo koji procenat njenih linija je pokriven prvim testom
+                    # a koji procenat je pokriven drugim testom
+                    test1_percentageCoverage = 0
+                    test2_percentageCoverage = 0
+                    
+
+                    #BUG moze da se desi da su obe liste pokrivenih linija i linija od interesa prazne
+                    # # Bice da gcov generise prazne izvestaje za neke fajlove - PROVERITI                    
+                    if file in self.reports_1.keys():
+                        if len(self.reports_1[file].linesOfInterest) != 0:
+                            test1_percentageCoverage = 100.0 * len(self.reports_1[file].coveredLines) / len(self.reports_1[file].linesOfInterest)
+
+
+                    if file in self.reports_2.keys():
+                        if len(self.reports_2[file].linesOfInterest) != 0:
+                            test2_percentageCoverage = 100.0 * len(self.reports_2[file].coveredLines) / len(self.reports_2[file].linesOfInterest)
+
+                    a.td(_t=str(test1_percentageCoverage))
+                    a.td(_t=str(test2_percentageCoverage))
+
+        return str(a)
+    
+            
+    def generateMiniReport(self, miniReport, testName):
+        a = Airium()
+
+        with a.div(klass="miniheader"):
+
+            with a.h3(style="text-align: center;"):
+                a("Mini Report")
+            with a.h5(klass="badge"):
+                a(testName)
+
+
+            # Formira se po jedan element u listi za svaku stavku iz MiniRport klase
+            with a.ul(): 
+                
+                with a.li(style="padding-top: 10px"):
+                    a("Gcda Counter: " + str(miniReport.gcdaCounter))
+
+                with a.li(style="padding-top: 10px"):
+                    a("Number of processed reports: " + str(miniReport.numOfProcessedReports))
+                
+                with a.li(style="padding-top: 10px"):
+                    a("Number of saved CUCovInfo objects: " + str(miniReport.numOfSavedCUCovInfoObjects))
+                
+                with a.li(style="padding-top: 10px"):
+                    if miniReport.numOfUniqueFiles == None:
+                        a("Number of unique files affected by test: Unknown")
+                    else:
+                        a("Number of unique files affected by test: " + str(miniReport.numOfUniqueFiles))
+                
+                with a.li(style="padding-top: 10px"):                    
+                    a("Extensions of the affected files: " + str(miniReport.fileExtensions))
+                
+                with a.li(style="padding-top: 10px"):
+                    a("Extensions counter")
+                    with a.table(style="padding-top: 5px;"):
+                        for key in sorted(miniReport.extensionsCounter.keys()):                            
+                                with a.tr(klass="extensionTableTr"):
+                                    a.td(_t=str(key))
+                                    a.td(_t=str(miniReport.extensionsCounter[key]))
+        return str(a)
+
+
+
+    # Pravi direktorijum u kome c da se cuvaju html stranice
+    def makeHtmlReportDir(self):
+        path = os.path.join(self.coverageInfoDest, 'html')
+        if os.path.isdir(path):
+            raise Exception("ERROR: html/ directory alredy exists in " + self.coverageInfoDest)
+        os.mkdir(path)
+        stylePath = os.path.join(path, 'Style')
+        os.mkdir(stylePath)
+
+    # Kopira datoteku sa stilovima u direktorijum sa rezultatima
+    def copyStyleSheet(self):
+        styleSheetPath = os.path.dirname(os.path.abspath(__file__)) + '/Style/style.css'
+        shutil.copy2(styleSheetPath, os.path.join(self.coverageInfoDest, "html/Style/style.css"))
+
+    # Ulazna metoda
+    def generateHtml(self):
+        self.makeHtmlReportDir()
+        self.copyStyleSheet()
+        self.generateHomePage()
+
+
 #--------------------------------------------------------------------------------------------------------
 #--------------------------------------------------------------------------------------------------------
 
-class HtmlReport:
+class HtmlReportOLD:
     
     def __init__(self, sourceFile, codeCoverageReports, coverageInfoDest):
         self.sourceFile = sourceFile
@@ -801,6 +992,11 @@ def Main():
     except Exception as e:
         print(e)
         exit()
+
+
+    htmlReport = HtmlReport(projectCCTest1, projectCCTest2, args.coverage_dest)
+    htmlReport.generateHtml()
+
     
 if __name__ == "__main__":
   Main()
