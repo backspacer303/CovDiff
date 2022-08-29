@@ -278,7 +278,13 @@ class ProjectCodeCoverage:
                     # Pamti se naziv datoteke sa izvornim kodom koja odgovara kompilacionoj jedinici
                     CUCovInfo.name = sourceFileName
 
-                                        
+                    # Za neke daoteke putanja nema "/" na pocetu sto je znak da su te
+                    # putanje relativne u odnosu na prosledjeni bild direktorijum.
+                    # Zto se njihove putanje spajaju sa putanjom build direktorijuma kako bi
+                    # sve apsolutne putanje bile ispravne                   
+                    if not CUCovInfo.name.startswith("/"):
+                        CUCovInfo.name = os.path.join(self.projectDirectory, sourceFileName)
+                    
                     # Ako je zadata opcija --source-file preskacu se sve kompilacione  jedinice
                     # cije se ime ne poklapa sa imenom zatadim tom opcijom
                     if self.targetSourceFile != None and self.targetSourceFile != sourceFileName:
