@@ -548,6 +548,13 @@ class HtmlReport:
                     a.hr()
                     a.h3(_t="All Compilation Unit Code Coverage", klass="subheader")
                     a(self.generateAllCUList())
+                
+                # Tabela u padajucem elementu sa datotekama u kojima postije razlike u pokrivenosti 
+                a.button(_t="Open Compilation Unit Code Coverage Diff", klass="collapsible", type="button")
+                with a.div(klass="content", style="display: none;"):
+                    a.hr()
+                    a.h3(_t="Compilation Unit Code Coverage Diff", klass="subheader")
+                    a(self.generateCUDiffList())
 
                 a.script(_t=self.script)
 
@@ -568,7 +575,7 @@ class HtmlReport:
             # Gnerise se zaglavlje tabele
             with a.tr(klass="mainTr"):
                 
-                a.th(_t="Source file apbsolute path", klass="mainTh")
+                a.th(_t="Source file absolute path", klass="mainTh")
                 
                 with a.th(klass="mainTh"):
                     a.span(_t=self.buildCoverage1.test, klass="badge")
@@ -612,16 +619,104 @@ class HtmlReport:
                     test1_percentageCoverage = round(test1_percentageCoverage, 3)
                     test2_percentageCoverage = round(test2_percentageCoverage, 3)
                     
+                    # Racuna se razlika u pokrivenim linijama i u zavisnosti od rezultata
+                    # generise se "diff" oznaka pored jednom ili drugog testa ili oba
+                    coveredLines_test1 = self.reports_1[file].coveredLines
+                    coveredLines_test2 = self.reports_2[file].coveredLines
+                    t1Difft2 = coveredLines_test1.difference(coveredLines_test2)
+                    t2Difft1 = coveredLines_test2.difference(coveredLines_test1)                    
+                    
                     with a.td(style="padding: 0 40px;"):                        
                         a.progress(_t=test1_percentageCoverage, value=test1_percentageCoverage, max=100)
-                        a.label(_t=str(test1_percentageCoverage) + " %")
+                        a.label(_t=str(test1_percentageCoverage) + " %", klass="percentage")
+                        if t1Difft2:
+                            a.span(_t="diff", klass="badgeDiff")
                     
                     with a.td(style="padding: 0 40px;"):                        
                         a.progress(_t=test2_percentageCoverage, value=test2_percentageCoverage, max=100)
-                        a.label(_t=str(test2_percentageCoverage) + " %")
+                        a.label(_t=str(test2_percentageCoverage) + " %", klass="percentage")
+                        if t2Difft1:
+                            a.span(_t="diff", klass="badgeDiff")
 
         return str(a)
     
+    # Generise listu kompilacionih jedinica u kojima postoje 
+    # neke razlike u pokrivenosti koda
+    def generateCUDiffList(self):
+        a = Airium()
+
+        # Generise se tabela sa informacijama za sve kompilacione jedinice
+        with a.table(klass="mainTable"):
+            
+            # Gnerise se zaglavlje tabele
+            with a.tr(klass="mainTr"):
+                
+                a.th(_t="Source file absolute path", klass="mainTh")
+                
+                with a.th(klass="mainTh"):
+                    a.span(_t=self.buildCoverage1.test, klass="badge")
+                
+                with a.th(klass="mainTh"):
+                    a.span(_t=self.buildCoverage2.test, klass="badge")
+
+            # Pravi se unija CU koje su pokrivene i jednim i drugim testom
+            # To ce biti unija kljuceva recnika 
+            sourceFileUnion = set(self.reports_1.keys()).union(set(self.reports_2.keys()))
+            print(len(sourceFileUnion))
+
+            for file in sourceFileUnion:                
+                
+                # Racuna se razlika u pokrivenim linijama               
+                coveredLines_test1 = self.reports_1[file].coveredLines
+                coveredLines_test2 = self.reports_2[file].coveredLines
+                t1Difft2 = coveredLines_test1.difference(coveredLines_test2)
+                t2Difft1 = coveredLines_test2.difference(coveredLines_test1) 
+                
+
+                if t1Difft2 or t2Difft1:
+
+                    test1_percentageCoverage = 0
+                    test2_percentageCoverage = 0
+                    
+                    # Moze da se desi da su obe liste pokrivenih linija i linija od interesa prazne
+                    # gcov generise prazne izvestaje za neke fajlove                   
+                    if file in self.reports_1.keys():
+                        if len(self.reports_1[file].linesOfInterest) != 0:
+                            test1_percentageCoverage = 100.0 * len(coveredLines_test1) / len(self.reports_1[file].linesOfInterest)
+
+
+                    if file in self.reports_2.keys():
+                        if len(self.reports_2[file].linesOfInterest) != 0:
+                            test2_percentageCoverage = 100.0 * len(coveredLines_test2) / len(self.reports_2[file].linesOfInterest)
+
+                    test1_percentageCoverage = round(test1_percentageCoverage, 3)
+                    test2_percentageCoverage = round(test2_percentageCoverage, 3)
+
+                    # Dohvata se odgovarajuca html stranica za tekucu CU                
+                    htmlPageLink = self.CUToHtmlPage[file]
+                    
+                    # Ispisujemo svaku CU kao link na koje ce kasnije moci da se klikne
+                    # cime se otvara stranica sa detaljnijim izvestajem za tu CU
+                    with a.tr(klass="mainTr"):
+                        
+                        with a.td():
+                            a.a(_t=file, href=htmlPageLink, target="_blank")                
+                                        
+                        
+                        with a.td(style="padding: 0 40px;"):
+                            a.progress(_t=test1_percentageCoverage, value=test1_percentageCoverage, max=100)
+                            a.label(_t=str(test1_percentageCoverage) + " %", klass="percentage")
+                            if t1Difft2:
+                                a.span(_t="diff", klass="badgeDiff")
+                        
+                        with a.td(style="padding: 0 40px;"):
+                            a.progress(_t=test2_percentageCoverage, value=test2_percentageCoverage, max=100)
+                            a.label(_t=str(test2_percentageCoverage) + " %", klass="percentage")
+                            if t2Difft1:
+                                a.span(_t="diff", klass="badgeDiff")
+
+        return str(a)
+
     # Formira se izvestaj za kratak uvid o pokrivenost koda testom
     def generateMiniReport(self, miniReport, testName):
         a = Airium()
@@ -706,6 +801,8 @@ class HtmlReport:
                     with a.p():
                         a("Source file: " + sourceFile) 
                 
+                #TODO with open(file) as f: ...
+
                 # Generise se zbirni izvestaj o pokrivenosi linija
                 a.button(_t="Open Summary Report", klass="collapsible", type="button")
                 with a.div(klass="content", style="display: none;"):
