@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
-from cgi import test
+
+import mmap
 import sys
 import os
 import subprocess
@@ -799,37 +800,41 @@ class HtmlReport:
                     with a.h1():
                         a("Code Coverage")
                     with a.p():
-                        a("Source file: " + sourceFile) 
-                
-                #TODO with open(file) as f: ...
+                        a("Source file: " + sourceFile)                                 
 
-                # Generise se zbirni izvestaj o pokrivenosi linija
-                a.button(_t="Open Summary Report", klass="collapsible", type="button")
-                with a.div(klass="content", style="display: none;"):
-                    a.hr()
-                    a.h3(_t="Summary Report", klass="subheader")
-                    a(self.coveredLinesHtml(sourceFile))
+                with open(sourceFile, "rb") as f:
+                    
+                    mm = mmap.mmap(f.fileno(), 0, prot=mmap.PROT_READ)
 
-                # Generise se izvestaj o funkcijama
-                a.button(_t="Open Functions Report", klass="collapsible", type="button")
-                with a.div(klass="content", style="display: none;"):
-                    a.hr()
-                    a.h3(_t="Functions Report", klass="subheader")
-                    a(self.coveredFunctionsHtml(sourceFile))
+                    # Generise se zbirni izvestaj o pokrivenosi linija
+                    a.button(_t="Open Summary Report", klass="collapsible", type="button")
+                    with a.div(klass="content", style="display: none;"):
+                        a.hr()
+                        a.h3(_t="Summary Report", klass="subheader")
+                        a(self.coveredLinesHtml(sourceFile, mm))                    
 
-                # Generise se izvestaj o razlikama u pokrivenosti linija
-                a.button(_t="Open Coverage Diff", klass="collapsible", type="button")
-                with a.div(klass="content", style="display: none;"):
-                    a.hr()
-                    a.h3(_t="Coverage Diff", klass="subheader")
-                    a(self.generateCoverageDiffHtml(sourceFile))
+                    # Generise se izvestaj o funkcijama
+                    a.button(_t="Open Functions Report", klass="collapsible", type="button")
+                    with a.div(klass="content", style="display: none;"):
+                        a.hr()
+                        a.h3(_t="Functions Report", klass="subheader")
+                        a(self.coveredFunctionsHtml(sourceFile))
 
-                # Generise se uporedni prikaz pokrivenoh linija
-                a.button(_t="Open Side By Side Comparison", klass="collapsible", type="button")
-                with a.div(klass="content", style="display: none;"):
-                    a.hr()
-                    a.h3(_t="Side By Side Comparison", klass="subheader")
-                    a(self.generateSideBySideCoverageHtml(sourceFile))                            
+                    # Generise se izvestaj o razlikama u pokrivenosti linija
+                    a.button(_t="Open Coverage Diff", klass="collapsible", type="button")
+                    with a.div(klass="content", style="display: none;"):
+                        a.hr()
+                        a.h3(_t="Coverage Diff", klass="subheader")
+                        a(self.generateCoverageDiffHtml(sourceFile, mm))                    
+
+                    # Generise se uporedni prikaz pokrivenoh linija
+                    a.button(_t="Open Side By Side Comparison", klass="collapsible", type="button")
+                    with a.div(klass="content", style="display: none;"):
+                        a.hr()
+                        a.h3(_t="Side By Side Comparison", klass="subheader")
+                        a(self.generateSideBySideCoverageHtml(sourceFile, mm))                                        
+                    
+                    mm.close()
                 
                 a.script(_t=self.script)
 
@@ -846,85 +851,90 @@ class HtmlReport:
             hrefValue = "./Pages/" +  baseName + "_" + str(self.numOfSameCUNames) + ".html"
             self.numOfSameCUNames += 1
 
-        with open(htmlFileName, "w") as f:
-            f.write(pageStr)
+        with open(htmlFileName, "wb") as f:
+            f.write(pageStr.encode())
         
         return hrefValue
 
 
     # Funkcija generise zbirni izvestaj o pokrivenosti linija testovima za jednu CU
-    def coveredLinesHtml(self, sourceFile):
+    def coveredLinesHtml(self, sourceFile, mm):
         
         a = Airium()
 
-        # Otvara se izvorna datoteka koja odgovara CU
-        with open(sourceFile, "r") as f:
+        # Otvara se izvorna datoteka koja odgovara CU        
             
-            report1 = self.reports_1[sourceFile] 
-            report2 = self.reports_2[sourceFile]
+        report1 = self.reports_1[sourceFile] 
+        report2 = self.reports_2[sourceFile]
 
-            # Generise se tabela izvestaja
-            with a.table(klass="mainTable"):
+        # Generise se tabela izvestaja
+        with a.table(klass="mainTable"):
+            
+            # Kolone tabele sdrze redom redni br. linije izvorne datoteke, liniju izvorne datoteke,
+            # broj pogodaka za svaku liniju, spisak testova koji pogadjaju liniju
+            with a.tr(klass="mainTr"):
+                a.th(_t='Line number', klass="mainTh")
+                a.th(_t='Line', klass="mainTh")
+                a.th(_t='Number of hits', klass="mainTh")
+                a.th(_t='Tests that cover line', klass="mainTh")
+            
+            
+            mm.seek(0)            
+            lineNumber = 0
+
+            # Citaju se linije izvorne datoteke
+            while True:
                 
-                # Kolone tabele sdrze redom redni br. linije izvorne datoteke, liniju izvorne datoteke,
-                # broj pogodaka za svaku liniju, spisak testova koji pogadjaju liniju
-                with a.tr(klass="mainTr"):
-                    a.th(_t='Line number', klass="mainTh")
-                    a.th(_t='Line', klass="mainTh")
-                    a.th(_t='Number of hits', klass="mainTh")
-                    a.th(_t='Tests that cover line', klass="mainTh")
+                line = mm.readline().decode()
+                if line == '':
+                    break
 
-                # Citaju se linije izvorne datoteke
-                for count, line in enumerate(f):
-                    
-                    # Broj tekuce liije
-                    lineNumber = count + 1
-                    
-                    # Zbirna lista testova za jednu liniju
-                    testsCoveringLine = [] 
+                lineNumber += 1
+                
+                # Zbirna lista testova za jednu liniju
+                testsCoveringLine = [] 
 
-                    lineNumberOfHits = 0
-                    isLineOfInterest = False
+                lineNumberOfHits = 0
+                isLineOfInterest = False
 
-                    # Dohvataju se informacije o linije iz prvog izvestaja (prvi test)
-                    if lineNumber in report1.coveredLines:
-                        testsCoveringLine.append(self.buildCoverage1.test)
-                    if lineNumber in report1.linesOfInterest:
-                        isLineOfInterest = True
-                        lineNumberOfHits += report1.lineHitCount[lineNumber]
+                # Dohvataju se informacije o linije iz prvog izvestaja (prvi test)
+                if lineNumber in report1.coveredLines:
+                    testsCoveringLine.append(self.buildCoverage1.test)
+                if lineNumber in report1.linesOfInterest:
+                    isLineOfInterest = True
+                    lineNumberOfHits += report1.lineHitCount[lineNumber]
 
-                    # Dohvataju se informacije o linije iz drugog izvestaja (drugi test)
-                    if lineNumber in report2.coveredLines:
-                        testsCoveringLine.append(self.buildCoverage2.test)
-                    if lineNumber in report2.linesOfInterest:
-                        isLineOfInterest = True
-                        lineNumberOfHits += report2.lineHitCount[lineNumber]
+                # Dohvataju se informacije o linije iz drugog izvestaja (drugi test)
+                if lineNumber in report2.coveredLines:
+                    testsCoveringLine.append(self.buildCoverage2.test)
+                if lineNumber in report2.linesOfInterest:
+                    isLineOfInterest = True
+                    lineNumberOfHits += report2.lineHitCount[lineNumber]
 
 
-                    lineStyleClass = None
-                    lineNumberOfHitsTextValue = None
+                lineStyleClass = None
+                lineNumberOfHitsTextValue = None
 
-                    # Oderdjuje se boja kojom ce linija biti obojena i vrednost za kolonu broj pogodaka
-                    if isLineOfInterest:
-                        lineNumberOfHitsTextValue = str(lineNumberOfHits)
-                        if len(testsCoveringLine) != 0:
-                            lineStyleClass = "coveredLine"
-                        else:
-                            lineStyleClass = "uncoveredLine"
+                # Oderdjuje se boja kojom ce linija biti obojena i vrednost za kolonu broj pogodaka
+                if isLineOfInterest:
+                    lineNumberOfHitsTextValue = str(lineNumberOfHits)
+                    if len(testsCoveringLine) != 0:
+                        lineStyleClass = "coveredLine"
                     else:
-                        lineNumberOfHitsTextValue = "----"
-                        lineStyleClass = ""
+                        lineStyleClass = "uncoveredLine"
+                else:
+                    lineNumberOfHitsTextValue = "----"
+                    lineStyleClass = ""
 
-                    # Informacije o tekucoj linije se smestaju u jedan red tabele
-                    with a.tr(klass="mainTr"):
-                        a.td(_t=str(lineNumber), klass="lineNumber")
-                        a.td(_t=line, klass=lineStyleClass)
-                        a.td(_t=lineNumberOfHitsTextValue)
-                        with a.td(klass="testName"):
-                            for test in testsCoveringLine:                            
-                                a.span(_t=test, klass="badge")               
+                # Informacije o tekucoj linije se smestaju u jedan red tabele
+                with a.tr(klass="mainTr"):
+                    a.td(_t=str(lineNumber), klass="lineNumber")
+                    a.td(_t=line, klass=lineStyleClass)
+                    a.td(_t=lineNumberOfHitsTextValue)
+                    with a.td(klass="testName"):
+                        for test in testsCoveringLine:                            
+                            a.span(_t=test, klass="badge")               
                                                 
-        f.close()
         return str(a)
 
     # Funkcija generise zbirni izvestaj o broju poziva funkcija jedne CU
@@ -964,8 +974,8 @@ class HtmlReport:
         return str(a)
 
     # Funkcija genersie izvestaj o razlikama u pokrivenosti linija izmedju dva testa za jednu CU
-    def generateCoverageDiffHtml(self, sourceFile):
-        
+    def generateCoverageDiffHtml(self, sourceFile, mm):                
+
         # Dohavataju se izvestaji
         r1 = self.reports_1[sourceFile]
         r2 = self.reports_2[sourceFile]
@@ -1001,37 +1011,41 @@ class HtmlReport:
                     a.span(_t=" BUT NOT ")
                     a.span(_t=test1_name, klass="badge")
 
-            # Otvara se datoteka za izvornim kodon
-            with open(sourceFile, "r") as f:
+            mm.seek(0)
+            lineNumber = 0
 
-                # Citaju se linije izvornog koda
-                for count, line in enumerate(f):
-                    
-                    lineNumber = count + 1
-                    
-                    # Proverava se u koji skup upada linija i u zavisnosti od toga se boji 
-                    # odgovarajucom bojom
-                    with a.tr(klass="mainTr"):
-                        if lineNumber in r1Diffr2:
-                            a.td(_t=str(lineNumber), klass="lineNumber")
-                            a.td(_t=line, klass="codeLine diffFirst")
-                            a.td(_t=str(lineNumber), klass="lineNumber")
-                            a.td(_t=line, klass="codeline") 
-                        elif lineNumber in r2Diffr1:
-                            a.td(_t=str(lineNumber), klass="lineNumber")
-                            a.td(_t=line, klass="codeline")
-                            a.td(_t=str(lineNumber), klass="lineNumber")
-                            a.td(_t=line, klass="codeLine diffSecond")
-                        else:
-                            a.td(_t=str(lineNumber), klass="lineNumber")
-                            a.td(_t=line, klass="codeline")
-                            a.td(_t=str(lineNumber), klass="lineNumber")
-                            a.td(_t=line, klass="codeline")
+            # Citaju se linije izvornog koda
+            while True:
+                
+                line = mm.readline().decode()
+                if line == '':
+                    break
+
+                lineNumber += 1
+                
+                # Proverava se u koji skup upada linija i u zavisnosti od toga se boji 
+                # odgovarajucom bojom
+                with a.tr(klass="mainTr"):
+                    if lineNumber in r1Diffr2:
+                        a.td(_t=str(lineNumber), klass="lineNumber")
+                        a.td(_t=line, klass="codeLine diffFirst")
+                        a.td(_t=str(lineNumber), klass="lineNumber")
+                        a.td(_t=line, klass="codeline") 
+                    elif lineNumber in r2Diffr1:
+                        a.td(_t=str(lineNumber), klass="lineNumber")
+                        a.td(_t=line, klass="codeline")
+                        a.td(_t=str(lineNumber), klass="lineNumber")
+                        a.td(_t=line, klass="codeLine diffSecond")
+                    else:
+                        a.td(_t=str(lineNumber), klass="lineNumber")
+                        a.td(_t=line, klass="codeline")
+                        a.td(_t=str(lineNumber), klass="lineNumber")
+                        a.td(_t=line, klass="codeline")
 
         return str(a)
 
     # Funkcija generise uporedni prikaz pokrivenih linija za jednu CU
-    def generateSideBySideCoverageHtml(self, sourceFile):
+    def generateSideBySideCoverageHtml(self, sourceFile, mm):
         
         # Dohvataju se odgovarajuci izvestaji
         r1 = self.reports_1[sourceFile]
@@ -1058,40 +1072,44 @@ class HtmlReport:
                 with a.th(klass="mainTh"):
                     a.span(_t=test2_name, klass="badge")
 
-            # Otvara se datoteka sa izvornim kodom 
-            with open(sourceFile, "r") as f:
+            mm.seek(0)
+            lineNumber = 0
+
+            # Citaju se linije izvornog koda
+            while True:
                 
-                # Prolazi se kroz linije izvornig koda
-                for count, line in enumerate(f):
+                line = mm.readline().decode()
+                if line == '':
+                    break
+                                
+                lineNumber += 1
 
-                    lineNumber = count + 1
+                isCoveredByR1 = lineNumber in r1.coveredLines
+                isCoveredByR2 = lineNumber in r2.coveredLines
 
-                    isCoveredByR1 = lineNumber in r1.coveredLines
-                    isCoveredByR2 = lineNumber in r2.coveredLines
-
-                    # Proverava se kojim testom je linija pokrivena i u zavisnosti do toga
-                    # boji se na odgovarajuci nacin
-                    with a.tr(klass="mainTr"):
-                        if isCoveredByR1 and isCoveredByR2:
-                            a.td(_t=str(lineNumber), klass="lineNumber")
-                            a.td(_t=line, klass="codeLine coveredLine")
-                            a.td(_t=str(lineNumber), klass="lineNumber")
-                            a.td(_t=line, klass="codeLine coveredLine") 
-                        elif isCoveredByR1:
-                            a.td(_t=str(lineNumber), klass="lineNumber")
-                            a.td(_t=line, klass="codeLine coveredLine")
-                            a.td(_t=str(lineNumber), klass="lineNumber")
-                            a.td(_t=line, klass="codeLine") 
-                        elif isCoveredByR2:
-                            a.td(_t=str(lineNumber), klass="lineNumber")
-                            a.td(_t=line, klass="codeLine")
-                            a.td(_t=str(lineNumber), klass="lineNumber")
-                            a.td(_t=line, klass="codeLine coveredLine") 
-                        else:
-                            a.td(_t=str(lineNumber), klass="lineNumber")
-                            a.td(_t=line, klass="codeLine")
-                            a.td(_t=str(lineNumber), klass="lineNumber")
-                            a.td(_t=line, klass="codeLine")
+                # Proverava se kojim testom je linija pokrivena i u zavisnosti do toga
+                # boji se na odgovarajuci nacin
+                with a.tr(klass="mainTr"):
+                    if isCoveredByR1 and isCoveredByR2:
+                        a.td(_t=str(lineNumber), klass="lineNumber")
+                        a.td(_t=line, klass="codeLine coveredLine")
+                        a.td(_t=str(lineNumber), klass="lineNumber")
+                        a.td(_t=line, klass="codeLine coveredLine") 
+                    elif isCoveredByR1:
+                        a.td(_t=str(lineNumber), klass="lineNumber")
+                        a.td(_t=line, klass="codeLine coveredLine")
+                        a.td(_t=str(lineNumber), klass="lineNumber")
+                        a.td(_t=line, klass="codeLine") 
+                    elif isCoveredByR2:
+                        a.td(_t=str(lineNumber), klass="lineNumber")
+                        a.td(_t=line, klass="codeLine")
+                        a.td(_t=str(lineNumber), klass="lineNumber")
+                        a.td(_t=line, klass="codeLine coveredLine") 
+                    else:
+                        a.td(_t=str(lineNumber), klass="lineNumber")
+                        a.td(_t=line, klass="codeLine")
+                        a.td(_t=str(lineNumber), klass="lineNumber")
+                        a.td(_t=line, klass="codeLine")
         
         return str(a)
 
