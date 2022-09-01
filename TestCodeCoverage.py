@@ -517,9 +517,9 @@ class HtmlReport:
             this.classList.toggle("active");
             var content = this.nextElementSibling;
             if (content.style.display === "block") {
-            content.style.display = "none";
+                content.style.display = "none";
             } else {
-            content.style.display = "block";
+                content.style.display = "block";
             }
         });
         }
@@ -536,8 +536,32 @@ class HtmlReport:
             }
         }
         function topFunction() {
-        document.body.scrollTop = 0; // For Safari
-        document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+            document.body.scrollTop = 0; // For Safari
+            document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+        }
+        """
+
+        self.searchTabelScript = """
+        function myFunction(inputId, tableId) {
+        // Declare variables
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById(inputId);
+        filter = input.value.toUpperCase();
+        table = document.getElementById(tableId);
+        tr = table.getElementsByTagName("tr");
+
+        // Loop through all table rows, and hide those who don't match the search query
+        for (i = 0; i < tr.length; i++) {
+            td = tr[i].getElementsByTagName("td")[0];
+            if (td) {
+            txtValue = td.textContent || td.innerText;
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                tr[i].style.display = "";
+            } else {
+                tr[i].style.display = "none";
+            }
+            }
+        }
         }
         """
 
@@ -571,9 +595,10 @@ class HtmlReport:
                 
                 # Tabela u padajucem elementu sa svim pokrivenih datotekama 
                 a.button(_t="Open All Compilation Unit Code Coverage", klass="collapsible", type="button")
-                with a.div(klass="content", style="display: none;"):
+                with a.div(klass="content", style="display: none;"):                                        
                     a.hr()
                     a.h3(_t="All Compilation Unit Code Coverage", klass="subheader")
+                    a.input(type="text", klass="myInput", id="AllCUSearch", onkeyup="myFunction(\"AllCUSearch\",\"AllCUTable\")", placeholder="Search for CU names..")
                     a(self.generateAllCUList())
                 
                 # Tabela u padajucem elementu sa datotekama u kojima postije razlike u pokrivenosti 
@@ -581,11 +606,12 @@ class HtmlReport:
                 with a.div(klass="content", style="display: none;"):
                     a.hr()
                     a.h3(_t="Compilation Unit Code Coverage Diff", klass="subheader")
+                    a.input(type="text", klass="myInput", id="CUDiffSearch", onkeyup="myFunction(\"CUDiffSearch\",\"CUDiffTable\")", placeholder="Search for CU names..")
                     a(self.generateCUDiffList())
                 
                 a.button(_t="Top", id="myBtn", onclick="topFunction()", title="Go to top", type="button")
 
-                a.script(_t= self.script + self.topBtnScript)
+                a.script(_t= self.script + self.topBtnScript + self.searchTabelScript)
 
         pageStr = str(a)             
 
@@ -599,7 +625,7 @@ class HtmlReport:
         a = Airium()
 
         # Generise se tabela sa informacijama za sve kompilacione jedinice
-        with a.table(klass="mainTable"):
+        with a.table(klass="mainTable", id="AllCUTable"):
             
             # Gnerise se zaglavlje tabele
             with a.tr(klass="mainTr"):
@@ -675,7 +701,7 @@ class HtmlReport:
         a = Airium()
 
         # Generise se tabela sa informacijama za sve kompilacione jedinice
-        with a.table(klass="mainTable"):
+        with a.table(klass="mainTable", id="CUDiffTable"):
             
             # Gnerise se zaglavlje tabele
             with a.tr(klass="mainTr"):
