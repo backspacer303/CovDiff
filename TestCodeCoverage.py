@@ -313,7 +313,17 @@ class ProjectCodeCoverage:
                         # Linija se dodaje u skup pokrivenih linija ako je barem jednom izvrsena
                         if line["count"] != 0:
                             CUCovInfo.coveredLines.add(line["line_number"])
-                        
+                    
+                    
+                    # Ukoliko je skup pokrivenoh linija za tekucu kompilacionu jedinicu prazan
+                    # izvestaj se ne odradjuje dalje, ne dodaje se u finalnu listu izvestaja i prelazi se na sledeci
+                    # Napomena: ovaj deo znatno ubrzava izvrsavanje skripte jer se kasnije za ovakve CU ne generise html
+                    if len(CUCovInfo.coveredLines) == 0:
+                        processedReportsCounter += 1
+                        processedReportsFileNames.append(sourceFileName) 
+                        continue
+
+
                     # Prolazi se kroz sve funkcije u izvestaju 
                     functions = fileInfo["functions"]
                     for function in functions:
@@ -326,7 +336,7 @@ class ProjectCodeCoverage:
                         if function["execution_count"] != 0:
                             CUCovInfo.coveredFunctions.add(function["name"])
         
-                    # Pamti se objekat sa informacijama o pokrivenosti koda za tekucu kompilacionu jedinicu                                        
+                    # Pamti se objekat sa informacijama o pokrivenosti koda za tekucu kompilacionu jedinicu                                                     
                     self.addReport(CUCovInfo)
                     processedReportsCounter += 1
                     processedReportsFileNames.append(sourceFileName) 
@@ -515,6 +525,22 @@ class HtmlReport:
         }
         """
 
+        self.topBtnScript = """        
+        mybutton = document.getElementById("myBtn");
+        window.onscroll = function() {scrollFunction()};
+        function scrollFunction() {
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                mybutton.style.display = "block";
+            } else {
+                mybutton.style.display = "none";
+            }
+        }
+        function topFunction() {
+        document.body.scrollTop = 0; // For Safari
+        document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+        }
+        """
+
     # Funkcija generise pocetnu stranicu izvestaja o pokrivenosti build-a
     def generateHomePage(self):
 
@@ -556,8 +582,10 @@ class HtmlReport:
                     a.hr()
                     a.h3(_t="Compilation Unit Code Coverage Diff", klass="subheader")
                     a(self.generateCUDiffList())
+                
+                a.button(_t="Top", id="myBtn", onclick="topFunction()", title="Go to top", type="button")
 
-                a.script(_t=self.script)
+                a.script(_t= self.script + self.topBtnScript)
 
         pageStr = str(a)             
 
@@ -629,13 +657,13 @@ class HtmlReport:
                     
                     with a.td(style="padding: 0 40px;"):                        
                         a.progress(_t=test1_percentageCoverage, value=test1_percentageCoverage, max=100)
-                        a.label(_t=str(test1_percentageCoverage) + " %", klass="percentage")
+                        a.label(_t="{:.3f}".format(test1_percentageCoverage) + " %", klass="percentage")
                         if t1Difft2:
                             a.span(_t="diff", klass="badgeDiff")
                     
                     with a.td(style="padding: 0 40px;"):                        
                         a.progress(_t=test2_percentageCoverage, value=test2_percentageCoverage, max=100)
-                        a.label(_t=str(test2_percentageCoverage) + " %", klass="percentage")
+                        a.label(_t="{:.3f}".format(test2_percentageCoverage) + " %", klass="percentage")
                         if t2Difft1:
                             a.span(_t="diff", klass="badgeDiff")
 
@@ -673,7 +701,7 @@ class HtmlReport:
                 t1Difft2 = coveredLines_test1.difference(coveredLines_test2)
                 t2Difft1 = coveredLines_test2.difference(coveredLines_test1) 
                 
-
+                # Ako posoji neka razlika CU se ispisuje u listu
                 if t1Difft2 or t2Difft1:
 
                     test1_percentageCoverage = 0
@@ -706,13 +734,13 @@ class HtmlReport:
                         
                         with a.td(style="padding: 0 40px;"):
                             a.progress(_t=test1_percentageCoverage, value=test1_percentageCoverage, max=100)
-                            a.label(_t=str(test1_percentageCoverage) + " %", klass="percentage")
+                            a.label(_t="{:.3f}".format(test1_percentageCoverage) + " %", klass="percentage")
                             if t1Difft2:
                                 a.span(_t="diff", klass="badgeDiff")
                         
                         with a.td(style="padding: 0 40px;"):
                             a.progress(_t=test2_percentageCoverage, value=test2_percentageCoverage, max=100)
-                            a.label(_t=str(test2_percentageCoverage) + " %", klass="percentage")
+                            a.label(_t="{:.3f}".format(test2_percentageCoverage) + " %", klass="percentage")
                             if t2Difft1:
                                 a.span(_t="diff", klass="badgeDiff")
 
@@ -836,7 +864,10 @@ class HtmlReport:
                     
                     mm.close()
                 
-                a.script(_t=self.script)
+
+                a.button(_t="Top", id="myBtn", onclick="topFunction()", title="Go to top", type="button")
+
+                a.script(_t=self.script + self.topBtnScript)
 
         pageStr = str(a)     
         
