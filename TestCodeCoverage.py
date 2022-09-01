@@ -51,12 +51,14 @@ class MiniReport:
         # (npr. imena header datoteka ukljucenih u razliciite izvorne datoteka)
         self.listOfProcessedFileNames = listOfProcessedFileNames
 
-        # Broj sacuvanih CUCoverageInformation objekata
-        self.numOfSavedCUCovInfoObjects = None
-
         # Broj datoteka koje pogadja test
-        # (jedinstvena imena iz liste self.listOfProcessedFileNames)
-        self.numOfUniqueFiles = None
+        # (bez datoteka sa 0% pokrivenosti)
+        self.numOfUniqueFilesAfectedByTest = None
+
+        # Broj jedinstevnih datoteka za koje je postojao izvestaj
+        # to su jedinstvena imena iz liste self.listOfProcessedFileNames
+        # medju njima su i datoteke sa 0% pokrivenosti
+        self.numOfUniqueFilesProcessed = None
 
         # Ukoliko je na ulazu zadata opcija --object-path ne moze se znati
         # tacan broj fajlova koje test pokriva jer je obradjena samo jedna
@@ -75,16 +77,16 @@ class MiniReport:
 
     def makeReport(self, reports):
 
-        self.numOfSavedCUCovInfoObjects = len(reports)
+        self.numOfUniqueFilesAfectedByTest = len(reports)
         
         # Koristi se skup da se uklone duplikati
         uniqeFileNames = set(self.listOfProcessedFileNames)
-        self.numOfUniqueFiles = len(uniqeFileNames)
+        self.numOfUniqueFilesProcessed = len(uniqeFileNames)
 
         # U slucaju zadate opcije --object-path ne moze se govoriti o 
         # broju jedinstvenih datoteka koje test pokriva
         if self.ifObjectPath:
-            self.numOfUniqueFiles = None
+            self.numOfUniqueFilesProcessed = None
         
         # Pomocna funkcija koja vraca ekstenziju imena datoteke
         def toExt(e):
@@ -93,13 +95,13 @@ class MiniReport:
 
         # Mapiraju se dobijena imena datoteka u ekstenzije
         # Koristi se skup da se ukolne duplikati
-        mappedToExt_it = map(lambda e: toExt(e), self.listOfProcessedFileNames)
+        mappedToExt_it = map(lambda e: toExt(e), reports)
         mappedToExt = list(mappedToExt_it)        
         self.fileExtensions = set(mappedToExt)
 
         # Za svkau eksteniziju se pamti koliko datoteka se njome zavrsava
         self.extensionsCounter = {}
-        for name in uniqeFileNames:
+        for name in reports:
             extension = toExt(name)            
             if extension in self.extensionsCounter.keys():
                 self.extensionsCounter[extension] += 1
@@ -113,9 +115,9 @@ class MiniReport:
         print("=========================== Mini Report ===========================")
         print("Gcda Counter:", self.gcdaCounter)
         print("Number of processed reports:", self.numOfProcessedReports)
-        print("Number of saved CUCovInfo objects:", self.numOfSavedCUCovInfoObjects)
-        print("Number of unique files affected by test:", self.numOfUniqueFiles)
-        print("Extensions of the affected files:", self.fileExtensions)
+        print("Number of unique files affected by test:", self.numOfUniqueFilesAfectedByTest)
+        print("Number of processed unique files (including files with 0% coverage):", self.numOfUniqueFilesProcessed)
+        print("Extensions of files affected by test:", self.fileExtensions)
         print("Extensions counter:")
         for key, value in self.extensionsCounter.items():
             print("\t" + "\"" + key + "\"" + " : " + str(value))
@@ -213,7 +215,7 @@ class ProjectCodeCoverage:
 
             # # Formira se mali izvestaj 
             self.miniReport = MiniReport(gcdaCounter, numOfProcessedReports, listOfProcessedFileNames, 
-                                         self.reports.values(), self.targetObjectPath != None
+                                         self.reports.keys(), self.targetObjectPath != None
                                         )
         
         # Ukoliko nije zadata --object-path opcija na ulazu,
@@ -249,7 +251,7 @@ class ProjectCodeCoverage:
             
             # Formira se mali izvestaj
             self.miniReport = MiniReport(gcdaCounter, numOfProcessedReports, listOfProcessedFileNames, 
-                                         self.reports.values(), self.targetObjectPath != None
+                                         self.reports.keys(), self.targetObjectPath != None
                                         )
 
 
@@ -782,7 +784,7 @@ class HtmlReport:
                 a("Mini Report")
             with a.h5(klass="badge"):
                 a(testName)
-
+            
 
             # Formira se po jedan element u listi za svaku stavku iz MiniRport klase
             with a.ul(): 
@@ -794,16 +796,16 @@ class HtmlReport:
                     a("Number of processed reports: " + str(miniReport.numOfProcessedReports))
                 
                 with a.li(style="padding-top: 10px"):
-                    a("Number of saved CUCovInfo objects: " + str(miniReport.numOfSavedCUCovInfoObjects))
+                    a("Number of unique files affected by test: " + str(miniReport.numOfUniqueFilesAfectedByTest))
                 
                 with a.li(style="padding-top: 10px"):
-                    if miniReport.numOfUniqueFiles == None:
-                        a("Number of unique files affected by test: Unknown")
+                    if miniReport.numOfUniqueFilesProcessed == None:
+                        a("Number of processed unique files (including files with 0% coverage): Unknown")
                     else:
-                        a("Number of unique files affected by test: " + str(miniReport.numOfUniqueFiles))
+                        a("Number of processed unique files (including files with 0% coverage): " + str(miniReport.numOfUniqueFilesProcessed))
                 
                 with a.li(style="padding-top: 10px"):                    
-                    a("Extensions of the affected files: " + str(miniReport.fileExtensions))
+                    a("Extensions of the files affected by test: " + str(miniReport.fileExtensions))
                 
                 with a.li(style="padding-top: 10px"):
                     a("Extensions counter")
