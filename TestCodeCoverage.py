@@ -841,7 +841,7 @@ class HtmlReport:
         self.currentCUIndex = 0
         self.lock = threading.Lock()
         self.numOfSameCUNames_lock = threading.Lock()        
-        self.numOfWorkers = 100
+        self.numOfWorkers = 8
 
         with concurrent.futures.ThreadPoolExecutor(max_workers = self.numOfWorkers) as executor:
             for i in range(self.numOfWorkers):
