@@ -4,6 +4,8 @@
 import mmap
 import sys
 import os
+import threading
+import concurrent.futures
 import subprocess
 import argparse
 import shutil
@@ -508,6 +510,18 @@ class HtmlReport:
         # Mapa koja preslikava naziv kompilacione jedinice u html stranicu koja joj odgovara
         self.CUToHtmlPage = {}
 
+
+        # Promenljive koje su koristi repi paralelnom generisanju html izvestaja za CU
+        # Videti funkciju generateIndividualPagesforAllCU()
+        # Ovde se samo deklarisu, bice postavljne u pomenutoj funkciji koja ujedno i formira niti
+        self.numOfCU = None
+        self.currentCUIndex = None
+        self.allCUList = None
+        self.lock = None
+        self.numOfWorkers = None
+        self.numOfSameCUNames_lock = None
+
+
         # JavaScript kod koji se upisuje u svaku html stranicu kako bi se padajuci
         # elementi sa izvestajima otvarali i zatvarali na pritisak dugmeta
         self.script = """
@@ -821,12 +835,37 @@ class HtmlReport:
     # Funkcija prolazi kroz sve CU koje su pogodjene nekim od testova i
     # za svaku formira html stranicu
     def generateIndividualPagesforAllCU(self):
-        
-        allCU = set(self.reports_1.keys()).union(set(self.reports_2.keys()))
+                
+        self.allCUList = list(set(self.reports_1.keys()).union(set(self.reports_2.keys())))
+        self.numOfCU = len(self.allCUList)
+        self.currentCUIndex = 0
+        self.lock = threading.Lock()
+        self.numOfSameCUNames_lock = threading.Lock()        
+        self.numOfWorkers = 100
 
-        for CU in allCU:
-            hrefValue = self.generateCUPage(CU)
-            self.CUToHtmlPage[CU] = hrefValue
+        with concurrent.futures.ThreadPoolExecutor(max_workers = self.numOfWorkers) as executor:
+            for i in range(self.numOfWorkers):
+                executor.submit(self.threadFn, self.numOfCU)
+            
+
+    def threadFn(self, numOfCu):
+        
+        localIndex = None
+
+        while True:
+
+            with self.lock:                
+                localIndex = self.currentCUIndex
+                self.currentCUIndex += 1
+                if self.currentCUIndex == numOfCu + 1:
+                    self.currentCUIndex = numOfCu
+            
+            if localIndex == numOfCu:
+                break
+            
+            sourceFile = self.allCUList[localIndex]
+            hrefValue = self.generateCUPage(sourceFile)
+            self.CUToHtmlPage[sourceFile] = hrefValue
 
     # =============================================================================================
 
@@ -906,9 +945,13 @@ class HtmlReport:
         hrefValue = "./Pages/" +  baseName + ".html"
 
         if os.path.exists(htmlFileName):
-            htmlFileName = self.coverageInfoDest + '/html/Pages/' + baseName + "_" + str(self.numOfSameCUNames) + ".html"
-            hrefValue = "./Pages/" +  baseName + "_" + str(self.numOfSameCUNames) + ".html"
-            self.numOfSameCUNames += 1
+            
+            # self.numOfSameCUNames je deljeni resurs koji niti mogu da citaju i uvecavaju istovremeno
+            # zato je potrebno sinhronizovati njegovo koriscenje da ne bi doslo do progresnih rezultata
+            with self.numOfSameCUNames_lock:
+                htmlFileName = self.coverageInfoDest + '/html/Pages/' + baseName + "_" + str(self.numOfSameCUNames) + ".html"
+                hrefValue = "./Pages/" +  baseName + "_" + str(self.numOfSameCUNames) + ".html"
+                self.numOfSameCUNames += 1
 
         with open(htmlFileName, "wb") as f:
             f.write(pageStr.encode())
