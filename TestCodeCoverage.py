@@ -294,12 +294,8 @@ class ProjectCodeCoverage:
                     if self.targetSourceFile != None and self.targetSourceFile != sourceFileName:
                         processedReportsCounter += 1
                         processedReportsFileNames.append(sourceFileName)                        
-                        continue
+                        continue                    
                     
-                    if self.targetSourceFile:
-                        print("sourceFile", self.targetSourceFile)
-                        print("CUCovInfo.name", CUCovInfo.name )
-
 
                     # Prolazi se kroz sve linije u izvestaju
                     lines = fileInfo["lines"]
@@ -848,7 +844,7 @@ class HtmlReport:
         left = 0
         right = 0
 
-        with concurrent.futures.ThreadPoolExecutor(max_workers = self.numOfWorkers) as executor:
+        with concurrent.futures.ThreadPoolExecutor(max_workers = self.numOfWorkers+1) as executor:
             for i in range(self.numOfWorkers):
                 
                 if right == 0:
@@ -901,38 +897,41 @@ class HtmlReport:
                         a("Code Coverage")
                     with a.p():
                         a("Source file: " + sourceFile)                                 
+                
+                                
+                with open(sourceFile, "r") as f:
+                    lines = f.read().split("\n")                    
 
-                with open(sourceFile, "rb") as f:
-                    
-                    #mm = mmap.mmap(f.fileno(), 0, prot=mmap.PROT_READ)
 
-                    # Generise se zbirni izvestaj o pokrivenosi linija
-                    a.button(_t="Open Summary Report", klass="collapsible", type="button")
-                    with a.div(klass="content", style="display: none;"):
-                        a.hr()
-                        a.h3(_t="Summary Report", klass="subheader")
-                        a(self.coveredLinesHtml(sourceFile, f))                    
+                #mm = mmap.mmap(f.fileno(), 0, prot=mmap.PROT_READ)
 
-                    # Generise se izvestaj o funkcijama
-                    a.button(_t="Open Functions Report", klass="collapsible", type="button")
-                    with a.div(klass="content", style="display: none;"):
-                        a.hr()
-                        a.h3(_t="Functions Report", klass="subheader")
-                        a(self.coveredFunctionsHtml(sourceFile))
+                # Generise se zbirni izvestaj o pokrivenosi linija
+                a.button(_t="Open Summary Report", klass="collapsible", type="button")
+                with a.div(klass="content", style="display: none;"):
+                    a.hr()
+                    a.h3(_t="Summary Report", klass="subheader")
+                    a(self.coveredLinesHtml(sourceFile, lines))                    
 
-                    # Generise se izvestaj o razlikama u pokrivenosti linija
-                    a.button(_t="Open Coverage Diff", klass="collapsible", type="button")
-                    with a.div(klass="content", style="display: none;"):
-                        a.hr()
-                        a.h3(_t="Coverage Diff", klass="subheader")
-                        a(self.generateCoverageDiffHtml(sourceFile, f))                    
+                # Generise se izvestaj o funkcijama
+                a.button(_t="Open Functions Report", klass="collapsible", type="button")
+                with a.div(klass="content", style="display: none;"):
+                    a.hr()
+                    a.h3(_t="Functions Report", klass="subheader")
+                    a(self.coveredFunctionsHtml(sourceFile))
 
-                    # Generise se uporedni prikaz pokrivenoh linija
-                    a.button(_t="Open Side By Side Comparison", klass="collapsible", type="button")
-                    with a.div(klass="content", style="display: none;"):
-                        a.hr()
-                        a.h3(_t="Side By Side Comparison", klass="subheader")
-                        a(self.generateSideBySideCoverageHtml(sourceFile, f))                                        
+                # Generise se izvestaj o razlikama u pokrivenosti linija
+                a.button(_t="Open Coverage Diff", klass="collapsible", type="button")
+                with a.div(klass="content", style="display: none;"):
+                    a.hr()
+                    a.h3(_t="Coverage Diff", klass="subheader")
+                    a(self.generateCoverageDiffHtml(sourceFile, lines))                    
+
+                # Generise se uporedni prikaz pokrivenoh linija
+                a.button(_t="Open Side By Side Comparison", klass="collapsible", type="button")
+                with a.div(klass="content", style="display: none;"):
+                    a.hr()
+                    a.h3(_t="Side By Side Comparison", klass="subheader")
+                    a(self.generateSideBySideCoverageHtml(sourceFile, lines))                                        
                     
                     #mm.close()
                 
@@ -958,14 +957,14 @@ class HtmlReport:
                 hrefValue = "./Pages/" +  baseName + "_" + str(self.numOfSameCUNames) + ".html"
                 self.numOfSameCUNames += 1
 
-        with open(htmlFileName, "wb") as f:
-            f.write(pageStr.encode())
+        with open(htmlFileName, "w") as f:
+            f.write(pageStr)
         
         return hrefValue
 
 
     # Funkcija generise zbirni izvestaj o pokrivenosti linija testovima za jednu CU
-    def coveredLinesHtml(self, sourceFile, f):
+    def coveredLinesHtml(self, sourceFile, lines):
         
         a = Airium()
 
@@ -986,17 +985,14 @@ class HtmlReport:
                 a.th(_t='Tests that cover line', klass="mainTh")
             
             
-            f.seek(0)            
-            lineNumber = 0
+            #f.seek(0)            
+            #lineNumber = 0
 
             # Citaju se linije izvorne datoteke
-            while True:
+            for index, line in enumerate(lines): 
                 
-                line = f.readline()
-                if line == '':
-                    break
 
-                lineNumber += 1
+                lineNumber = index + 1 
                 
                 # Zbirna lista testova za jednu liniju
                 testsCoveringLine = [] 
@@ -1081,7 +1077,7 @@ class HtmlReport:
         return str(a)
 
     # Funkcija genersie izvestaj o razlikama u pokrivenosti linija izmedju dva testa za jednu CU
-    def generateCoverageDiffHtml(self, sourceFile, f):                
+    def generateCoverageDiffHtml(self, sourceFile, lines):                
 
         # Dohavataju se izvestaji
         r1 = self.reports_1[sourceFile]
@@ -1118,17 +1114,14 @@ class HtmlReport:
                     a.span(_t=" BUT NOT ")
                     a.span(_t=test1_name, klass="badge")
 
-            f.seek(0)
-            lineNumber = 0
+            #f.seek(0)
+            #lineNumber = 0
 
             # Citaju se linije izvornog koda
-            while True:
+            for index, line in enumerate(lines): 
                 
-                line = f.readline()
-                if line == '':
-                    break
 
-                lineNumber += 1
+                lineNumber = index + 1
                 
                 # Proverava se u koji skup upada linija i u zavisnosti od toga se boji 
                 # odgovarajucom bojom
@@ -1152,7 +1145,7 @@ class HtmlReport:
         return str(a)
 
     # Funkcija generise uporedni prikaz pokrivenih linija za jednu CU
-    def generateSideBySideCoverageHtml(self, sourceFile, f):
+    def generateSideBySideCoverageHtml(self, sourceFile, lines):
         
         # Dohvataju se odgovarajuci izvestaji
         r1 = self.reports_1[sourceFile]
@@ -1179,17 +1172,14 @@ class HtmlReport:
                 with a.th(klass="mainTh"):
                     a.span(_t=test2_name, klass="badge")
 
-            f.seek(0)
-            lineNumber = 0
+            #f.seek(0)
+            #lineNumber = 0
 
             # Citaju se linije izvornog koda
-            while True:
+            for index, line in enumerate(lines): 
                 
-                line = f.readline()
-                if line == '':
-                    break
-                                
-                lineNumber += 1
+
+                lineNumber = index + 1 
 
                 isCoveredByR1 = lineNumber in r1.coveredLines
                 isCoveredByR2 = lineNumber in r2.coveredLines
