@@ -1,6 +1,5 @@
 #!/usr/bin/python
 
-
 import mmap
 import sys
 import os
@@ -841,29 +840,35 @@ class HtmlReport:
         self.currentCUIndex = 0
         self.lock = threading.Lock()
         self.numOfSameCUNames_lock = threading.Lock()        
-        self.numOfWorkers = 8
+        self.numOfWorkers = 4
+
+        chunkLen = self.numOfCU // self.numOfWorkers
+        remainder = self.numOfCU % self.numOfWorkers
+
+        left = 0
+        right = 0
 
         with concurrent.futures.ThreadPoolExecutor(max_workers = self.numOfWorkers) as executor:
             for i in range(self.numOfWorkers):
-                executor.submit(self.threadFn, self.numOfCU)
+                
+                if right == 0:
+                    left == 0
+                else:
+                    left = right + 1
+                
+                right = left + chunkLen - 1
+
+                if remainder != 0:
+                    right = right + 1
+                    remainder -= 1
+
+                executor.submit(self.threadFn, left, right)
             
 
-    def threadFn(self, numOfCu):
+    def threadFn(self, start, end):
         
-        localIndex = None
-
-        while True:
-
-            with self.lock:                
-                localIndex = self.currentCUIndex
-                self.currentCUIndex += 1
-                if self.currentCUIndex == numOfCu + 1:
-                    self.currentCUIndex = numOfCu
-            
-            if localIndex == numOfCu:
-                break
-            
-            sourceFile = self.allCUList[localIndex]
+        for i in range(start, end+1):
+            sourceFile = self.allCUList[i]
             hrefValue = self.generateCUPage(sourceFile)
             self.CUToHtmlPage[sourceFile] = hrefValue
 
@@ -899,14 +904,14 @@ class HtmlReport:
 
                 with open(sourceFile, "rb") as f:
                     
-                    mm = mmap.mmap(f.fileno(), 0, prot=mmap.PROT_READ)
+                    #mm = mmap.mmap(f.fileno(), 0, prot=mmap.PROT_READ)
 
                     # Generise se zbirni izvestaj o pokrivenosi linija
                     a.button(_t="Open Summary Report", klass="collapsible", type="button")
                     with a.div(klass="content", style="display: none;"):
                         a.hr()
                         a.h3(_t="Summary Report", klass="subheader")
-                        a(self.coveredLinesHtml(sourceFile, mm))                    
+                        a(self.coveredLinesHtml(sourceFile, f))                    
 
                     # Generise se izvestaj o funkcijama
                     a.button(_t="Open Functions Report", klass="collapsible", type="button")
@@ -920,16 +925,16 @@ class HtmlReport:
                     with a.div(klass="content", style="display: none;"):
                         a.hr()
                         a.h3(_t="Coverage Diff", klass="subheader")
-                        a(self.generateCoverageDiffHtml(sourceFile, mm))                    
+                        a(self.generateCoverageDiffHtml(sourceFile, f))                    
 
                     # Generise se uporedni prikaz pokrivenoh linija
                     a.button(_t="Open Side By Side Comparison", klass="collapsible", type="button")
                     with a.div(klass="content", style="display: none;"):
                         a.hr()
                         a.h3(_t="Side By Side Comparison", klass="subheader")
-                        a(self.generateSideBySideCoverageHtml(sourceFile, mm))                                        
+                        a(self.generateSideBySideCoverageHtml(sourceFile, f))                                        
                     
-                    mm.close()
+                    #mm.close()
                 
 
                 a.button(_t="Top", id="myBtn", onclick="topFunction()", title="Go to top", type="button")
@@ -960,7 +965,7 @@ class HtmlReport:
 
 
     # Funkcija generise zbirni izvestaj o pokrivenosti linija testovima za jednu CU
-    def coveredLinesHtml(self, sourceFile, mm):
+    def coveredLinesHtml(self, sourceFile, f):
         
         a = Airium()
 
@@ -981,13 +986,13 @@ class HtmlReport:
                 a.th(_t='Tests that cover line', klass="mainTh")
             
             
-            mm.seek(0)            
+            f.seek(0)            
             lineNumber = 0
 
             # Citaju se linije izvorne datoteke
             while True:
                 
-                line = mm.readline().decode()
+                line = f.readline()
                 if line == '':
                     break
 
@@ -1076,7 +1081,7 @@ class HtmlReport:
         return str(a)
 
     # Funkcija genersie izvestaj o razlikama u pokrivenosti linija izmedju dva testa za jednu CU
-    def generateCoverageDiffHtml(self, sourceFile, mm):                
+    def generateCoverageDiffHtml(self, sourceFile, f):                
 
         # Dohavataju se izvestaji
         r1 = self.reports_1[sourceFile]
@@ -1113,13 +1118,13 @@ class HtmlReport:
                     a.span(_t=" BUT NOT ")
                     a.span(_t=test1_name, klass="badge")
 
-            mm.seek(0)
+            f.seek(0)
             lineNumber = 0
 
             # Citaju se linije izvornog koda
             while True:
                 
-                line = mm.readline().decode()
+                line = f.readline()
                 if line == '':
                     break
 
@@ -1147,7 +1152,7 @@ class HtmlReport:
         return str(a)
 
     # Funkcija generise uporedni prikaz pokrivenih linija za jednu CU
-    def generateSideBySideCoverageHtml(self, sourceFile, mm):
+    def generateSideBySideCoverageHtml(self, sourceFile, f):
         
         # Dohvataju se odgovarajuci izvestaji
         r1 = self.reports_1[sourceFile]
@@ -1174,13 +1179,13 @@ class HtmlReport:
                 with a.th(klass="mainTh"):
                     a.span(_t=test2_name, klass="badge")
 
-            mm.seek(0)
+            f.seek(0)
             lineNumber = 0
 
             # Citaju se linije izvornog koda
             while True:
                 
-                line = mm.readline().decode()
+                line = f.readline()
                 if line == '':
                     break
                                 
