@@ -829,9 +829,9 @@ class HtmlReport:
         # ali je potrosnja RAM memorije veca.
 
         # Pravi pool procesa, ima ih onoliko koliko logickih jezgara na sistemu
-        with multiprocessing.Pool() as pool:
+        with multiprocessing.Pool(processes=4) as pool:
 
-            results = pool.map_async(self.threadFn, self.allCUList, chunksize=10)
+            results = pool.map_async(self.threadFn, self.allCUList, chunksize=100)
             
             results.wait()            
 
