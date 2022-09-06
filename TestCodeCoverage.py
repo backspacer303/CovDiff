@@ -5,6 +5,7 @@ import sys
 import os
 import threading
 import concurrent.futures
+import multiprocessing
 import subprocess
 import argparse
 import shutil
@@ -493,9 +494,7 @@ class HtmlReport:
         self.currentCUIndex = None
         self.allCUList = None
         self.lock = None
-        self.numOfWorkers = None
-        self.numOfSameCUNames_lock = None
-
+        self.numOfWorkers = None        
 
         # JavaScript kod koji se upisuje u svaku html stranicu kako bi se padajuci
         # elementi sa izvestajima otvarali i zatvarali na pritisak dugmeta
@@ -813,40 +812,31 @@ class HtmlReport:
                 
         self.allCUList = list(set(self.reports_1.keys()).union(set(self.reports_2.keys())))
         self.numOfCU = len(self.allCUList)
-        self.currentCUIndex = 0
-        self.lock = threading.Lock()
-        self.numOfSameCUNames_lock = threading.Lock()        
+        self.currentCUIndex = 0        
+        #self.numOfSameCUNames_lock = multiprocessing.Lock()        
         self.numOfWorkers = 4
 
-        chunkLen = self.numOfCU // self.numOfWorkers
-        remainder = self.numOfCU % self.numOfWorkers
 
-        left = 0
-        right = 0
+        global numOfSameCUNames_lock
+        numOfSameCUNames_lock = multiprocessing.Lock()
 
-        with concurrent.futures.ThreadPoolExecutor(max_workers = self.numOfWorkers+1) as executor:
-            for i in range(self.numOfWorkers):
-                
-                if right == 0:
-                    left == 0
-                else:
-                    left = right + 1
-                
-                right = left + chunkLen - 1
+        # Pravi pool procesa, ima ih onoliko koliko logickih jezgara na sistemu
+        with multiprocessing.Pool() as pool:
 
-                if remainder != 0:
-                    right = right + 1
-                    remainder -= 1
-
-                executor.submit(self.threadFn, left, right)
+            results = pool.map_async(self.threadFn, self.allCUList, chunksize=10)
             
+            results.wait()            
 
-    def threadFn(self, start, end):
-        
-        for i in range(start, end+1):
-            sourceFile = self.allCUList[i]
-            hrefValue = self.generateCUPage(sourceFile)
-            self.CUToHtmlPage[sourceFile] = hrefValue
+            for r in results.get():
+                self.CUToHtmlPage[r[0]] = r[1]
+
+            pool.close()
+            pool.join()
+
+
+    def threadFn(self, sourceFile):        
+        hrefValue = self.generateCUPage(sourceFile)
+        return (sourceFile, hrefValue)
 
     # =============================================================================================
 
@@ -932,7 +922,7 @@ class HtmlReport:
             
             # self.numOfSameCUNames je deljeni resurs koji niti mogu da citaju i uvecavaju istovremeno
             # zato je potrebno sinhronizovati njegovo koriscenje da ne bi doslo do progresnih rezultata
-            with self.numOfSameCUNames_lock:
+            with numOfSameCUNames_lock:
                 htmlFileName = self.coverageInfoDest + '/html/Pages/' + baseName + "_" + str(self.numOfSameCUNames) + ".html"
                 hrefValue = "./Pages/" +  baseName + "_" + str(self.numOfSameCUNames) + ".html"
                 self.numOfSameCUNames += 1
