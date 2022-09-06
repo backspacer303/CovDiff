@@ -460,33 +460,13 @@ class ProjectCodeCoverage:
                 if fileExt == ".gcda":
                     os.remove(os.path.join(root, file))
 
-    # Samo za debagovanje - IZBRISATI
-    def countGcda(self):
-        counter = 0 
-        for root, dirs, files in os.walk(self.projectDirectory):            
-            for file in files:
-                (fileRoot, fileExt) = os.path.splitext(file)
-                if fileExt == ".gcda":
-                    counter += 1
-        print("Counted gcda:", counter)
-
-    # Samo za debagovanje - IZBRISATI
-    def printInfoForFile(self, name):
-        for CUReport in self.reports.values():
-            if CUReport.name == name:
-                print(CUReport)
-
-
     # Ulazna metoda.
     # Pokrece ceo proces generisanja izvestaja nad projektom
     def runProjectCodeCoverage(self):
             self.clearProjectFromGcda()
-            self.countGcda()
             self.runTest()
-            self.countGcda()
             self.makeCoverageInfoDestDir()
             self.searchForGcda()
-            #self.printInfoForFile("/home/syrmia/Desktop/llvm-project/llvm/tools/opt/NewPMDriver.cpp")
 
 
 class HtmlReport:
