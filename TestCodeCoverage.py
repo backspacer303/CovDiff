@@ -820,6 +820,14 @@ class HtmlReport:
         global numOfSameCUNames_lock
         numOfSameCUNames_lock = multiprocessing.Lock()
 
+        # NAPOMENA: Generisanje varijana sa nitima je bolja ali je u tom slucaju problem
+        # "Global Interpreter Lock (GIL)" koncept koji onemogucava nitima da paralelno citaju
+        # deljene podatke, vec forsira sinhronizaciju cak i u slucaju da se podaci samo citaju a ne menjaju.
+        # Sumarno, vreme izvrsavanja u slucaju niti bude vece od vremena sekvencijalnog izvrsavanja - proces se 
+        # ponasa kao jednoniti plus ima puno promena konteksta koje prebacuju vreme sekvencijalne varijante
+        # Zato je odabrana varijanta sa decom procesa jer deca dobijaju kopije podataka pa ne pristupaju zajednickim podacima
+        # ali je potrosnja RAM memorije veca.
+
         # Pravi pool procesa, ima ih onoliko koliko logickih jezgara na sistemu
         with multiprocessing.Pool() as pool:
 
