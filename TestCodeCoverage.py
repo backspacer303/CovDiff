@@ -1228,18 +1228,18 @@ def parse_program_args(parser):
                         help='the path to the source file of intrest')
 
     parser.add_argument('--object-path',  metavar='object_path', action="store",
-                        help="if source file is specified and object file is on other place than source file")
+                        help="the path to the object file corresponding to the given source file, if known")
 
     parser.add_argument('test1', metavar='test1', action="store",
-                        help='the first test to be run (ll file)')
+                        help='the first test to be run')
     parser.add_argument('test2', metavar='test2', action="store",
-                        help='the second test to be run (ll file)')
+                        help='the second test to be run')
     parser.add_argument('coverage_dest', metavar='coverage_dest', action="store",
                         help='directory for storing code coverage information')
     parser.add_argument('command', metavar='command', action="store",
                         help='command to run the tests')
     parser.add_argument('command_arg', metavar='command_arg', action="store", nargs='*',
-                        help='command arguments must be specified in the form -<option>')
+                        help='command arguments')
                         
     return parser.parse_args()
 
