@@ -414,12 +414,12 @@ class ProjectCodeCoverage:
 
         os.chdir(currentWorkDir)
 
-        name = os.path.basename(gcda)
+        name, _ = os.path.splitext(os.path.basename(gcda))               
 
         # Pravi se ptanja do nastale arhive sa rezultatom nakon poziva gcov alata
         # i putanja do buduce json datoteke u kojoj ce da se zapamti procitan rezultat
         archiveName = os.path.join(self.coverageInfoDest, name + ".gcov.json.gz")
-        
+
         # Putanje se prosledjuju metodi readArchiveAndSaveJson() koja vraca ucitani json objekat
         # pa se taj objekat vraca i iz ove metode
         return self.readArchiveAndSaveJson(archiveName)
@@ -430,6 +430,7 @@ class ProjectCodeCoverage:
     def readArchiveAndSaveJson(self, archiveName):               
         
         if not os.path.exists(archiveName):
+            print("Ne postoji:", archiveName)
             raise Exception("ERROR: archive that contains json report does not exist")
 
         with gzip.open(archiveName, 'rb') as f:
