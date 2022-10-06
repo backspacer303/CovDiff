@@ -405,7 +405,7 @@ class ProjectCodeCoverage:
         currentWorkDir = os.getcwd()
         os.chdir(self.coverageInfoDest)  # Kako bi se json fajl generisao u direktorijumu sa rezultatima nakon poziva gcov   
         
-        processsRetVal = subprocess.run(["gcov", "--no-output", "--json-format", "--branch-probabilities", gcda],
+        processsRetVal = subprocess.run(["gcov", "--no-output", "--json-format", "--branch-probabilities", "--demangled-names", gcda],
                                         stdout=subprocess.DEVNULL,
                                         stderr=subprocess.DEVNULL
                                        )
