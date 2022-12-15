@@ -864,7 +864,7 @@ class HtmlReport:
         with a.html():
             with a.head():
                 a.meta(charset="utf-8")
-                a.title(_t="Code Coverage")
+                a.title(_t=os.path.basename(sourceFile))
                 a.link(rel="stylesheet", href="../Style/style.css")
 
             # Generise se telo html dokumenta
@@ -880,9 +880,7 @@ class HtmlReport:
                                 
                 with open(sourceFile, "r") as f:
                     lines = f.read().split("\n")                    
-
-
-                #mm = mmap.mmap(f.fileno(), 0, prot=mmap.PROT_READ)
+               
 
                 # Generise se zbirni izvestaj o pokrivenosi linija
                 a.button(_t="Open Summary Report", klass="collapsible", type="button")
@@ -912,8 +910,22 @@ class HtmlReport:
                     a.h3(_t="Side By Side Comparison", klass="subheader")
                     a(self.generateSideBySideCoverageHtml(sourceFile, lines))                                        
                     
-                    #mm.close()
-                
+                #TODO
+                # Generise se izvestaj o razlikama u pokrivenosti funkcija
+                a.button(_t="Open Function Coverage Diff", klass="collapsible", type="button")
+                with a.div(klass="content", style="display: none;"):
+                    a.hr()
+                    a.h3(_t="Function Coverage Diff", klass="subheader")
+                    a(self.generateFunctionCoverageDiffHtml(sourceFile))                
+
+                #TODO
+                # Generise se uporedni prikaz pokrivenih funkcija
+                a.button(_t="Open Function Coverage Side By Side", klass="collapsible", type="button")
+                with a.div(klass="content", style="display: none;"):
+                    a.hr()
+                    a.h3(_t="Function Coverage Side By Side", klass="subheader")
+                    a(self.generateSideBySideFunctionCoverageHtml(sourceFile))
+
 
                 a.button(_t="Top", id="myBtn", onclick="topFunction()", title="Go to top", type="button")
 
@@ -1146,10 +1158,14 @@ class HtmlReport:
                 with a.th(klass="mainTh"):
                     a.span(_t=test1_name, klass="badge")
                 
+                a.th(_t="Hit count", klass="mainTh")
+
                 a.th(_t="Line Number", klass="mainTh")
                 
                 with a.th(klass="mainTh"):
                     a.span(_t=test2_name, klass="badge")
+                
+                a.th(_t="Hit count", klass="mainTh")
 
             #f.seek(0)
             #lineNumber = 0
@@ -1163,35 +1179,70 @@ class HtmlReport:
                 isCoveredByR1 = lineNumber in r1.coveredLines
                 isCoveredByR2 = lineNumber in r2.coveredLines
 
+                lineHitCountR1 = ""
+                lineHitCountR2 = ""
+                
+                if lineNumber in r1.linesOfInterest:
+                    lineHitCountR1 = str(r1.lineHitCount[lineNumber])
+                else:
+                    lineHitCountR1 = "---"
+
+                if lineNumber in r2.linesOfInterest:
+                    lineHitCountR2 = str(r2.lineHitCount[lineNumber])
+                else:
+                    lineHitCountR2 = "---"
+
                 # Proverava se kojim testom je linija pokrivena i u zavisnosti do toga
                 # boji se na odgovarajuci nacin
                 with a.tr(klass="mainTr"):
                     if isCoveredByR1 and isCoveredByR2:
                         a.td(_t=str(lineNumber), klass="lineNumber")
                         a.td(_t=line, klass="codeLine coveredLine")
+                        a.td(_t=lineHitCountR1, klass="lineNumber")
+                        
                         a.td(_t=str(lineNumber), klass="lineNumber")
-                        a.td(_t=line, klass="codeLine coveredLine") 
+                        a.td(_t=line, klass="codeLine coveredLine")
+                        a.td(_t=lineHitCountR2, klass="lineNumber")
                     elif isCoveredByR1:
                         a.td(_t=str(lineNumber), klass="lineNumber")
                         a.td(_t=line, klass="codeLine coveredLine")
+                        a.td(_t=lineHitCountR1, klass="lineNumber")
+
                         a.td(_t=str(lineNumber), klass="lineNumber")
-                        a.td(_t=line, klass="codeLine") 
+                        a.td(_t=line, klass="codeLine")
+                        a.td(_t=lineHitCountR2, klass="lineNumber") 
                     elif isCoveredByR2:
                         a.td(_t=str(lineNumber), klass="lineNumber")
                         a.td(_t=line, klass="codeLine")
+                        a.td(_t=lineHitCountR1, klass="lineNumber")
+
                         a.td(_t=str(lineNumber), klass="lineNumber")
-                        a.td(_t=line, klass="codeLine coveredLine") 
+                        a.td(_t=line, klass="codeLine coveredLine")
+                        a.td(_t=lineHitCountR2, klass="lineNumber") 
                     else:
                         a.td(_t=str(lineNumber), klass="lineNumber")
                         a.td(_t=line, klass="codeLine")
+                        a.td(_t=lineHitCountR1, klass="lineNumber")
+
                         a.td(_t=str(lineNumber), klass="lineNumber")
                         a.td(_t=line, klass="codeLine")
+                        a.td(_t=lineHitCountR2, klass="lineNumber")
         
         return str(a)
 
+    #TODO
+    def generateFunctionCoverageDiffHtml(self, sourceFile):
+        # Slicno kao za Coverage Diff - vidi kod
+        pass
+    
+    #TODO
+    def generateSideBySideFunctionCoverageHtml(self, sourceFile):
+        # Slicno kao za Side By Side - vidi kod
+        pass
+
     # ======================================================================================
 
-    # Pravi direktorijum u kome c da se cuvaju html stranice
+    # Pravi direktorijum u kome ce da se cuvaju html stranice
     def makeHtmlReportDir(self):
         path = os.path.join(self.coverageInfoDest, 'html')
         if os.path.isdir(path):
