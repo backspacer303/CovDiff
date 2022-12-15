@@ -103,7 +103,13 @@ Primer 2
 ```
 python3 TestCodeCoverage.py ~/Desktop/ClangCoverageBuild ./bbi-70612_typed.ll ./bbi-70612_typed_no_llvmdbg.ll ./results ~/Desktop/ClangCoverageBuild/bin/opt opaque-pointers=0 O2 S o opt_out.ll
 ```
+<br>
 
+---
+> Rezultati pokretanja alata nad LLVM projektom se mogu preuzeti na [ovoj adresi](https://drive.google.com/drive/folders/1vGo_d2THwaoFHrfzuAzkI46bw06fiHqn?usp=share_link).
+---
+
+<br>
 
 ## Zavisnosti
 
