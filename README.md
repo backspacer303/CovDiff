@@ -1,4 +1,4 @@
-# Alat za generisanje razlika u pokrivenosti koda testovima 
+# *CovDiff* alat za generisanje i prikaz razlika u pokrivenosti koda testovima 
 
 Alat generiše html stranice sa izveštajima o pokrivenosti kod celog build-a nakon pokretanja dva testa. Izveštaji se generišu za svaku kompilacionu jedinicu posebno. Na stranicama se nalaze različite uporedne informacije o pokrivenosti koda testovima pa je tako moguće videti u kojim datotekama i na kojim linijama postoje razlike.
 
@@ -106,7 +106,7 @@ python3 TestCodeCoverage.py ~/Desktop/ClangCoverageBuild ./bbi-70612_typed.ll ./
 <br>
 
 ---
-> Rezultati pokretanja alata nad LLVM projektom se mogu preuzeti na [ovoj adresi](https://drive.google.com/drive/folders/1vGo_d2THwaoFHrfzuAzkI46bw06fiHqn?usp=share_link).
+> Rezultati pokretanja alata nad LLVM projektom komandom iz primera 2, mogu se preuzeti na [ovoj adresi](https://drive.google.com/drive/folders/1vGo_d2THwaoFHrfzuAzkI46bw06fiHqn?usp=share_link). Tu su dostupni i izvorni kodovi testova koji su tom prilikom pokrenuti.
 ---
 
 <br>
