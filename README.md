@@ -1,4 +1,4 @@
-# *CovDiff* alat za generisanje i prikaz razlika u pokrivenosti koda testovima 
+# *CovDiff* - alat za generisanje i prikaz razlika u pokrivenosti koda testovima 
 
 Alat generiše html stranice sa izveštajima o pokrivenosti kod celog build-a nakon pokretanja dva testa. Izveštaji se generišu za svaku kompilacionu jedinicu posebno. Na stranicama se nalaze različite uporedne informacije o pokrivenosti koda testovima pa je tako moguće videti u kojim datotekama i na kojim linijama postoje razlike.
 
@@ -99,14 +99,14 @@ Primer 1
 ```bash
 python3 TestCodeCoverage.py ~/Desktop/lib_build/ ~/Desktop/lib_test/test1 ~/Desktop/lib_test/test2 ./results run_exec.sh 
 ```
-Primer 2
+Primer 2 - Pokretanje alata nad projektom *LLVM*
 ```
 python3 TestCodeCoverage.py ~/Desktop/ClangCoverageBuild ./bbi-70612_typed.ll ./bbi-70612_typed_no_llvmdbg.ll ./results ~/Desktop/ClangCoverageBuild/bin/opt opaque-pointers=0 O2 S o opt_out.ll
 ```
 <br>
 
 ---
-> Rezultati pokretanja alata nad LLVM projektom komandom iz primera 2, mogu se preuzeti na [ovoj adresi](https://drive.google.com/drive/folders/1vGo_d2THwaoFHrfzuAzkI46bw06fiHqn?usp=share_link). Tu su dostupni i izvorni kodovi testova koji su tom prilikom pokrenuti.
+> Rezultati pokretanja alata nad projektom *LLVM* komandom iz primera 2, mogu se preuzeti na [ovoj adresi](https://drive.google.com/drive/folders/1vGo_d2THwaoFHrfzuAzkI46bw06fiHqn?usp=share_link). Tu su dostupni i izvorni kodovi testova koji su tom prilikom pokrenuti.
 ---
 
 <br>
