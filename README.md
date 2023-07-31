@@ -68,7 +68,7 @@ Klasa `HtmlReport` koristi informacije o pokrivenosti kompilacionih jedinica iz 
 ## Upotreba
 
 ```
-python3 TestCodeCoverage.py [-h] 
+python3 covdiff.py [-h] 
 [--source-file source_file] [--object-path object_path]
 directory_path test1 test2 coverage_dest 
 command [command_arg [command_arg ...]]
@@ -97,11 +97,11 @@ ukoliko je jedan od argumenata komande opcija `o` sledećem u nizu argumenata ne
 ### Primer pokretanja
 Primer 1
 ```bash
-python3 TestCodeCoverage.py ~/Desktop/lib_build/ ~/Desktop/lib_test/test1 ~/Desktop/lib_test/test2 ./results run_exec.sh 
+python3 covdiff.py ~/Desktop/lib_build/ ~/Desktop/lib_test/test1 ~/Desktop/lib_test/test2 ./results run_exec.sh 
 ```
 Primer 2 - Pokretanje alata nad projektom *LLVM*
-```
-python3 TestCodeCoverage.py ~/Desktop/ClangCoverageBuild ./bbi-70612_typed.ll ./bbi-70612_typed_no_llvmdbg.ll ./results ~/Desktop/ClangCoverageBuild/bin/opt opaque-pointers=0 O2 S o opt_out.ll
+```bash
+python3 covdiff.py ~/Desktop/ClangCoverageBuild ./bbi-70612_typed.ll ./bbi-70612_typed_no_llvmdbg.ll ./results ~/Desktop/ClangCoverageBuild/bin/opt opaque-pointers=0 O2 S o opt_out.ll
 ```
 <br>
 
