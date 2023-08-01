@@ -39,8 +39,7 @@ class ProjectCodeCoverage:
     # Pokrece zadati test zadatom komandom.
     def runTest(self):
         processsRetVal = subprocess.run([self.command, self.test] + self.commandArgs,
-                                        stdout=subprocess.DEVNULL,
-                                        stderr=subprocess.DEVNULL
+                                        stdout=subprocess.DEVNULL                                        
                                        )
         processsRetVal.check_returncode()
 
