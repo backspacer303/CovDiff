@@ -379,22 +379,6 @@ class HtmlReport:
                     a.h3(_t="Side By Side Comparison", klass="subheader")
                     a(self.generateSideBySideCoverageHtml(sourceFile, lines))
 
-                #TODO
-                # Generise se izvestaj o razlikama u pokrivenosti funkcija.
-                a.button(_t="Open Function Coverage Diff", klass="collapsible", type="button")
-                with a.div(klass="content", style="display: none;"):
-                    a.hr()
-                    a.h3(_t="Function Coverage Diff", klass="subheader")
-                    a(self.generateFunctionCoverageDiffHtml(sourceFile))
-
-                #TODO
-                # Generise se uporedni prikaz pokrivenih funkcija.
-                a.button(_t="Open Function Coverage Side By Side", klass="collapsible", type="button")
-                with a.div(klass="content", style="display: none;"):
-                    a.hr()
-                    a.h3(_t="Function Coverage Side By Side", klass="subheader")
-                    a(self.generateSideBySideFunctionCoverageHtml(sourceFile))
-
                 # Dugme za povratak na vrh stranice.
                 a.button(_t="Top", id="myBtn", onclick="topFunction()", title="Go to top", type="button")
 
@@ -683,20 +667,6 @@ class HtmlReport:
                         a.td(_t=lineHitCountR2, klass="lineNumber")
 
         return str(a)
-
-    # ======================================================================================
-
-    #TODO
-    def generateFunctionCoverageDiffHtml(self, sourceFile):
-        # Slicno kao za Coverage Diff - vidi kod
-        pass
-
-    #TODO
-    def generateSideBySideFunctionCoverageHtml(self, sourceFile):
-        # Slicno kao za Side By Side - vidi kod
-        pass
-
-    # ======================================================================================
 
     # Pravi direktorijum u kome ce da se cuvaju html stranice.
     def makeHtmlReportDir(self):
