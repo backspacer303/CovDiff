@@ -28,65 +28,6 @@ class HtmlReport:
         self.allCUList = None
         self.numOfWorkers = None
 
-        # JavaScript kod koji se upisuje u svaku html stranicu kako bi se padajuci
-        # elementi sa izvestajima otvarali i zatvarali na pritisak dugmeta
-        self.script = """
-        var coll = document.getElementsByClassName("collapsible");
-        var i;
-        
-        for (i = 0; i < coll.length; i++) {
-        coll[i].addEventListener("click", function() {
-            this.classList.toggle("active");
-            var content = this.nextElementSibling;
-            if (content.style.display === "block") {
-                content.style.display = "none";
-            } else {
-                content.style.display = "block";
-            }
-        });
-        }
-        """
-
-        self.topBtnScript = """        
-        mybutton = document.getElementById("myBtn");
-        window.onscroll = function() {scrollFunction()};
-        function scrollFunction() {
-            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
-                mybutton.style.display = "block";
-            } else {
-                mybutton.style.display = "none";
-            }
-        }
-        function topFunction() {
-            document.body.scrollTop = 0; // For Safari
-            document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
-        }
-        """
-
-        self.searchTabelScript = """
-        function myFunction(inputId, tableId) {
-        // Declare variables
-        var input, filter, table, tr, td, i, txtValue;
-        input = document.getElementById(inputId);
-        filter = input.value.toUpperCase();
-        table = document.getElementById(tableId);
-        tr = table.getElementsByTagName("tr");
-
-        // Loop through all table rows, and hide those who don't match the search query
-        for (i = 0; i < tr.length; i++) {
-            td = tr[i].getElementsByTagName("td")[0];
-            if (td) {
-            txtValue = td.textContent || td.innerText;
-            if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                tr[i].style.display = "";
-            } else {
-                tr[i].style.display = "none";
-            }
-            }
-        }
-        }
-        """
-
     # Funkcija generise pocetnu stranicu izvestaja o pokrivenosti projekta.
     def generateHomePage(self):
 
@@ -131,9 +72,13 @@ class HtmlReport:
                     a.input(type="text", klass="myInput", id="CUDiffSearch", onkeyup="myFunction(\"CUDiffSearch\",\"CUDiffTable\")", placeholder="Search for CU names..")
                     a(self.generateCUDiffList())
 
+                # Dugme za povratak na vrh stranice.
                 a.button(_t="Top", id="myBtn", onclick="topFunction()", title="Go to top", type="button")
 
-                a.script(_t= self.script + self.topBtnScript + self.searchTabelScript)
+                # Dodavanje skripti.
+                a.script(src="Javascript/drop_down.js")
+                a.script(src="Javascript/top_button.js")
+                a.script(src="Javascript/search_tabel.js")
 
         pageStr = str(a)
 
@@ -450,9 +395,12 @@ class HtmlReport:
                     a.h3(_t="Function Coverage Side By Side", klass="subheader")
                     a(self.generateSideBySideFunctionCoverageHtml(sourceFile))
 
+                # Dugme za povratak na vrh stranice.
                 a.button(_t="Top", id="myBtn", onclick="topFunction()", title="Go to top", type="button")
 
-                a.script(_t=self.script + self.topBtnScript)
+                # Dodavanje skripti.
+                a.script(src="../Javascript/drop_down.js")
+                a.script(src="../Javascript/top_button.js")
 
         pageStr = str(a)
 
@@ -756,20 +704,26 @@ class HtmlReport:
         if os.path.isdir(path):
             raise Exception("ERROR: html/ directory alredy exists in " + self.coverageInfoDest)
         os.mkdir(path)
-        stylePath = os.path.join(path, 'Style')
-        os.mkdir(stylePath)
         pagesDir = os.path.join(path, 'Pages')
         os.mkdir(pagesDir)
 
-    # Kopira datoteku sa stilovima u direktorijum sa rezultatima.
+    # Kopira direktorijum sa stilovima u formatu css.
     def copyStyleSheet(self):
-        styleSheetPath = os.path.dirname(os.path.abspath(__file__)) + '/Style/style.css'
-        shutil.copy2(styleSheetPath, os.path.join(self.coverageInfoDest, "html/Style/style.css"))
+        destinationDir = os.path.join(self.coverageInfoDest, 'html/Style')
+        sourceDir = os.path.dirname(os.path.abspath(__file__)) + '/Style'
+        shutil.copytree(sourceDir, destinationDir)
+
+    # Kopira direktorijum sa skriptama pisanim u programskom jeziku JavaScript.
+    def copyScripts(self):
+        destinationDir = os.path.join(self.coverageInfoDest, 'html/Javascript')
+        sourceDir = os.path.dirname(os.path.abspath(__file__)) + '/Javascript'
+        shutil.copytree(sourceDir, destinationDir)
 
     # Ulazna metoda.
     def generateHtml(self):
         self.makeHtmlReportDir()
         self.copyStyleSheet()
+        self.copyScripts()
         self.generateIndividualPagesforAllCU()
         self.generateHomePage()
 
