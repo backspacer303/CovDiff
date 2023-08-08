@@ -139,10 +139,19 @@ class HtmlReport:
                     test1_percentageCoverage = round(test1_percentageCoverage, 3)
                     test2_percentageCoverage = round(test2_percentageCoverage, 3)
 
+                    # Dohvataju se skupovi pokrivenih linija.
+                    if file in self.reports_1:
+                        coveredLines_test1 = self.reports_1[file].coveredLines
+                    else:
+                        coveredLines_test1 = set()
+
+                    if file in self.reports_2:
+                        coveredLines_test2 = self.reports_2[file].coveredLines
+                    else:
+                        coveredLines_test2 = set()
+
                     # Racuna se razlika u pokrivenim linijama i, u zavisnosti od rezultata,
                     # generise se "diff" oznaka pored jednom ili drugog testa ili oba.
-                    coveredLines_test1 = self.reports_1[file].coveredLines
-                    coveredLines_test2 = self.reports_2[file].coveredLines
                     t1Difft2 = coveredLines_test1.difference(coveredLines_test2)
                     t2Difft1 = coveredLines_test2.difference(coveredLines_test1)
 
@@ -186,9 +195,18 @@ class HtmlReport:
 
             for file in sourceFileUnion:
 
-                # Racuna se razlika u pokrivenim linijama.             
-                coveredLines_test1 = self.reports_1[file].coveredLines
-                coveredLines_test2 = self.reports_2[file].coveredLines
+                # Dohvataju se skupovi pokrivenih linija.
+                if file in self.reports_1:
+                    coveredLines_test1 = self.reports_1[file].coveredLines
+                else:
+                    coveredLines_test1 = set()
+
+                if file in self.reports_2:
+                    coveredLines_test2 = self.reports_2[file].coveredLines
+                else:
+                    coveredLines_test2 = set()
+
+                # Racuna se razlika u pokrivenim linijama.
                 t1Difft2 = coveredLines_test1.difference(coveredLines_test2)
                 t2Difft1 = coveredLines_test2.difference(coveredLines_test1)
 
@@ -412,8 +430,16 @@ class HtmlReport:
 
         a = Airium()   
 
-        report1 = self.reports_1[sourceFile]
-        report2 = self.reports_2[sourceFile]
+        # Dohvataju se odgovarajuci izvestaji, ukoliko postoje.
+        if sourceFile in self.reports_1:
+            report1 = self.reports_1[sourceFile]
+        else:
+            report1 = None
+
+        if sourceFile in self.reports_2:
+            report2 = self.reports_2[sourceFile]
+        else:
+            report2 = None
 
         # Generise se tabela izvestaja.
         with a.table(klass="mainTable"):
@@ -437,19 +463,21 @@ class HtmlReport:
                 lineNumberOfHits = 0
                 isLineOfInterest = False
 
-                # Dohvataju se informacije o linije iz prvog izvestaja (prvi test).
-                if lineNumber in report1.coveredLines:
-                    testsCoveringLine.append(self.buildCoverage1.test)
-                if lineNumber in report1.linesOfInterest:
-                    isLineOfInterest = True
-                    lineNumberOfHits += report1.lineHitCount[lineNumber]
+                # Dohvataju se informacije o liniji iz prvog izvestaja (prvi test).
+                if report1 != None:
+                    if lineNumber in report1.coveredLines:
+                        testsCoveringLine.append(self.buildCoverage1.test)
+                    if lineNumber in report1.linesOfInterest:
+                        isLineOfInterest = True
+                        lineNumberOfHits += report1.lineHitCount[lineNumber]
 
-                # Dohvataju se informacije o linije iz drugog izvestaja (drugi test).
-                if lineNumber in report2.coveredLines:
-                    testsCoveringLine.append(self.buildCoverage2.test)
-                if lineNumber in report2.linesOfInterest:
-                    isLineOfInterest = True
-                    lineNumberOfHits += report2.lineHitCount[lineNumber]
+                # Dohvataju se informacije o liniji iz drugog izvestaja (drugi test).
+                if report2 != None:
+                    if lineNumber in report2.coveredLines:
+                        testsCoveringLine.append(self.buildCoverage2.test)
+                    if lineNumber in report2.linesOfInterest:
+                        isLineOfInterest = True
+                        lineNumberOfHits += report2.lineHitCount[lineNumber]
 
                 lineStyleClass = None
                 lineNumberOfHitsTextValue = None
@@ -481,22 +509,32 @@ class HtmlReport:
 
         a = Airium()
 
-        report1 = self.reports_1[sourceFile]
-        report2 = self.reports_2[sourceFile]
+        # Dohvataju se odgovarajuci izvestaji, ukoliko postoje.
+        if sourceFile in self.reports_1:
+            report1 = self.reports_1[sourceFile]
+        else:
+            report1 = None
+
+        if sourceFile in self.reports_2:
+            report2 = self.reports_2[sourceFile]
+        else:
+            report2 = None
 
         functionHitCount = {}
 
-        for fnName, hitCount in report1.functionHitCount.items():
-            if fnName in functionHitCount.keys():
-                functionHitCount[fnName] += hitCount
-            else:
-                functionHitCount[fnName] = hitCount
+        if report1 != None:
+            for fnName, hitCount in report1.functionHitCount.items():
+                if fnName in functionHitCount.keys():
+                    functionHitCount[fnName] += hitCount
+                else:
+                    functionHitCount[fnName] = hitCount
 
-        for fnName, hitCount in report2.functionHitCount.items():
-            if fnName in functionHitCount.keys():
-                functionHitCount[fnName] += hitCount
-            else:
-                functionHitCount[fnName] = hitCount
+        if report2 != None:
+            for fnName, hitCount in report2.functionHitCount.items():
+                if fnName in functionHitCount.keys():
+                    functionHitCount[fnName] += hitCount
+                else:
+                    functionHitCount[fnName] = hitCount
 
         with a.table(klass="mainTable"):
 
@@ -515,18 +553,25 @@ class HtmlReport:
     # Funkcija genersie izvestaj o razlikama u pokrivenosti linija izmedju dva testa za jednu CU.
     def generateCoverageDiffHtml(self, sourceFile, lines):
 
-        # Dohavataju se izvestaji.
-        r1 = self.reports_1[sourceFile]
-        r2 = self.reports_2[sourceFile]
+        # Dohavataju se skupovi pokrivenih linija.
+        if sourceFile in self.reports_1:
+            r1_coveredLines = self.reports_1[sourceFile].coveredLines
+        else:
+            r1_coveredLines = set()
+
+        if sourceFile in self.reports_2:
+            r2_coveredLines = self.reports_2[sourceFile].coveredLines
+        else:
+            r2_coveredLines = set()
 
         # Dohvataju se imena testoma.
         test1_name = self.buildCoverage1.test
         test2_name = self.buildCoverage2.test
 
         # Linije koje pokriva prvi test a ne pokriva drugi.
-        r1Diffr2 = r1.coveredLines.difference(r2.coveredLines)
+        r1Diffr2 = r1_coveredLines.difference(r2_coveredLines)
         # Linije koje pokriva drugi test a ne pokriva prvi.
-        r2Diffr1 = r2.coveredLines.difference(r1.coveredLines)
+        r2Diffr1 = r2_coveredLines.difference(r1_coveredLines)
 
         a = Airium()
 
@@ -579,9 +624,16 @@ class HtmlReport:
     # Funkcija generise uporedni prikaz pokrivenih linija za jednu CU.
     def generateSideBySideCoverageHtml(self, sourceFile, lines):
 
-        # Dohvataju se odgovarajuci izvestaji
-        r1 = self.reports_1[sourceFile]
-        r2 = self.reports_2[sourceFile]
+        # Dohvataju se odgovarajuci izvestaji, ukoliko postoje.
+        if sourceFile in self.reports_1:
+            r1 = self.reports_1[sourceFile]
+        else:
+            r1 = None
+
+        if sourceFile in self.reports_2:
+            r2 = self.reports_2[sourceFile]
+        else:
+            r2 = None
 
         # Dohvataju se imena testoma
         test1_name = self.buildCoverage1.test
@@ -614,21 +666,52 @@ class HtmlReport:
 
                 lineNumber = index + 1
 
-                isCoveredByR1 = lineNumber in r1.coveredLines
-                isCoveredByR2 = lineNumber in r2.coveredLines
+                # Ako ne postoji izvestaj za izvornu datoteku to znaci
+                # da je test ne pokriva.
+                if r1 != None:
+                    isCoveredByR1 = lineNumber in r1.coveredLines
+                else:
+                    isCoveredByR1 = False
+
+                if r2 != None:
+                    isCoveredByR2 = lineNumber in r2.coveredLines
+                else:
+                    isCoveredByR2 = False
 
                 lineHitCountR1 = ""
                 lineHitCountR2 = ""
 
-                if lineNumber in r1.linesOfInterest:
-                    lineHitCountR1 = str(r1.lineHitCount[lineNumber])
+                # Dohvatamo informacije o datotekci ukoliko
+                # ona posotji u izvestaju za prvi test.
+                if r1 != None:
+                    if lineNumber in r1.linesOfInterest:
+                        lineHitCountR1 = str(r1.lineHitCount[lineNumber])
+                    else:
+                        lineHitCountR1 = "---"
                 else:
-                    lineHitCountR1 = "---"
+                    # Ukoliko ne postoji izvestaj za datoteku u odnosu na jedan test,
+                    # sigurno posotji izvestaj za nju u odnosu na drugi test.
+                    # Razlog tome je to sto datoteke dolaze iz unije datoteka pokrivenih
+                    # nekim od testova. Tada se konsultuje izvestaj u odnosu na drugi test
+                    # kako bi se ustanovilo da li je u pitanju linija od interesa ili ne.
+                    # Tada ce broj izvrsavanja za sve linije od interesa biti "0".
+                    if lineNumber in r2.linesOfInterest:
+                        lineHitCountR1 = str(0)
+                    else:
+                        lineHitCountR1 = "---"
 
-                if lineNumber in r2.linesOfInterest:
-                    lineHitCountR2 = str(r2.lineHitCount[lineNumber])
+                # Slicno za drugi test.
+                if r2 != None:
+                    if lineNumber in r2.linesOfInterest:
+                        lineHitCountR2 = str(r2.lineHitCount[lineNumber])
+                    else:
+                        lineHitCountR2 = "---"
                 else:
-                    lineHitCountR2 = "---"
+                    if lineNumber in r1.linesOfInterest:
+                        lineHitCountR2 = str(0)
+                    else:
+                        lineHitCountR2 = "---"
+
 
                 # Proverava se kojim testom je linija pokrivena i u zavisnosti do toga
                 # boji se na odgovarajuci nacin.
