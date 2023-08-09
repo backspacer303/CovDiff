@@ -95,9 +95,9 @@ ukoliko je jedan od argumenata komande opcija `o` sledećem u nizu argumenata ne
 `--object-path` - opcija koja se mođe navesti uz `--source-file` a koja označava putanju do objektne datoteke kompilacione jedinice od interesa (a samim tim i gcno/gcda datoteke). Tada se ne vrši rekurzivni obilazak celog build direktorijuma već se direktno pristupa zadatoj lokaciji pa se i rezultat dobija brže
 
 ### Primer pokretanja
-Primer 1
+Primer 1 - Pokretanje alata ukoliko su testovi sami po sebi izvršne datoteke
 ```bash
-python3 covdiff.py ~/Desktop/lib_build/ ~/Desktop/lib_test/test1 ~/Desktop/lib_test/test2 ./results run_exec.sh 
+python3 covdiff.py ~/Desktop/lib_build/ ~/Desktop/lib_test/test1 ~/Desktop/lib_test/test2 ./results ./
 ```
 Primer 2 - Pokretanje alata nad projektom *LLVM*
 ```bash
