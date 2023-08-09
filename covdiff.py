@@ -18,7 +18,7 @@ def parse_program_args(parser):
     parser.add_argument('coverage_dest', metavar='coverage_dest', action="store",
                         help='directory for storing code coverage information')
     parser.add_argument('command', metavar='command', action="store",
-                        help='command to run the tests')
+                        help='command to run the tests (specify "./" if test is already an executable)')
     parser.add_argument('command_arg', metavar='command_arg', action="store", nargs='*',
                         help='command arguments')                        
     return parser.parse_args()

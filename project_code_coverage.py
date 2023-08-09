@@ -38,9 +38,18 @@ class ProjectCodeCoverage:
 
     # Pokrece zadati test zadatom komandom.
     def runTest(self):
-        processsRetVal = subprocess.run([self.command, self.test] + self.commandArgs,
-                                        stdout=subprocess.DEVNULL                                        
-                                       )
+        # Ako je zadati test vec sam po sebi izvrsna datoteka,
+        # pokrece se bez naziva testa zadatog kao agument.
+        if self.command == './':
+            self.command = self.test
+            processsRetVal = subprocess.run([self.command] + self.commandArgs,
+                                            stdout=subprocess.DEVNULL, shell=True
+                                        )
+        else:
+            processsRetVal = subprocess.run([self.command, self.test] + self.commandArgs,
+                                        stdout=subprocess.DEVNULL
+                                        )
+
         processsRetVal.check_returncode()
 
     # Vrsi pretragu svih gcda datoteka u direktorijumu projekta nakon pokretanja testa.
