@@ -58,7 +58,7 @@ Alat *CovDiff* je pokrenut nad ovim projektom sledećom komandom:
 python3 covdiff.py ~/Desktop/CodeCoverage/Test/lib ../CodeCoverage/Test/lib_tests/test1 ../CodeCoverage/Test/lib_tests/test2 ./results_lib ./
 ```
 
-Razlike u pokrivenosti koda se prave u funkcije za oduzimanje i pronalaženje maksimuma u korist prvog testa, odnosno u funkciji za množenje u korist drugog testa. Prikaz razlika u pokrivenosti koda sa ova dva testa i uporedni prikaz pokrivenih linija se može videti na slikama ispod.
+Razlike u pokrivenosti koda se prave u funkcije za oduzimanje i pronalaženje maksimuma u korist prvog testa, odnosno u funkciji za množenje u korist drugog testa. Prikaz razlika u pokrivenosti koda sa ova dva testa i uporedni prikaz pokrivenih linija se može videti na slikama ispod. Kompletan izeštaj u formatu *html* je dostupan [ovde](hhttps://github.com/backspacer303/TestCodeCoverage/tree/main/Examples/results_lib/html).
 
 ### Prikaz razlika
 ![Prikaz razlika](../screenshots/mali_primer_prikaz_razlika.png)
