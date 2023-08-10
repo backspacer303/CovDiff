@@ -1,0 +1,2768 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>AMDGPUAnnotateUniformValues.cpp</title>
+    <link rel="stylesheet" href="../Style/style.css" />
+  </head>
+  <body>
+    <div class="headerDiv">
+      <h1>
+        Code Coverage
+      </h1>
+      <p>
+        Source file: /home/nikola/Desktop/llvm-project/llvm/lib/Target/AMDGPU/AMDGPUAnnotateUniformValues.cpp
+      </p>
+    </div>
+    <button class="collapsible" type="button">Open Summary Report</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Summary Report</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line number</th>
+    <th class="mainTh">Line</th>
+    <th class="mainTh">Number of hits</th>
+    <th class="mainTh">Tests that cover line</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="">//===-- AMDGPUAnnotateUniformValues.cpp - ---------------------------------===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="">//===----------------------------------------------------------------------===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="">/// \file</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="">/// This pass adds amdgpu.uniform metadata to IR values so this information</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="">/// can be used during instruction selection.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class="">//===----------------------------------------------------------------------===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class="">#include "AMDGPU.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class="">#include "Utils/AMDGPUBaseInfo.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class="">#include "Utils/AMDGPUMemoryUtils.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class="">#include "llvm/Analysis/AliasAnalysis.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class="">#include "llvm/Analysis/MemorySSA.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class="">#include "llvm/Analysis/UniformityAnalysis.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class="">#include "llvm/IR/InstVisitor.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class="">#include "llvm/InitializePasses.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class="">#define DEBUG_TYPE "amdgpu-annotate-uniform"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class="">using namespace llvm;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class="">namespace {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class="">class AMDGPUAnnotateUniformValues : public FunctionPass,</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class="">                       public InstVisitor<AMDGPUAnnotateUniformValues> {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class="">  UniformityInfo *UA;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class="">  MemorySSA *MSSA;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class="">  AliasAnalysis *AA;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class="">  bool isEntryFunc;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class="">  bool Changed;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class="uncoveredLine">  void setUniformMetadata(Instruction *I) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class="uncoveredLine">    I->setMetadata("amdgpu.uniform", MDNode::get(I->getContext(), {}));</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class="uncoveredLine">    Changed = true;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class="uncoveredLine">  }</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class="uncoveredLine">  void setNoClobberMetadata(Instruction *I) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class="uncoveredLine">    I->setMetadata("amdgpu.noclobber", MDNode::get(I->getContext(), {}));</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class="uncoveredLine">    Changed = true;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class="uncoveredLine">  }</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class="">public:</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class="">  static char ID;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class="uncoveredLine">  AMDGPUAnnotateUniformValues() :</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class="uncoveredLine">    FunctionPass(ID) { }</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class="">  bool doInitialization(Module &M) override;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class="">  bool runOnFunction(Function &F) override;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class="uncoveredLine">  StringRef getPassName() const override {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class="uncoveredLine">    return "AMDGPU Annotate Uniform Values";</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class="">  }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class="uncoveredLine">  void getAnalysisUsage(AnalysisUsage &AU) const override {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class="uncoveredLine">    AU.addRequired<UniformityInfoWrapperPass>();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class="uncoveredLine">    AU.addRequired<MemorySSAWrapperPass>();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class="uncoveredLine">    AU.addRequired<AAResultsWrapperPass>();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class="uncoveredLine">    AU.setPreservesAll();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class="uncoveredLine"> }</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class="">  void visitBranchInst(BranchInst &I);</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class="">  void visitLoadInst(LoadInst &I);</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class="">};</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class="">} // End anonymous namespace</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class="coveredLine">INITIALIZE_PASS_BEGIN(AMDGPUAnnotateUniformValues, DEBUG_TYPE,</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class="">                      "Add AMDGPU uniform metadata", false, false)</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class="coveredLine">INITIALIZE_PASS_DEPENDENCY(UniformityInfoWrapperPass)</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class="coveredLine">INITIALIZE_PASS_DEPENDENCY(MemorySSAWrapperPass)</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class="coveredLine">INITIALIZE_PASS_DEPENDENCY(AAResultsWrapperPass)</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class="coveredLine">INITIALIZE_PASS_END(AMDGPUAnnotateUniformValues, DEBUG_TYPE,</td>
+    <td>4</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class="">                    "Add AMDGPU uniform metadata", false, false)</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class="">char AMDGPUAnnotateUniformValues::ID = 0;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class="uncoveredLine">void AMDGPUAnnotateUniformValues::visitBranchInst(BranchInst &I) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class="uncoveredLine">  if (UA->isUniform(&I))</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class="uncoveredLine">    setUniformMetadata(&I);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class="uncoveredLine">}</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class="uncoveredLine">void AMDGPUAnnotateUniformValues::visitLoadInst(LoadInst &I) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class="uncoveredLine">  Value *Ptr = I.getPointerOperand();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class="uncoveredLine">  if (!UA->isUniform(Ptr))</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class="uncoveredLine">    return;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class="uncoveredLine">  Instruction *PtrI = dyn_cast<Instruction>(Ptr);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">90</td>
+    <td class="uncoveredLine">  if (PtrI)</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">91</td>
+    <td class="uncoveredLine">    setUniformMetadata(PtrI);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">92</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">93</td>
+    <td class="">  // We're tracking up to the Function boundaries, and cannot go beyond because</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">94</td>
+    <td class="">  // of FunctionPass restrictions. We can ensure that is memory not clobbered</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">95</td>
+    <td class="">  // for memory operations that are live in to entry points only.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">96</td>
+    <td class="uncoveredLine">  if (!isEntryFunc)</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">97</td>
+    <td class="uncoveredLine">    return;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">98</td>
+    <td class="uncoveredLine">  bool GlobalLoad = I.getPointerAddressSpace() == AMDGPUAS::GLOBAL_ADDRESS;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">99</td>
+    <td class="uncoveredLine">  if (GlobalLoad && !AMDGPU::isClobberedInFunction(&I, MSSA, AA))</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">100</td>
+    <td class="uncoveredLine">    setNoClobberMetadata(&I);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">101</td>
+    <td class="">}</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">102</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">103</td>
+    <td class="uncoveredLine">bool AMDGPUAnnotateUniformValues::doInitialization(Module &M) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">104</td>
+    <td class="uncoveredLine">  return false;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">105</td>
+    <td class="">}</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">106</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">107</td>
+    <td class="uncoveredLine">bool AMDGPUAnnotateUniformValues::runOnFunction(Function &F) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">108</td>
+    <td class="uncoveredLine">  if (skipFunction(F))</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">109</td>
+    <td class="uncoveredLine">    return false;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">110</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">111</td>
+    <td class="uncoveredLine">  UA = &getAnalysis<UniformityInfoWrapperPass>().getUniformityInfo();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">112</td>
+    <td class="uncoveredLine">  MSSA = &getAnalysis<MemorySSAWrapperPass>().getMSSA();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">113</td>
+    <td class="uncoveredLine">  AA = &getAnalysis<AAResultsWrapperPass>().getAAResults();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">114</td>
+    <td class="uncoveredLine">  isEntryFunc = AMDGPU::isEntryFunctionCC(F.getCallingConv());</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">115</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">116</td>
+    <td class="uncoveredLine">  Changed = false;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">117</td>
+    <td class="uncoveredLine">  visit(F);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">118</td>
+    <td class="uncoveredLine">  return Changed;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">119</td>
+    <td class="">}</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">120</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">121</td>
+    <td class="">FunctionPass *</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">122</td>
+    <td class="uncoveredLine">llvm::createAMDGPUAnnotateUniformValues() {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">123</td>
+    <td class="uncoveredLine">  return new AMDGPUAnnotateUniformValues();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">124</td>
+    <td class="">}</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">125</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Functions Report</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Functions Report</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Function name</th>
+    <th class="mainTh">Number of hits</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_127AMDGPUAnnotateUniformValues18setUniformMetadataEPN4llvm11InstructionE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_127AMDGPUAnnotateUniformValues20setNoClobberMetadataEPN4llvm11InstructionE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_127AMDGPUAnnotateUniformValuesC2Ev</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZNK12_GLOBAL__N_127AMDGPUAnnotateUniformValues11getPassNameEv</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZNK12_GLOBAL__N_127AMDGPUAnnotateUniformValues16getAnalysisUsageERN4llvm13AnalysisUsageE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZL45initializeAMDGPUAnnotateUniformValuesPassOnceRN4llvm12PassRegistryE</td>
+    <td class="numberOfCalls">2</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN4llvm41initializeAMDGPUAnnotateUniformValuesPassERNS_12PassRegistryE</td>
+    <td class="numberOfCalls">2</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_127AMDGPUAnnotateUniformValues15visitBranchInstERN4llvm10BranchInstE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_127AMDGPUAnnotateUniformValues13visitLoadInstERN4llvm8LoadInstE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_127AMDGPUAnnotateUniformValues16doInitializationERN4llvm6ModuleE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_127AMDGPUAnnotateUniformValues13runOnFunctionERN4llvm8FunctionE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN4llvm33createAMDGPUAnnotateUniformValuesEv</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Coverage Diff</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Coverage Diff</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span> BUT NOT </span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </th>
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+      <span> BUT NOT </span>
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+    </th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="codeline">//===-- AMDGPUAnnotateUniformValues.cpp - ---------------------------------===//</td>
+    <td class="lineNumber">1</td>
+    <td class="codeline">//===-- AMDGPUAnnotateUniformValues.cpp - ---------------------------------===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">2</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="codeline">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">3</td>
+    <td class="codeline">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="codeline">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">4</td>
+    <td class="codeline">// See https://llvm.org/LICENSE.txt for license information.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="codeline">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">5</td>
+    <td class="codeline">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">6</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">7</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">8</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="codeline">/// \file</td>
+    <td class="lineNumber">9</td>
+    <td class="codeline">/// \file</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="codeline">/// This pass adds amdgpu.uniform metadata to IR values so this information</td>
+    <td class="lineNumber">10</td>
+    <td class="codeline">/// This pass adds amdgpu.uniform metadata to IR values so this information</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="codeline">/// can be used during instruction selection.</td>
+    <td class="lineNumber">11</td>
+    <td class="codeline">/// can be used during instruction selection.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">12</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">13</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">14</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class="codeline">#include "AMDGPU.h"</td>
+    <td class="lineNumber">15</td>
+    <td class="codeline">#include "AMDGPU.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class="codeline">#include "Utils/AMDGPUBaseInfo.h"</td>
+    <td class="lineNumber">16</td>
+    <td class="codeline">#include "Utils/AMDGPUBaseInfo.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class="codeline">#include "Utils/AMDGPUMemoryUtils.h"</td>
+    <td class="lineNumber">17</td>
+    <td class="codeline">#include "Utils/AMDGPUMemoryUtils.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class="codeline">#include "llvm/Analysis/AliasAnalysis.h"</td>
+    <td class="lineNumber">18</td>
+    <td class="codeline">#include "llvm/Analysis/AliasAnalysis.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class="codeline">#include "llvm/Analysis/MemorySSA.h"</td>
+    <td class="lineNumber">19</td>
+    <td class="codeline">#include "llvm/Analysis/MemorySSA.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class="codeline">#include "llvm/Analysis/UniformityAnalysis.h"</td>
+    <td class="lineNumber">20</td>
+    <td class="codeline">#include "llvm/Analysis/UniformityAnalysis.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class="codeline">#include "llvm/IR/InstVisitor.h"</td>
+    <td class="lineNumber">21</td>
+    <td class="codeline">#include "llvm/IR/InstVisitor.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class="codeline">#include "llvm/InitializePasses.h"</td>
+    <td class="lineNumber">22</td>
+    <td class="codeline">#include "llvm/InitializePasses.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">23</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class="codeline">#define DEBUG_TYPE "amdgpu-annotate-uniform"</td>
+    <td class="lineNumber">24</td>
+    <td class="codeline">#define DEBUG_TYPE "amdgpu-annotate-uniform"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">25</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class="codeline">using namespace llvm;</td>
+    <td class="lineNumber">26</td>
+    <td class="codeline">using namespace llvm;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">27</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class="codeline">namespace {</td>
+    <td class="lineNumber">28</td>
+    <td class="codeline">namespace {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">29</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class="codeline">class AMDGPUAnnotateUniformValues : public FunctionPass,</td>
+    <td class="lineNumber">30</td>
+    <td class="codeline">class AMDGPUAnnotateUniformValues : public FunctionPass,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class="codeline">                       public InstVisitor<AMDGPUAnnotateUniformValues> {</td>
+    <td class="lineNumber">31</td>
+    <td class="codeline">                       public InstVisitor<AMDGPUAnnotateUniformValues> {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class="codeline">  UniformityInfo *UA;</td>
+    <td class="lineNumber">32</td>
+    <td class="codeline">  UniformityInfo *UA;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class="codeline">  MemorySSA *MSSA;</td>
+    <td class="lineNumber">33</td>
+    <td class="codeline">  MemorySSA *MSSA;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class="codeline">  AliasAnalysis *AA;</td>
+    <td class="lineNumber">34</td>
+    <td class="codeline">  AliasAnalysis *AA;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class="codeline">  bool isEntryFunc;</td>
+    <td class="lineNumber">35</td>
+    <td class="codeline">  bool isEntryFunc;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class="codeline">  bool Changed;</td>
+    <td class="lineNumber">36</td>
+    <td class="codeline">  bool Changed;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">37</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class="codeline">  void setUniformMetadata(Instruction *I) {</td>
+    <td class="lineNumber">38</td>
+    <td class="codeline">  void setUniformMetadata(Instruction *I) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class="codeline">    I->setMetadata("amdgpu.uniform", MDNode::get(I->getContext(), {}));</td>
+    <td class="lineNumber">39</td>
+    <td class="codeline">    I->setMetadata("amdgpu.uniform", MDNode::get(I->getContext(), {}));</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class="codeline">    Changed = true;</td>
+    <td class="lineNumber">40</td>
+    <td class="codeline">    Changed = true;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">41</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">42</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class="codeline">  void setNoClobberMetadata(Instruction *I) {</td>
+    <td class="lineNumber">43</td>
+    <td class="codeline">  void setNoClobberMetadata(Instruction *I) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class="codeline">    I->setMetadata("amdgpu.noclobber", MDNode::get(I->getContext(), {}));</td>
+    <td class="lineNumber">44</td>
+    <td class="codeline">    I->setMetadata("amdgpu.noclobber", MDNode::get(I->getContext(), {}));</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class="codeline">    Changed = true;</td>
+    <td class="lineNumber">45</td>
+    <td class="codeline">    Changed = true;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">46</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">47</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class="codeline">public:</td>
+    <td class="lineNumber">48</td>
+    <td class="codeline">public:</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class="codeline">  static char ID;</td>
+    <td class="lineNumber">49</td>
+    <td class="codeline">  static char ID;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class="codeline">  AMDGPUAnnotateUniformValues() :</td>
+    <td class="lineNumber">50</td>
+    <td class="codeline">  AMDGPUAnnotateUniformValues() :</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class="codeline">    FunctionPass(ID) { }</td>
+    <td class="lineNumber">51</td>
+    <td class="codeline">    FunctionPass(ID) { }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class="codeline">  bool doInitialization(Module &M) override;</td>
+    <td class="lineNumber">52</td>
+    <td class="codeline">  bool doInitialization(Module &M) override;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class="codeline">  bool runOnFunction(Function &F) override;</td>
+    <td class="lineNumber">53</td>
+    <td class="codeline">  bool runOnFunction(Function &F) override;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class="codeline">  StringRef getPassName() const override {</td>
+    <td class="lineNumber">54</td>
+    <td class="codeline">  StringRef getPassName() const override {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class="codeline">    return "AMDGPU Annotate Uniform Values";</td>
+    <td class="lineNumber">55</td>
+    <td class="codeline">    return "AMDGPU Annotate Uniform Values";</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">56</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class="codeline">  void getAnalysisUsage(AnalysisUsage &AU) const override {</td>
+    <td class="lineNumber">57</td>
+    <td class="codeline">  void getAnalysisUsage(AnalysisUsage &AU) const override {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class="codeline">    AU.addRequired<UniformityInfoWrapperPass>();</td>
+    <td class="lineNumber">58</td>
+    <td class="codeline">    AU.addRequired<UniformityInfoWrapperPass>();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class="codeline">    AU.addRequired<MemorySSAWrapperPass>();</td>
+    <td class="lineNumber">59</td>
+    <td class="codeline">    AU.addRequired<MemorySSAWrapperPass>();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class="codeline">    AU.addRequired<AAResultsWrapperPass>();</td>
+    <td class="lineNumber">60</td>
+    <td class="codeline">    AU.addRequired<AAResultsWrapperPass>();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class="codeline">    AU.setPreservesAll();</td>
+    <td class="lineNumber">61</td>
+    <td class="codeline">    AU.setPreservesAll();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class="codeline"> }</td>
+    <td class="lineNumber">62</td>
+    <td class="codeline"> }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">63</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class="codeline">  void visitBranchInst(BranchInst &I);</td>
+    <td class="lineNumber">64</td>
+    <td class="codeline">  void visitBranchInst(BranchInst &I);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class="codeline">  void visitLoadInst(LoadInst &I);</td>
+    <td class="lineNumber">65</td>
+    <td class="codeline">  void visitLoadInst(LoadInst &I);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class="codeline">};</td>
+    <td class="lineNumber">66</td>
+    <td class="codeline">};</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">67</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class="codeline">} // End anonymous namespace</td>
+    <td class="lineNumber">68</td>
+    <td class="codeline">} // End anonymous namespace</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">69</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class="codeline">INITIALIZE_PASS_BEGIN(AMDGPUAnnotateUniformValues, DEBUG_TYPE,</td>
+    <td class="lineNumber">70</td>
+    <td class="codeline">INITIALIZE_PASS_BEGIN(AMDGPUAnnotateUniformValues, DEBUG_TYPE,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class="codeline">                      "Add AMDGPU uniform metadata", false, false)</td>
+    <td class="lineNumber">71</td>
+    <td class="codeline">                      "Add AMDGPU uniform metadata", false, false)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class="codeline">INITIALIZE_PASS_DEPENDENCY(UniformityInfoWrapperPass)</td>
+    <td class="lineNumber">72</td>
+    <td class="codeline">INITIALIZE_PASS_DEPENDENCY(UniformityInfoWrapperPass)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class="codeline">INITIALIZE_PASS_DEPENDENCY(MemorySSAWrapperPass)</td>
+    <td class="lineNumber">73</td>
+    <td class="codeline">INITIALIZE_PASS_DEPENDENCY(MemorySSAWrapperPass)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class="codeline">INITIALIZE_PASS_DEPENDENCY(AAResultsWrapperPass)</td>
+    <td class="lineNumber">74</td>
+    <td class="codeline">INITIALIZE_PASS_DEPENDENCY(AAResultsWrapperPass)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class="codeline">INITIALIZE_PASS_END(AMDGPUAnnotateUniformValues, DEBUG_TYPE,</td>
+    <td class="lineNumber">75</td>
+    <td class="codeline">INITIALIZE_PASS_END(AMDGPUAnnotateUniformValues, DEBUG_TYPE,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class="codeline">                    "Add AMDGPU uniform metadata", false, false)</td>
+    <td class="lineNumber">76</td>
+    <td class="codeline">                    "Add AMDGPU uniform metadata", false, false)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">77</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class="codeline">char AMDGPUAnnotateUniformValues::ID = 0;</td>
+    <td class="lineNumber">78</td>
+    <td class="codeline">char AMDGPUAnnotateUniformValues::ID = 0;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">79</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class="codeline">void AMDGPUAnnotateUniformValues::visitBranchInst(BranchInst &I) {</td>
+    <td class="lineNumber">80</td>
+    <td class="codeline">void AMDGPUAnnotateUniformValues::visitBranchInst(BranchInst &I) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class="codeline">  if (UA->isUniform(&I))</td>
+    <td class="lineNumber">81</td>
+    <td class="codeline">  if (UA->isUniform(&I))</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class="codeline">    setUniformMetadata(&I);</td>
+    <td class="lineNumber">82</td>
+    <td class="codeline">    setUniformMetadata(&I);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">83</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">84</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class="codeline">void AMDGPUAnnotateUniformValues::visitLoadInst(LoadInst &I) {</td>
+    <td class="lineNumber">85</td>
+    <td class="codeline">void AMDGPUAnnotateUniformValues::visitLoadInst(LoadInst &I) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class="codeline">  Value *Ptr = I.getPointerOperand();</td>
+    <td class="lineNumber">86</td>
+    <td class="codeline">  Value *Ptr = I.getPointerOperand();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class="codeline">  if (!UA->isUniform(Ptr))</td>
+    <td class="lineNumber">87</td>
+    <td class="codeline">  if (!UA->isUniform(Ptr))</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class="codeline">    return;</td>
+    <td class="lineNumber">88</td>
+    <td class="codeline">    return;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class="codeline">  Instruction *PtrI = dyn_cast<Instruction>(Ptr);</td>
+    <td class="lineNumber">89</td>
+    <td class="codeline">  Instruction *PtrI = dyn_cast<Instruction>(Ptr);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">90</td>
+    <td class="codeline">  if (PtrI)</td>
+    <td class="lineNumber">90</td>
+    <td class="codeline">  if (PtrI)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">91</td>
+    <td class="codeline">    setUniformMetadata(PtrI);</td>
+    <td class="lineNumber">91</td>
+    <td class="codeline">    setUniformMetadata(PtrI);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">92</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">92</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">93</td>
+    <td class="codeline">  // We're tracking up to the Function boundaries, and cannot go beyond because</td>
+    <td class="lineNumber">93</td>
+    <td class="codeline">  // We're tracking up to the Function boundaries, and cannot go beyond because</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">94</td>
+    <td class="codeline">  // of FunctionPass restrictions. We can ensure that is memory not clobbered</td>
+    <td class="lineNumber">94</td>
+    <td class="codeline">  // of FunctionPass restrictions. We can ensure that is memory not clobbered</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">95</td>
+    <td class="codeline">  // for memory operations that are live in to entry points only.</td>
+    <td class="lineNumber">95</td>
+    <td class="codeline">  // for memory operations that are live in to entry points only.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">96</td>
+    <td class="codeline">  if (!isEntryFunc)</td>
+    <td class="lineNumber">96</td>
+    <td class="codeline">  if (!isEntryFunc)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">97</td>
+    <td class="codeline">    return;</td>
+    <td class="lineNumber">97</td>
+    <td class="codeline">    return;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">98</td>
+    <td class="codeline">  bool GlobalLoad = I.getPointerAddressSpace() == AMDGPUAS::GLOBAL_ADDRESS;</td>
+    <td class="lineNumber">98</td>
+    <td class="codeline">  bool GlobalLoad = I.getPointerAddressSpace() == AMDGPUAS::GLOBAL_ADDRESS;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">99</td>
+    <td class="codeline">  if (GlobalLoad && !AMDGPU::isClobberedInFunction(&I, MSSA, AA))</td>
+    <td class="lineNumber">99</td>
+    <td class="codeline">  if (GlobalLoad && !AMDGPU::isClobberedInFunction(&I, MSSA, AA))</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">100</td>
+    <td class="codeline">    setNoClobberMetadata(&I);</td>
+    <td class="lineNumber">100</td>
+    <td class="codeline">    setNoClobberMetadata(&I);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">101</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">101</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">102</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">102</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">103</td>
+    <td class="codeline">bool AMDGPUAnnotateUniformValues::doInitialization(Module &M) {</td>
+    <td class="lineNumber">103</td>
+    <td class="codeline">bool AMDGPUAnnotateUniformValues::doInitialization(Module &M) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">104</td>
+    <td class="codeline">  return false;</td>
+    <td class="lineNumber">104</td>
+    <td class="codeline">  return false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">105</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">105</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">106</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">106</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">107</td>
+    <td class="codeline">bool AMDGPUAnnotateUniformValues::runOnFunction(Function &F) {</td>
+    <td class="lineNumber">107</td>
+    <td class="codeline">bool AMDGPUAnnotateUniformValues::runOnFunction(Function &F) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">108</td>
+    <td class="codeline">  if (skipFunction(F))</td>
+    <td class="lineNumber">108</td>
+    <td class="codeline">  if (skipFunction(F))</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">109</td>
+    <td class="codeline">    return false;</td>
+    <td class="lineNumber">109</td>
+    <td class="codeline">    return false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">110</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">110</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">111</td>
+    <td class="codeline">  UA = &getAnalysis<UniformityInfoWrapperPass>().getUniformityInfo();</td>
+    <td class="lineNumber">111</td>
+    <td class="codeline">  UA = &getAnalysis<UniformityInfoWrapperPass>().getUniformityInfo();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">112</td>
+    <td class="codeline">  MSSA = &getAnalysis<MemorySSAWrapperPass>().getMSSA();</td>
+    <td class="lineNumber">112</td>
+    <td class="codeline">  MSSA = &getAnalysis<MemorySSAWrapperPass>().getMSSA();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">113</td>
+    <td class="codeline">  AA = &getAnalysis<AAResultsWrapperPass>().getAAResults();</td>
+    <td class="lineNumber">113</td>
+    <td class="codeline">  AA = &getAnalysis<AAResultsWrapperPass>().getAAResults();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">114</td>
+    <td class="codeline">  isEntryFunc = AMDGPU::isEntryFunctionCC(F.getCallingConv());</td>
+    <td class="lineNumber">114</td>
+    <td class="codeline">  isEntryFunc = AMDGPU::isEntryFunctionCC(F.getCallingConv());</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">115</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">115</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">116</td>
+    <td class="codeline">  Changed = false;</td>
+    <td class="lineNumber">116</td>
+    <td class="codeline">  Changed = false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">117</td>
+    <td class="codeline">  visit(F);</td>
+    <td class="lineNumber">117</td>
+    <td class="codeline">  visit(F);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">118</td>
+    <td class="codeline">  return Changed;</td>
+    <td class="lineNumber">118</td>
+    <td class="codeline">  return Changed;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">119</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">119</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">120</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">120</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">121</td>
+    <td class="codeline">FunctionPass *</td>
+    <td class="lineNumber">121</td>
+    <td class="codeline">FunctionPass *</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">122</td>
+    <td class="codeline">llvm::createAMDGPUAnnotateUniformValues() {</td>
+    <td class="lineNumber">122</td>
+    <td class="codeline">llvm::createAMDGPUAnnotateUniformValues() {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">123</td>
+    <td class="codeline">  return new AMDGPUAnnotateUniformValues();</td>
+    <td class="lineNumber">123</td>
+    <td class="codeline">  return new AMDGPUAnnotateUniformValues();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">124</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">124</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">125</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">125</td>
+    <td class="codeline"></td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Side By Side Comparison</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Side By Side Comparison</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+    </th>
+    <th class="mainTh">Hit count</th>
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </th>
+    <th class="mainTh">Hit count</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="codeLine">//===-- AMDGPUAnnotateUniformValues.cpp - ---------------------------------===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">1</td>
+    <td class="codeLine">//===-- AMDGPUAnnotateUniformValues.cpp - ---------------------------------===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">2</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="codeLine">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">3</td>
+    <td class="codeLine">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="codeLine">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">4</td>
+    <td class="codeLine">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="codeLine">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">5</td>
+    <td class="codeLine">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">6</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">7</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">8</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="codeLine">/// \file</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">9</td>
+    <td class="codeLine">/// \file</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="codeLine">/// This pass adds amdgpu.uniform metadata to IR values so this information</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">10</td>
+    <td class="codeLine">/// This pass adds amdgpu.uniform metadata to IR values so this information</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="codeLine">/// can be used during instruction selection.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">11</td>
+    <td class="codeLine">/// can be used during instruction selection.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">12</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">13</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">14</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class="codeLine">#include "AMDGPU.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">15</td>
+    <td class="codeLine">#include "AMDGPU.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class="codeLine">#include "Utils/AMDGPUBaseInfo.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">16</td>
+    <td class="codeLine">#include "Utils/AMDGPUBaseInfo.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class="codeLine">#include "Utils/AMDGPUMemoryUtils.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">17</td>
+    <td class="codeLine">#include "Utils/AMDGPUMemoryUtils.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class="codeLine">#include "llvm/Analysis/AliasAnalysis.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">18</td>
+    <td class="codeLine">#include "llvm/Analysis/AliasAnalysis.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class="codeLine">#include "llvm/Analysis/MemorySSA.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">19</td>
+    <td class="codeLine">#include "llvm/Analysis/MemorySSA.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class="codeLine">#include "llvm/Analysis/UniformityAnalysis.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">20</td>
+    <td class="codeLine">#include "llvm/Analysis/UniformityAnalysis.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class="codeLine">#include "llvm/IR/InstVisitor.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">21</td>
+    <td class="codeLine">#include "llvm/IR/InstVisitor.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class="codeLine">#include "llvm/InitializePasses.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">22</td>
+    <td class="codeLine">#include "llvm/InitializePasses.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">23</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class="codeLine">#define DEBUG_TYPE "amdgpu-annotate-uniform"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">24</td>
+    <td class="codeLine">#define DEBUG_TYPE "amdgpu-annotate-uniform"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">25</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class="codeLine">using namespace llvm;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">26</td>
+    <td class="codeLine">using namespace llvm;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">27</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class="codeLine">namespace {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">28</td>
+    <td class="codeLine">namespace {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">29</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class="codeLine">class AMDGPUAnnotateUniformValues : public FunctionPass,</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">30</td>
+    <td class="codeLine">class AMDGPUAnnotateUniformValues : public FunctionPass,</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class="codeLine">                       public InstVisitor<AMDGPUAnnotateUniformValues> {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">31</td>
+    <td class="codeLine">                       public InstVisitor<AMDGPUAnnotateUniformValues> {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class="codeLine">  UniformityInfo *UA;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">32</td>
+    <td class="codeLine">  UniformityInfo *UA;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class="codeLine">  MemorySSA *MSSA;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">33</td>
+    <td class="codeLine">  MemorySSA *MSSA;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class="codeLine">  AliasAnalysis *AA;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">34</td>
+    <td class="codeLine">  AliasAnalysis *AA;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class="codeLine">  bool isEntryFunc;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">35</td>
+    <td class="codeLine">  bool isEntryFunc;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class="codeLine">  bool Changed;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">36</td>
+    <td class="codeLine">  bool Changed;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">37</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class="codeLine">  void setUniformMetadata(Instruction *I) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">38</td>
+    <td class="codeLine">  void setUniformMetadata(Instruction *I) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class="codeLine">    I->setMetadata("amdgpu.uniform", MDNode::get(I->getContext(), {}));</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">39</td>
+    <td class="codeLine">    I->setMetadata("amdgpu.uniform", MDNode::get(I->getContext(), {}));</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class="codeLine">    Changed = true;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">40</td>
+    <td class="codeLine">    Changed = true;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">41</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">42</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class="codeLine">  void setNoClobberMetadata(Instruction *I) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">43</td>
+    <td class="codeLine">  void setNoClobberMetadata(Instruction *I) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class="codeLine">    I->setMetadata("amdgpu.noclobber", MDNode::get(I->getContext(), {}));</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">44</td>
+    <td class="codeLine">    I->setMetadata("amdgpu.noclobber", MDNode::get(I->getContext(), {}));</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class="codeLine">    Changed = true;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">45</td>
+    <td class="codeLine">    Changed = true;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">46</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">47</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class="codeLine">public:</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">48</td>
+    <td class="codeLine">public:</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class="codeLine">  static char ID;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">49</td>
+    <td class="codeLine">  static char ID;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class="codeLine">  AMDGPUAnnotateUniformValues() :</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">50</td>
+    <td class="codeLine">  AMDGPUAnnotateUniformValues() :</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class="codeLine">    FunctionPass(ID) { }</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">51</td>
+    <td class="codeLine">    FunctionPass(ID) { }</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class="codeLine">  bool doInitialization(Module &M) override;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">52</td>
+    <td class="codeLine">  bool doInitialization(Module &M) override;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class="codeLine">  bool runOnFunction(Function &F) override;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">53</td>
+    <td class="codeLine">  bool runOnFunction(Function &F) override;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class="codeLine">  StringRef getPassName() const override {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">54</td>
+    <td class="codeLine">  StringRef getPassName() const override {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class="codeLine">    return "AMDGPU Annotate Uniform Values";</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">55</td>
+    <td class="codeLine">    return "AMDGPU Annotate Uniform Values";</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">56</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class="codeLine">  void getAnalysisUsage(AnalysisUsage &AU) const override {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">57</td>
+    <td class="codeLine">  void getAnalysisUsage(AnalysisUsage &AU) const override {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class="codeLine">    AU.addRequired<UniformityInfoWrapperPass>();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">58</td>
+    <td class="codeLine">    AU.addRequired<UniformityInfoWrapperPass>();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class="codeLine">    AU.addRequired<MemorySSAWrapperPass>();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">59</td>
+    <td class="codeLine">    AU.addRequired<MemorySSAWrapperPass>();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class="codeLine">    AU.addRequired<AAResultsWrapperPass>();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">60</td>
+    <td class="codeLine">    AU.addRequired<AAResultsWrapperPass>();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class="codeLine">    AU.setPreservesAll();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">61</td>
+    <td class="codeLine">    AU.setPreservesAll();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class="codeLine"> }</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">62</td>
+    <td class="codeLine"> }</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">63</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class="codeLine">  void visitBranchInst(BranchInst &I);</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">64</td>
+    <td class="codeLine">  void visitBranchInst(BranchInst &I);</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class="codeLine">  void visitLoadInst(LoadInst &I);</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">65</td>
+    <td class="codeLine">  void visitLoadInst(LoadInst &I);</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class="codeLine">};</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">66</td>
+    <td class="codeLine">};</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">67</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class="codeLine">} // End anonymous namespace</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">68</td>
+    <td class="codeLine">} // End anonymous namespace</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">69</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_BEGIN(AMDGPUAnnotateUniformValues, DEBUG_TYPE,</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">70</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_BEGIN(AMDGPUAnnotateUniformValues, DEBUG_TYPE,</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class="codeLine">                      "Add AMDGPU uniform metadata", false, false)</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">71</td>
+    <td class="codeLine">                      "Add AMDGPU uniform metadata", false, false)</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_DEPENDENCY(UniformityInfoWrapperPass)</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">72</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_DEPENDENCY(UniformityInfoWrapperPass)</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_DEPENDENCY(MemorySSAWrapperPass)</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">73</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_DEPENDENCY(MemorySSAWrapperPass)</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_DEPENDENCY(AAResultsWrapperPass)</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">74</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_DEPENDENCY(AAResultsWrapperPass)</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_END(AMDGPUAnnotateUniformValues, DEBUG_TYPE,</td>
+    <td class="lineNumber">2</td>
+    <td class="lineNumber">75</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_END(AMDGPUAnnotateUniformValues, DEBUG_TYPE,</td>
+    <td class="lineNumber">2</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class="codeLine">                    "Add AMDGPU uniform metadata", false, false)</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">76</td>
+    <td class="codeLine">                    "Add AMDGPU uniform metadata", false, false)</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">77</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class="codeLine">char AMDGPUAnnotateUniformValues::ID = 0;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">78</td>
+    <td class="codeLine">char AMDGPUAnnotateUniformValues::ID = 0;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">79</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class="codeLine">void AMDGPUAnnotateUniformValues::visitBranchInst(BranchInst &I) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">80</td>
+    <td class="codeLine">void AMDGPUAnnotateUniformValues::visitBranchInst(BranchInst &I) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class="codeLine">  if (UA->isUniform(&I))</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">81</td>
+    <td class="codeLine">  if (UA->isUniform(&I))</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class="codeLine">    setUniformMetadata(&I);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">82</td>
+    <td class="codeLine">    setUniformMetadata(&I);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">83</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">84</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class="codeLine">void AMDGPUAnnotateUniformValues::visitLoadInst(LoadInst &I) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">85</td>
+    <td class="codeLine">void AMDGPUAnnotateUniformValues::visitLoadInst(LoadInst &I) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class="codeLine">  Value *Ptr = I.getPointerOperand();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">86</td>
+    <td class="codeLine">  Value *Ptr = I.getPointerOperand();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class="codeLine">  if (!UA->isUniform(Ptr))</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">87</td>
+    <td class="codeLine">  if (!UA->isUniform(Ptr))</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class="codeLine">    return;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">88</td>
+    <td class="codeLine">    return;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class="codeLine">  Instruction *PtrI = dyn_cast<Instruction>(Ptr);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">89</td>
+    <td class="codeLine">  Instruction *PtrI = dyn_cast<Instruction>(Ptr);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">90</td>
+    <td class="codeLine">  if (PtrI)</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">90</td>
+    <td class="codeLine">  if (PtrI)</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">91</td>
+    <td class="codeLine">    setUniformMetadata(PtrI);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">91</td>
+    <td class="codeLine">    setUniformMetadata(PtrI);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">92</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">92</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">93</td>
+    <td class="codeLine">  // We're tracking up to the Function boundaries, and cannot go beyond because</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">93</td>
+    <td class="codeLine">  // We're tracking up to the Function boundaries, and cannot go beyond because</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">94</td>
+    <td class="codeLine">  // of FunctionPass restrictions. We can ensure that is memory not clobbered</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">94</td>
+    <td class="codeLine">  // of FunctionPass restrictions. We can ensure that is memory not clobbered</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">95</td>
+    <td class="codeLine">  // for memory operations that are live in to entry points only.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">95</td>
+    <td class="codeLine">  // for memory operations that are live in to entry points only.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">96</td>
+    <td class="codeLine">  if (!isEntryFunc)</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">96</td>
+    <td class="codeLine">  if (!isEntryFunc)</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">97</td>
+    <td class="codeLine">    return;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">97</td>
+    <td class="codeLine">    return;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">98</td>
+    <td class="codeLine">  bool GlobalLoad = I.getPointerAddressSpace() == AMDGPUAS::GLOBAL_ADDRESS;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">98</td>
+    <td class="codeLine">  bool GlobalLoad = I.getPointerAddressSpace() == AMDGPUAS::GLOBAL_ADDRESS;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">99</td>
+    <td class="codeLine">  if (GlobalLoad && !AMDGPU::isClobberedInFunction(&I, MSSA, AA))</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">99</td>
+    <td class="codeLine">  if (GlobalLoad && !AMDGPU::isClobberedInFunction(&I, MSSA, AA))</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">100</td>
+    <td class="codeLine">    setNoClobberMetadata(&I);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">100</td>
+    <td class="codeLine">    setNoClobberMetadata(&I);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">101</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">101</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">102</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">102</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">103</td>
+    <td class="codeLine">bool AMDGPUAnnotateUniformValues::doInitialization(Module &M) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">103</td>
+    <td class="codeLine">bool AMDGPUAnnotateUniformValues::doInitialization(Module &M) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">104</td>
+    <td class="codeLine">  return false;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">104</td>
+    <td class="codeLine">  return false;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">105</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">105</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">106</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">106</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">107</td>
+    <td class="codeLine">bool AMDGPUAnnotateUniformValues::runOnFunction(Function &F) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">107</td>
+    <td class="codeLine">bool AMDGPUAnnotateUniformValues::runOnFunction(Function &F) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">108</td>
+    <td class="codeLine">  if (skipFunction(F))</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">108</td>
+    <td class="codeLine">  if (skipFunction(F))</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">109</td>
+    <td class="codeLine">    return false;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">109</td>
+    <td class="codeLine">    return false;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">110</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">110</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">111</td>
+    <td class="codeLine">  UA = &getAnalysis<UniformityInfoWrapperPass>().getUniformityInfo();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">111</td>
+    <td class="codeLine">  UA = &getAnalysis<UniformityInfoWrapperPass>().getUniformityInfo();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">112</td>
+    <td class="codeLine">  MSSA = &getAnalysis<MemorySSAWrapperPass>().getMSSA();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">112</td>
+    <td class="codeLine">  MSSA = &getAnalysis<MemorySSAWrapperPass>().getMSSA();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">113</td>
+    <td class="codeLine">  AA = &getAnalysis<AAResultsWrapperPass>().getAAResults();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">113</td>
+    <td class="codeLine">  AA = &getAnalysis<AAResultsWrapperPass>().getAAResults();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">114</td>
+    <td class="codeLine">  isEntryFunc = AMDGPU::isEntryFunctionCC(F.getCallingConv());</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">114</td>
+    <td class="codeLine">  isEntryFunc = AMDGPU::isEntryFunctionCC(F.getCallingConv());</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">115</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">115</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">116</td>
+    <td class="codeLine">  Changed = false;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">116</td>
+    <td class="codeLine">  Changed = false;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">117</td>
+    <td class="codeLine">  visit(F);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">117</td>
+    <td class="codeLine">  visit(F);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">118</td>
+    <td class="codeLine">  return Changed;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">118</td>
+    <td class="codeLine">  return Changed;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">119</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">119</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">120</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">120</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">121</td>
+    <td class="codeLine">FunctionPass *</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">121</td>
+    <td class="codeLine">FunctionPass *</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">122</td>
+    <td class="codeLine">llvm::createAMDGPUAnnotateUniformValues() {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">122</td>
+    <td class="codeLine">llvm::createAMDGPUAnnotateUniformValues() {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">123</td>
+    <td class="codeLine">  return new AMDGPUAnnotateUniformValues();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">123</td>
+    <td class="codeLine">  return new AMDGPUAnnotateUniformValues();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">124</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">124</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">125</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">125</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+</table>
+    </div>
+    <button id="myBtn" onclick="topFunction()" title="Go to top" type="button">Top</button>
+    <script src="../Javascript/drop_down.js"></script>
+    <script src="../Javascript/top_button.js"></script>
+  </body>
+</html>

@@ -1,0 +1,1980 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>NVPTXAssignValidGlobalNames.cpp</title>
+    <link rel="stylesheet" href="../Style/style.css" />
+  </head>
+  <body>
+    <div class="headerDiv">
+      <h1>
+        Code Coverage
+      </h1>
+      <p>
+        Source file: /home/nikola/Desktop/llvm-project/llvm/lib/Target/NVPTX/NVPTXAssignValidGlobalNames.cpp
+      </p>
+    </div>
+    <button class="collapsible" type="button">Open Summary Report</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Summary Report</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line number</th>
+    <th class="mainTh">Line</th>
+    <th class="mainTh">Number of hits</th>
+    <th class="mainTh">Tests that cover line</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="">//===-- NVPTXAssignValidGlobalNames.cpp - Assign valid names to globals ---===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="">//===----------------------------------------------------------------------===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="">// Clean up the names of global variables in the module to not contain symbols</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="">// that are invalid in PTX.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class="">// Currently NVPTX, like other backends, relies on generic symbol name</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class="">// sanitizing done by MC. However, the ptxas assembler is more stringent and</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class="">// disallows some additional characters in symbol names. This pass makes sure</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class="">// such names do not reach MC at all.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class="">//===----------------------------------------------------------------------===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class="">#include "NVPTX.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class="">#include "llvm/IR/Function.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class="">#include "llvm/IR/GlobalVariable.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class="">#include "llvm/IR/LegacyPassManager.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class="">#include "llvm/IR/Module.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class="">#include "llvm/Support/raw_ostream.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class="">#include <string></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class="">using namespace llvm;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class="">namespace {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class="">/// NVPTXAssignValidGlobalNames</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class="">class NVPTXAssignValidGlobalNames : public ModulePass {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class="">public:</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class="">  static char ID;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class="uncoveredLine">  NVPTXAssignValidGlobalNames() : ModulePass(ID) {}</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class="">  bool runOnModule(Module &M) override;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class="">  /// Clean up the name to remove symbols invalid in PTX.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class="">  std::string cleanUpName(StringRef Name);</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class="">};</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class="">}</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class="">char NVPTXAssignValidGlobalNames::ID = 0;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class="">namespace llvm {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class="">void initializeNVPTXAssignValidGlobalNamesPass(PassRegistry &);</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class="">}</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class="coveredLine">INITIALIZE_PASS(NVPTXAssignValidGlobalNames, "nvptx-assign-valid-global-names",</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class="">                "Assign valid PTX names to globals", false, false)</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class="uncoveredLine">bool NVPTXAssignValidGlobalNames::runOnModule(Module &M) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class="uncoveredLine">  for (GlobalVariable &GV : M.globals()) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class="">    // We are only allowed to rename local symbols.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class="uncoveredLine">    if (GV.hasLocalLinkage()) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class="">      // setName doesn't do extra work if the name does not change.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class="">      // Note: this does not create collisions - if setName is asked to set the</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class="">      // name to something that already exists, it adds a proper postfix to</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class="">      // avoid collisions.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class="uncoveredLine">      GV.setName(cleanUpName(GV.getName()));</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class="">    }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class="">  }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class="">  // Do the same for local functions.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class="uncoveredLine">  for (Function &F : M.functions())</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class="uncoveredLine">    if (F.hasLocalLinkage())</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class="uncoveredLine">      F.setName(cleanUpName(F.getName()));</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class="uncoveredLine">  return true;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class="">}</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class="uncoveredLine">std::string NVPTXAssignValidGlobalNames::cleanUpName(StringRef Name) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class="uncoveredLine">  std::string ValidName;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class="uncoveredLine">  raw_string_ostream ValidNameStream(ValidName);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class="uncoveredLine">  for (char C : Name) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class="uncoveredLine">    if (C == '.' || C == '@' || C == '<' || C == '>') {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class="uncoveredLine">      ValidNameStream << "_$_";</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class="">    } else {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class="uncoveredLine">      ValidNameStream << C;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class="">    }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class="">  }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class="uncoveredLine">  return ValidNameStream.str();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class="uncoveredLine">}</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class="uncoveredLine">ModulePass *llvm::createNVPTXAssignValidGlobalNamesPass() {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class="uncoveredLine">  return new NVPTXAssignValidGlobalNames();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class="">}</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Functions Report</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Functions Report</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Function name</th>
+    <th class="mainTh">Number of hits</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_127NVPTXAssignValidGlobalNamesC2Ev</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN4llvm41initializeNVPTXAssignValidGlobalNamesPassERNS_12PassRegistryE</td>
+    <td class="numberOfCalls">2</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZL45initializeNVPTXAssignValidGlobalNamesPassOnceRN4llvm12PassRegistryE</td>
+    <td class="numberOfCalls">2</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_127NVPTXAssignValidGlobalNames11runOnModuleERN4llvm6ModuleE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_127NVPTXAssignValidGlobalNames11cleanUpNameEN4llvm9StringRefE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN4llvm37createNVPTXAssignValidGlobalNamesPassEv</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Coverage Diff</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Coverage Diff</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span> BUT NOT </span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </th>
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+      <span> BUT NOT </span>
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+    </th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="codeline">//===-- NVPTXAssignValidGlobalNames.cpp - Assign valid names to globals ---===//</td>
+    <td class="lineNumber">1</td>
+    <td class="codeline">//===-- NVPTXAssignValidGlobalNames.cpp - Assign valid names to globals ---===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">2</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="codeline">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">3</td>
+    <td class="codeline">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="codeline">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">4</td>
+    <td class="codeline">// See https://llvm.org/LICENSE.txt for license information.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="codeline">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">5</td>
+    <td class="codeline">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">6</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">7</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">8</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="codeline">// Clean up the names of global variables in the module to not contain symbols</td>
+    <td class="lineNumber">9</td>
+    <td class="codeline">// Clean up the names of global variables in the module to not contain symbols</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="codeline">// that are invalid in PTX.</td>
+    <td class="lineNumber">10</td>
+    <td class="codeline">// that are invalid in PTX.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">11</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class="codeline">// Currently NVPTX, like other backends, relies on generic symbol name</td>
+    <td class="lineNumber">12</td>
+    <td class="codeline">// Currently NVPTX, like other backends, relies on generic symbol name</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class="codeline">// sanitizing done by MC. However, the ptxas assembler is more stringent and</td>
+    <td class="lineNumber">13</td>
+    <td class="codeline">// sanitizing done by MC. However, the ptxas assembler is more stringent and</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class="codeline">// disallows some additional characters in symbol names. This pass makes sure</td>
+    <td class="lineNumber">14</td>
+    <td class="codeline">// disallows some additional characters in symbol names. This pass makes sure</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class="codeline">// such names do not reach MC at all.</td>
+    <td class="lineNumber">15</td>
+    <td class="codeline">// such names do not reach MC at all.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">16</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">17</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">18</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class="codeline">#include "NVPTX.h"</td>
+    <td class="lineNumber">19</td>
+    <td class="codeline">#include "NVPTX.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class="codeline">#include "llvm/IR/Function.h"</td>
+    <td class="lineNumber">20</td>
+    <td class="codeline">#include "llvm/IR/Function.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class="codeline">#include "llvm/IR/GlobalVariable.h"</td>
+    <td class="lineNumber">21</td>
+    <td class="codeline">#include "llvm/IR/GlobalVariable.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class="codeline">#include "llvm/IR/LegacyPassManager.h"</td>
+    <td class="lineNumber">22</td>
+    <td class="codeline">#include "llvm/IR/LegacyPassManager.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class="codeline">#include "llvm/IR/Module.h"</td>
+    <td class="lineNumber">23</td>
+    <td class="codeline">#include "llvm/IR/Module.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class="codeline">#include "llvm/Support/raw_ostream.h"</td>
+    <td class="lineNumber">24</td>
+    <td class="codeline">#include "llvm/Support/raw_ostream.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class="codeline">#include <string></td>
+    <td class="lineNumber">25</td>
+    <td class="codeline">#include <string></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">26</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class="codeline">using namespace llvm;</td>
+    <td class="lineNumber">27</td>
+    <td class="codeline">using namespace llvm;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">28</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class="codeline">namespace {</td>
+    <td class="lineNumber">29</td>
+    <td class="codeline">namespace {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class="codeline">/// NVPTXAssignValidGlobalNames</td>
+    <td class="lineNumber">30</td>
+    <td class="codeline">/// NVPTXAssignValidGlobalNames</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class="codeline">class NVPTXAssignValidGlobalNames : public ModulePass {</td>
+    <td class="lineNumber">31</td>
+    <td class="codeline">class NVPTXAssignValidGlobalNames : public ModulePass {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class="codeline">public:</td>
+    <td class="lineNumber">32</td>
+    <td class="codeline">public:</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class="codeline">  static char ID;</td>
+    <td class="lineNumber">33</td>
+    <td class="codeline">  static char ID;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class="codeline">  NVPTXAssignValidGlobalNames() : ModulePass(ID) {}</td>
+    <td class="lineNumber">34</td>
+    <td class="codeline">  NVPTXAssignValidGlobalNames() : ModulePass(ID) {}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">35</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class="codeline">  bool runOnModule(Module &M) override;</td>
+    <td class="lineNumber">36</td>
+    <td class="codeline">  bool runOnModule(Module &M) override;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">37</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class="codeline">  /// Clean up the name to remove symbols invalid in PTX.</td>
+    <td class="lineNumber">38</td>
+    <td class="codeline">  /// Clean up the name to remove symbols invalid in PTX.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class="codeline">  std::string cleanUpName(StringRef Name);</td>
+    <td class="lineNumber">39</td>
+    <td class="codeline">  std::string cleanUpName(StringRef Name);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class="codeline">};</td>
+    <td class="lineNumber">40</td>
+    <td class="codeline">};</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">41</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">42</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class="codeline">char NVPTXAssignValidGlobalNames::ID = 0;</td>
+    <td class="lineNumber">43</td>
+    <td class="codeline">char NVPTXAssignValidGlobalNames::ID = 0;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">44</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class="codeline">namespace llvm {</td>
+    <td class="lineNumber">45</td>
+    <td class="codeline">namespace llvm {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class="codeline">void initializeNVPTXAssignValidGlobalNamesPass(PassRegistry &);</td>
+    <td class="lineNumber">46</td>
+    <td class="codeline">void initializeNVPTXAssignValidGlobalNamesPass(PassRegistry &);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">47</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">48</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class="codeline">INITIALIZE_PASS(NVPTXAssignValidGlobalNames, "nvptx-assign-valid-global-names",</td>
+    <td class="lineNumber">49</td>
+    <td class="codeline">INITIALIZE_PASS(NVPTXAssignValidGlobalNames, "nvptx-assign-valid-global-names",</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class="codeline">                "Assign valid PTX names to globals", false, false)</td>
+    <td class="lineNumber">50</td>
+    <td class="codeline">                "Assign valid PTX names to globals", false, false)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">51</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class="codeline">bool NVPTXAssignValidGlobalNames::runOnModule(Module &M) {</td>
+    <td class="lineNumber">52</td>
+    <td class="codeline">bool NVPTXAssignValidGlobalNames::runOnModule(Module &M) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class="codeline">  for (GlobalVariable &GV : M.globals()) {</td>
+    <td class="lineNumber">53</td>
+    <td class="codeline">  for (GlobalVariable &GV : M.globals()) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class="codeline">    // We are only allowed to rename local symbols.</td>
+    <td class="lineNumber">54</td>
+    <td class="codeline">    // We are only allowed to rename local symbols.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class="codeline">    if (GV.hasLocalLinkage()) {</td>
+    <td class="lineNumber">55</td>
+    <td class="codeline">    if (GV.hasLocalLinkage()) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class="codeline">      // setName doesn't do extra work if the name does not change.</td>
+    <td class="lineNumber">56</td>
+    <td class="codeline">      // setName doesn't do extra work if the name does not change.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class="codeline">      // Note: this does not create collisions - if setName is asked to set the</td>
+    <td class="lineNumber">57</td>
+    <td class="codeline">      // Note: this does not create collisions - if setName is asked to set the</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class="codeline">      // name to something that already exists, it adds a proper postfix to</td>
+    <td class="lineNumber">58</td>
+    <td class="codeline">      // name to something that already exists, it adds a proper postfix to</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class="codeline">      // avoid collisions.</td>
+    <td class="lineNumber">59</td>
+    <td class="codeline">      // avoid collisions.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class="codeline">      GV.setName(cleanUpName(GV.getName()));</td>
+    <td class="lineNumber">60</td>
+    <td class="codeline">      GV.setName(cleanUpName(GV.getName()));</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class="codeline">    }</td>
+    <td class="lineNumber">61</td>
+    <td class="codeline">    }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">62</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">63</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class="codeline">  // Do the same for local functions.</td>
+    <td class="lineNumber">64</td>
+    <td class="codeline">  // Do the same for local functions.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class="codeline">  for (Function &F : M.functions())</td>
+    <td class="lineNumber">65</td>
+    <td class="codeline">  for (Function &F : M.functions())</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class="codeline">    if (F.hasLocalLinkage())</td>
+    <td class="lineNumber">66</td>
+    <td class="codeline">    if (F.hasLocalLinkage())</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class="codeline">      F.setName(cleanUpName(F.getName()));</td>
+    <td class="lineNumber">67</td>
+    <td class="codeline">      F.setName(cleanUpName(F.getName()));</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">68</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class="codeline">  return true;</td>
+    <td class="lineNumber">69</td>
+    <td class="codeline">  return true;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">70</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">71</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class="codeline">std::string NVPTXAssignValidGlobalNames::cleanUpName(StringRef Name) {</td>
+    <td class="lineNumber">72</td>
+    <td class="codeline">std::string NVPTXAssignValidGlobalNames::cleanUpName(StringRef Name) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class="codeline">  std::string ValidName;</td>
+    <td class="lineNumber">73</td>
+    <td class="codeline">  std::string ValidName;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class="codeline">  raw_string_ostream ValidNameStream(ValidName);</td>
+    <td class="lineNumber">74</td>
+    <td class="codeline">  raw_string_ostream ValidNameStream(ValidName);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class="codeline">  for (char C : Name) {</td>
+    <td class="lineNumber">75</td>
+    <td class="codeline">  for (char C : Name) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class="codeline">    if (C == '.' || C == '@' || C == '<' || C == '>') {</td>
+    <td class="lineNumber">76</td>
+    <td class="codeline">    if (C == '.' || C == '@' || C == '<' || C == '>') {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class="codeline">      ValidNameStream << "_$_";</td>
+    <td class="lineNumber">77</td>
+    <td class="codeline">      ValidNameStream << "_$_";</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class="codeline">    } else {</td>
+    <td class="lineNumber">78</td>
+    <td class="codeline">    } else {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class="codeline">      ValidNameStream << C;</td>
+    <td class="lineNumber">79</td>
+    <td class="codeline">      ValidNameStream << C;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class="codeline">    }</td>
+    <td class="lineNumber">80</td>
+    <td class="codeline">    }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">81</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">82</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class="codeline">  return ValidNameStream.str();</td>
+    <td class="lineNumber">83</td>
+    <td class="codeline">  return ValidNameStream.str();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">84</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">85</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class="codeline">ModulePass *llvm::createNVPTXAssignValidGlobalNamesPass() {</td>
+    <td class="lineNumber">86</td>
+    <td class="codeline">ModulePass *llvm::createNVPTXAssignValidGlobalNamesPass() {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class="codeline">  return new NVPTXAssignValidGlobalNames();</td>
+    <td class="lineNumber">87</td>
+    <td class="codeline">  return new NVPTXAssignValidGlobalNames();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">88</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">89</td>
+    <td class="codeline"></td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Side By Side Comparison</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Side By Side Comparison</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+    </th>
+    <th class="mainTh">Hit count</th>
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </th>
+    <th class="mainTh">Hit count</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="codeLine">//===-- NVPTXAssignValidGlobalNames.cpp - Assign valid names to globals ---===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">1</td>
+    <td class="codeLine">//===-- NVPTXAssignValidGlobalNames.cpp - Assign valid names to globals ---===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">2</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="codeLine">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">3</td>
+    <td class="codeLine">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="codeLine">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">4</td>
+    <td class="codeLine">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="codeLine">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">5</td>
+    <td class="codeLine">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">6</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">7</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">8</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="codeLine">// Clean up the names of global variables in the module to not contain symbols</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">9</td>
+    <td class="codeLine">// Clean up the names of global variables in the module to not contain symbols</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="codeLine">// that are invalid in PTX.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">10</td>
+    <td class="codeLine">// that are invalid in PTX.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">11</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class="codeLine">// Currently NVPTX, like other backends, relies on generic symbol name</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">12</td>
+    <td class="codeLine">// Currently NVPTX, like other backends, relies on generic symbol name</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class="codeLine">// sanitizing done by MC. However, the ptxas assembler is more stringent and</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">13</td>
+    <td class="codeLine">// sanitizing done by MC. However, the ptxas assembler is more stringent and</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class="codeLine">// disallows some additional characters in symbol names. This pass makes sure</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">14</td>
+    <td class="codeLine">// disallows some additional characters in symbol names. This pass makes sure</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class="codeLine">// such names do not reach MC at all.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">15</td>
+    <td class="codeLine">// such names do not reach MC at all.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">16</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">17</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">18</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class="codeLine">#include "NVPTX.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">19</td>
+    <td class="codeLine">#include "NVPTX.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class="codeLine">#include "llvm/IR/Function.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">20</td>
+    <td class="codeLine">#include "llvm/IR/Function.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class="codeLine">#include "llvm/IR/GlobalVariable.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">21</td>
+    <td class="codeLine">#include "llvm/IR/GlobalVariable.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class="codeLine">#include "llvm/IR/LegacyPassManager.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">22</td>
+    <td class="codeLine">#include "llvm/IR/LegacyPassManager.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class="codeLine">#include "llvm/IR/Module.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">23</td>
+    <td class="codeLine">#include "llvm/IR/Module.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class="codeLine">#include "llvm/Support/raw_ostream.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">24</td>
+    <td class="codeLine">#include "llvm/Support/raw_ostream.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class="codeLine">#include <string></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">25</td>
+    <td class="codeLine">#include <string></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">26</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class="codeLine">using namespace llvm;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">27</td>
+    <td class="codeLine">using namespace llvm;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">28</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class="codeLine">namespace {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">29</td>
+    <td class="codeLine">namespace {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class="codeLine">/// NVPTXAssignValidGlobalNames</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">30</td>
+    <td class="codeLine">/// NVPTXAssignValidGlobalNames</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class="codeLine">class NVPTXAssignValidGlobalNames : public ModulePass {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">31</td>
+    <td class="codeLine">class NVPTXAssignValidGlobalNames : public ModulePass {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class="codeLine">public:</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">32</td>
+    <td class="codeLine">public:</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class="codeLine">  static char ID;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">33</td>
+    <td class="codeLine">  static char ID;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class="codeLine">  NVPTXAssignValidGlobalNames() : ModulePass(ID) {}</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">34</td>
+    <td class="codeLine">  NVPTXAssignValidGlobalNames() : ModulePass(ID) {}</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">35</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class="codeLine">  bool runOnModule(Module &M) override;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">36</td>
+    <td class="codeLine">  bool runOnModule(Module &M) override;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">37</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class="codeLine">  /// Clean up the name to remove symbols invalid in PTX.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">38</td>
+    <td class="codeLine">  /// Clean up the name to remove symbols invalid in PTX.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class="codeLine">  std::string cleanUpName(StringRef Name);</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">39</td>
+    <td class="codeLine">  std::string cleanUpName(StringRef Name);</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class="codeLine">};</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">40</td>
+    <td class="codeLine">};</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">41</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">42</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class="codeLine">char NVPTXAssignValidGlobalNames::ID = 0;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">43</td>
+    <td class="codeLine">char NVPTXAssignValidGlobalNames::ID = 0;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">44</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class="codeLine">namespace llvm {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">45</td>
+    <td class="codeLine">namespace llvm {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class="codeLine">void initializeNVPTXAssignValidGlobalNamesPass(PassRegistry &);</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">46</td>
+    <td class="codeLine">void initializeNVPTXAssignValidGlobalNamesPass(PassRegistry &);</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">47</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">48</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS(NVPTXAssignValidGlobalNames, "nvptx-assign-valid-global-names",</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">49</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS(NVPTXAssignValidGlobalNames, "nvptx-assign-valid-global-names",</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class="codeLine">                "Assign valid PTX names to globals", false, false)</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">50</td>
+    <td class="codeLine">                "Assign valid PTX names to globals", false, false)</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">51</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class="codeLine">bool NVPTXAssignValidGlobalNames::runOnModule(Module &M) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">52</td>
+    <td class="codeLine">bool NVPTXAssignValidGlobalNames::runOnModule(Module &M) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class="codeLine">  for (GlobalVariable &GV : M.globals()) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">53</td>
+    <td class="codeLine">  for (GlobalVariable &GV : M.globals()) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class="codeLine">    // We are only allowed to rename local symbols.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">54</td>
+    <td class="codeLine">    // We are only allowed to rename local symbols.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class="codeLine">    if (GV.hasLocalLinkage()) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">55</td>
+    <td class="codeLine">    if (GV.hasLocalLinkage()) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class="codeLine">      // setName doesn't do extra work if the name does not change.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">56</td>
+    <td class="codeLine">      // setName doesn't do extra work if the name does not change.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class="codeLine">      // Note: this does not create collisions - if setName is asked to set the</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">57</td>
+    <td class="codeLine">      // Note: this does not create collisions - if setName is asked to set the</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class="codeLine">      // name to something that already exists, it adds a proper postfix to</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">58</td>
+    <td class="codeLine">      // name to something that already exists, it adds a proper postfix to</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class="codeLine">      // avoid collisions.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">59</td>
+    <td class="codeLine">      // avoid collisions.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class="codeLine">      GV.setName(cleanUpName(GV.getName()));</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">60</td>
+    <td class="codeLine">      GV.setName(cleanUpName(GV.getName()));</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class="codeLine">    }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">61</td>
+    <td class="codeLine">    }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">62</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">63</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class="codeLine">  // Do the same for local functions.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">64</td>
+    <td class="codeLine">  // Do the same for local functions.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class="codeLine">  for (Function &F : M.functions())</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">65</td>
+    <td class="codeLine">  for (Function &F : M.functions())</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class="codeLine">    if (F.hasLocalLinkage())</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">66</td>
+    <td class="codeLine">    if (F.hasLocalLinkage())</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class="codeLine">      F.setName(cleanUpName(F.getName()));</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">67</td>
+    <td class="codeLine">      F.setName(cleanUpName(F.getName()));</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">68</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class="codeLine">  return true;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">69</td>
+    <td class="codeLine">  return true;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">70</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">71</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class="codeLine">std::string NVPTXAssignValidGlobalNames::cleanUpName(StringRef Name) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">72</td>
+    <td class="codeLine">std::string NVPTXAssignValidGlobalNames::cleanUpName(StringRef Name) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class="codeLine">  std::string ValidName;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">73</td>
+    <td class="codeLine">  std::string ValidName;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class="codeLine">  raw_string_ostream ValidNameStream(ValidName);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">74</td>
+    <td class="codeLine">  raw_string_ostream ValidNameStream(ValidName);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class="codeLine">  for (char C : Name) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">75</td>
+    <td class="codeLine">  for (char C : Name) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class="codeLine">    if (C == '.' || C == '@' || C == '<' || C == '>') {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">76</td>
+    <td class="codeLine">    if (C == '.' || C == '@' || C == '<' || C == '>') {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class="codeLine">      ValidNameStream << "_$_";</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">77</td>
+    <td class="codeLine">      ValidNameStream << "_$_";</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class="codeLine">    } else {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">78</td>
+    <td class="codeLine">    } else {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class="codeLine">      ValidNameStream << C;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">79</td>
+    <td class="codeLine">      ValidNameStream << C;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class="codeLine">    }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">80</td>
+    <td class="codeLine">    }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">81</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">82</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class="codeLine">  return ValidNameStream.str();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">83</td>
+    <td class="codeLine">  return ValidNameStream.str();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">84</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">85</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class="codeLine">ModulePass *llvm::createNVPTXAssignValidGlobalNamesPass() {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">86</td>
+    <td class="codeLine">ModulePass *llvm::createNVPTXAssignValidGlobalNamesPass() {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class="codeLine">  return new NVPTXAssignValidGlobalNames();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">87</td>
+    <td class="codeLine">  return new NVPTXAssignValidGlobalNames();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">88</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">89</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+</table>
+    </div>
+    <button id="myBtn" onclick="topFunction()" title="Go to top" type="button">Top</button>
+    <script src="../Javascript/drop_down.js"></script>
+    <script src="../Javascript/top_button.js"></script>
+  </body>
+</html>

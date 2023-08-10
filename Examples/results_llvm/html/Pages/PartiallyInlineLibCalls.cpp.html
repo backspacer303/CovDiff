@@ -1,0 +1,4739 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>PartiallyInlineLibCalls.cpp</title>
+    <link rel="stylesheet" href="../Style/style.css" />
+  </head>
+  <body>
+    <div class="headerDiv">
+      <h1>
+        Code Coverage
+      </h1>
+      <p>
+        Source file: /home/nikola/Desktop/llvm-project/llvm/lib/Transforms/Scalar/PartiallyInlineLibCalls.cpp
+      </p>
+    </div>
+    <button class="collapsible" type="button">Open Summary Report</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Summary Report</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line number</th>
+    <th class="mainTh">Line</th>
+    <th class="mainTh">Number of hits</th>
+    <th class="mainTh">Tests that cover line</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="">//===--- PartiallyInlineLibCalls.cpp - Partially inline libcalls ----------===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="">//===----------------------------------------------------------------------===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="">// This pass tries to partially inline the fast path of well-known library</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="">// functions, such as using square-root instructions for cases where sqrt()</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="">// does not need to set errno.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class="">//===----------------------------------------------------------------------===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class="">#include "llvm/Transforms/Scalar/PartiallyInlineLibCalls.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class="">#include "llvm/Analysis/DomTreeUpdater.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class="">#include "llvm/Analysis/TargetLibraryInfo.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class="">#include "llvm/Analysis/TargetTransformInfo.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class="">#include "llvm/IR/Dominators.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class="">#include "llvm/IR/IRBuilder.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class="">#include "llvm/InitializePasses.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class="">#include "llvm/Support/DebugCounter.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class="">#include "llvm/Transforms/Scalar.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class="">#include "llvm/Transforms/Utils/BasicBlockUtils.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class="">#include <optional></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class="">using namespace llvm;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class="">#define DEBUG_TYPE "partially-inline-libcalls"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class="">DEBUG_COUNTER(PILCounter, "partially-inline-libcalls-transform",</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class="">              "Controls transformations in partially-inline-libcalls");</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class="uncoveredLine">static bool optimizeSQRT(CallInst *Call, Function *CalledFunc,</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class="">                         BasicBlock &CurrBB, Function::iterator &BB,</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class="">                         const TargetTransformInfo *TTI, DomTreeUpdater *DTU) {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class="">  // There is no need to change the IR, since backend will emit sqrt</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class="">  // instruction if the call has already been marked read-only.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class="uncoveredLine">  if (Call->onlyReadsMemory())</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class="uncoveredLine">    return false;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class="uncoveredLine">  if (!DebugCounter::shouldExecute(PILCounter))</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class="uncoveredLine">    return false;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class="">  // Do the following transformation:</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class="">  //</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class="">  // (before)</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class="">  // dst = sqrt(src)</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class="">  //</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class="">  // (after)</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class="">  // v0 = sqrt_noreadmem(src) # native sqrt instruction.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class="">  // [if (v0 is a NaN) || if (src < 0)]</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class="">  //   v1 = sqrt(src)         # library call.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class="">  // dst = phi(v0, v1)</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class="">  //</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class="uncoveredLine">  Type *Ty = Call->getType();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class="uncoveredLine">  IRBuilder<> Builder(Call->getNextNode());</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class="">  // Split CurrBB right after the call, create a 'then' block (that branches</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class="">  // back to split-off tail of CurrBB) into which we'll insert a libcall.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class="uncoveredLine">  Instruction *LibCallTerm = SplitBlockAndInsertIfThen(</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class="uncoveredLine">      Builder.getTrue(), Call->getNextNode(), /*Unreachable=*/false,</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class="">      /*BranchWeights*/ nullptr, DTU);</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class="uncoveredLine">  auto *CurrBBTerm = cast<BranchInst>(CurrBB.getTerminator());</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class="">  // We want an 'else' block though, not a 'then' block.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class="uncoveredLine">  cast<BranchInst>(CurrBBTerm)->swapSuccessors();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class="">  // Create phi that will merge results of either sqrt and replace all uses.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class="uncoveredLine">  BasicBlock *JoinBB = LibCallTerm->getSuccessor(0);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class="uncoveredLine">  JoinBB->setName(CurrBB.getName() + ".split");</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class="uncoveredLine">  Builder.SetInsertPoint(JoinBB, JoinBB->begin());</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class="uncoveredLine">  PHINode *Phi = Builder.CreatePHI(Ty, 2);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class="uncoveredLine">  Call->replaceAllUsesWith(Phi);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class="">  // Finally, insert the libcall into 'else' block.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class="uncoveredLine">  BasicBlock *LibCallBB = LibCallTerm->getParent();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class="uncoveredLine">  LibCallBB->setName("call.sqrt");</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class="uncoveredLine">  Builder.SetInsertPoint(LibCallTerm);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class="uncoveredLine">  Instruction *LibCall = Call->clone();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class="uncoveredLine">  Builder.Insert(LibCall);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class="">  // Add memory(none) attribute, so that the backend can use a native sqrt</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class="">  // instruction for this call.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class="uncoveredLine">  Call->setDoesNotAccessMemory();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class="">  // Insert a FP compare instruction and use it as the CurrBB branch condition.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class="uncoveredLine">  Builder.SetInsertPoint(CurrBBTerm);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">90</td>
+    <td class="uncoveredLine">  Value *FCmp = TTI->isFCmpOrdCheaperThanFCmpZero(Ty)</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">91</td>
+    <td class="uncoveredLine">                    ? Builder.CreateFCmpORD(Call, Call)</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">92</td>
+    <td class="uncoveredLine">                    : Builder.CreateFCmpOGE(Call->getOperand(0),</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">93</td>
+    <td class="uncoveredLine">                                            ConstantFP::get(Ty, 0.0));</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">94</td>
+    <td class="uncoveredLine">  CurrBBTerm->setCondition(FCmp);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">95</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">96</td>
+    <td class="">  // Add phi operands.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">97</td>
+    <td class="uncoveredLine">  Phi->addIncoming(Call, &CurrBB);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">98</td>
+    <td class="uncoveredLine">  Phi->addIncoming(LibCall, LibCallBB);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">99</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">100</td>
+    <td class="uncoveredLine">  BB = JoinBB->getIterator();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">101</td>
+    <td class="uncoveredLine">  return true;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">102</td>
+    <td class="uncoveredLine">}</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">103</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">104</td>
+    <td class="uncoveredLine">static bool runPartiallyInlineLibCalls(Function &F, TargetLibraryInfo *TLI,</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">105</td>
+    <td class="">                                       const TargetTransformInfo *TTI,</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">106</td>
+    <td class="">                                       DominatorTree *DT) {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">107</td>
+    <td class="uncoveredLine">  std::optional<DomTreeUpdater> DTU;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">108</td>
+    <td class="uncoveredLine">  if (DT)</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">109</td>
+    <td class="uncoveredLine">    DTU.emplace(DT, DomTreeUpdater::UpdateStrategy::Lazy);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">110</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">111</td>
+    <td class="uncoveredLine">  bool Changed = false;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">112</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">113</td>
+    <td class="uncoveredLine">  Function::iterator CurrBB;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">114</td>
+    <td class="uncoveredLine">  for (Function::iterator BB = F.begin(), BE = F.end(); BB != BE;) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">115</td>
+    <td class="uncoveredLine">    CurrBB = BB++;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">116</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">117</td>
+    <td class="uncoveredLine">    for (BasicBlock::iterator II = CurrBB->begin(), IE = CurrBB->end();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">118</td>
+    <td class="uncoveredLine">         II != IE; ++II) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">119</td>
+    <td class="uncoveredLine">      CallInst *Call = dyn_cast<CallInst>(&*II);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">120</td>
+    <td class="">      Function *CalledFunc;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">121</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">122</td>
+    <td class="uncoveredLine">      if (!Call || !(CalledFunc = Call->getCalledFunction()))</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">123</td>
+    <td class="uncoveredLine">        continue;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">124</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">125</td>
+    <td class="uncoveredLine">      if (Call->isNoBuiltin() || Call->isStrictFP())</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">126</td>
+    <td class="uncoveredLine">        continue;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">127</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">128</td>
+    <td class="uncoveredLine">      if (Call->isMustTailCall())</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">129</td>
+    <td class="uncoveredLine">        continue;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">130</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">131</td>
+    <td class="">      // Skip if function either has local linkage or is not a known library</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">132</td>
+    <td class="">      // function.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">133</td>
+    <td class="">      LibFunc LF;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">134</td>
+    <td class="uncoveredLine">      if (CalledFunc->hasLocalLinkage() ||</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">135</td>
+    <td class="uncoveredLine">          !TLI->getLibFunc(*CalledFunc, LF) || !TLI->has(LF))</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">136</td>
+    <td class="uncoveredLine">        continue;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">137</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">138</td>
+    <td class="uncoveredLine">      switch (LF) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">139</td>
+    <td class="uncoveredLine">      case LibFunc_sqrtf:</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">140</td>
+    <td class="">      case LibFunc_sqrt:</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">141</td>
+    <td class="uncoveredLine">        if (TTI->haveFastSqrt(Call->getType()) &&</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">142</td>
+    <td class="uncoveredLine">            optimizeSQRT(Call, CalledFunc, *CurrBB, BB, TTI,</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">143</td>
+    <td class="uncoveredLine">                         DTU ? &*DTU : nullptr))</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">144</td>
+    <td class="uncoveredLine">          break;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">145</td>
+    <td class="uncoveredLine">        continue;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">146</td>
+    <td class="uncoveredLine">      default:</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">147</td>
+    <td class="uncoveredLine">        continue;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">148</td>
+    <td class="">      }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">149</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">150</td>
+    <td class="uncoveredLine">      Changed = true;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">151</td>
+    <td class="uncoveredLine">      break;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">152</td>
+    <td class="">    }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">153</td>
+    <td class="">  }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">154</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">155</td>
+    <td class="uncoveredLine">  return Changed;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">156</td>
+    <td class="uncoveredLine">}</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">157</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">158</td>
+    <td class="">PreservedAnalyses</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">159</td>
+    <td class="uncoveredLine">PartiallyInlineLibCallsPass::run(Function &F, FunctionAnalysisManager &AM) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">160</td>
+    <td class="uncoveredLine">  auto &TLI = AM.getResult<TargetLibraryAnalysis>(F);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">161</td>
+    <td class="uncoveredLine">  auto &TTI = AM.getResult<TargetIRAnalysis>(F);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">162</td>
+    <td class="uncoveredLine">  auto *DT = AM.getCachedResult<DominatorTreeAnalysis>(F);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">163</td>
+    <td class="uncoveredLine">  if (!runPartiallyInlineLibCalls(F, &TLI, &TTI, DT))</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">164</td>
+    <td class="uncoveredLine">    return PreservedAnalyses::all();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">165</td>
+    <td class="uncoveredLine">  PreservedAnalyses PA;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">166</td>
+    <td class="uncoveredLine">  PA.preserve<DominatorTreeAnalysis>();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">167</td>
+    <td class="uncoveredLine">  return PA;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">168</td>
+    <td class="uncoveredLine">}</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">169</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">170</td>
+    <td class="">namespace {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">171</td>
+    <td class="">class PartiallyInlineLibCallsLegacyPass : public FunctionPass {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">172</td>
+    <td class="">public:</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">173</td>
+    <td class="">  static char ID;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">174</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">175</td>
+    <td class="coveredLine">  PartiallyInlineLibCallsLegacyPass() : FunctionPass(ID) {</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">176</td>
+    <td class="coveredLine">    initializePartiallyInlineLibCallsLegacyPassPass(</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">177</td>
+    <td class="coveredLine">        *PassRegistry::getPassRegistry());</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">178</td>
+    <td class="coveredLine">  }</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">179</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">180</td>
+    <td class="coveredLine">  void getAnalysisUsage(AnalysisUsage &AU) const override {</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">181</td>
+    <td class="coveredLine">    AU.addRequired<TargetLibraryInfoWrapperPass>();</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">182</td>
+    <td class="coveredLine">    AU.addRequired<TargetTransformInfoWrapperPass>();</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">183</td>
+    <td class="coveredLine">    AU.addPreserved<DominatorTreeWrapperPass>();</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">184</td>
+    <td class="coveredLine">    FunctionPass::getAnalysisUsage(AU);</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">185</td>
+    <td class="coveredLine">  }</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">186</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">187</td>
+    <td class="coveredLine">  bool runOnFunction(Function &F) override {</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">188</td>
+    <td class="coveredLine">    if (skipFunction(F))</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">189</td>
+    <td class="coveredLine">      return false;</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">190</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">191</td>
+    <td class="">    TargetLibraryInfo *TLI =</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">192</td>
+    <td class="uncoveredLine">        &getAnalysis<TargetLibraryInfoWrapperPass>().getTLI(F);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">193</td>
+    <td class="">    const TargetTransformInfo *TTI =</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">194</td>
+    <td class="uncoveredLine">        &getAnalysis<TargetTransformInfoWrapperPass>().getTTI(F);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">195</td>
+    <td class="uncoveredLine">    DominatorTree *DT = nullptr;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">196</td>
+    <td class="uncoveredLine">    if (auto *DTWP = getAnalysisIfAvailable<DominatorTreeWrapperPass>())</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">197</td>
+    <td class="uncoveredLine">      DT = &DTWP->getDomTree();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">198</td>
+    <td class="uncoveredLine">    return runPartiallyInlineLibCalls(F, TLI, TTI, DT);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">199</td>
+    <td class="">  }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">200</td>
+    <td class="">};</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">201</td>
+    <td class="">}</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">202</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">203</td>
+    <td class="">char PartiallyInlineLibCallsLegacyPass::ID = 0;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">204</td>
+    <td class="coveredLine">INITIALIZE_PASS_BEGIN(PartiallyInlineLibCallsLegacyPass,</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">205</td>
+    <td class="">                      "partially-inline-libcalls",</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">206</td>
+    <td class="">                      "Partially inline calls to library functions", false,</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">207</td>
+    <td class="">                      false)</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">208</td>
+    <td class="coveredLine">INITIALIZE_PASS_DEPENDENCY(TargetLibraryInfoWrapperPass)</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">209</td>
+    <td class="coveredLine">INITIALIZE_PASS_DEPENDENCY(DominatorTreeWrapperPass)</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">210</td>
+    <td class="coveredLine">INITIALIZE_PASS_DEPENDENCY(TargetTransformInfoWrapperPass)</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">211</td>
+    <td class="coveredLine">INITIALIZE_PASS_END(PartiallyInlineLibCallsLegacyPass,</td>
+    <td>6</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">212</td>
+    <td class="">                    "partially-inline-libcalls",</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">213</td>
+    <td class="">                    "Partially inline calls to library functions", false, false)</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">214</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">215</td>
+    <td class="coveredLine">FunctionPass *llvm::createPartiallyInlineLibCallsPass() {</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">216</td>
+    <td class="coveredLine">  return new PartiallyInlineLibCallsLegacyPass();</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">217</td>
+    <td class="">}</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">218</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Functions Report</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Functions Report</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Function name</th>
+    <th class="mainTh">Number of hits</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZL12optimizeSQRTPN4llvm8CallInstEPNS_8FunctionERNS_10BasicBlockERNS_14ilist_iteratorINS_12ilist_detail12node_optionsIS4_Lb1ELb0EvEELb0ELb0EEEPKNS_19TargetTransformInfoEPNS_14DomTreeUpdaterE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZL26runPartiallyInlineLibCallsRN4llvm8FunctionEPNS_17TargetLibraryInfoEPKNS_19TargetTransformInfoEPNS_13DominatorTreeE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN4llvm27PartiallyInlineLibCallsPass3runERNS_8FunctionERNS_15AnalysisManagerIS1_JEEE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_133PartiallyInlineLibCallsLegacyPassC2Ev</td>
+    <td class="numberOfCalls">2</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZNK12_GLOBAL__N_133PartiallyInlineLibCallsLegacyPass16getAnalysisUsageERN4llvm13AnalysisUsageE</td>
+    <td class="numberOfCalls">2</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_133PartiallyInlineLibCallsLegacyPass13runOnFunctionERN4llvm8FunctionE</td>
+    <td class="numberOfCalls">2</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZL51initializePartiallyInlineLibCallsLegacyPassPassOnceRN4llvm12PassRegistryE</td>
+    <td class="numberOfCalls">2</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN4llvm47initializePartiallyInlineLibCallsLegacyPassPassERNS_12PassRegistryE</td>
+    <td class="numberOfCalls">4</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN4llvm33createPartiallyInlineLibCallsPassEv</td>
+    <td class="numberOfCalls">2</td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Coverage Diff</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Coverage Diff</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span> BUT NOT </span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </th>
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+      <span> BUT NOT </span>
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+    </th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="codeline">//===--- PartiallyInlineLibCalls.cpp - Partially inline libcalls ----------===//</td>
+    <td class="lineNumber">1</td>
+    <td class="codeline">//===--- PartiallyInlineLibCalls.cpp - Partially inline libcalls ----------===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">2</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="codeline">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">3</td>
+    <td class="codeline">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="codeline">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">4</td>
+    <td class="codeline">// See https://llvm.org/LICENSE.txt for license information.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="codeline">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">5</td>
+    <td class="codeline">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">6</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">7</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">8</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="codeline">// This pass tries to partially inline the fast path of well-known library</td>
+    <td class="lineNumber">9</td>
+    <td class="codeline">// This pass tries to partially inline the fast path of well-known library</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="codeline">// functions, such as using square-root instructions for cases where sqrt()</td>
+    <td class="lineNumber">10</td>
+    <td class="codeline">// functions, such as using square-root instructions for cases where sqrt()</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="codeline">// does not need to set errno.</td>
+    <td class="lineNumber">11</td>
+    <td class="codeline">// does not need to set errno.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">12</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">13</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">14</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class="codeline">#include "llvm/Transforms/Scalar/PartiallyInlineLibCalls.h"</td>
+    <td class="lineNumber">15</td>
+    <td class="codeline">#include "llvm/Transforms/Scalar/PartiallyInlineLibCalls.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class="codeline">#include "llvm/Analysis/DomTreeUpdater.h"</td>
+    <td class="lineNumber">16</td>
+    <td class="codeline">#include "llvm/Analysis/DomTreeUpdater.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class="codeline">#include "llvm/Analysis/TargetLibraryInfo.h"</td>
+    <td class="lineNumber">17</td>
+    <td class="codeline">#include "llvm/Analysis/TargetLibraryInfo.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class="codeline">#include "llvm/Analysis/TargetTransformInfo.h"</td>
+    <td class="lineNumber">18</td>
+    <td class="codeline">#include "llvm/Analysis/TargetTransformInfo.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class="codeline">#include "llvm/IR/Dominators.h"</td>
+    <td class="lineNumber">19</td>
+    <td class="codeline">#include "llvm/IR/Dominators.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class="codeline">#include "llvm/IR/IRBuilder.h"</td>
+    <td class="lineNumber">20</td>
+    <td class="codeline">#include "llvm/IR/IRBuilder.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class="codeline">#include "llvm/InitializePasses.h"</td>
+    <td class="lineNumber">21</td>
+    <td class="codeline">#include "llvm/InitializePasses.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class="codeline">#include "llvm/Support/DebugCounter.h"</td>
+    <td class="lineNumber">22</td>
+    <td class="codeline">#include "llvm/Support/DebugCounter.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class="codeline">#include "llvm/Transforms/Scalar.h"</td>
+    <td class="lineNumber">23</td>
+    <td class="codeline">#include "llvm/Transforms/Scalar.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class="codeline">#include "llvm/Transforms/Utils/BasicBlockUtils.h"</td>
+    <td class="lineNumber">24</td>
+    <td class="codeline">#include "llvm/Transforms/Utils/BasicBlockUtils.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class="codeline">#include <optional></td>
+    <td class="lineNumber">25</td>
+    <td class="codeline">#include <optional></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">26</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class="codeline">using namespace llvm;</td>
+    <td class="lineNumber">27</td>
+    <td class="codeline">using namespace llvm;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">28</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class="codeline">#define DEBUG_TYPE "partially-inline-libcalls"</td>
+    <td class="lineNumber">29</td>
+    <td class="codeline">#define DEBUG_TYPE "partially-inline-libcalls"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">30</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class="codeline">DEBUG_COUNTER(PILCounter, "partially-inline-libcalls-transform",</td>
+    <td class="lineNumber">31</td>
+    <td class="codeline">DEBUG_COUNTER(PILCounter, "partially-inline-libcalls-transform",</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class="codeline">              "Controls transformations in partially-inline-libcalls");</td>
+    <td class="lineNumber">32</td>
+    <td class="codeline">              "Controls transformations in partially-inline-libcalls");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">33</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class="codeline">static bool optimizeSQRT(CallInst *Call, Function *CalledFunc,</td>
+    <td class="lineNumber">34</td>
+    <td class="codeline">static bool optimizeSQRT(CallInst *Call, Function *CalledFunc,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class="codeline">                         BasicBlock &CurrBB, Function::iterator &BB,</td>
+    <td class="lineNumber">35</td>
+    <td class="codeline">                         BasicBlock &CurrBB, Function::iterator &BB,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class="codeline">                         const TargetTransformInfo *TTI, DomTreeUpdater *DTU) {</td>
+    <td class="lineNumber">36</td>
+    <td class="codeline">                         const TargetTransformInfo *TTI, DomTreeUpdater *DTU) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class="codeline">  // There is no need to change the IR, since backend will emit sqrt</td>
+    <td class="lineNumber">37</td>
+    <td class="codeline">  // There is no need to change the IR, since backend will emit sqrt</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class="codeline">  // instruction if the call has already been marked read-only.</td>
+    <td class="lineNumber">38</td>
+    <td class="codeline">  // instruction if the call has already been marked read-only.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class="codeline">  if (Call->onlyReadsMemory())</td>
+    <td class="lineNumber">39</td>
+    <td class="codeline">  if (Call->onlyReadsMemory())</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class="codeline">    return false;</td>
+    <td class="lineNumber">40</td>
+    <td class="codeline">    return false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">41</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class="codeline">  if (!DebugCounter::shouldExecute(PILCounter))</td>
+    <td class="lineNumber">42</td>
+    <td class="codeline">  if (!DebugCounter::shouldExecute(PILCounter))</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class="codeline">    return false;</td>
+    <td class="lineNumber">43</td>
+    <td class="codeline">    return false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">44</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class="codeline">  // Do the following transformation:</td>
+    <td class="lineNumber">45</td>
+    <td class="codeline">  // Do the following transformation:</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class="codeline">  //</td>
+    <td class="lineNumber">46</td>
+    <td class="codeline">  //</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class="codeline">  // (before)</td>
+    <td class="lineNumber">47</td>
+    <td class="codeline">  // (before)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class="codeline">  // dst = sqrt(src)</td>
+    <td class="lineNumber">48</td>
+    <td class="codeline">  // dst = sqrt(src)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class="codeline">  //</td>
+    <td class="lineNumber">49</td>
+    <td class="codeline">  //</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class="codeline">  // (after)</td>
+    <td class="lineNumber">50</td>
+    <td class="codeline">  // (after)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class="codeline">  // v0 = sqrt_noreadmem(src) # native sqrt instruction.</td>
+    <td class="lineNumber">51</td>
+    <td class="codeline">  // v0 = sqrt_noreadmem(src) # native sqrt instruction.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class="codeline">  // [if (v0 is a NaN) || if (src < 0)]</td>
+    <td class="lineNumber">52</td>
+    <td class="codeline">  // [if (v0 is a NaN) || if (src < 0)]</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class="codeline">  //   v1 = sqrt(src)         # library call.</td>
+    <td class="lineNumber">53</td>
+    <td class="codeline">  //   v1 = sqrt(src)         # library call.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class="codeline">  // dst = phi(v0, v1)</td>
+    <td class="lineNumber">54</td>
+    <td class="codeline">  // dst = phi(v0, v1)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class="codeline">  //</td>
+    <td class="lineNumber">55</td>
+    <td class="codeline">  //</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">56</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class="codeline">  Type *Ty = Call->getType();</td>
+    <td class="lineNumber">57</td>
+    <td class="codeline">  Type *Ty = Call->getType();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class="codeline">  IRBuilder<> Builder(Call->getNextNode());</td>
+    <td class="lineNumber">58</td>
+    <td class="codeline">  IRBuilder<> Builder(Call->getNextNode());</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">59</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class="codeline">  // Split CurrBB right after the call, create a 'then' block (that branches</td>
+    <td class="lineNumber">60</td>
+    <td class="codeline">  // Split CurrBB right after the call, create a 'then' block (that branches</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class="codeline">  // back to split-off tail of CurrBB) into which we'll insert a libcall.</td>
+    <td class="lineNumber">61</td>
+    <td class="codeline">  // back to split-off tail of CurrBB) into which we'll insert a libcall.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class="codeline">  Instruction *LibCallTerm = SplitBlockAndInsertIfThen(</td>
+    <td class="lineNumber">62</td>
+    <td class="codeline">  Instruction *LibCallTerm = SplitBlockAndInsertIfThen(</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class="codeline">      Builder.getTrue(), Call->getNextNode(), /*Unreachable=*/false,</td>
+    <td class="lineNumber">63</td>
+    <td class="codeline">      Builder.getTrue(), Call->getNextNode(), /*Unreachable=*/false,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class="codeline">      /*BranchWeights*/ nullptr, DTU);</td>
+    <td class="lineNumber">64</td>
+    <td class="codeline">      /*BranchWeights*/ nullptr, DTU);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">65</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class="codeline">  auto *CurrBBTerm = cast<BranchInst>(CurrBB.getTerminator());</td>
+    <td class="lineNumber">66</td>
+    <td class="codeline">  auto *CurrBBTerm = cast<BranchInst>(CurrBB.getTerminator());</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class="codeline">  // We want an 'else' block though, not a 'then' block.</td>
+    <td class="lineNumber">67</td>
+    <td class="codeline">  // We want an 'else' block though, not a 'then' block.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class="codeline">  cast<BranchInst>(CurrBBTerm)->swapSuccessors();</td>
+    <td class="lineNumber">68</td>
+    <td class="codeline">  cast<BranchInst>(CurrBBTerm)->swapSuccessors();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">69</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class="codeline">  // Create phi that will merge results of either sqrt and replace all uses.</td>
+    <td class="lineNumber">70</td>
+    <td class="codeline">  // Create phi that will merge results of either sqrt and replace all uses.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class="codeline">  BasicBlock *JoinBB = LibCallTerm->getSuccessor(0);</td>
+    <td class="lineNumber">71</td>
+    <td class="codeline">  BasicBlock *JoinBB = LibCallTerm->getSuccessor(0);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class="codeline">  JoinBB->setName(CurrBB.getName() + ".split");</td>
+    <td class="lineNumber">72</td>
+    <td class="codeline">  JoinBB->setName(CurrBB.getName() + ".split");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class="codeline">  Builder.SetInsertPoint(JoinBB, JoinBB->begin());</td>
+    <td class="lineNumber">73</td>
+    <td class="codeline">  Builder.SetInsertPoint(JoinBB, JoinBB->begin());</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class="codeline">  PHINode *Phi = Builder.CreatePHI(Ty, 2);</td>
+    <td class="lineNumber">74</td>
+    <td class="codeline">  PHINode *Phi = Builder.CreatePHI(Ty, 2);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class="codeline">  Call->replaceAllUsesWith(Phi);</td>
+    <td class="lineNumber">75</td>
+    <td class="codeline">  Call->replaceAllUsesWith(Phi);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">76</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class="codeline">  // Finally, insert the libcall into 'else' block.</td>
+    <td class="lineNumber">77</td>
+    <td class="codeline">  // Finally, insert the libcall into 'else' block.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class="codeline">  BasicBlock *LibCallBB = LibCallTerm->getParent();</td>
+    <td class="lineNumber">78</td>
+    <td class="codeline">  BasicBlock *LibCallBB = LibCallTerm->getParent();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class="codeline">  LibCallBB->setName("call.sqrt");</td>
+    <td class="lineNumber">79</td>
+    <td class="codeline">  LibCallBB->setName("call.sqrt");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class="codeline">  Builder.SetInsertPoint(LibCallTerm);</td>
+    <td class="lineNumber">80</td>
+    <td class="codeline">  Builder.SetInsertPoint(LibCallTerm);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class="codeline">  Instruction *LibCall = Call->clone();</td>
+    <td class="lineNumber">81</td>
+    <td class="codeline">  Instruction *LibCall = Call->clone();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class="codeline">  Builder.Insert(LibCall);</td>
+    <td class="lineNumber">82</td>
+    <td class="codeline">  Builder.Insert(LibCall);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">83</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class="codeline">  // Add memory(none) attribute, so that the backend can use a native sqrt</td>
+    <td class="lineNumber">84</td>
+    <td class="codeline">  // Add memory(none) attribute, so that the backend can use a native sqrt</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class="codeline">  // instruction for this call.</td>
+    <td class="lineNumber">85</td>
+    <td class="codeline">  // instruction for this call.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class="codeline">  Call->setDoesNotAccessMemory();</td>
+    <td class="lineNumber">86</td>
+    <td class="codeline">  Call->setDoesNotAccessMemory();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">87</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class="codeline">  // Insert a FP compare instruction and use it as the CurrBB branch condition.</td>
+    <td class="lineNumber">88</td>
+    <td class="codeline">  // Insert a FP compare instruction and use it as the CurrBB branch condition.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class="codeline">  Builder.SetInsertPoint(CurrBBTerm);</td>
+    <td class="lineNumber">89</td>
+    <td class="codeline">  Builder.SetInsertPoint(CurrBBTerm);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">90</td>
+    <td class="codeline">  Value *FCmp = TTI->isFCmpOrdCheaperThanFCmpZero(Ty)</td>
+    <td class="lineNumber">90</td>
+    <td class="codeline">  Value *FCmp = TTI->isFCmpOrdCheaperThanFCmpZero(Ty)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">91</td>
+    <td class="codeline">                    ? Builder.CreateFCmpORD(Call, Call)</td>
+    <td class="lineNumber">91</td>
+    <td class="codeline">                    ? Builder.CreateFCmpORD(Call, Call)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">92</td>
+    <td class="codeline">                    : Builder.CreateFCmpOGE(Call->getOperand(0),</td>
+    <td class="lineNumber">92</td>
+    <td class="codeline">                    : Builder.CreateFCmpOGE(Call->getOperand(0),</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">93</td>
+    <td class="codeline">                                            ConstantFP::get(Ty, 0.0));</td>
+    <td class="lineNumber">93</td>
+    <td class="codeline">                                            ConstantFP::get(Ty, 0.0));</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">94</td>
+    <td class="codeline">  CurrBBTerm->setCondition(FCmp);</td>
+    <td class="lineNumber">94</td>
+    <td class="codeline">  CurrBBTerm->setCondition(FCmp);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">95</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">95</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">96</td>
+    <td class="codeline">  // Add phi operands.</td>
+    <td class="lineNumber">96</td>
+    <td class="codeline">  // Add phi operands.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">97</td>
+    <td class="codeline">  Phi->addIncoming(Call, &CurrBB);</td>
+    <td class="lineNumber">97</td>
+    <td class="codeline">  Phi->addIncoming(Call, &CurrBB);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">98</td>
+    <td class="codeline">  Phi->addIncoming(LibCall, LibCallBB);</td>
+    <td class="lineNumber">98</td>
+    <td class="codeline">  Phi->addIncoming(LibCall, LibCallBB);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">99</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">99</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">100</td>
+    <td class="codeline">  BB = JoinBB->getIterator();</td>
+    <td class="lineNumber">100</td>
+    <td class="codeline">  BB = JoinBB->getIterator();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">101</td>
+    <td class="codeline">  return true;</td>
+    <td class="lineNumber">101</td>
+    <td class="codeline">  return true;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">102</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">102</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">103</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">103</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">104</td>
+    <td class="codeline">static bool runPartiallyInlineLibCalls(Function &F, TargetLibraryInfo *TLI,</td>
+    <td class="lineNumber">104</td>
+    <td class="codeline">static bool runPartiallyInlineLibCalls(Function &F, TargetLibraryInfo *TLI,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">105</td>
+    <td class="codeline">                                       const TargetTransformInfo *TTI,</td>
+    <td class="lineNumber">105</td>
+    <td class="codeline">                                       const TargetTransformInfo *TTI,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">106</td>
+    <td class="codeline">                                       DominatorTree *DT) {</td>
+    <td class="lineNumber">106</td>
+    <td class="codeline">                                       DominatorTree *DT) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">107</td>
+    <td class="codeline">  std::optional<DomTreeUpdater> DTU;</td>
+    <td class="lineNumber">107</td>
+    <td class="codeline">  std::optional<DomTreeUpdater> DTU;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">108</td>
+    <td class="codeline">  if (DT)</td>
+    <td class="lineNumber">108</td>
+    <td class="codeline">  if (DT)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">109</td>
+    <td class="codeline">    DTU.emplace(DT, DomTreeUpdater::UpdateStrategy::Lazy);</td>
+    <td class="lineNumber">109</td>
+    <td class="codeline">    DTU.emplace(DT, DomTreeUpdater::UpdateStrategy::Lazy);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">110</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">110</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">111</td>
+    <td class="codeline">  bool Changed = false;</td>
+    <td class="lineNumber">111</td>
+    <td class="codeline">  bool Changed = false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">112</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">112</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">113</td>
+    <td class="codeline">  Function::iterator CurrBB;</td>
+    <td class="lineNumber">113</td>
+    <td class="codeline">  Function::iterator CurrBB;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">114</td>
+    <td class="codeline">  for (Function::iterator BB = F.begin(), BE = F.end(); BB != BE;) {</td>
+    <td class="lineNumber">114</td>
+    <td class="codeline">  for (Function::iterator BB = F.begin(), BE = F.end(); BB != BE;) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">115</td>
+    <td class="codeline">    CurrBB = BB++;</td>
+    <td class="lineNumber">115</td>
+    <td class="codeline">    CurrBB = BB++;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">116</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">116</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">117</td>
+    <td class="codeline">    for (BasicBlock::iterator II = CurrBB->begin(), IE = CurrBB->end();</td>
+    <td class="lineNumber">117</td>
+    <td class="codeline">    for (BasicBlock::iterator II = CurrBB->begin(), IE = CurrBB->end();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">118</td>
+    <td class="codeline">         II != IE; ++II) {</td>
+    <td class="lineNumber">118</td>
+    <td class="codeline">         II != IE; ++II) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">119</td>
+    <td class="codeline">      CallInst *Call = dyn_cast<CallInst>(&*II);</td>
+    <td class="lineNumber">119</td>
+    <td class="codeline">      CallInst *Call = dyn_cast<CallInst>(&*II);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">120</td>
+    <td class="codeline">      Function *CalledFunc;</td>
+    <td class="lineNumber">120</td>
+    <td class="codeline">      Function *CalledFunc;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">121</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">121</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">122</td>
+    <td class="codeline">      if (!Call || !(CalledFunc = Call->getCalledFunction()))</td>
+    <td class="lineNumber">122</td>
+    <td class="codeline">      if (!Call || !(CalledFunc = Call->getCalledFunction()))</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">123</td>
+    <td class="codeline">        continue;</td>
+    <td class="lineNumber">123</td>
+    <td class="codeline">        continue;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">124</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">124</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">125</td>
+    <td class="codeline">      if (Call->isNoBuiltin() || Call->isStrictFP())</td>
+    <td class="lineNumber">125</td>
+    <td class="codeline">      if (Call->isNoBuiltin() || Call->isStrictFP())</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">126</td>
+    <td class="codeline">        continue;</td>
+    <td class="lineNumber">126</td>
+    <td class="codeline">        continue;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">127</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">127</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">128</td>
+    <td class="codeline">      if (Call->isMustTailCall())</td>
+    <td class="lineNumber">128</td>
+    <td class="codeline">      if (Call->isMustTailCall())</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">129</td>
+    <td class="codeline">        continue;</td>
+    <td class="lineNumber">129</td>
+    <td class="codeline">        continue;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">130</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">130</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">131</td>
+    <td class="codeline">      // Skip if function either has local linkage or is not a known library</td>
+    <td class="lineNumber">131</td>
+    <td class="codeline">      // Skip if function either has local linkage or is not a known library</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">132</td>
+    <td class="codeline">      // function.</td>
+    <td class="lineNumber">132</td>
+    <td class="codeline">      // function.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">133</td>
+    <td class="codeline">      LibFunc LF;</td>
+    <td class="lineNumber">133</td>
+    <td class="codeline">      LibFunc LF;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">134</td>
+    <td class="codeline">      if (CalledFunc->hasLocalLinkage() ||</td>
+    <td class="lineNumber">134</td>
+    <td class="codeline">      if (CalledFunc->hasLocalLinkage() ||</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">135</td>
+    <td class="codeline">          !TLI->getLibFunc(*CalledFunc, LF) || !TLI->has(LF))</td>
+    <td class="lineNumber">135</td>
+    <td class="codeline">          !TLI->getLibFunc(*CalledFunc, LF) || !TLI->has(LF))</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">136</td>
+    <td class="codeline">        continue;</td>
+    <td class="lineNumber">136</td>
+    <td class="codeline">        continue;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">137</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">137</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">138</td>
+    <td class="codeline">      switch (LF) {</td>
+    <td class="lineNumber">138</td>
+    <td class="codeline">      switch (LF) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">139</td>
+    <td class="codeline">      case LibFunc_sqrtf:</td>
+    <td class="lineNumber">139</td>
+    <td class="codeline">      case LibFunc_sqrtf:</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">140</td>
+    <td class="codeline">      case LibFunc_sqrt:</td>
+    <td class="lineNumber">140</td>
+    <td class="codeline">      case LibFunc_sqrt:</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">141</td>
+    <td class="codeline">        if (TTI->haveFastSqrt(Call->getType()) &&</td>
+    <td class="lineNumber">141</td>
+    <td class="codeline">        if (TTI->haveFastSqrt(Call->getType()) &&</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">142</td>
+    <td class="codeline">            optimizeSQRT(Call, CalledFunc, *CurrBB, BB, TTI,</td>
+    <td class="lineNumber">142</td>
+    <td class="codeline">            optimizeSQRT(Call, CalledFunc, *CurrBB, BB, TTI,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">143</td>
+    <td class="codeline">                         DTU ? &*DTU : nullptr))</td>
+    <td class="lineNumber">143</td>
+    <td class="codeline">                         DTU ? &*DTU : nullptr))</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">144</td>
+    <td class="codeline">          break;</td>
+    <td class="lineNumber">144</td>
+    <td class="codeline">          break;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">145</td>
+    <td class="codeline">        continue;</td>
+    <td class="lineNumber">145</td>
+    <td class="codeline">        continue;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">146</td>
+    <td class="codeline">      default:</td>
+    <td class="lineNumber">146</td>
+    <td class="codeline">      default:</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">147</td>
+    <td class="codeline">        continue;</td>
+    <td class="lineNumber">147</td>
+    <td class="codeline">        continue;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">148</td>
+    <td class="codeline">      }</td>
+    <td class="lineNumber">148</td>
+    <td class="codeline">      }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">149</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">149</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">150</td>
+    <td class="codeline">      Changed = true;</td>
+    <td class="lineNumber">150</td>
+    <td class="codeline">      Changed = true;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">151</td>
+    <td class="codeline">      break;</td>
+    <td class="lineNumber">151</td>
+    <td class="codeline">      break;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">152</td>
+    <td class="codeline">    }</td>
+    <td class="lineNumber">152</td>
+    <td class="codeline">    }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">153</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">153</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">154</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">154</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">155</td>
+    <td class="codeline">  return Changed;</td>
+    <td class="lineNumber">155</td>
+    <td class="codeline">  return Changed;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">156</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">156</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">157</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">157</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">158</td>
+    <td class="codeline">PreservedAnalyses</td>
+    <td class="lineNumber">158</td>
+    <td class="codeline">PreservedAnalyses</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">159</td>
+    <td class="codeline">PartiallyInlineLibCallsPass::run(Function &F, FunctionAnalysisManager &AM) {</td>
+    <td class="lineNumber">159</td>
+    <td class="codeline">PartiallyInlineLibCallsPass::run(Function &F, FunctionAnalysisManager &AM) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">160</td>
+    <td class="codeline">  auto &TLI = AM.getResult<TargetLibraryAnalysis>(F);</td>
+    <td class="lineNumber">160</td>
+    <td class="codeline">  auto &TLI = AM.getResult<TargetLibraryAnalysis>(F);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">161</td>
+    <td class="codeline">  auto &TTI = AM.getResult<TargetIRAnalysis>(F);</td>
+    <td class="lineNumber">161</td>
+    <td class="codeline">  auto &TTI = AM.getResult<TargetIRAnalysis>(F);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">162</td>
+    <td class="codeline">  auto *DT = AM.getCachedResult<DominatorTreeAnalysis>(F);</td>
+    <td class="lineNumber">162</td>
+    <td class="codeline">  auto *DT = AM.getCachedResult<DominatorTreeAnalysis>(F);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">163</td>
+    <td class="codeline">  if (!runPartiallyInlineLibCalls(F, &TLI, &TTI, DT))</td>
+    <td class="lineNumber">163</td>
+    <td class="codeline">  if (!runPartiallyInlineLibCalls(F, &TLI, &TTI, DT))</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">164</td>
+    <td class="codeline">    return PreservedAnalyses::all();</td>
+    <td class="lineNumber">164</td>
+    <td class="codeline">    return PreservedAnalyses::all();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">165</td>
+    <td class="codeline">  PreservedAnalyses PA;</td>
+    <td class="lineNumber">165</td>
+    <td class="codeline">  PreservedAnalyses PA;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">166</td>
+    <td class="codeline">  PA.preserve<DominatorTreeAnalysis>();</td>
+    <td class="lineNumber">166</td>
+    <td class="codeline">  PA.preserve<DominatorTreeAnalysis>();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">167</td>
+    <td class="codeline">  return PA;</td>
+    <td class="lineNumber">167</td>
+    <td class="codeline">  return PA;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">168</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">168</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">169</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">169</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">170</td>
+    <td class="codeline">namespace {</td>
+    <td class="lineNumber">170</td>
+    <td class="codeline">namespace {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">171</td>
+    <td class="codeline">class PartiallyInlineLibCallsLegacyPass : public FunctionPass {</td>
+    <td class="lineNumber">171</td>
+    <td class="codeline">class PartiallyInlineLibCallsLegacyPass : public FunctionPass {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">172</td>
+    <td class="codeline">public:</td>
+    <td class="lineNumber">172</td>
+    <td class="codeline">public:</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">173</td>
+    <td class="codeline">  static char ID;</td>
+    <td class="lineNumber">173</td>
+    <td class="codeline">  static char ID;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">174</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">174</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">175</td>
+    <td class="codeline">  PartiallyInlineLibCallsLegacyPass() : FunctionPass(ID) {</td>
+    <td class="lineNumber">175</td>
+    <td class="codeline">  PartiallyInlineLibCallsLegacyPass() : FunctionPass(ID) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">176</td>
+    <td class="codeline">    initializePartiallyInlineLibCallsLegacyPassPass(</td>
+    <td class="lineNumber">176</td>
+    <td class="codeline">    initializePartiallyInlineLibCallsLegacyPassPass(</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">177</td>
+    <td class="codeline">        *PassRegistry::getPassRegistry());</td>
+    <td class="lineNumber">177</td>
+    <td class="codeline">        *PassRegistry::getPassRegistry());</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">178</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">178</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">179</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">179</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">180</td>
+    <td class="codeline">  void getAnalysisUsage(AnalysisUsage &AU) const override {</td>
+    <td class="lineNumber">180</td>
+    <td class="codeline">  void getAnalysisUsage(AnalysisUsage &AU) const override {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">181</td>
+    <td class="codeline">    AU.addRequired<TargetLibraryInfoWrapperPass>();</td>
+    <td class="lineNumber">181</td>
+    <td class="codeline">    AU.addRequired<TargetLibraryInfoWrapperPass>();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">182</td>
+    <td class="codeline">    AU.addRequired<TargetTransformInfoWrapperPass>();</td>
+    <td class="lineNumber">182</td>
+    <td class="codeline">    AU.addRequired<TargetTransformInfoWrapperPass>();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">183</td>
+    <td class="codeline">    AU.addPreserved<DominatorTreeWrapperPass>();</td>
+    <td class="lineNumber">183</td>
+    <td class="codeline">    AU.addPreserved<DominatorTreeWrapperPass>();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">184</td>
+    <td class="codeline">    FunctionPass::getAnalysisUsage(AU);</td>
+    <td class="lineNumber">184</td>
+    <td class="codeline">    FunctionPass::getAnalysisUsage(AU);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">185</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">185</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">186</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">186</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">187</td>
+    <td class="codeline">  bool runOnFunction(Function &F) override {</td>
+    <td class="lineNumber">187</td>
+    <td class="codeline">  bool runOnFunction(Function &F) override {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">188</td>
+    <td class="codeline">    if (skipFunction(F))</td>
+    <td class="lineNumber">188</td>
+    <td class="codeline">    if (skipFunction(F))</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">189</td>
+    <td class="codeline">      return false;</td>
+    <td class="lineNumber">189</td>
+    <td class="codeline">      return false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">190</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">190</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">191</td>
+    <td class="codeline">    TargetLibraryInfo *TLI =</td>
+    <td class="lineNumber">191</td>
+    <td class="codeline">    TargetLibraryInfo *TLI =</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">192</td>
+    <td class="codeline">        &getAnalysis<TargetLibraryInfoWrapperPass>().getTLI(F);</td>
+    <td class="lineNumber">192</td>
+    <td class="codeline">        &getAnalysis<TargetLibraryInfoWrapperPass>().getTLI(F);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">193</td>
+    <td class="codeline">    const TargetTransformInfo *TTI =</td>
+    <td class="lineNumber">193</td>
+    <td class="codeline">    const TargetTransformInfo *TTI =</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">194</td>
+    <td class="codeline">        &getAnalysis<TargetTransformInfoWrapperPass>().getTTI(F);</td>
+    <td class="lineNumber">194</td>
+    <td class="codeline">        &getAnalysis<TargetTransformInfoWrapperPass>().getTTI(F);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">195</td>
+    <td class="codeline">    DominatorTree *DT = nullptr;</td>
+    <td class="lineNumber">195</td>
+    <td class="codeline">    DominatorTree *DT = nullptr;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">196</td>
+    <td class="codeline">    if (auto *DTWP = getAnalysisIfAvailable<DominatorTreeWrapperPass>())</td>
+    <td class="lineNumber">196</td>
+    <td class="codeline">    if (auto *DTWP = getAnalysisIfAvailable<DominatorTreeWrapperPass>())</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">197</td>
+    <td class="codeline">      DT = &DTWP->getDomTree();</td>
+    <td class="lineNumber">197</td>
+    <td class="codeline">      DT = &DTWP->getDomTree();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">198</td>
+    <td class="codeline">    return runPartiallyInlineLibCalls(F, TLI, TTI, DT);</td>
+    <td class="lineNumber">198</td>
+    <td class="codeline">    return runPartiallyInlineLibCalls(F, TLI, TTI, DT);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">199</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">199</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">200</td>
+    <td class="codeline">};</td>
+    <td class="lineNumber">200</td>
+    <td class="codeline">};</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">201</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">201</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">202</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">202</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">203</td>
+    <td class="codeline">char PartiallyInlineLibCallsLegacyPass::ID = 0;</td>
+    <td class="lineNumber">203</td>
+    <td class="codeline">char PartiallyInlineLibCallsLegacyPass::ID = 0;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">204</td>
+    <td class="codeline">INITIALIZE_PASS_BEGIN(PartiallyInlineLibCallsLegacyPass,</td>
+    <td class="lineNumber">204</td>
+    <td class="codeline">INITIALIZE_PASS_BEGIN(PartiallyInlineLibCallsLegacyPass,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">205</td>
+    <td class="codeline">                      "partially-inline-libcalls",</td>
+    <td class="lineNumber">205</td>
+    <td class="codeline">                      "partially-inline-libcalls",</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">206</td>
+    <td class="codeline">                      "Partially inline calls to library functions", false,</td>
+    <td class="lineNumber">206</td>
+    <td class="codeline">                      "Partially inline calls to library functions", false,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">207</td>
+    <td class="codeline">                      false)</td>
+    <td class="lineNumber">207</td>
+    <td class="codeline">                      false)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">208</td>
+    <td class="codeline">INITIALIZE_PASS_DEPENDENCY(TargetLibraryInfoWrapperPass)</td>
+    <td class="lineNumber">208</td>
+    <td class="codeline">INITIALIZE_PASS_DEPENDENCY(TargetLibraryInfoWrapperPass)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">209</td>
+    <td class="codeline">INITIALIZE_PASS_DEPENDENCY(DominatorTreeWrapperPass)</td>
+    <td class="lineNumber">209</td>
+    <td class="codeline">INITIALIZE_PASS_DEPENDENCY(DominatorTreeWrapperPass)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">210</td>
+    <td class="codeline">INITIALIZE_PASS_DEPENDENCY(TargetTransformInfoWrapperPass)</td>
+    <td class="lineNumber">210</td>
+    <td class="codeline">INITIALIZE_PASS_DEPENDENCY(TargetTransformInfoWrapperPass)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">211</td>
+    <td class="codeline">INITIALIZE_PASS_END(PartiallyInlineLibCallsLegacyPass,</td>
+    <td class="lineNumber">211</td>
+    <td class="codeline">INITIALIZE_PASS_END(PartiallyInlineLibCallsLegacyPass,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">212</td>
+    <td class="codeline">                    "partially-inline-libcalls",</td>
+    <td class="lineNumber">212</td>
+    <td class="codeline">                    "partially-inline-libcalls",</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">213</td>
+    <td class="codeline">                    "Partially inline calls to library functions", false, false)</td>
+    <td class="lineNumber">213</td>
+    <td class="codeline">                    "Partially inline calls to library functions", false, false)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">214</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">214</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">215</td>
+    <td class="codeline">FunctionPass *llvm::createPartiallyInlineLibCallsPass() {</td>
+    <td class="lineNumber">215</td>
+    <td class="codeline">FunctionPass *llvm::createPartiallyInlineLibCallsPass() {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">216</td>
+    <td class="codeline">  return new PartiallyInlineLibCallsLegacyPass();</td>
+    <td class="lineNumber">216</td>
+    <td class="codeline">  return new PartiallyInlineLibCallsLegacyPass();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">217</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">217</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">218</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">218</td>
+    <td class="codeline"></td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Side By Side Comparison</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Side By Side Comparison</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+    </th>
+    <th class="mainTh">Hit count</th>
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </th>
+    <th class="mainTh">Hit count</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="codeLine">//===--- PartiallyInlineLibCalls.cpp - Partially inline libcalls ----------===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">1</td>
+    <td class="codeLine">//===--- PartiallyInlineLibCalls.cpp - Partially inline libcalls ----------===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">2</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="codeLine">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">3</td>
+    <td class="codeLine">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="codeLine">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">4</td>
+    <td class="codeLine">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="codeLine">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">5</td>
+    <td class="codeLine">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">6</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">7</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">8</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="codeLine">// This pass tries to partially inline the fast path of well-known library</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">9</td>
+    <td class="codeLine">// This pass tries to partially inline the fast path of well-known library</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="codeLine">// functions, such as using square-root instructions for cases where sqrt()</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">10</td>
+    <td class="codeLine">// functions, such as using square-root instructions for cases where sqrt()</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="codeLine">// does not need to set errno.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">11</td>
+    <td class="codeLine">// does not need to set errno.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">12</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">13</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">14</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class="codeLine">#include "llvm/Transforms/Scalar/PartiallyInlineLibCalls.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">15</td>
+    <td class="codeLine">#include "llvm/Transforms/Scalar/PartiallyInlineLibCalls.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class="codeLine">#include "llvm/Analysis/DomTreeUpdater.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">16</td>
+    <td class="codeLine">#include "llvm/Analysis/DomTreeUpdater.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class="codeLine">#include "llvm/Analysis/TargetLibraryInfo.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">17</td>
+    <td class="codeLine">#include "llvm/Analysis/TargetLibraryInfo.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class="codeLine">#include "llvm/Analysis/TargetTransformInfo.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">18</td>
+    <td class="codeLine">#include "llvm/Analysis/TargetTransformInfo.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class="codeLine">#include "llvm/IR/Dominators.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">19</td>
+    <td class="codeLine">#include "llvm/IR/Dominators.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class="codeLine">#include "llvm/IR/IRBuilder.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">20</td>
+    <td class="codeLine">#include "llvm/IR/IRBuilder.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class="codeLine">#include "llvm/InitializePasses.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">21</td>
+    <td class="codeLine">#include "llvm/InitializePasses.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class="codeLine">#include "llvm/Support/DebugCounter.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">22</td>
+    <td class="codeLine">#include "llvm/Support/DebugCounter.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class="codeLine">#include "llvm/Transforms/Scalar.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">23</td>
+    <td class="codeLine">#include "llvm/Transforms/Scalar.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class="codeLine">#include "llvm/Transforms/Utils/BasicBlockUtils.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">24</td>
+    <td class="codeLine">#include "llvm/Transforms/Utils/BasicBlockUtils.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class="codeLine">#include <optional></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">25</td>
+    <td class="codeLine">#include <optional></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">26</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class="codeLine">using namespace llvm;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">27</td>
+    <td class="codeLine">using namespace llvm;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">28</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class="codeLine">#define DEBUG_TYPE "partially-inline-libcalls"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">29</td>
+    <td class="codeLine">#define DEBUG_TYPE "partially-inline-libcalls"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">30</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class="codeLine">DEBUG_COUNTER(PILCounter, "partially-inline-libcalls-transform",</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">31</td>
+    <td class="codeLine">DEBUG_COUNTER(PILCounter, "partially-inline-libcalls-transform",</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class="codeLine">              "Controls transformations in partially-inline-libcalls");</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">32</td>
+    <td class="codeLine">              "Controls transformations in partially-inline-libcalls");</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">33</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class="codeLine">static bool optimizeSQRT(CallInst *Call, Function *CalledFunc,</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">34</td>
+    <td class="codeLine">static bool optimizeSQRT(CallInst *Call, Function *CalledFunc,</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class="codeLine">                         BasicBlock &CurrBB, Function::iterator &BB,</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">35</td>
+    <td class="codeLine">                         BasicBlock &CurrBB, Function::iterator &BB,</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class="codeLine">                         const TargetTransformInfo *TTI, DomTreeUpdater *DTU) {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">36</td>
+    <td class="codeLine">                         const TargetTransformInfo *TTI, DomTreeUpdater *DTU) {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class="codeLine">  // There is no need to change the IR, since backend will emit sqrt</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">37</td>
+    <td class="codeLine">  // There is no need to change the IR, since backend will emit sqrt</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class="codeLine">  // instruction if the call has already been marked read-only.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">38</td>
+    <td class="codeLine">  // instruction if the call has already been marked read-only.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class="codeLine">  if (Call->onlyReadsMemory())</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">39</td>
+    <td class="codeLine">  if (Call->onlyReadsMemory())</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class="codeLine">    return false;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">40</td>
+    <td class="codeLine">    return false;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">41</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class="codeLine">  if (!DebugCounter::shouldExecute(PILCounter))</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">42</td>
+    <td class="codeLine">  if (!DebugCounter::shouldExecute(PILCounter))</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class="codeLine">    return false;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">43</td>
+    <td class="codeLine">    return false;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">44</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class="codeLine">  // Do the following transformation:</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">45</td>
+    <td class="codeLine">  // Do the following transformation:</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class="codeLine">  //</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">46</td>
+    <td class="codeLine">  //</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class="codeLine">  // (before)</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">47</td>
+    <td class="codeLine">  // (before)</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class="codeLine">  // dst = sqrt(src)</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">48</td>
+    <td class="codeLine">  // dst = sqrt(src)</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class="codeLine">  //</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">49</td>
+    <td class="codeLine">  //</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class="codeLine">  // (after)</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">50</td>
+    <td class="codeLine">  // (after)</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class="codeLine">  // v0 = sqrt_noreadmem(src) # native sqrt instruction.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">51</td>
+    <td class="codeLine">  // v0 = sqrt_noreadmem(src) # native sqrt instruction.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class="codeLine">  // [if (v0 is a NaN) || if (src < 0)]</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">52</td>
+    <td class="codeLine">  // [if (v0 is a NaN) || if (src < 0)]</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class="codeLine">  //   v1 = sqrt(src)         # library call.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">53</td>
+    <td class="codeLine">  //   v1 = sqrt(src)         # library call.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class="codeLine">  // dst = phi(v0, v1)</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">54</td>
+    <td class="codeLine">  // dst = phi(v0, v1)</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class="codeLine">  //</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">55</td>
+    <td class="codeLine">  //</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">56</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class="codeLine">  Type *Ty = Call->getType();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">57</td>
+    <td class="codeLine">  Type *Ty = Call->getType();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class="codeLine">  IRBuilder<> Builder(Call->getNextNode());</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">58</td>
+    <td class="codeLine">  IRBuilder<> Builder(Call->getNextNode());</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">59</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class="codeLine">  // Split CurrBB right after the call, create a 'then' block (that branches</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">60</td>
+    <td class="codeLine">  // Split CurrBB right after the call, create a 'then' block (that branches</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class="codeLine">  // back to split-off tail of CurrBB) into which we'll insert a libcall.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">61</td>
+    <td class="codeLine">  // back to split-off tail of CurrBB) into which we'll insert a libcall.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class="codeLine">  Instruction *LibCallTerm = SplitBlockAndInsertIfThen(</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">62</td>
+    <td class="codeLine">  Instruction *LibCallTerm = SplitBlockAndInsertIfThen(</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class="codeLine">      Builder.getTrue(), Call->getNextNode(), /*Unreachable=*/false,</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">63</td>
+    <td class="codeLine">      Builder.getTrue(), Call->getNextNode(), /*Unreachable=*/false,</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class="codeLine">      /*BranchWeights*/ nullptr, DTU);</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">64</td>
+    <td class="codeLine">      /*BranchWeights*/ nullptr, DTU);</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">65</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class="codeLine">  auto *CurrBBTerm = cast<BranchInst>(CurrBB.getTerminator());</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">66</td>
+    <td class="codeLine">  auto *CurrBBTerm = cast<BranchInst>(CurrBB.getTerminator());</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class="codeLine">  // We want an 'else' block though, not a 'then' block.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">67</td>
+    <td class="codeLine">  // We want an 'else' block though, not a 'then' block.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class="codeLine">  cast<BranchInst>(CurrBBTerm)->swapSuccessors();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">68</td>
+    <td class="codeLine">  cast<BranchInst>(CurrBBTerm)->swapSuccessors();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">69</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class="codeLine">  // Create phi that will merge results of either sqrt and replace all uses.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">70</td>
+    <td class="codeLine">  // Create phi that will merge results of either sqrt and replace all uses.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class="codeLine">  BasicBlock *JoinBB = LibCallTerm->getSuccessor(0);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">71</td>
+    <td class="codeLine">  BasicBlock *JoinBB = LibCallTerm->getSuccessor(0);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class="codeLine">  JoinBB->setName(CurrBB.getName() + ".split");</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">72</td>
+    <td class="codeLine">  JoinBB->setName(CurrBB.getName() + ".split");</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class="codeLine">  Builder.SetInsertPoint(JoinBB, JoinBB->begin());</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">73</td>
+    <td class="codeLine">  Builder.SetInsertPoint(JoinBB, JoinBB->begin());</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class="codeLine">  PHINode *Phi = Builder.CreatePHI(Ty, 2);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">74</td>
+    <td class="codeLine">  PHINode *Phi = Builder.CreatePHI(Ty, 2);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class="codeLine">  Call->replaceAllUsesWith(Phi);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">75</td>
+    <td class="codeLine">  Call->replaceAllUsesWith(Phi);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">76</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class="codeLine">  // Finally, insert the libcall into 'else' block.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">77</td>
+    <td class="codeLine">  // Finally, insert the libcall into 'else' block.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class="codeLine">  BasicBlock *LibCallBB = LibCallTerm->getParent();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">78</td>
+    <td class="codeLine">  BasicBlock *LibCallBB = LibCallTerm->getParent();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class="codeLine">  LibCallBB->setName("call.sqrt");</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">79</td>
+    <td class="codeLine">  LibCallBB->setName("call.sqrt");</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class="codeLine">  Builder.SetInsertPoint(LibCallTerm);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">80</td>
+    <td class="codeLine">  Builder.SetInsertPoint(LibCallTerm);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class="codeLine">  Instruction *LibCall = Call->clone();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">81</td>
+    <td class="codeLine">  Instruction *LibCall = Call->clone();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class="codeLine">  Builder.Insert(LibCall);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">82</td>
+    <td class="codeLine">  Builder.Insert(LibCall);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">83</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class="codeLine">  // Add memory(none) attribute, so that the backend can use a native sqrt</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">84</td>
+    <td class="codeLine">  // Add memory(none) attribute, so that the backend can use a native sqrt</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class="codeLine">  // instruction for this call.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">85</td>
+    <td class="codeLine">  // instruction for this call.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class="codeLine">  Call->setDoesNotAccessMemory();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">86</td>
+    <td class="codeLine">  Call->setDoesNotAccessMemory();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">87</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class="codeLine">  // Insert a FP compare instruction and use it as the CurrBB branch condition.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">88</td>
+    <td class="codeLine">  // Insert a FP compare instruction and use it as the CurrBB branch condition.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class="codeLine">  Builder.SetInsertPoint(CurrBBTerm);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">89</td>
+    <td class="codeLine">  Builder.SetInsertPoint(CurrBBTerm);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">90</td>
+    <td class="codeLine">  Value *FCmp = TTI->isFCmpOrdCheaperThanFCmpZero(Ty)</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">90</td>
+    <td class="codeLine">  Value *FCmp = TTI->isFCmpOrdCheaperThanFCmpZero(Ty)</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">91</td>
+    <td class="codeLine">                    ? Builder.CreateFCmpORD(Call, Call)</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">91</td>
+    <td class="codeLine">                    ? Builder.CreateFCmpORD(Call, Call)</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">92</td>
+    <td class="codeLine">                    : Builder.CreateFCmpOGE(Call->getOperand(0),</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">92</td>
+    <td class="codeLine">                    : Builder.CreateFCmpOGE(Call->getOperand(0),</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">93</td>
+    <td class="codeLine">                                            ConstantFP::get(Ty, 0.0));</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">93</td>
+    <td class="codeLine">                                            ConstantFP::get(Ty, 0.0));</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">94</td>
+    <td class="codeLine">  CurrBBTerm->setCondition(FCmp);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">94</td>
+    <td class="codeLine">  CurrBBTerm->setCondition(FCmp);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">95</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">95</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">96</td>
+    <td class="codeLine">  // Add phi operands.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">96</td>
+    <td class="codeLine">  // Add phi operands.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">97</td>
+    <td class="codeLine">  Phi->addIncoming(Call, &CurrBB);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">97</td>
+    <td class="codeLine">  Phi->addIncoming(Call, &CurrBB);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">98</td>
+    <td class="codeLine">  Phi->addIncoming(LibCall, LibCallBB);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">98</td>
+    <td class="codeLine">  Phi->addIncoming(LibCall, LibCallBB);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">99</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">99</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">100</td>
+    <td class="codeLine">  BB = JoinBB->getIterator();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">100</td>
+    <td class="codeLine">  BB = JoinBB->getIterator();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">101</td>
+    <td class="codeLine">  return true;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">101</td>
+    <td class="codeLine">  return true;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">102</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">102</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">103</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">103</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">104</td>
+    <td class="codeLine">static bool runPartiallyInlineLibCalls(Function &F, TargetLibraryInfo *TLI,</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">104</td>
+    <td class="codeLine">static bool runPartiallyInlineLibCalls(Function &F, TargetLibraryInfo *TLI,</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">105</td>
+    <td class="codeLine">                                       const TargetTransformInfo *TTI,</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">105</td>
+    <td class="codeLine">                                       const TargetTransformInfo *TTI,</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">106</td>
+    <td class="codeLine">                                       DominatorTree *DT) {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">106</td>
+    <td class="codeLine">                                       DominatorTree *DT) {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">107</td>
+    <td class="codeLine">  std::optional<DomTreeUpdater> DTU;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">107</td>
+    <td class="codeLine">  std::optional<DomTreeUpdater> DTU;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">108</td>
+    <td class="codeLine">  if (DT)</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">108</td>
+    <td class="codeLine">  if (DT)</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">109</td>
+    <td class="codeLine">    DTU.emplace(DT, DomTreeUpdater::UpdateStrategy::Lazy);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">109</td>
+    <td class="codeLine">    DTU.emplace(DT, DomTreeUpdater::UpdateStrategy::Lazy);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">110</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">110</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">111</td>
+    <td class="codeLine">  bool Changed = false;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">111</td>
+    <td class="codeLine">  bool Changed = false;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">112</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">112</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">113</td>
+    <td class="codeLine">  Function::iterator CurrBB;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">113</td>
+    <td class="codeLine">  Function::iterator CurrBB;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">114</td>
+    <td class="codeLine">  for (Function::iterator BB = F.begin(), BE = F.end(); BB != BE;) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">114</td>
+    <td class="codeLine">  for (Function::iterator BB = F.begin(), BE = F.end(); BB != BE;) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">115</td>
+    <td class="codeLine">    CurrBB = BB++;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">115</td>
+    <td class="codeLine">    CurrBB = BB++;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">116</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">116</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">117</td>
+    <td class="codeLine">    for (BasicBlock::iterator II = CurrBB->begin(), IE = CurrBB->end();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">117</td>
+    <td class="codeLine">    for (BasicBlock::iterator II = CurrBB->begin(), IE = CurrBB->end();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">118</td>
+    <td class="codeLine">         II != IE; ++II) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">118</td>
+    <td class="codeLine">         II != IE; ++II) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">119</td>
+    <td class="codeLine">      CallInst *Call = dyn_cast<CallInst>(&*II);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">119</td>
+    <td class="codeLine">      CallInst *Call = dyn_cast<CallInst>(&*II);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">120</td>
+    <td class="codeLine">      Function *CalledFunc;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">120</td>
+    <td class="codeLine">      Function *CalledFunc;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">121</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">121</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">122</td>
+    <td class="codeLine">      if (!Call || !(CalledFunc = Call->getCalledFunction()))</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">122</td>
+    <td class="codeLine">      if (!Call || !(CalledFunc = Call->getCalledFunction()))</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">123</td>
+    <td class="codeLine">        continue;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">123</td>
+    <td class="codeLine">        continue;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">124</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">124</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">125</td>
+    <td class="codeLine">      if (Call->isNoBuiltin() || Call->isStrictFP())</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">125</td>
+    <td class="codeLine">      if (Call->isNoBuiltin() || Call->isStrictFP())</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">126</td>
+    <td class="codeLine">        continue;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">126</td>
+    <td class="codeLine">        continue;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">127</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">127</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">128</td>
+    <td class="codeLine">      if (Call->isMustTailCall())</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">128</td>
+    <td class="codeLine">      if (Call->isMustTailCall())</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">129</td>
+    <td class="codeLine">        continue;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">129</td>
+    <td class="codeLine">        continue;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">130</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">130</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">131</td>
+    <td class="codeLine">      // Skip if function either has local linkage or is not a known library</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">131</td>
+    <td class="codeLine">      // Skip if function either has local linkage or is not a known library</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">132</td>
+    <td class="codeLine">      // function.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">132</td>
+    <td class="codeLine">      // function.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">133</td>
+    <td class="codeLine">      LibFunc LF;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">133</td>
+    <td class="codeLine">      LibFunc LF;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">134</td>
+    <td class="codeLine">      if (CalledFunc->hasLocalLinkage() ||</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">134</td>
+    <td class="codeLine">      if (CalledFunc->hasLocalLinkage() ||</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">135</td>
+    <td class="codeLine">          !TLI->getLibFunc(*CalledFunc, LF) || !TLI->has(LF))</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">135</td>
+    <td class="codeLine">          !TLI->getLibFunc(*CalledFunc, LF) || !TLI->has(LF))</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">136</td>
+    <td class="codeLine">        continue;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">136</td>
+    <td class="codeLine">        continue;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">137</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">137</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">138</td>
+    <td class="codeLine">      switch (LF) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">138</td>
+    <td class="codeLine">      switch (LF) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">139</td>
+    <td class="codeLine">      case LibFunc_sqrtf:</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">139</td>
+    <td class="codeLine">      case LibFunc_sqrtf:</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">140</td>
+    <td class="codeLine">      case LibFunc_sqrt:</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">140</td>
+    <td class="codeLine">      case LibFunc_sqrt:</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">141</td>
+    <td class="codeLine">        if (TTI->haveFastSqrt(Call->getType()) &&</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">141</td>
+    <td class="codeLine">        if (TTI->haveFastSqrt(Call->getType()) &&</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">142</td>
+    <td class="codeLine">            optimizeSQRT(Call, CalledFunc, *CurrBB, BB, TTI,</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">142</td>
+    <td class="codeLine">            optimizeSQRT(Call, CalledFunc, *CurrBB, BB, TTI,</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">143</td>
+    <td class="codeLine">                         DTU ? &*DTU : nullptr))</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">143</td>
+    <td class="codeLine">                         DTU ? &*DTU : nullptr))</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">144</td>
+    <td class="codeLine">          break;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">144</td>
+    <td class="codeLine">          break;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">145</td>
+    <td class="codeLine">        continue;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">145</td>
+    <td class="codeLine">        continue;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">146</td>
+    <td class="codeLine">      default:</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">146</td>
+    <td class="codeLine">      default:</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">147</td>
+    <td class="codeLine">        continue;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">147</td>
+    <td class="codeLine">        continue;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">148</td>
+    <td class="codeLine">      }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">148</td>
+    <td class="codeLine">      }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">149</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">149</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">150</td>
+    <td class="codeLine">      Changed = true;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">150</td>
+    <td class="codeLine">      Changed = true;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">151</td>
+    <td class="codeLine">      break;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">151</td>
+    <td class="codeLine">      break;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">152</td>
+    <td class="codeLine">    }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">152</td>
+    <td class="codeLine">    }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">153</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">153</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">154</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">154</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">155</td>
+    <td class="codeLine">  return Changed;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">155</td>
+    <td class="codeLine">  return Changed;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">156</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">156</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">157</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">157</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">158</td>
+    <td class="codeLine">PreservedAnalyses</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">158</td>
+    <td class="codeLine">PreservedAnalyses</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">159</td>
+    <td class="codeLine">PartiallyInlineLibCallsPass::run(Function &F, FunctionAnalysisManager &AM) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">159</td>
+    <td class="codeLine">PartiallyInlineLibCallsPass::run(Function &F, FunctionAnalysisManager &AM) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">160</td>
+    <td class="codeLine">  auto &TLI = AM.getResult<TargetLibraryAnalysis>(F);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">160</td>
+    <td class="codeLine">  auto &TLI = AM.getResult<TargetLibraryAnalysis>(F);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">161</td>
+    <td class="codeLine">  auto &TTI = AM.getResult<TargetIRAnalysis>(F);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">161</td>
+    <td class="codeLine">  auto &TTI = AM.getResult<TargetIRAnalysis>(F);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">162</td>
+    <td class="codeLine">  auto *DT = AM.getCachedResult<DominatorTreeAnalysis>(F);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">162</td>
+    <td class="codeLine">  auto *DT = AM.getCachedResult<DominatorTreeAnalysis>(F);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">163</td>
+    <td class="codeLine">  if (!runPartiallyInlineLibCalls(F, &TLI, &TTI, DT))</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">163</td>
+    <td class="codeLine">  if (!runPartiallyInlineLibCalls(F, &TLI, &TTI, DT))</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">164</td>
+    <td class="codeLine">    return PreservedAnalyses::all();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">164</td>
+    <td class="codeLine">    return PreservedAnalyses::all();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">165</td>
+    <td class="codeLine">  PreservedAnalyses PA;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">165</td>
+    <td class="codeLine">  PreservedAnalyses PA;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">166</td>
+    <td class="codeLine">  PA.preserve<DominatorTreeAnalysis>();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">166</td>
+    <td class="codeLine">  PA.preserve<DominatorTreeAnalysis>();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">167</td>
+    <td class="codeLine">  return PA;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">167</td>
+    <td class="codeLine">  return PA;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">168</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">168</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">169</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">169</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">170</td>
+    <td class="codeLine">namespace {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">170</td>
+    <td class="codeLine">namespace {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">171</td>
+    <td class="codeLine">class PartiallyInlineLibCallsLegacyPass : public FunctionPass {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">171</td>
+    <td class="codeLine">class PartiallyInlineLibCallsLegacyPass : public FunctionPass {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">172</td>
+    <td class="codeLine">public:</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">172</td>
+    <td class="codeLine">public:</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">173</td>
+    <td class="codeLine">  static char ID;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">173</td>
+    <td class="codeLine">  static char ID;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">174</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">174</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">175</td>
+    <td class="codeLine coveredLine">  PartiallyInlineLibCallsLegacyPass() : FunctionPass(ID) {</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">175</td>
+    <td class="codeLine coveredLine">  PartiallyInlineLibCallsLegacyPass() : FunctionPass(ID) {</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">176</td>
+    <td class="codeLine coveredLine">    initializePartiallyInlineLibCallsLegacyPassPass(</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">176</td>
+    <td class="codeLine coveredLine">    initializePartiallyInlineLibCallsLegacyPassPass(</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">177</td>
+    <td class="codeLine coveredLine">        *PassRegistry::getPassRegistry());</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">177</td>
+    <td class="codeLine coveredLine">        *PassRegistry::getPassRegistry());</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">178</td>
+    <td class="codeLine coveredLine">  }</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">178</td>
+    <td class="codeLine coveredLine">  }</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">179</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">179</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">180</td>
+    <td class="codeLine coveredLine">  void getAnalysisUsage(AnalysisUsage &AU) const override {</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">180</td>
+    <td class="codeLine coveredLine">  void getAnalysisUsage(AnalysisUsage &AU) const override {</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">181</td>
+    <td class="codeLine coveredLine">    AU.addRequired<TargetLibraryInfoWrapperPass>();</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">181</td>
+    <td class="codeLine coveredLine">    AU.addRequired<TargetLibraryInfoWrapperPass>();</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">182</td>
+    <td class="codeLine coveredLine">    AU.addRequired<TargetTransformInfoWrapperPass>();</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">182</td>
+    <td class="codeLine coveredLine">    AU.addRequired<TargetTransformInfoWrapperPass>();</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">183</td>
+    <td class="codeLine coveredLine">    AU.addPreserved<DominatorTreeWrapperPass>();</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">183</td>
+    <td class="codeLine coveredLine">    AU.addPreserved<DominatorTreeWrapperPass>();</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">184</td>
+    <td class="codeLine coveredLine">    FunctionPass::getAnalysisUsage(AU);</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">184</td>
+    <td class="codeLine coveredLine">    FunctionPass::getAnalysisUsage(AU);</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">185</td>
+    <td class="codeLine coveredLine">  }</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">185</td>
+    <td class="codeLine coveredLine">  }</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">186</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">186</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">187</td>
+    <td class="codeLine coveredLine">  bool runOnFunction(Function &F) override {</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">187</td>
+    <td class="codeLine coveredLine">  bool runOnFunction(Function &F) override {</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">188</td>
+    <td class="codeLine coveredLine">    if (skipFunction(F))</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">188</td>
+    <td class="codeLine coveredLine">    if (skipFunction(F))</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">189</td>
+    <td class="codeLine coveredLine">      return false;</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">189</td>
+    <td class="codeLine coveredLine">      return false;</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">190</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">190</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">191</td>
+    <td class="codeLine">    TargetLibraryInfo *TLI =</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">191</td>
+    <td class="codeLine">    TargetLibraryInfo *TLI =</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">192</td>
+    <td class="codeLine">        &getAnalysis<TargetLibraryInfoWrapperPass>().getTLI(F);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">192</td>
+    <td class="codeLine">        &getAnalysis<TargetLibraryInfoWrapperPass>().getTLI(F);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">193</td>
+    <td class="codeLine">    const TargetTransformInfo *TTI =</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">193</td>
+    <td class="codeLine">    const TargetTransformInfo *TTI =</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">194</td>
+    <td class="codeLine">        &getAnalysis<TargetTransformInfoWrapperPass>().getTTI(F);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">194</td>
+    <td class="codeLine">        &getAnalysis<TargetTransformInfoWrapperPass>().getTTI(F);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">195</td>
+    <td class="codeLine">    DominatorTree *DT = nullptr;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">195</td>
+    <td class="codeLine">    DominatorTree *DT = nullptr;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">196</td>
+    <td class="codeLine">    if (auto *DTWP = getAnalysisIfAvailable<DominatorTreeWrapperPass>())</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">196</td>
+    <td class="codeLine">    if (auto *DTWP = getAnalysisIfAvailable<DominatorTreeWrapperPass>())</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">197</td>
+    <td class="codeLine">      DT = &DTWP->getDomTree();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">197</td>
+    <td class="codeLine">      DT = &DTWP->getDomTree();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">198</td>
+    <td class="codeLine">    return runPartiallyInlineLibCalls(F, TLI, TTI, DT);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">198</td>
+    <td class="codeLine">    return runPartiallyInlineLibCalls(F, TLI, TTI, DT);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">199</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">199</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">200</td>
+    <td class="codeLine">};</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">200</td>
+    <td class="codeLine">};</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">201</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">201</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">202</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">202</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">203</td>
+    <td class="codeLine">char PartiallyInlineLibCallsLegacyPass::ID = 0;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">203</td>
+    <td class="codeLine">char PartiallyInlineLibCallsLegacyPass::ID = 0;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">204</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_BEGIN(PartiallyInlineLibCallsLegacyPass,</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">204</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_BEGIN(PartiallyInlineLibCallsLegacyPass,</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">205</td>
+    <td class="codeLine">                      "partially-inline-libcalls",</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">205</td>
+    <td class="codeLine">                      "partially-inline-libcalls",</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">206</td>
+    <td class="codeLine">                      "Partially inline calls to library functions", false,</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">206</td>
+    <td class="codeLine">                      "Partially inline calls to library functions", false,</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">207</td>
+    <td class="codeLine">                      false)</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">207</td>
+    <td class="codeLine">                      false)</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">208</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_DEPENDENCY(TargetLibraryInfoWrapperPass)</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">208</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_DEPENDENCY(TargetLibraryInfoWrapperPass)</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">209</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_DEPENDENCY(DominatorTreeWrapperPass)</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">209</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_DEPENDENCY(DominatorTreeWrapperPass)</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">210</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_DEPENDENCY(TargetTransformInfoWrapperPass)</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">210</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_DEPENDENCY(TargetTransformInfoWrapperPass)</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">211</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_END(PartiallyInlineLibCallsLegacyPass,</td>
+    <td class="lineNumber">3</td>
+    <td class="lineNumber">211</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_END(PartiallyInlineLibCallsLegacyPass,</td>
+    <td class="lineNumber">3</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">212</td>
+    <td class="codeLine">                    "partially-inline-libcalls",</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">212</td>
+    <td class="codeLine">                    "partially-inline-libcalls",</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">213</td>
+    <td class="codeLine">                    "Partially inline calls to library functions", false, false)</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">213</td>
+    <td class="codeLine">                    "Partially inline calls to library functions", false, false)</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">214</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">214</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">215</td>
+    <td class="codeLine coveredLine">FunctionPass *llvm::createPartiallyInlineLibCallsPass() {</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">215</td>
+    <td class="codeLine coveredLine">FunctionPass *llvm::createPartiallyInlineLibCallsPass() {</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">216</td>
+    <td class="codeLine coveredLine">  return new PartiallyInlineLibCallsLegacyPass();</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">216</td>
+    <td class="codeLine coveredLine">  return new PartiallyInlineLibCallsLegacyPass();</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">217</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">217</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">218</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">218</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+</table>
+    </div>
+    <button id="myBtn" onclick="topFunction()" title="Go to top" type="button">Top</button>
+    <script src="../Javascript/drop_down.js"></script>
+    <script src="../Javascript/top_button.js"></script>
+  </body>
+</html>

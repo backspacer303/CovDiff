@@ -1,0 +1,3265 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>AVRShiftExpand.cpp</title>
+    <link rel="stylesheet" href="../Style/style.css" />
+  </head>
+  <body>
+    <div class="headerDiv">
+      <h1>
+        Code Coverage
+      </h1>
+      <p>
+        Source file: /home/nikola/Desktop/llvm-project/llvm/lib/Target/AVR/AVRShiftExpand.cpp
+      </p>
+    </div>
+    <button class="collapsible" type="button">Open Summary Report</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Summary Report</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line number</th>
+    <th class="mainTh">Line</th>
+    <th class="mainTh">Number of hits</th>
+    <th class="mainTh">Tests that cover line</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="">//===- AVRShift.cpp - Shift Expansion Pass --------------------------------===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="">//===----------------------------------------------------------------------===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="">/// \file</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="">/// Expand non-8-bit and non-16-bit shift instructions (shl, lshr, ashr) to</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="">/// inline loops, just like avr-gcc. This must be done in IR because otherwise</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class="">/// the type legalizer will turn 32-bit shifts into (non-existing) library calls</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class="">/// such as __ashlsi3.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class="">//===----------------------------------------------------------------------===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class="">#include "AVR.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class="">#include "llvm/IR/IRBuilder.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class="">#include "llvm/IR/InstIterator.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class="">using namespace llvm;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class="">namespace {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class="">class AVRShiftExpand : public FunctionPass {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class="">public:</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class="">  static char ID;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class="uncoveredLine">  AVRShiftExpand() : FunctionPass(ID) {}</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class="">  bool runOnFunction(Function &F) override;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class="uncoveredLine">  StringRef getPassName() const override { return "AVR Shift Expansion"; }</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class="">private:</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class="">  void expand(BinaryOperator *BI);</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class="">};</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class="">} // end of anonymous namespace</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class="">char AVRShiftExpand::ID = 0;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class="coveredLine">INITIALIZE_PASS(AVRShiftExpand, "avr-shift-expand", "AVR Shift Expansion",</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class="">                false, false)</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class="uncoveredLine">Pass *llvm::createAVRShiftExpandPass() { return new AVRShiftExpand(); }</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class="uncoveredLine">bool AVRShiftExpand::runOnFunction(Function &F) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class="uncoveredLine">  SmallVector<BinaryOperator *, 1> ShiftInsts;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class="uncoveredLine">  auto &Ctx = F.getContext();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class="uncoveredLine">  for (Instruction &I : instructions(F)) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class="uncoveredLine">    if (!I.isShift())</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class="">      // Only expand shift instructions (shl, lshr, ashr).</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class="uncoveredLine">      continue;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class="uncoveredLine">    if (I.getType() == Type::getInt8Ty(Ctx) || I.getType() == Type::getInt16Ty(Ctx))</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class="">      // Only expand non-8-bit and non-16-bit shifts, since those are expanded</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class="">      // directly during isel.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class="uncoveredLine">      continue;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class="uncoveredLine">    if (isa<ConstantInt>(I.getOperand(1)))</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class="">      // Only expand when the shift amount is not known.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class="">      // Known shift amounts are (currently) better expanded inline.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class="uncoveredLine">      continue;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class="uncoveredLine">    ShiftInsts.push_back(cast<BinaryOperator>(&I));</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class="">  }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class="">  // The expanding itself needs to be done separately as expand() will remove</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class="">  // these instructions. Removing instructions while iterating over a basic</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class="">  // block is not a great idea.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class="uncoveredLine">  for (auto *I : ShiftInsts) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class="uncoveredLine">    expand(I);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class="">  }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class="">  // Return whether this function expanded any shift instructions.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class="uncoveredLine">  return ShiftInsts.size() > 0;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class="uncoveredLine">}</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class="uncoveredLine">void AVRShiftExpand::expand(BinaryOperator *BI) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class="uncoveredLine">  auto &Ctx = BI->getContext();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class="uncoveredLine">  IRBuilder<> Builder(BI);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class="uncoveredLine">  Type *InputTy = cast<Instruction>(BI)->getType();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class="uncoveredLine">  Type *Int8Ty = Type::getInt8Ty(Ctx);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class="uncoveredLine">  Value *Int8Zero = ConstantInt::get(Int8Ty, 0);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class="">  // Split the current basic block at the point of the existing shift</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class="">  // instruction and insert a new basic block for the loop.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class="uncoveredLine">  BasicBlock *BB = BI->getParent();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class="uncoveredLine">  Function *F = BB->getParent();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class="uncoveredLine">  BasicBlock *EndBB = BB->splitBasicBlock(BI, "shift.done");</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class="uncoveredLine">  BasicBlock *LoopBB = BasicBlock::Create(Ctx, "shift.loop", F, EndBB);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">90</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">91</td>
+    <td class="">  // Truncate the shift amount to i8, which is trivially lowered to a single</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">92</td>
+    <td class="">  // AVR register.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">93</td>
+    <td class="uncoveredLine">  Builder.SetInsertPoint(&BB->back());</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">94</td>
+    <td class="uncoveredLine">  Value *ShiftAmount = Builder.CreateTrunc(BI->getOperand(1), Int8Ty);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">95</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">96</td>
+    <td class="">  // Replace the unconditional branch that splitBasicBlock created with a</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">97</td>
+    <td class="">  // conditional branch.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">98</td>
+    <td class="uncoveredLine">  Value *Cmp1 = Builder.CreateICmpEQ(ShiftAmount, Int8Zero);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">99</td>
+    <td class="uncoveredLine">  Builder.CreateCondBr(Cmp1, EndBB, LoopBB);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">100</td>
+    <td class="uncoveredLine">  BB->back().eraseFromParent();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">101</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">102</td>
+    <td class="">  // Create the loop body starting with PHI nodes.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">103</td>
+    <td class="uncoveredLine">  Builder.SetInsertPoint(LoopBB);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">104</td>
+    <td class="uncoveredLine">  PHINode *ShiftAmountPHI = Builder.CreatePHI(Int8Ty, 2);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">105</td>
+    <td class="uncoveredLine">  ShiftAmountPHI->addIncoming(ShiftAmount, BB);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">106</td>
+    <td class="uncoveredLine">  PHINode *ValuePHI = Builder.CreatePHI(InputTy, 2);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">107</td>
+    <td class="uncoveredLine">  ValuePHI->addIncoming(BI->getOperand(0), BB);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">108</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">109</td>
+    <td class="">  // Subtract the shift amount by one, as we're shifting one this loop</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">110</td>
+    <td class="">  // iteration.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">111</td>
+    <td class="">  Value *ShiftAmountSub =</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">112</td>
+    <td class="uncoveredLine">      Builder.CreateSub(ShiftAmountPHI, ConstantInt::get(Int8Ty, 1));</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">113</td>
+    <td class="uncoveredLine">  ShiftAmountPHI->addIncoming(ShiftAmountSub, LoopBB);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">114</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">115</td>
+    <td class="">  // Emit the actual shift instruction. The difference is that this shift</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">116</td>
+    <td class="">  // instruction has a constant shift amount, which can be emitted inline</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">117</td>
+    <td class="">  // without a library call.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">118</td>
+    <td class="">  Value *ValueShifted;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">119</td>
+    <td class="uncoveredLine">  switch (BI->getOpcode()) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">120</td>
+    <td class="uncoveredLine">  case Instruction::Shl:</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">121</td>
+    <td class="uncoveredLine">    ValueShifted = Builder.CreateShl(ValuePHI, ConstantInt::get(InputTy, 1));</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">122</td>
+    <td class="uncoveredLine">    break;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">123</td>
+    <td class="uncoveredLine">  case Instruction::LShr:</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">124</td>
+    <td class="uncoveredLine">    ValueShifted = Builder.CreateLShr(ValuePHI, ConstantInt::get(InputTy, 1));</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">125</td>
+    <td class="uncoveredLine">    break;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">126</td>
+    <td class="uncoveredLine">  case Instruction::AShr:</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">127</td>
+    <td class="uncoveredLine">    ValueShifted = Builder.CreateAShr(ValuePHI, ConstantInt::get(InputTy, 1));</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">128</td>
+    <td class="uncoveredLine">    break;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">129</td>
+    <td class="uncoveredLine">  default:</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">130</td>
+    <td class="uncoveredLine">    llvm_unreachable("asked to expand an instruction that is not a shift");</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">131</td>
+    <td class="">  }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">132</td>
+    <td class="uncoveredLine">  ValuePHI->addIncoming(ValueShifted, LoopBB);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">133</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">134</td>
+    <td class="">  // Branch to either the loop again (if there is more to shift) or to the</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">135</td>
+    <td class="">  // basic block after the loop (if all bits are shifted).</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">136</td>
+    <td class="uncoveredLine">  Value *Cmp2 = Builder.CreateICmpEQ(ShiftAmountSub, Int8Zero);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">137</td>
+    <td class="uncoveredLine">  Builder.CreateCondBr(Cmp2, EndBB, LoopBB);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">138</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">139</td>
+    <td class="">  // Collect the resulting value. This is necessary in the IR but won't produce</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">140</td>
+    <td class="">  // any actual instructions.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">141</td>
+    <td class="uncoveredLine">  Builder.SetInsertPoint(BI);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">142</td>
+    <td class="uncoveredLine">  PHINode *Result = Builder.CreatePHI(InputTy, 2);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">143</td>
+    <td class="uncoveredLine">  Result->addIncoming(BI->getOperand(0), BB);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">144</td>
+    <td class="uncoveredLine">  Result->addIncoming(ValueShifted, LoopBB);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">145</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">146</td>
+    <td class="">  // Replace the original shift instruction.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">147</td>
+    <td class="uncoveredLine">  BI->replaceAllUsesWith(Result);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">148</td>
+    <td class="uncoveredLine">  BI->eraseFromParent();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">149</td>
+    <td class="uncoveredLine">}</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">150</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Functions Report</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Functions Report</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Function name</th>
+    <th class="mainTh">Number of hits</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_114AVRShiftExpandC2Ev</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZNK12_GLOBAL__N_114AVRShiftExpand11getPassNameEv</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN4llvm28initializeAVRShiftExpandPassERNS_12PassRegistryE</td>
+    <td class="numberOfCalls">2</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZL32initializeAVRShiftExpandPassOnceRN4llvm12PassRegistryE</td>
+    <td class="numberOfCalls">2</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN4llvm24createAVRShiftExpandPassEv</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_114AVRShiftExpand13runOnFunctionERN4llvm8FunctionE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_114AVRShiftExpand6expandEPN4llvm14BinaryOperatorE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Coverage Diff</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Coverage Diff</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span> BUT NOT </span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </th>
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+      <span> BUT NOT </span>
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+    </th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="codeline">//===- AVRShift.cpp - Shift Expansion Pass --------------------------------===//</td>
+    <td class="lineNumber">1</td>
+    <td class="codeline">//===- AVRShift.cpp - Shift Expansion Pass --------------------------------===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">2</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="codeline">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">3</td>
+    <td class="codeline">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="codeline">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">4</td>
+    <td class="codeline">// See https://llvm.org/LICENSE.txt for license information.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="codeline">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">5</td>
+    <td class="codeline">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">6</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">7</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">8</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="codeline">/// \file</td>
+    <td class="lineNumber">9</td>
+    <td class="codeline">/// \file</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="codeline">/// Expand non-8-bit and non-16-bit shift instructions (shl, lshr, ashr) to</td>
+    <td class="lineNumber">10</td>
+    <td class="codeline">/// Expand non-8-bit and non-16-bit shift instructions (shl, lshr, ashr) to</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="codeline">/// inline loops, just like avr-gcc. This must be done in IR because otherwise</td>
+    <td class="lineNumber">11</td>
+    <td class="codeline">/// inline loops, just like avr-gcc. This must be done in IR because otherwise</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class="codeline">/// the type legalizer will turn 32-bit shifts into (non-existing) library calls</td>
+    <td class="lineNumber">12</td>
+    <td class="codeline">/// the type legalizer will turn 32-bit shifts into (non-existing) library calls</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class="codeline">/// such as __ashlsi3.</td>
+    <td class="lineNumber">13</td>
+    <td class="codeline">/// such as __ashlsi3.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">14</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">15</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">16</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class="codeline">#include "AVR.h"</td>
+    <td class="lineNumber">17</td>
+    <td class="codeline">#include "AVR.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class="codeline">#include "llvm/IR/IRBuilder.h"</td>
+    <td class="lineNumber">18</td>
+    <td class="codeline">#include "llvm/IR/IRBuilder.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class="codeline">#include "llvm/IR/InstIterator.h"</td>
+    <td class="lineNumber">19</td>
+    <td class="codeline">#include "llvm/IR/InstIterator.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">20</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class="codeline">using namespace llvm;</td>
+    <td class="lineNumber">21</td>
+    <td class="codeline">using namespace llvm;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">22</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class="codeline">namespace {</td>
+    <td class="lineNumber">23</td>
+    <td class="codeline">namespace {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">24</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class="codeline">class AVRShiftExpand : public FunctionPass {</td>
+    <td class="lineNumber">25</td>
+    <td class="codeline">class AVRShiftExpand : public FunctionPass {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class="codeline">public:</td>
+    <td class="lineNumber">26</td>
+    <td class="codeline">public:</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class="codeline">  static char ID;</td>
+    <td class="lineNumber">27</td>
+    <td class="codeline">  static char ID;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">28</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class="codeline">  AVRShiftExpand() : FunctionPass(ID) {}</td>
+    <td class="lineNumber">29</td>
+    <td class="codeline">  AVRShiftExpand() : FunctionPass(ID) {}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">30</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class="codeline">  bool runOnFunction(Function &F) override;</td>
+    <td class="lineNumber">31</td>
+    <td class="codeline">  bool runOnFunction(Function &F) override;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">32</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class="codeline">  StringRef getPassName() const override { return "AVR Shift Expansion"; }</td>
+    <td class="lineNumber">33</td>
+    <td class="codeline">  StringRef getPassName() const override { return "AVR Shift Expansion"; }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">34</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class="codeline">private:</td>
+    <td class="lineNumber">35</td>
+    <td class="codeline">private:</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class="codeline">  void expand(BinaryOperator *BI);</td>
+    <td class="lineNumber">36</td>
+    <td class="codeline">  void expand(BinaryOperator *BI);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class="codeline">};</td>
+    <td class="lineNumber">37</td>
+    <td class="codeline">};</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">38</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class="codeline">} // end of anonymous namespace</td>
+    <td class="lineNumber">39</td>
+    <td class="codeline">} // end of anonymous namespace</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">40</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class="codeline">char AVRShiftExpand::ID = 0;</td>
+    <td class="lineNumber">41</td>
+    <td class="codeline">char AVRShiftExpand::ID = 0;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">42</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class="codeline">INITIALIZE_PASS(AVRShiftExpand, "avr-shift-expand", "AVR Shift Expansion",</td>
+    <td class="lineNumber">43</td>
+    <td class="codeline">INITIALIZE_PASS(AVRShiftExpand, "avr-shift-expand", "AVR Shift Expansion",</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class="codeline">                false, false)</td>
+    <td class="lineNumber">44</td>
+    <td class="codeline">                false, false)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">45</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class="codeline">Pass *llvm::createAVRShiftExpandPass() { return new AVRShiftExpand(); }</td>
+    <td class="lineNumber">46</td>
+    <td class="codeline">Pass *llvm::createAVRShiftExpandPass() { return new AVRShiftExpand(); }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">47</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class="codeline">bool AVRShiftExpand::runOnFunction(Function &F) {</td>
+    <td class="lineNumber">48</td>
+    <td class="codeline">bool AVRShiftExpand::runOnFunction(Function &F) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class="codeline">  SmallVector<BinaryOperator *, 1> ShiftInsts;</td>
+    <td class="lineNumber">49</td>
+    <td class="codeline">  SmallVector<BinaryOperator *, 1> ShiftInsts;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class="codeline">  auto &Ctx = F.getContext();</td>
+    <td class="lineNumber">50</td>
+    <td class="codeline">  auto &Ctx = F.getContext();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class="codeline">  for (Instruction &I : instructions(F)) {</td>
+    <td class="lineNumber">51</td>
+    <td class="codeline">  for (Instruction &I : instructions(F)) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class="codeline">    if (!I.isShift())</td>
+    <td class="lineNumber">52</td>
+    <td class="codeline">    if (!I.isShift())</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class="codeline">      // Only expand shift instructions (shl, lshr, ashr).</td>
+    <td class="lineNumber">53</td>
+    <td class="codeline">      // Only expand shift instructions (shl, lshr, ashr).</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class="codeline">      continue;</td>
+    <td class="lineNumber">54</td>
+    <td class="codeline">      continue;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class="codeline">    if (I.getType() == Type::getInt8Ty(Ctx) || I.getType() == Type::getInt16Ty(Ctx))</td>
+    <td class="lineNumber">55</td>
+    <td class="codeline">    if (I.getType() == Type::getInt8Ty(Ctx) || I.getType() == Type::getInt16Ty(Ctx))</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class="codeline">      // Only expand non-8-bit and non-16-bit shifts, since those are expanded</td>
+    <td class="lineNumber">56</td>
+    <td class="codeline">      // Only expand non-8-bit and non-16-bit shifts, since those are expanded</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class="codeline">      // directly during isel.</td>
+    <td class="lineNumber">57</td>
+    <td class="codeline">      // directly during isel.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class="codeline">      continue;</td>
+    <td class="lineNumber">58</td>
+    <td class="codeline">      continue;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class="codeline">    if (isa<ConstantInt>(I.getOperand(1)))</td>
+    <td class="lineNumber">59</td>
+    <td class="codeline">    if (isa<ConstantInt>(I.getOperand(1)))</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class="codeline">      // Only expand when the shift amount is not known.</td>
+    <td class="lineNumber">60</td>
+    <td class="codeline">      // Only expand when the shift amount is not known.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class="codeline">      // Known shift amounts are (currently) better expanded inline.</td>
+    <td class="lineNumber">61</td>
+    <td class="codeline">      // Known shift amounts are (currently) better expanded inline.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class="codeline">      continue;</td>
+    <td class="lineNumber">62</td>
+    <td class="codeline">      continue;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class="codeline">    ShiftInsts.push_back(cast<BinaryOperator>(&I));</td>
+    <td class="lineNumber">63</td>
+    <td class="codeline">    ShiftInsts.push_back(cast<BinaryOperator>(&I));</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">64</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">65</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class="codeline">  // The expanding itself needs to be done separately as expand() will remove</td>
+    <td class="lineNumber">66</td>
+    <td class="codeline">  // The expanding itself needs to be done separately as expand() will remove</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class="codeline">  // these instructions. Removing instructions while iterating over a basic</td>
+    <td class="lineNumber">67</td>
+    <td class="codeline">  // these instructions. Removing instructions while iterating over a basic</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class="codeline">  // block is not a great idea.</td>
+    <td class="lineNumber">68</td>
+    <td class="codeline">  // block is not a great idea.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class="codeline">  for (auto *I : ShiftInsts) {</td>
+    <td class="lineNumber">69</td>
+    <td class="codeline">  for (auto *I : ShiftInsts) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class="codeline">    expand(I);</td>
+    <td class="lineNumber">70</td>
+    <td class="codeline">    expand(I);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">71</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">72</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class="codeline">  // Return whether this function expanded any shift instructions.</td>
+    <td class="lineNumber">73</td>
+    <td class="codeline">  // Return whether this function expanded any shift instructions.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class="codeline">  return ShiftInsts.size() > 0;</td>
+    <td class="lineNumber">74</td>
+    <td class="codeline">  return ShiftInsts.size() > 0;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">75</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">76</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class="codeline">void AVRShiftExpand::expand(BinaryOperator *BI) {</td>
+    <td class="lineNumber">77</td>
+    <td class="codeline">void AVRShiftExpand::expand(BinaryOperator *BI) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class="codeline">  auto &Ctx = BI->getContext();</td>
+    <td class="lineNumber">78</td>
+    <td class="codeline">  auto &Ctx = BI->getContext();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class="codeline">  IRBuilder<> Builder(BI);</td>
+    <td class="lineNumber">79</td>
+    <td class="codeline">  IRBuilder<> Builder(BI);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class="codeline">  Type *InputTy = cast<Instruction>(BI)->getType();</td>
+    <td class="lineNumber">80</td>
+    <td class="codeline">  Type *InputTy = cast<Instruction>(BI)->getType();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class="codeline">  Type *Int8Ty = Type::getInt8Ty(Ctx);</td>
+    <td class="lineNumber">81</td>
+    <td class="codeline">  Type *Int8Ty = Type::getInt8Ty(Ctx);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class="codeline">  Value *Int8Zero = ConstantInt::get(Int8Ty, 0);</td>
+    <td class="lineNumber">82</td>
+    <td class="codeline">  Value *Int8Zero = ConstantInt::get(Int8Ty, 0);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">83</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class="codeline">  // Split the current basic block at the point of the existing shift</td>
+    <td class="lineNumber">84</td>
+    <td class="codeline">  // Split the current basic block at the point of the existing shift</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class="codeline">  // instruction and insert a new basic block for the loop.</td>
+    <td class="lineNumber">85</td>
+    <td class="codeline">  // instruction and insert a new basic block for the loop.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class="codeline">  BasicBlock *BB = BI->getParent();</td>
+    <td class="lineNumber">86</td>
+    <td class="codeline">  BasicBlock *BB = BI->getParent();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class="codeline">  Function *F = BB->getParent();</td>
+    <td class="lineNumber">87</td>
+    <td class="codeline">  Function *F = BB->getParent();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class="codeline">  BasicBlock *EndBB = BB->splitBasicBlock(BI, "shift.done");</td>
+    <td class="lineNumber">88</td>
+    <td class="codeline">  BasicBlock *EndBB = BB->splitBasicBlock(BI, "shift.done");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class="codeline">  BasicBlock *LoopBB = BasicBlock::Create(Ctx, "shift.loop", F, EndBB);</td>
+    <td class="lineNumber">89</td>
+    <td class="codeline">  BasicBlock *LoopBB = BasicBlock::Create(Ctx, "shift.loop", F, EndBB);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">90</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">90</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">91</td>
+    <td class="codeline">  // Truncate the shift amount to i8, which is trivially lowered to a single</td>
+    <td class="lineNumber">91</td>
+    <td class="codeline">  // Truncate the shift amount to i8, which is trivially lowered to a single</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">92</td>
+    <td class="codeline">  // AVR register.</td>
+    <td class="lineNumber">92</td>
+    <td class="codeline">  // AVR register.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">93</td>
+    <td class="codeline">  Builder.SetInsertPoint(&BB->back());</td>
+    <td class="lineNumber">93</td>
+    <td class="codeline">  Builder.SetInsertPoint(&BB->back());</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">94</td>
+    <td class="codeline">  Value *ShiftAmount = Builder.CreateTrunc(BI->getOperand(1), Int8Ty);</td>
+    <td class="lineNumber">94</td>
+    <td class="codeline">  Value *ShiftAmount = Builder.CreateTrunc(BI->getOperand(1), Int8Ty);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">95</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">95</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">96</td>
+    <td class="codeline">  // Replace the unconditional branch that splitBasicBlock created with a</td>
+    <td class="lineNumber">96</td>
+    <td class="codeline">  // Replace the unconditional branch that splitBasicBlock created with a</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">97</td>
+    <td class="codeline">  // conditional branch.</td>
+    <td class="lineNumber">97</td>
+    <td class="codeline">  // conditional branch.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">98</td>
+    <td class="codeline">  Value *Cmp1 = Builder.CreateICmpEQ(ShiftAmount, Int8Zero);</td>
+    <td class="lineNumber">98</td>
+    <td class="codeline">  Value *Cmp1 = Builder.CreateICmpEQ(ShiftAmount, Int8Zero);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">99</td>
+    <td class="codeline">  Builder.CreateCondBr(Cmp1, EndBB, LoopBB);</td>
+    <td class="lineNumber">99</td>
+    <td class="codeline">  Builder.CreateCondBr(Cmp1, EndBB, LoopBB);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">100</td>
+    <td class="codeline">  BB->back().eraseFromParent();</td>
+    <td class="lineNumber">100</td>
+    <td class="codeline">  BB->back().eraseFromParent();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">101</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">101</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">102</td>
+    <td class="codeline">  // Create the loop body starting with PHI nodes.</td>
+    <td class="lineNumber">102</td>
+    <td class="codeline">  // Create the loop body starting with PHI nodes.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">103</td>
+    <td class="codeline">  Builder.SetInsertPoint(LoopBB);</td>
+    <td class="lineNumber">103</td>
+    <td class="codeline">  Builder.SetInsertPoint(LoopBB);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">104</td>
+    <td class="codeline">  PHINode *ShiftAmountPHI = Builder.CreatePHI(Int8Ty, 2);</td>
+    <td class="lineNumber">104</td>
+    <td class="codeline">  PHINode *ShiftAmountPHI = Builder.CreatePHI(Int8Ty, 2);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">105</td>
+    <td class="codeline">  ShiftAmountPHI->addIncoming(ShiftAmount, BB);</td>
+    <td class="lineNumber">105</td>
+    <td class="codeline">  ShiftAmountPHI->addIncoming(ShiftAmount, BB);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">106</td>
+    <td class="codeline">  PHINode *ValuePHI = Builder.CreatePHI(InputTy, 2);</td>
+    <td class="lineNumber">106</td>
+    <td class="codeline">  PHINode *ValuePHI = Builder.CreatePHI(InputTy, 2);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">107</td>
+    <td class="codeline">  ValuePHI->addIncoming(BI->getOperand(0), BB);</td>
+    <td class="lineNumber">107</td>
+    <td class="codeline">  ValuePHI->addIncoming(BI->getOperand(0), BB);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">108</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">108</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">109</td>
+    <td class="codeline">  // Subtract the shift amount by one, as we're shifting one this loop</td>
+    <td class="lineNumber">109</td>
+    <td class="codeline">  // Subtract the shift amount by one, as we're shifting one this loop</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">110</td>
+    <td class="codeline">  // iteration.</td>
+    <td class="lineNumber">110</td>
+    <td class="codeline">  // iteration.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">111</td>
+    <td class="codeline">  Value *ShiftAmountSub =</td>
+    <td class="lineNumber">111</td>
+    <td class="codeline">  Value *ShiftAmountSub =</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">112</td>
+    <td class="codeline">      Builder.CreateSub(ShiftAmountPHI, ConstantInt::get(Int8Ty, 1));</td>
+    <td class="lineNumber">112</td>
+    <td class="codeline">      Builder.CreateSub(ShiftAmountPHI, ConstantInt::get(Int8Ty, 1));</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">113</td>
+    <td class="codeline">  ShiftAmountPHI->addIncoming(ShiftAmountSub, LoopBB);</td>
+    <td class="lineNumber">113</td>
+    <td class="codeline">  ShiftAmountPHI->addIncoming(ShiftAmountSub, LoopBB);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">114</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">114</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">115</td>
+    <td class="codeline">  // Emit the actual shift instruction. The difference is that this shift</td>
+    <td class="lineNumber">115</td>
+    <td class="codeline">  // Emit the actual shift instruction. The difference is that this shift</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">116</td>
+    <td class="codeline">  // instruction has a constant shift amount, which can be emitted inline</td>
+    <td class="lineNumber">116</td>
+    <td class="codeline">  // instruction has a constant shift amount, which can be emitted inline</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">117</td>
+    <td class="codeline">  // without a library call.</td>
+    <td class="lineNumber">117</td>
+    <td class="codeline">  // without a library call.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">118</td>
+    <td class="codeline">  Value *ValueShifted;</td>
+    <td class="lineNumber">118</td>
+    <td class="codeline">  Value *ValueShifted;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">119</td>
+    <td class="codeline">  switch (BI->getOpcode()) {</td>
+    <td class="lineNumber">119</td>
+    <td class="codeline">  switch (BI->getOpcode()) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">120</td>
+    <td class="codeline">  case Instruction::Shl:</td>
+    <td class="lineNumber">120</td>
+    <td class="codeline">  case Instruction::Shl:</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">121</td>
+    <td class="codeline">    ValueShifted = Builder.CreateShl(ValuePHI, ConstantInt::get(InputTy, 1));</td>
+    <td class="lineNumber">121</td>
+    <td class="codeline">    ValueShifted = Builder.CreateShl(ValuePHI, ConstantInt::get(InputTy, 1));</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">122</td>
+    <td class="codeline">    break;</td>
+    <td class="lineNumber">122</td>
+    <td class="codeline">    break;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">123</td>
+    <td class="codeline">  case Instruction::LShr:</td>
+    <td class="lineNumber">123</td>
+    <td class="codeline">  case Instruction::LShr:</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">124</td>
+    <td class="codeline">    ValueShifted = Builder.CreateLShr(ValuePHI, ConstantInt::get(InputTy, 1));</td>
+    <td class="lineNumber">124</td>
+    <td class="codeline">    ValueShifted = Builder.CreateLShr(ValuePHI, ConstantInt::get(InputTy, 1));</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">125</td>
+    <td class="codeline">    break;</td>
+    <td class="lineNumber">125</td>
+    <td class="codeline">    break;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">126</td>
+    <td class="codeline">  case Instruction::AShr:</td>
+    <td class="lineNumber">126</td>
+    <td class="codeline">  case Instruction::AShr:</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">127</td>
+    <td class="codeline">    ValueShifted = Builder.CreateAShr(ValuePHI, ConstantInt::get(InputTy, 1));</td>
+    <td class="lineNumber">127</td>
+    <td class="codeline">    ValueShifted = Builder.CreateAShr(ValuePHI, ConstantInt::get(InputTy, 1));</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">128</td>
+    <td class="codeline">    break;</td>
+    <td class="lineNumber">128</td>
+    <td class="codeline">    break;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">129</td>
+    <td class="codeline">  default:</td>
+    <td class="lineNumber">129</td>
+    <td class="codeline">  default:</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">130</td>
+    <td class="codeline">    llvm_unreachable("asked to expand an instruction that is not a shift");</td>
+    <td class="lineNumber">130</td>
+    <td class="codeline">    llvm_unreachable("asked to expand an instruction that is not a shift");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">131</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">131</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">132</td>
+    <td class="codeline">  ValuePHI->addIncoming(ValueShifted, LoopBB);</td>
+    <td class="lineNumber">132</td>
+    <td class="codeline">  ValuePHI->addIncoming(ValueShifted, LoopBB);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">133</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">133</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">134</td>
+    <td class="codeline">  // Branch to either the loop again (if there is more to shift) or to the</td>
+    <td class="lineNumber">134</td>
+    <td class="codeline">  // Branch to either the loop again (if there is more to shift) or to the</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">135</td>
+    <td class="codeline">  // basic block after the loop (if all bits are shifted).</td>
+    <td class="lineNumber">135</td>
+    <td class="codeline">  // basic block after the loop (if all bits are shifted).</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">136</td>
+    <td class="codeline">  Value *Cmp2 = Builder.CreateICmpEQ(ShiftAmountSub, Int8Zero);</td>
+    <td class="lineNumber">136</td>
+    <td class="codeline">  Value *Cmp2 = Builder.CreateICmpEQ(ShiftAmountSub, Int8Zero);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">137</td>
+    <td class="codeline">  Builder.CreateCondBr(Cmp2, EndBB, LoopBB);</td>
+    <td class="lineNumber">137</td>
+    <td class="codeline">  Builder.CreateCondBr(Cmp2, EndBB, LoopBB);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">138</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">138</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">139</td>
+    <td class="codeline">  // Collect the resulting value. This is necessary in the IR but won't produce</td>
+    <td class="lineNumber">139</td>
+    <td class="codeline">  // Collect the resulting value. This is necessary in the IR but won't produce</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">140</td>
+    <td class="codeline">  // any actual instructions.</td>
+    <td class="lineNumber">140</td>
+    <td class="codeline">  // any actual instructions.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">141</td>
+    <td class="codeline">  Builder.SetInsertPoint(BI);</td>
+    <td class="lineNumber">141</td>
+    <td class="codeline">  Builder.SetInsertPoint(BI);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">142</td>
+    <td class="codeline">  PHINode *Result = Builder.CreatePHI(InputTy, 2);</td>
+    <td class="lineNumber">142</td>
+    <td class="codeline">  PHINode *Result = Builder.CreatePHI(InputTy, 2);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">143</td>
+    <td class="codeline">  Result->addIncoming(BI->getOperand(0), BB);</td>
+    <td class="lineNumber">143</td>
+    <td class="codeline">  Result->addIncoming(BI->getOperand(0), BB);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">144</td>
+    <td class="codeline">  Result->addIncoming(ValueShifted, LoopBB);</td>
+    <td class="lineNumber">144</td>
+    <td class="codeline">  Result->addIncoming(ValueShifted, LoopBB);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">145</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">145</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">146</td>
+    <td class="codeline">  // Replace the original shift instruction.</td>
+    <td class="lineNumber">146</td>
+    <td class="codeline">  // Replace the original shift instruction.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">147</td>
+    <td class="codeline">  BI->replaceAllUsesWith(Result);</td>
+    <td class="lineNumber">147</td>
+    <td class="codeline">  BI->replaceAllUsesWith(Result);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">148</td>
+    <td class="codeline">  BI->eraseFromParent();</td>
+    <td class="lineNumber">148</td>
+    <td class="codeline">  BI->eraseFromParent();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">149</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">149</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">150</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">150</td>
+    <td class="codeline"></td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Side By Side Comparison</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Side By Side Comparison</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+    </th>
+    <th class="mainTh">Hit count</th>
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </th>
+    <th class="mainTh">Hit count</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="codeLine">//===- AVRShift.cpp - Shift Expansion Pass --------------------------------===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">1</td>
+    <td class="codeLine">//===- AVRShift.cpp - Shift Expansion Pass --------------------------------===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">2</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="codeLine">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">3</td>
+    <td class="codeLine">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="codeLine">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">4</td>
+    <td class="codeLine">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="codeLine">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">5</td>
+    <td class="codeLine">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">6</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">7</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">8</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="codeLine">/// \file</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">9</td>
+    <td class="codeLine">/// \file</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="codeLine">/// Expand non-8-bit and non-16-bit shift instructions (shl, lshr, ashr) to</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">10</td>
+    <td class="codeLine">/// Expand non-8-bit and non-16-bit shift instructions (shl, lshr, ashr) to</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="codeLine">/// inline loops, just like avr-gcc. This must be done in IR because otherwise</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">11</td>
+    <td class="codeLine">/// inline loops, just like avr-gcc. This must be done in IR because otherwise</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class="codeLine">/// the type legalizer will turn 32-bit shifts into (non-existing) library calls</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">12</td>
+    <td class="codeLine">/// the type legalizer will turn 32-bit shifts into (non-existing) library calls</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class="codeLine">/// such as __ashlsi3.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">13</td>
+    <td class="codeLine">/// such as __ashlsi3.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">14</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">15</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">16</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class="codeLine">#include "AVR.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">17</td>
+    <td class="codeLine">#include "AVR.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class="codeLine">#include "llvm/IR/IRBuilder.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">18</td>
+    <td class="codeLine">#include "llvm/IR/IRBuilder.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class="codeLine">#include "llvm/IR/InstIterator.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">19</td>
+    <td class="codeLine">#include "llvm/IR/InstIterator.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">20</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class="codeLine">using namespace llvm;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">21</td>
+    <td class="codeLine">using namespace llvm;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">22</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class="codeLine">namespace {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">23</td>
+    <td class="codeLine">namespace {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">24</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class="codeLine">class AVRShiftExpand : public FunctionPass {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">25</td>
+    <td class="codeLine">class AVRShiftExpand : public FunctionPass {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class="codeLine">public:</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">26</td>
+    <td class="codeLine">public:</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class="codeLine">  static char ID;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">27</td>
+    <td class="codeLine">  static char ID;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">28</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class="codeLine">  AVRShiftExpand() : FunctionPass(ID) {}</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">29</td>
+    <td class="codeLine">  AVRShiftExpand() : FunctionPass(ID) {}</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">30</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class="codeLine">  bool runOnFunction(Function &F) override;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">31</td>
+    <td class="codeLine">  bool runOnFunction(Function &F) override;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">32</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class="codeLine">  StringRef getPassName() const override { return "AVR Shift Expansion"; }</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">33</td>
+    <td class="codeLine">  StringRef getPassName() const override { return "AVR Shift Expansion"; }</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">34</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class="codeLine">private:</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">35</td>
+    <td class="codeLine">private:</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class="codeLine">  void expand(BinaryOperator *BI);</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">36</td>
+    <td class="codeLine">  void expand(BinaryOperator *BI);</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class="codeLine">};</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">37</td>
+    <td class="codeLine">};</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">38</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class="codeLine">} // end of anonymous namespace</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">39</td>
+    <td class="codeLine">} // end of anonymous namespace</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">40</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class="codeLine">char AVRShiftExpand::ID = 0;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">41</td>
+    <td class="codeLine">char AVRShiftExpand::ID = 0;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">42</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS(AVRShiftExpand, "avr-shift-expand", "AVR Shift Expansion",</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">43</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS(AVRShiftExpand, "avr-shift-expand", "AVR Shift Expansion",</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class="codeLine">                false, false)</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">44</td>
+    <td class="codeLine">                false, false)</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">45</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class="codeLine">Pass *llvm::createAVRShiftExpandPass() { return new AVRShiftExpand(); }</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">46</td>
+    <td class="codeLine">Pass *llvm::createAVRShiftExpandPass() { return new AVRShiftExpand(); }</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">47</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class="codeLine">bool AVRShiftExpand::runOnFunction(Function &F) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">48</td>
+    <td class="codeLine">bool AVRShiftExpand::runOnFunction(Function &F) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class="codeLine">  SmallVector<BinaryOperator *, 1> ShiftInsts;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">49</td>
+    <td class="codeLine">  SmallVector<BinaryOperator *, 1> ShiftInsts;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class="codeLine">  auto &Ctx = F.getContext();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">50</td>
+    <td class="codeLine">  auto &Ctx = F.getContext();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class="codeLine">  for (Instruction &I : instructions(F)) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">51</td>
+    <td class="codeLine">  for (Instruction &I : instructions(F)) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class="codeLine">    if (!I.isShift())</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">52</td>
+    <td class="codeLine">    if (!I.isShift())</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class="codeLine">      // Only expand shift instructions (shl, lshr, ashr).</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">53</td>
+    <td class="codeLine">      // Only expand shift instructions (shl, lshr, ashr).</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class="codeLine">      continue;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">54</td>
+    <td class="codeLine">      continue;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class="codeLine">    if (I.getType() == Type::getInt8Ty(Ctx) || I.getType() == Type::getInt16Ty(Ctx))</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">55</td>
+    <td class="codeLine">    if (I.getType() == Type::getInt8Ty(Ctx) || I.getType() == Type::getInt16Ty(Ctx))</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class="codeLine">      // Only expand non-8-bit and non-16-bit shifts, since those are expanded</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">56</td>
+    <td class="codeLine">      // Only expand non-8-bit and non-16-bit shifts, since those are expanded</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class="codeLine">      // directly during isel.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">57</td>
+    <td class="codeLine">      // directly during isel.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class="codeLine">      continue;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">58</td>
+    <td class="codeLine">      continue;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class="codeLine">    if (isa<ConstantInt>(I.getOperand(1)))</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">59</td>
+    <td class="codeLine">    if (isa<ConstantInt>(I.getOperand(1)))</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class="codeLine">      // Only expand when the shift amount is not known.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">60</td>
+    <td class="codeLine">      // Only expand when the shift amount is not known.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class="codeLine">      // Known shift amounts are (currently) better expanded inline.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">61</td>
+    <td class="codeLine">      // Known shift amounts are (currently) better expanded inline.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class="codeLine">      continue;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">62</td>
+    <td class="codeLine">      continue;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class="codeLine">    ShiftInsts.push_back(cast<BinaryOperator>(&I));</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">63</td>
+    <td class="codeLine">    ShiftInsts.push_back(cast<BinaryOperator>(&I));</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">64</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">65</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class="codeLine">  // The expanding itself needs to be done separately as expand() will remove</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">66</td>
+    <td class="codeLine">  // The expanding itself needs to be done separately as expand() will remove</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class="codeLine">  // these instructions. Removing instructions while iterating over a basic</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">67</td>
+    <td class="codeLine">  // these instructions. Removing instructions while iterating over a basic</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class="codeLine">  // block is not a great idea.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">68</td>
+    <td class="codeLine">  // block is not a great idea.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class="codeLine">  for (auto *I : ShiftInsts) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">69</td>
+    <td class="codeLine">  for (auto *I : ShiftInsts) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class="codeLine">    expand(I);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">70</td>
+    <td class="codeLine">    expand(I);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">71</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">72</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class="codeLine">  // Return whether this function expanded any shift instructions.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">73</td>
+    <td class="codeLine">  // Return whether this function expanded any shift instructions.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class="codeLine">  return ShiftInsts.size() > 0;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">74</td>
+    <td class="codeLine">  return ShiftInsts.size() > 0;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">75</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">76</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class="codeLine">void AVRShiftExpand::expand(BinaryOperator *BI) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">77</td>
+    <td class="codeLine">void AVRShiftExpand::expand(BinaryOperator *BI) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class="codeLine">  auto &Ctx = BI->getContext();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">78</td>
+    <td class="codeLine">  auto &Ctx = BI->getContext();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class="codeLine">  IRBuilder<> Builder(BI);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">79</td>
+    <td class="codeLine">  IRBuilder<> Builder(BI);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class="codeLine">  Type *InputTy = cast<Instruction>(BI)->getType();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">80</td>
+    <td class="codeLine">  Type *InputTy = cast<Instruction>(BI)->getType();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class="codeLine">  Type *Int8Ty = Type::getInt8Ty(Ctx);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">81</td>
+    <td class="codeLine">  Type *Int8Ty = Type::getInt8Ty(Ctx);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class="codeLine">  Value *Int8Zero = ConstantInt::get(Int8Ty, 0);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">82</td>
+    <td class="codeLine">  Value *Int8Zero = ConstantInt::get(Int8Ty, 0);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">83</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class="codeLine">  // Split the current basic block at the point of the existing shift</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">84</td>
+    <td class="codeLine">  // Split the current basic block at the point of the existing shift</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class="codeLine">  // instruction and insert a new basic block for the loop.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">85</td>
+    <td class="codeLine">  // instruction and insert a new basic block for the loop.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class="codeLine">  BasicBlock *BB = BI->getParent();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">86</td>
+    <td class="codeLine">  BasicBlock *BB = BI->getParent();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class="codeLine">  Function *F = BB->getParent();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">87</td>
+    <td class="codeLine">  Function *F = BB->getParent();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class="codeLine">  BasicBlock *EndBB = BB->splitBasicBlock(BI, "shift.done");</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">88</td>
+    <td class="codeLine">  BasicBlock *EndBB = BB->splitBasicBlock(BI, "shift.done");</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class="codeLine">  BasicBlock *LoopBB = BasicBlock::Create(Ctx, "shift.loop", F, EndBB);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">89</td>
+    <td class="codeLine">  BasicBlock *LoopBB = BasicBlock::Create(Ctx, "shift.loop", F, EndBB);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">90</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">90</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">91</td>
+    <td class="codeLine">  // Truncate the shift amount to i8, which is trivially lowered to a single</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">91</td>
+    <td class="codeLine">  // Truncate the shift amount to i8, which is trivially lowered to a single</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">92</td>
+    <td class="codeLine">  // AVR register.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">92</td>
+    <td class="codeLine">  // AVR register.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">93</td>
+    <td class="codeLine">  Builder.SetInsertPoint(&BB->back());</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">93</td>
+    <td class="codeLine">  Builder.SetInsertPoint(&BB->back());</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">94</td>
+    <td class="codeLine">  Value *ShiftAmount = Builder.CreateTrunc(BI->getOperand(1), Int8Ty);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">94</td>
+    <td class="codeLine">  Value *ShiftAmount = Builder.CreateTrunc(BI->getOperand(1), Int8Ty);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">95</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">95</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">96</td>
+    <td class="codeLine">  // Replace the unconditional branch that splitBasicBlock created with a</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">96</td>
+    <td class="codeLine">  // Replace the unconditional branch that splitBasicBlock created with a</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">97</td>
+    <td class="codeLine">  // conditional branch.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">97</td>
+    <td class="codeLine">  // conditional branch.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">98</td>
+    <td class="codeLine">  Value *Cmp1 = Builder.CreateICmpEQ(ShiftAmount, Int8Zero);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">98</td>
+    <td class="codeLine">  Value *Cmp1 = Builder.CreateICmpEQ(ShiftAmount, Int8Zero);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">99</td>
+    <td class="codeLine">  Builder.CreateCondBr(Cmp1, EndBB, LoopBB);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">99</td>
+    <td class="codeLine">  Builder.CreateCondBr(Cmp1, EndBB, LoopBB);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">100</td>
+    <td class="codeLine">  BB->back().eraseFromParent();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">100</td>
+    <td class="codeLine">  BB->back().eraseFromParent();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">101</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">101</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">102</td>
+    <td class="codeLine">  // Create the loop body starting with PHI nodes.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">102</td>
+    <td class="codeLine">  // Create the loop body starting with PHI nodes.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">103</td>
+    <td class="codeLine">  Builder.SetInsertPoint(LoopBB);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">103</td>
+    <td class="codeLine">  Builder.SetInsertPoint(LoopBB);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">104</td>
+    <td class="codeLine">  PHINode *ShiftAmountPHI = Builder.CreatePHI(Int8Ty, 2);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">104</td>
+    <td class="codeLine">  PHINode *ShiftAmountPHI = Builder.CreatePHI(Int8Ty, 2);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">105</td>
+    <td class="codeLine">  ShiftAmountPHI->addIncoming(ShiftAmount, BB);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">105</td>
+    <td class="codeLine">  ShiftAmountPHI->addIncoming(ShiftAmount, BB);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">106</td>
+    <td class="codeLine">  PHINode *ValuePHI = Builder.CreatePHI(InputTy, 2);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">106</td>
+    <td class="codeLine">  PHINode *ValuePHI = Builder.CreatePHI(InputTy, 2);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">107</td>
+    <td class="codeLine">  ValuePHI->addIncoming(BI->getOperand(0), BB);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">107</td>
+    <td class="codeLine">  ValuePHI->addIncoming(BI->getOperand(0), BB);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">108</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">108</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">109</td>
+    <td class="codeLine">  // Subtract the shift amount by one, as we're shifting one this loop</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">109</td>
+    <td class="codeLine">  // Subtract the shift amount by one, as we're shifting one this loop</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">110</td>
+    <td class="codeLine">  // iteration.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">110</td>
+    <td class="codeLine">  // iteration.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">111</td>
+    <td class="codeLine">  Value *ShiftAmountSub =</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">111</td>
+    <td class="codeLine">  Value *ShiftAmountSub =</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">112</td>
+    <td class="codeLine">      Builder.CreateSub(ShiftAmountPHI, ConstantInt::get(Int8Ty, 1));</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">112</td>
+    <td class="codeLine">      Builder.CreateSub(ShiftAmountPHI, ConstantInt::get(Int8Ty, 1));</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">113</td>
+    <td class="codeLine">  ShiftAmountPHI->addIncoming(ShiftAmountSub, LoopBB);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">113</td>
+    <td class="codeLine">  ShiftAmountPHI->addIncoming(ShiftAmountSub, LoopBB);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">114</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">114</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">115</td>
+    <td class="codeLine">  // Emit the actual shift instruction. The difference is that this shift</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">115</td>
+    <td class="codeLine">  // Emit the actual shift instruction. The difference is that this shift</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">116</td>
+    <td class="codeLine">  // instruction has a constant shift amount, which can be emitted inline</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">116</td>
+    <td class="codeLine">  // instruction has a constant shift amount, which can be emitted inline</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">117</td>
+    <td class="codeLine">  // without a library call.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">117</td>
+    <td class="codeLine">  // without a library call.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">118</td>
+    <td class="codeLine">  Value *ValueShifted;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">118</td>
+    <td class="codeLine">  Value *ValueShifted;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">119</td>
+    <td class="codeLine">  switch (BI->getOpcode()) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">119</td>
+    <td class="codeLine">  switch (BI->getOpcode()) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">120</td>
+    <td class="codeLine">  case Instruction::Shl:</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">120</td>
+    <td class="codeLine">  case Instruction::Shl:</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">121</td>
+    <td class="codeLine">    ValueShifted = Builder.CreateShl(ValuePHI, ConstantInt::get(InputTy, 1));</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">121</td>
+    <td class="codeLine">    ValueShifted = Builder.CreateShl(ValuePHI, ConstantInt::get(InputTy, 1));</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">122</td>
+    <td class="codeLine">    break;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">122</td>
+    <td class="codeLine">    break;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">123</td>
+    <td class="codeLine">  case Instruction::LShr:</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">123</td>
+    <td class="codeLine">  case Instruction::LShr:</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">124</td>
+    <td class="codeLine">    ValueShifted = Builder.CreateLShr(ValuePHI, ConstantInt::get(InputTy, 1));</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">124</td>
+    <td class="codeLine">    ValueShifted = Builder.CreateLShr(ValuePHI, ConstantInt::get(InputTy, 1));</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">125</td>
+    <td class="codeLine">    break;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">125</td>
+    <td class="codeLine">    break;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">126</td>
+    <td class="codeLine">  case Instruction::AShr:</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">126</td>
+    <td class="codeLine">  case Instruction::AShr:</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">127</td>
+    <td class="codeLine">    ValueShifted = Builder.CreateAShr(ValuePHI, ConstantInt::get(InputTy, 1));</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">127</td>
+    <td class="codeLine">    ValueShifted = Builder.CreateAShr(ValuePHI, ConstantInt::get(InputTy, 1));</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">128</td>
+    <td class="codeLine">    break;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">128</td>
+    <td class="codeLine">    break;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">129</td>
+    <td class="codeLine">  default:</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">129</td>
+    <td class="codeLine">  default:</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">130</td>
+    <td class="codeLine">    llvm_unreachable("asked to expand an instruction that is not a shift");</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">130</td>
+    <td class="codeLine">    llvm_unreachable("asked to expand an instruction that is not a shift");</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">131</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">131</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">132</td>
+    <td class="codeLine">  ValuePHI->addIncoming(ValueShifted, LoopBB);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">132</td>
+    <td class="codeLine">  ValuePHI->addIncoming(ValueShifted, LoopBB);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">133</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">133</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">134</td>
+    <td class="codeLine">  // Branch to either the loop again (if there is more to shift) or to the</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">134</td>
+    <td class="codeLine">  // Branch to either the loop again (if there is more to shift) or to the</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">135</td>
+    <td class="codeLine">  // basic block after the loop (if all bits are shifted).</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">135</td>
+    <td class="codeLine">  // basic block after the loop (if all bits are shifted).</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">136</td>
+    <td class="codeLine">  Value *Cmp2 = Builder.CreateICmpEQ(ShiftAmountSub, Int8Zero);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">136</td>
+    <td class="codeLine">  Value *Cmp2 = Builder.CreateICmpEQ(ShiftAmountSub, Int8Zero);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">137</td>
+    <td class="codeLine">  Builder.CreateCondBr(Cmp2, EndBB, LoopBB);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">137</td>
+    <td class="codeLine">  Builder.CreateCondBr(Cmp2, EndBB, LoopBB);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">138</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">138</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">139</td>
+    <td class="codeLine">  // Collect the resulting value. This is necessary in the IR but won't produce</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">139</td>
+    <td class="codeLine">  // Collect the resulting value. This is necessary in the IR but won't produce</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">140</td>
+    <td class="codeLine">  // any actual instructions.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">140</td>
+    <td class="codeLine">  // any actual instructions.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">141</td>
+    <td class="codeLine">  Builder.SetInsertPoint(BI);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">141</td>
+    <td class="codeLine">  Builder.SetInsertPoint(BI);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">142</td>
+    <td class="codeLine">  PHINode *Result = Builder.CreatePHI(InputTy, 2);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">142</td>
+    <td class="codeLine">  PHINode *Result = Builder.CreatePHI(InputTy, 2);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">143</td>
+    <td class="codeLine">  Result->addIncoming(BI->getOperand(0), BB);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">143</td>
+    <td class="codeLine">  Result->addIncoming(BI->getOperand(0), BB);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">144</td>
+    <td class="codeLine">  Result->addIncoming(ValueShifted, LoopBB);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">144</td>
+    <td class="codeLine">  Result->addIncoming(ValueShifted, LoopBB);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">145</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">145</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">146</td>
+    <td class="codeLine">  // Replace the original shift instruction.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">146</td>
+    <td class="codeLine">  // Replace the original shift instruction.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">147</td>
+    <td class="codeLine">  BI->replaceAllUsesWith(Result);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">147</td>
+    <td class="codeLine">  BI->replaceAllUsesWith(Result);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">148</td>
+    <td class="codeLine">  BI->eraseFromParent();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">148</td>
+    <td class="codeLine">  BI->eraseFromParent();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">149</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">149</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">150</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">150</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+</table>
+    </div>
+    <button id="myBtn" onclick="topFunction()" title="Go to top" type="button">Top</button>
+    <script src="../Javascript/drop_down.js"></script>
+    <script src="../Javascript/top_button.js"></script>
+  </body>
+</html>

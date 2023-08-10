@@ -1,0 +1,2758 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>StatepointLowering.h</title>
+    <link rel="stylesheet" href="../Style/style.css" />
+  </head>
+  <body>
+    <div class="headerDiv">
+      <h1>
+        Code Coverage
+      </h1>
+      <p>
+        Source file: /home/nikola/Desktop/llvm-project/llvm/lib/CodeGen/SelectionDAG/StatepointLowering.h
+      </p>
+    </div>
+    <button class="collapsible" type="button">Open Summary Report</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Summary Report</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line number</th>
+    <th class="mainTh">Line</th>
+    <th class="mainTh">Number of hits</th>
+    <th class="mainTh">Tests that cover line</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="">//===- StatepointLowering.h - SDAGBuilder's statepoint code ---*- C++ -*---===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="">//===----------------------------------------------------------------------===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="">// This file includes support code use by SelectionDAGBuilder when lowering a</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="">// statepoint sequence in SelectionDAG IR.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class="">//===----------------------------------------------------------------------===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class="">#ifndef LLVM_LIB_CODEGEN_SELECTIONDAG_STATEPOINTLOWERING_H</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class="">#define LLVM_LIB_CODEGEN_SELECTIONDAG_STATEPOINTLOWERING_H</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class="">#include "llvm/ADT/DenseMap.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class="">#include "llvm/ADT/SmallBitVector.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class="">#include "llvm/ADT/SmallVector.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class="">#include "llvm/CodeGen/SelectionDAGNodes.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class="">#include "llvm/IR/IntrinsicInst.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class="">#include <cassert></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class="">namespace llvm {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class="">class SelectionDAGBuilder;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class="">/// This class tracks both per-statepoint and per-selectiondag information.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class="">/// For each statepoint it tracks locations of it's gc valuess (incoming and</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class="">/// relocated) and list of gcreloc calls scheduled for visiting (this is</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class="">/// used for a debug mode consistency check only).  The spill slot tracking</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class="">/// works in concert with information in FunctionLoweringInfo.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class="">class StatepointLoweringState {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class="">public:</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class="coveredLine">  StatepointLoweringState() = default;</td>
+    <td>4</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class="">  /// Reset all state tracking for a newly encountered safepoint.  Also</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class="">  /// performs some consistency checking.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class="">  void startNewStatepoint(SelectionDAGBuilder &Builder);</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class="">  /// Clear the memory usage of this object.  This is called from</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class="">  /// SelectionDAGBuilder::clear.  We require this is never called in the</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class="">  /// midst of processing a statepoint sequence.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class="">  void clear();</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class="">  /// Returns the spill location of a value incoming to the current</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class="">  /// statepoint.  Will return SDValue() if this value hasn't been</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class="">  /// spilled.  Otherwise, the value has already been spilled and no</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class="">  /// further action is required by the caller.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class="">  SDValue getLocation(SDValue Val) {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class="">    auto I = Locations.find(Val);</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class="">    if (I == Locations.end())</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class="">      return SDValue();</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class="">    return I->second;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class="">  }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class="">  void setLocation(SDValue Val, SDValue Location) {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class="">    assert(!Locations.count(Val) &&</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class="">           "Trying to allocate already allocated location");</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class="">    Locations[Val] = Location;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class="">  }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class="">  /// Record the fact that we expect to encounter a given gc_relocate</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class="">  /// before the next statepoint.  If we don't see it, we'll report</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class="">  /// an assertion.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class="">  void scheduleRelocCall(const GCRelocateInst &RelocCall) {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class="">    // We are not interested in lowering dead instructions.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class="">    if (!RelocCall.use_empty())</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class="">      PendingGCRelocateCalls.push_back(&RelocCall);</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class="">  }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class="">  /// Remove this gc_relocate from the list we're expecting to see</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class="">  /// before the next statepoint.  If we weren't expecting to see</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class="">  /// it, we'll report an assertion.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class="">  void relocCallVisited(const GCRelocateInst &RelocCall) {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class="">    // We are not interested in lowering dead instructions.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class="">    if (RelocCall.use_empty())</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class="">      return;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class="">    auto I = llvm::find(PendingGCRelocateCalls, &RelocCall);</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class="">    assert(I != PendingGCRelocateCalls.end() &&</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class="">           "Visited unexpected gcrelocate call");</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class="">    PendingGCRelocateCalls.erase(I);</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class="">  }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class="">  // TODO: Should add consistency tracking to ensure we encounter</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class="">  // expected gc_result calls too.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class="">  /// Get a stack slot we can use to store an value of type ValueType.  This</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class="">  /// will hopefully be a recylced slot from another statepoint.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">90</td>
+    <td class="">  SDValue allocateStackSlot(EVT ValueType, SelectionDAGBuilder &Builder);</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">91</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">92</td>
+    <td class="">  void reserveStackSlot(int Offset) {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">93</td>
+    <td class="">    assert(Offset >= 0 && Offset < (int)AllocatedStackSlots.size() &&</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">94</td>
+    <td class="">           "out of bounds");</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">95</td>
+    <td class="">    assert(!AllocatedStackSlots.test(Offset) && "already reserved!");</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">96</td>
+    <td class="">    assert(NextSlotToAllocate <= (unsigned)Offset && "consistency!");</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">97</td>
+    <td class="">    AllocatedStackSlots.set(Offset);</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">98</td>
+    <td class="">  }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">99</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">100</td>
+    <td class="">  bool isStackSlotAllocated(int Offset) {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">101</td>
+    <td class="">    assert(Offset >= 0 && Offset < (int)AllocatedStackSlots.size() &&</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">102</td>
+    <td class="">           "out of bounds");</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">103</td>
+    <td class="">    return AllocatedStackSlots.test(Offset);</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">104</td>
+    <td class="">  }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">105</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">106</td>
+    <td class="">private:</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">107</td>
+    <td class="">  /// Maps pre-relocation value (gc pointer directly incoming into statepoint)</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">108</td>
+    <td class="">  /// into it's location (currently only stack slots)</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">109</td>
+    <td class="">  DenseMap<SDValue, SDValue> Locations;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">110</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">111</td>
+    <td class="">  /// A boolean indicator for each slot listed in the FunctionInfo as to</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">112</td>
+    <td class="">  /// whether it has been used in the current statepoint.  Since we try to</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">113</td>
+    <td class="">  /// preserve stack slots across safepoints, there can be gaps in which</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">114</td>
+    <td class="">  /// slots have been allocated.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">115</td>
+    <td class="">  SmallBitVector AllocatedStackSlots;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">116</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">117</td>
+    <td class="">  /// Points just beyond the last slot known to have been allocated</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">118</td>
+    <td class="">  unsigned NextSlotToAllocate = 0;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">119</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">120</td>
+    <td class="">  /// Keep track of pending gcrelocate calls for consistency check</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">121</td>
+    <td class="">  SmallVector<const GCRelocateInst *, 10> PendingGCRelocateCalls;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">122</td>
+    <td class="">};</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">123</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">124</td>
+    <td class="">} // end namespace llvm</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">125</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">126</td>
+    <td class="">#endif // LLVM_LIB_CODEGEN_SELECTIONDAG_STATEPOINTLOWERING_H</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">127</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Functions Report</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Functions Report</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Function name</th>
+    <th class="mainTh">Number of hits</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN4llvm23StatepointLoweringStateC2Ev</td>
+    <td class="numberOfCalls">4</td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Coverage Diff</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Coverage Diff</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span> BUT NOT </span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </th>
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+      <span> BUT NOT </span>
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+    </th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="codeline">//===- StatepointLowering.h - SDAGBuilder's statepoint code ---*- C++ -*---===//</td>
+    <td class="lineNumber">1</td>
+    <td class="codeline">//===- StatepointLowering.h - SDAGBuilder's statepoint code ---*- C++ -*---===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">2</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="codeline">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">3</td>
+    <td class="codeline">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="codeline">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">4</td>
+    <td class="codeline">// See https://llvm.org/LICENSE.txt for license information.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="codeline">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">5</td>
+    <td class="codeline">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">6</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">7</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">8</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="codeline">// This file includes support code use by SelectionDAGBuilder when lowering a</td>
+    <td class="lineNumber">9</td>
+    <td class="codeline">// This file includes support code use by SelectionDAGBuilder when lowering a</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="codeline">// statepoint sequence in SelectionDAG IR.</td>
+    <td class="lineNumber">10</td>
+    <td class="codeline">// statepoint sequence in SelectionDAG IR.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">11</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">12</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">13</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class="codeline">#ifndef LLVM_LIB_CODEGEN_SELECTIONDAG_STATEPOINTLOWERING_H</td>
+    <td class="lineNumber">14</td>
+    <td class="codeline">#ifndef LLVM_LIB_CODEGEN_SELECTIONDAG_STATEPOINTLOWERING_H</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class="codeline">#define LLVM_LIB_CODEGEN_SELECTIONDAG_STATEPOINTLOWERING_H</td>
+    <td class="lineNumber">15</td>
+    <td class="codeline">#define LLVM_LIB_CODEGEN_SELECTIONDAG_STATEPOINTLOWERING_H</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">16</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class="codeline">#include "llvm/ADT/DenseMap.h"</td>
+    <td class="lineNumber">17</td>
+    <td class="codeline">#include "llvm/ADT/DenseMap.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class="codeline">#include "llvm/ADT/SmallBitVector.h"</td>
+    <td class="lineNumber">18</td>
+    <td class="codeline">#include "llvm/ADT/SmallBitVector.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class="codeline">#include "llvm/ADT/SmallVector.h"</td>
+    <td class="lineNumber">19</td>
+    <td class="codeline">#include "llvm/ADT/SmallVector.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class="codeline">#include "llvm/CodeGen/SelectionDAGNodes.h"</td>
+    <td class="lineNumber">20</td>
+    <td class="codeline">#include "llvm/CodeGen/SelectionDAGNodes.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class="codeline">#include "llvm/IR/IntrinsicInst.h"</td>
+    <td class="lineNumber">21</td>
+    <td class="codeline">#include "llvm/IR/IntrinsicInst.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class="codeline">#include <cassert></td>
+    <td class="lineNumber">22</td>
+    <td class="codeline">#include <cassert></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">23</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class="codeline">namespace llvm {</td>
+    <td class="lineNumber">24</td>
+    <td class="codeline">namespace llvm {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">25</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class="codeline">class SelectionDAGBuilder;</td>
+    <td class="lineNumber">26</td>
+    <td class="codeline">class SelectionDAGBuilder;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">27</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class="codeline">/// This class tracks both per-statepoint and per-selectiondag information.</td>
+    <td class="lineNumber">28</td>
+    <td class="codeline">/// This class tracks both per-statepoint and per-selectiondag information.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class="codeline">/// For each statepoint it tracks locations of it's gc valuess (incoming and</td>
+    <td class="lineNumber">29</td>
+    <td class="codeline">/// For each statepoint it tracks locations of it's gc valuess (incoming and</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class="codeline">/// relocated) and list of gcreloc calls scheduled for visiting (this is</td>
+    <td class="lineNumber">30</td>
+    <td class="codeline">/// relocated) and list of gcreloc calls scheduled for visiting (this is</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class="codeline">/// used for a debug mode consistency check only).  The spill slot tracking</td>
+    <td class="lineNumber">31</td>
+    <td class="codeline">/// used for a debug mode consistency check only).  The spill slot tracking</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class="codeline">/// works in concert with information in FunctionLoweringInfo.</td>
+    <td class="lineNumber">32</td>
+    <td class="codeline">/// works in concert with information in FunctionLoweringInfo.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class="codeline">class StatepointLoweringState {</td>
+    <td class="lineNumber">33</td>
+    <td class="codeline">class StatepointLoweringState {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class="codeline">public:</td>
+    <td class="lineNumber">34</td>
+    <td class="codeline">public:</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class="codeline">  StatepointLoweringState() = default;</td>
+    <td class="lineNumber">35</td>
+    <td class="codeline">  StatepointLoweringState() = default;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">36</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class="codeline">  /// Reset all state tracking for a newly encountered safepoint.  Also</td>
+    <td class="lineNumber">37</td>
+    <td class="codeline">  /// Reset all state tracking for a newly encountered safepoint.  Also</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class="codeline">  /// performs some consistency checking.</td>
+    <td class="lineNumber">38</td>
+    <td class="codeline">  /// performs some consistency checking.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class="codeline">  void startNewStatepoint(SelectionDAGBuilder &Builder);</td>
+    <td class="lineNumber">39</td>
+    <td class="codeline">  void startNewStatepoint(SelectionDAGBuilder &Builder);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">40</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class="codeline">  /// Clear the memory usage of this object.  This is called from</td>
+    <td class="lineNumber">41</td>
+    <td class="codeline">  /// Clear the memory usage of this object.  This is called from</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class="codeline">  /// SelectionDAGBuilder::clear.  We require this is never called in the</td>
+    <td class="lineNumber">42</td>
+    <td class="codeline">  /// SelectionDAGBuilder::clear.  We require this is never called in the</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class="codeline">  /// midst of processing a statepoint sequence.</td>
+    <td class="lineNumber">43</td>
+    <td class="codeline">  /// midst of processing a statepoint sequence.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class="codeline">  void clear();</td>
+    <td class="lineNumber">44</td>
+    <td class="codeline">  void clear();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">45</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class="codeline">  /// Returns the spill location of a value incoming to the current</td>
+    <td class="lineNumber">46</td>
+    <td class="codeline">  /// Returns the spill location of a value incoming to the current</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class="codeline">  /// statepoint.  Will return SDValue() if this value hasn't been</td>
+    <td class="lineNumber">47</td>
+    <td class="codeline">  /// statepoint.  Will return SDValue() if this value hasn't been</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class="codeline">  /// spilled.  Otherwise, the value has already been spilled and no</td>
+    <td class="lineNumber">48</td>
+    <td class="codeline">  /// spilled.  Otherwise, the value has already been spilled and no</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class="codeline">  /// further action is required by the caller.</td>
+    <td class="lineNumber">49</td>
+    <td class="codeline">  /// further action is required by the caller.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class="codeline">  SDValue getLocation(SDValue Val) {</td>
+    <td class="lineNumber">50</td>
+    <td class="codeline">  SDValue getLocation(SDValue Val) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class="codeline">    auto I = Locations.find(Val);</td>
+    <td class="lineNumber">51</td>
+    <td class="codeline">    auto I = Locations.find(Val);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class="codeline">    if (I == Locations.end())</td>
+    <td class="lineNumber">52</td>
+    <td class="codeline">    if (I == Locations.end())</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class="codeline">      return SDValue();</td>
+    <td class="lineNumber">53</td>
+    <td class="codeline">      return SDValue();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class="codeline">    return I->second;</td>
+    <td class="lineNumber">54</td>
+    <td class="codeline">    return I->second;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">55</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">56</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class="codeline">  void setLocation(SDValue Val, SDValue Location) {</td>
+    <td class="lineNumber">57</td>
+    <td class="codeline">  void setLocation(SDValue Val, SDValue Location) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class="codeline">    assert(!Locations.count(Val) &&</td>
+    <td class="lineNumber">58</td>
+    <td class="codeline">    assert(!Locations.count(Val) &&</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class="codeline">           "Trying to allocate already allocated location");</td>
+    <td class="lineNumber">59</td>
+    <td class="codeline">           "Trying to allocate already allocated location");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class="codeline">    Locations[Val] = Location;</td>
+    <td class="lineNumber">60</td>
+    <td class="codeline">    Locations[Val] = Location;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">61</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">62</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class="codeline">  /// Record the fact that we expect to encounter a given gc_relocate</td>
+    <td class="lineNumber">63</td>
+    <td class="codeline">  /// Record the fact that we expect to encounter a given gc_relocate</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class="codeline">  /// before the next statepoint.  If we don't see it, we'll report</td>
+    <td class="lineNumber">64</td>
+    <td class="codeline">  /// before the next statepoint.  If we don't see it, we'll report</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class="codeline">  /// an assertion.</td>
+    <td class="lineNumber">65</td>
+    <td class="codeline">  /// an assertion.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class="codeline">  void scheduleRelocCall(const GCRelocateInst &RelocCall) {</td>
+    <td class="lineNumber">66</td>
+    <td class="codeline">  void scheduleRelocCall(const GCRelocateInst &RelocCall) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class="codeline">    // We are not interested in lowering dead instructions.</td>
+    <td class="lineNumber">67</td>
+    <td class="codeline">    // We are not interested in lowering dead instructions.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class="codeline">    if (!RelocCall.use_empty())</td>
+    <td class="lineNumber">68</td>
+    <td class="codeline">    if (!RelocCall.use_empty())</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class="codeline">      PendingGCRelocateCalls.push_back(&RelocCall);</td>
+    <td class="lineNumber">69</td>
+    <td class="codeline">      PendingGCRelocateCalls.push_back(&RelocCall);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">70</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">71</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class="codeline">  /// Remove this gc_relocate from the list we're expecting to see</td>
+    <td class="lineNumber">72</td>
+    <td class="codeline">  /// Remove this gc_relocate from the list we're expecting to see</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class="codeline">  /// before the next statepoint.  If we weren't expecting to see</td>
+    <td class="lineNumber">73</td>
+    <td class="codeline">  /// before the next statepoint.  If we weren't expecting to see</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class="codeline">  /// it, we'll report an assertion.</td>
+    <td class="lineNumber">74</td>
+    <td class="codeline">  /// it, we'll report an assertion.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class="codeline">  void relocCallVisited(const GCRelocateInst &RelocCall) {</td>
+    <td class="lineNumber">75</td>
+    <td class="codeline">  void relocCallVisited(const GCRelocateInst &RelocCall) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class="codeline">    // We are not interested in lowering dead instructions.</td>
+    <td class="lineNumber">76</td>
+    <td class="codeline">    // We are not interested in lowering dead instructions.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class="codeline">    if (RelocCall.use_empty())</td>
+    <td class="lineNumber">77</td>
+    <td class="codeline">    if (RelocCall.use_empty())</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class="codeline">      return;</td>
+    <td class="lineNumber">78</td>
+    <td class="codeline">      return;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class="codeline">    auto I = llvm::find(PendingGCRelocateCalls, &RelocCall);</td>
+    <td class="lineNumber">79</td>
+    <td class="codeline">    auto I = llvm::find(PendingGCRelocateCalls, &RelocCall);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class="codeline">    assert(I != PendingGCRelocateCalls.end() &&</td>
+    <td class="lineNumber">80</td>
+    <td class="codeline">    assert(I != PendingGCRelocateCalls.end() &&</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class="codeline">           "Visited unexpected gcrelocate call");</td>
+    <td class="lineNumber">81</td>
+    <td class="codeline">           "Visited unexpected gcrelocate call");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class="codeline">    PendingGCRelocateCalls.erase(I);</td>
+    <td class="lineNumber">82</td>
+    <td class="codeline">    PendingGCRelocateCalls.erase(I);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">83</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">84</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class="codeline">  // TODO: Should add consistency tracking to ensure we encounter</td>
+    <td class="lineNumber">85</td>
+    <td class="codeline">  // TODO: Should add consistency tracking to ensure we encounter</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class="codeline">  // expected gc_result calls too.</td>
+    <td class="lineNumber">86</td>
+    <td class="codeline">  // expected gc_result calls too.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">87</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class="codeline">  /// Get a stack slot we can use to store an value of type ValueType.  This</td>
+    <td class="lineNumber">88</td>
+    <td class="codeline">  /// Get a stack slot we can use to store an value of type ValueType.  This</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class="codeline">  /// will hopefully be a recylced slot from another statepoint.</td>
+    <td class="lineNumber">89</td>
+    <td class="codeline">  /// will hopefully be a recylced slot from another statepoint.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">90</td>
+    <td class="codeline">  SDValue allocateStackSlot(EVT ValueType, SelectionDAGBuilder &Builder);</td>
+    <td class="lineNumber">90</td>
+    <td class="codeline">  SDValue allocateStackSlot(EVT ValueType, SelectionDAGBuilder &Builder);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">91</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">91</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">92</td>
+    <td class="codeline">  void reserveStackSlot(int Offset) {</td>
+    <td class="lineNumber">92</td>
+    <td class="codeline">  void reserveStackSlot(int Offset) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">93</td>
+    <td class="codeline">    assert(Offset >= 0 && Offset < (int)AllocatedStackSlots.size() &&</td>
+    <td class="lineNumber">93</td>
+    <td class="codeline">    assert(Offset >= 0 && Offset < (int)AllocatedStackSlots.size() &&</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">94</td>
+    <td class="codeline">           "out of bounds");</td>
+    <td class="lineNumber">94</td>
+    <td class="codeline">           "out of bounds");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">95</td>
+    <td class="codeline">    assert(!AllocatedStackSlots.test(Offset) && "already reserved!");</td>
+    <td class="lineNumber">95</td>
+    <td class="codeline">    assert(!AllocatedStackSlots.test(Offset) && "already reserved!");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">96</td>
+    <td class="codeline">    assert(NextSlotToAllocate <= (unsigned)Offset && "consistency!");</td>
+    <td class="lineNumber">96</td>
+    <td class="codeline">    assert(NextSlotToAllocate <= (unsigned)Offset && "consistency!");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">97</td>
+    <td class="codeline">    AllocatedStackSlots.set(Offset);</td>
+    <td class="lineNumber">97</td>
+    <td class="codeline">    AllocatedStackSlots.set(Offset);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">98</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">98</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">99</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">99</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">100</td>
+    <td class="codeline">  bool isStackSlotAllocated(int Offset) {</td>
+    <td class="lineNumber">100</td>
+    <td class="codeline">  bool isStackSlotAllocated(int Offset) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">101</td>
+    <td class="codeline">    assert(Offset >= 0 && Offset < (int)AllocatedStackSlots.size() &&</td>
+    <td class="lineNumber">101</td>
+    <td class="codeline">    assert(Offset >= 0 && Offset < (int)AllocatedStackSlots.size() &&</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">102</td>
+    <td class="codeline">           "out of bounds");</td>
+    <td class="lineNumber">102</td>
+    <td class="codeline">           "out of bounds");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">103</td>
+    <td class="codeline">    return AllocatedStackSlots.test(Offset);</td>
+    <td class="lineNumber">103</td>
+    <td class="codeline">    return AllocatedStackSlots.test(Offset);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">104</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">104</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">105</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">105</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">106</td>
+    <td class="codeline">private:</td>
+    <td class="lineNumber">106</td>
+    <td class="codeline">private:</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">107</td>
+    <td class="codeline">  /// Maps pre-relocation value (gc pointer directly incoming into statepoint)</td>
+    <td class="lineNumber">107</td>
+    <td class="codeline">  /// Maps pre-relocation value (gc pointer directly incoming into statepoint)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">108</td>
+    <td class="codeline">  /// into it's location (currently only stack slots)</td>
+    <td class="lineNumber">108</td>
+    <td class="codeline">  /// into it's location (currently only stack slots)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">109</td>
+    <td class="codeline">  DenseMap<SDValue, SDValue> Locations;</td>
+    <td class="lineNumber">109</td>
+    <td class="codeline">  DenseMap<SDValue, SDValue> Locations;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">110</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">110</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">111</td>
+    <td class="codeline">  /// A boolean indicator for each slot listed in the FunctionInfo as to</td>
+    <td class="lineNumber">111</td>
+    <td class="codeline">  /// A boolean indicator for each slot listed in the FunctionInfo as to</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">112</td>
+    <td class="codeline">  /// whether it has been used in the current statepoint.  Since we try to</td>
+    <td class="lineNumber">112</td>
+    <td class="codeline">  /// whether it has been used in the current statepoint.  Since we try to</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">113</td>
+    <td class="codeline">  /// preserve stack slots across safepoints, there can be gaps in which</td>
+    <td class="lineNumber">113</td>
+    <td class="codeline">  /// preserve stack slots across safepoints, there can be gaps in which</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">114</td>
+    <td class="codeline">  /// slots have been allocated.</td>
+    <td class="lineNumber">114</td>
+    <td class="codeline">  /// slots have been allocated.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">115</td>
+    <td class="codeline">  SmallBitVector AllocatedStackSlots;</td>
+    <td class="lineNumber">115</td>
+    <td class="codeline">  SmallBitVector AllocatedStackSlots;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">116</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">116</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">117</td>
+    <td class="codeline">  /// Points just beyond the last slot known to have been allocated</td>
+    <td class="lineNumber">117</td>
+    <td class="codeline">  /// Points just beyond the last slot known to have been allocated</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">118</td>
+    <td class="codeline">  unsigned NextSlotToAllocate = 0;</td>
+    <td class="lineNumber">118</td>
+    <td class="codeline">  unsigned NextSlotToAllocate = 0;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">119</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">119</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">120</td>
+    <td class="codeline">  /// Keep track of pending gcrelocate calls for consistency check</td>
+    <td class="lineNumber">120</td>
+    <td class="codeline">  /// Keep track of pending gcrelocate calls for consistency check</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">121</td>
+    <td class="codeline">  SmallVector<const GCRelocateInst *, 10> PendingGCRelocateCalls;</td>
+    <td class="lineNumber">121</td>
+    <td class="codeline">  SmallVector<const GCRelocateInst *, 10> PendingGCRelocateCalls;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">122</td>
+    <td class="codeline">};</td>
+    <td class="lineNumber">122</td>
+    <td class="codeline">};</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">123</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">123</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">124</td>
+    <td class="codeline">} // end namespace llvm</td>
+    <td class="lineNumber">124</td>
+    <td class="codeline">} // end namespace llvm</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">125</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">125</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">126</td>
+    <td class="codeline">#endif // LLVM_LIB_CODEGEN_SELECTIONDAG_STATEPOINTLOWERING_H</td>
+    <td class="lineNumber">126</td>
+    <td class="codeline">#endif // LLVM_LIB_CODEGEN_SELECTIONDAG_STATEPOINTLOWERING_H</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">127</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">127</td>
+    <td class="codeline"></td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Side By Side Comparison</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Side By Side Comparison</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+    </th>
+    <th class="mainTh">Hit count</th>
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </th>
+    <th class="mainTh">Hit count</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="codeLine">//===- StatepointLowering.h - SDAGBuilder's statepoint code ---*- C++ -*---===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">1</td>
+    <td class="codeLine">//===- StatepointLowering.h - SDAGBuilder's statepoint code ---*- C++ -*---===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">2</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="codeLine">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">3</td>
+    <td class="codeLine">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="codeLine">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">4</td>
+    <td class="codeLine">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="codeLine">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">5</td>
+    <td class="codeLine">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">6</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">7</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">8</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="codeLine">// This file includes support code use by SelectionDAGBuilder when lowering a</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">9</td>
+    <td class="codeLine">// This file includes support code use by SelectionDAGBuilder when lowering a</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="codeLine">// statepoint sequence in SelectionDAG IR.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">10</td>
+    <td class="codeLine">// statepoint sequence in SelectionDAG IR.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">11</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">12</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">13</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class="codeLine">#ifndef LLVM_LIB_CODEGEN_SELECTIONDAG_STATEPOINTLOWERING_H</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">14</td>
+    <td class="codeLine">#ifndef LLVM_LIB_CODEGEN_SELECTIONDAG_STATEPOINTLOWERING_H</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class="codeLine">#define LLVM_LIB_CODEGEN_SELECTIONDAG_STATEPOINTLOWERING_H</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">15</td>
+    <td class="codeLine">#define LLVM_LIB_CODEGEN_SELECTIONDAG_STATEPOINTLOWERING_H</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">16</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class="codeLine">#include "llvm/ADT/DenseMap.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">17</td>
+    <td class="codeLine">#include "llvm/ADT/DenseMap.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class="codeLine">#include "llvm/ADT/SmallBitVector.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">18</td>
+    <td class="codeLine">#include "llvm/ADT/SmallBitVector.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class="codeLine">#include "llvm/ADT/SmallVector.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">19</td>
+    <td class="codeLine">#include "llvm/ADT/SmallVector.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class="codeLine">#include "llvm/CodeGen/SelectionDAGNodes.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">20</td>
+    <td class="codeLine">#include "llvm/CodeGen/SelectionDAGNodes.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class="codeLine">#include "llvm/IR/IntrinsicInst.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">21</td>
+    <td class="codeLine">#include "llvm/IR/IntrinsicInst.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class="codeLine">#include <cassert></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">22</td>
+    <td class="codeLine">#include <cassert></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">23</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class="codeLine">namespace llvm {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">24</td>
+    <td class="codeLine">namespace llvm {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">25</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class="codeLine">class SelectionDAGBuilder;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">26</td>
+    <td class="codeLine">class SelectionDAGBuilder;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">27</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class="codeLine">/// This class tracks both per-statepoint and per-selectiondag information.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">28</td>
+    <td class="codeLine">/// This class tracks both per-statepoint and per-selectiondag information.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class="codeLine">/// For each statepoint it tracks locations of it's gc valuess (incoming and</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">29</td>
+    <td class="codeLine">/// For each statepoint it tracks locations of it's gc valuess (incoming and</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class="codeLine">/// relocated) and list of gcreloc calls scheduled for visiting (this is</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">30</td>
+    <td class="codeLine">/// relocated) and list of gcreloc calls scheduled for visiting (this is</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class="codeLine">/// used for a debug mode consistency check only).  The spill slot tracking</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">31</td>
+    <td class="codeLine">/// used for a debug mode consistency check only).  The spill slot tracking</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class="codeLine">/// works in concert with information in FunctionLoweringInfo.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">32</td>
+    <td class="codeLine">/// works in concert with information in FunctionLoweringInfo.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class="codeLine">class StatepointLoweringState {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">33</td>
+    <td class="codeLine">class StatepointLoweringState {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class="codeLine">public:</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">34</td>
+    <td class="codeLine">public:</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class="codeLine coveredLine">  StatepointLoweringState() = default;</td>
+    <td class="lineNumber">2</td>
+    <td class="lineNumber">35</td>
+    <td class="codeLine coveredLine">  StatepointLoweringState() = default;</td>
+    <td class="lineNumber">2</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">36</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class="codeLine">  /// Reset all state tracking for a newly encountered safepoint.  Also</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">37</td>
+    <td class="codeLine">  /// Reset all state tracking for a newly encountered safepoint.  Also</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class="codeLine">  /// performs some consistency checking.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">38</td>
+    <td class="codeLine">  /// performs some consistency checking.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class="codeLine">  void startNewStatepoint(SelectionDAGBuilder &Builder);</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">39</td>
+    <td class="codeLine">  void startNewStatepoint(SelectionDAGBuilder &Builder);</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">40</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class="codeLine">  /// Clear the memory usage of this object.  This is called from</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">41</td>
+    <td class="codeLine">  /// Clear the memory usage of this object.  This is called from</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class="codeLine">  /// SelectionDAGBuilder::clear.  We require this is never called in the</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">42</td>
+    <td class="codeLine">  /// SelectionDAGBuilder::clear.  We require this is never called in the</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class="codeLine">  /// midst of processing a statepoint sequence.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">43</td>
+    <td class="codeLine">  /// midst of processing a statepoint sequence.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class="codeLine">  void clear();</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">44</td>
+    <td class="codeLine">  void clear();</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">45</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class="codeLine">  /// Returns the spill location of a value incoming to the current</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">46</td>
+    <td class="codeLine">  /// Returns the spill location of a value incoming to the current</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class="codeLine">  /// statepoint.  Will return SDValue() if this value hasn't been</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">47</td>
+    <td class="codeLine">  /// statepoint.  Will return SDValue() if this value hasn't been</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class="codeLine">  /// spilled.  Otherwise, the value has already been spilled and no</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">48</td>
+    <td class="codeLine">  /// spilled.  Otherwise, the value has already been spilled and no</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class="codeLine">  /// further action is required by the caller.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">49</td>
+    <td class="codeLine">  /// further action is required by the caller.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class="codeLine">  SDValue getLocation(SDValue Val) {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">50</td>
+    <td class="codeLine">  SDValue getLocation(SDValue Val) {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class="codeLine">    auto I = Locations.find(Val);</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">51</td>
+    <td class="codeLine">    auto I = Locations.find(Val);</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class="codeLine">    if (I == Locations.end())</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">52</td>
+    <td class="codeLine">    if (I == Locations.end())</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class="codeLine">      return SDValue();</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">53</td>
+    <td class="codeLine">      return SDValue();</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class="codeLine">    return I->second;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">54</td>
+    <td class="codeLine">    return I->second;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">55</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">56</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class="codeLine">  void setLocation(SDValue Val, SDValue Location) {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">57</td>
+    <td class="codeLine">  void setLocation(SDValue Val, SDValue Location) {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class="codeLine">    assert(!Locations.count(Val) &&</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">58</td>
+    <td class="codeLine">    assert(!Locations.count(Val) &&</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class="codeLine">           "Trying to allocate already allocated location");</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">59</td>
+    <td class="codeLine">           "Trying to allocate already allocated location");</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class="codeLine">    Locations[Val] = Location;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">60</td>
+    <td class="codeLine">    Locations[Val] = Location;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">61</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">62</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class="codeLine">  /// Record the fact that we expect to encounter a given gc_relocate</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">63</td>
+    <td class="codeLine">  /// Record the fact that we expect to encounter a given gc_relocate</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class="codeLine">  /// before the next statepoint.  If we don't see it, we'll report</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">64</td>
+    <td class="codeLine">  /// before the next statepoint.  If we don't see it, we'll report</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class="codeLine">  /// an assertion.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">65</td>
+    <td class="codeLine">  /// an assertion.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class="codeLine">  void scheduleRelocCall(const GCRelocateInst &RelocCall) {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">66</td>
+    <td class="codeLine">  void scheduleRelocCall(const GCRelocateInst &RelocCall) {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class="codeLine">    // We are not interested in lowering dead instructions.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">67</td>
+    <td class="codeLine">    // We are not interested in lowering dead instructions.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class="codeLine">    if (!RelocCall.use_empty())</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">68</td>
+    <td class="codeLine">    if (!RelocCall.use_empty())</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class="codeLine">      PendingGCRelocateCalls.push_back(&RelocCall);</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">69</td>
+    <td class="codeLine">      PendingGCRelocateCalls.push_back(&RelocCall);</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">70</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">71</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class="codeLine">  /// Remove this gc_relocate from the list we're expecting to see</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">72</td>
+    <td class="codeLine">  /// Remove this gc_relocate from the list we're expecting to see</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class="codeLine">  /// before the next statepoint.  If we weren't expecting to see</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">73</td>
+    <td class="codeLine">  /// before the next statepoint.  If we weren't expecting to see</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class="codeLine">  /// it, we'll report an assertion.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">74</td>
+    <td class="codeLine">  /// it, we'll report an assertion.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class="codeLine">  void relocCallVisited(const GCRelocateInst &RelocCall) {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">75</td>
+    <td class="codeLine">  void relocCallVisited(const GCRelocateInst &RelocCall) {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class="codeLine">    // We are not interested in lowering dead instructions.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">76</td>
+    <td class="codeLine">    // We are not interested in lowering dead instructions.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class="codeLine">    if (RelocCall.use_empty())</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">77</td>
+    <td class="codeLine">    if (RelocCall.use_empty())</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class="codeLine">      return;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">78</td>
+    <td class="codeLine">      return;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class="codeLine">    auto I = llvm::find(PendingGCRelocateCalls, &RelocCall);</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">79</td>
+    <td class="codeLine">    auto I = llvm::find(PendingGCRelocateCalls, &RelocCall);</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class="codeLine">    assert(I != PendingGCRelocateCalls.end() &&</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">80</td>
+    <td class="codeLine">    assert(I != PendingGCRelocateCalls.end() &&</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class="codeLine">           "Visited unexpected gcrelocate call");</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">81</td>
+    <td class="codeLine">           "Visited unexpected gcrelocate call");</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class="codeLine">    PendingGCRelocateCalls.erase(I);</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">82</td>
+    <td class="codeLine">    PendingGCRelocateCalls.erase(I);</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">83</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">84</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class="codeLine">  // TODO: Should add consistency tracking to ensure we encounter</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">85</td>
+    <td class="codeLine">  // TODO: Should add consistency tracking to ensure we encounter</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class="codeLine">  // expected gc_result calls too.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">86</td>
+    <td class="codeLine">  // expected gc_result calls too.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">87</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class="codeLine">  /// Get a stack slot we can use to store an value of type ValueType.  This</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">88</td>
+    <td class="codeLine">  /// Get a stack slot we can use to store an value of type ValueType.  This</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class="codeLine">  /// will hopefully be a recylced slot from another statepoint.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">89</td>
+    <td class="codeLine">  /// will hopefully be a recylced slot from another statepoint.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">90</td>
+    <td class="codeLine">  SDValue allocateStackSlot(EVT ValueType, SelectionDAGBuilder &Builder);</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">90</td>
+    <td class="codeLine">  SDValue allocateStackSlot(EVT ValueType, SelectionDAGBuilder &Builder);</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">91</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">91</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">92</td>
+    <td class="codeLine">  void reserveStackSlot(int Offset) {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">92</td>
+    <td class="codeLine">  void reserveStackSlot(int Offset) {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">93</td>
+    <td class="codeLine">    assert(Offset >= 0 && Offset < (int)AllocatedStackSlots.size() &&</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">93</td>
+    <td class="codeLine">    assert(Offset >= 0 && Offset < (int)AllocatedStackSlots.size() &&</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">94</td>
+    <td class="codeLine">           "out of bounds");</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">94</td>
+    <td class="codeLine">           "out of bounds");</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">95</td>
+    <td class="codeLine">    assert(!AllocatedStackSlots.test(Offset) && "already reserved!");</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">95</td>
+    <td class="codeLine">    assert(!AllocatedStackSlots.test(Offset) && "already reserved!");</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">96</td>
+    <td class="codeLine">    assert(NextSlotToAllocate <= (unsigned)Offset && "consistency!");</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">96</td>
+    <td class="codeLine">    assert(NextSlotToAllocate <= (unsigned)Offset && "consistency!");</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">97</td>
+    <td class="codeLine">    AllocatedStackSlots.set(Offset);</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">97</td>
+    <td class="codeLine">    AllocatedStackSlots.set(Offset);</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">98</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">98</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">99</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">99</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">100</td>
+    <td class="codeLine">  bool isStackSlotAllocated(int Offset) {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">100</td>
+    <td class="codeLine">  bool isStackSlotAllocated(int Offset) {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">101</td>
+    <td class="codeLine">    assert(Offset >= 0 && Offset < (int)AllocatedStackSlots.size() &&</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">101</td>
+    <td class="codeLine">    assert(Offset >= 0 && Offset < (int)AllocatedStackSlots.size() &&</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">102</td>
+    <td class="codeLine">           "out of bounds");</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">102</td>
+    <td class="codeLine">           "out of bounds");</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">103</td>
+    <td class="codeLine">    return AllocatedStackSlots.test(Offset);</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">103</td>
+    <td class="codeLine">    return AllocatedStackSlots.test(Offset);</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">104</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">104</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">105</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">105</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">106</td>
+    <td class="codeLine">private:</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">106</td>
+    <td class="codeLine">private:</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">107</td>
+    <td class="codeLine">  /// Maps pre-relocation value (gc pointer directly incoming into statepoint)</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">107</td>
+    <td class="codeLine">  /// Maps pre-relocation value (gc pointer directly incoming into statepoint)</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">108</td>
+    <td class="codeLine">  /// into it's location (currently only stack slots)</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">108</td>
+    <td class="codeLine">  /// into it's location (currently only stack slots)</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">109</td>
+    <td class="codeLine">  DenseMap<SDValue, SDValue> Locations;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">109</td>
+    <td class="codeLine">  DenseMap<SDValue, SDValue> Locations;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">110</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">110</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">111</td>
+    <td class="codeLine">  /// A boolean indicator for each slot listed in the FunctionInfo as to</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">111</td>
+    <td class="codeLine">  /// A boolean indicator for each slot listed in the FunctionInfo as to</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">112</td>
+    <td class="codeLine">  /// whether it has been used in the current statepoint.  Since we try to</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">112</td>
+    <td class="codeLine">  /// whether it has been used in the current statepoint.  Since we try to</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">113</td>
+    <td class="codeLine">  /// preserve stack slots across safepoints, there can be gaps in which</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">113</td>
+    <td class="codeLine">  /// preserve stack slots across safepoints, there can be gaps in which</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">114</td>
+    <td class="codeLine">  /// slots have been allocated.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">114</td>
+    <td class="codeLine">  /// slots have been allocated.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">115</td>
+    <td class="codeLine">  SmallBitVector AllocatedStackSlots;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">115</td>
+    <td class="codeLine">  SmallBitVector AllocatedStackSlots;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">116</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">116</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">117</td>
+    <td class="codeLine">  /// Points just beyond the last slot known to have been allocated</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">117</td>
+    <td class="codeLine">  /// Points just beyond the last slot known to have been allocated</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">118</td>
+    <td class="codeLine">  unsigned NextSlotToAllocate = 0;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">118</td>
+    <td class="codeLine">  unsigned NextSlotToAllocate = 0;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">119</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">119</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">120</td>
+    <td class="codeLine">  /// Keep track of pending gcrelocate calls for consistency check</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">120</td>
+    <td class="codeLine">  /// Keep track of pending gcrelocate calls for consistency check</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">121</td>
+    <td class="codeLine">  SmallVector<const GCRelocateInst *, 10> PendingGCRelocateCalls;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">121</td>
+    <td class="codeLine">  SmallVector<const GCRelocateInst *, 10> PendingGCRelocateCalls;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">122</td>
+    <td class="codeLine">};</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">122</td>
+    <td class="codeLine">};</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">123</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">123</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">124</td>
+    <td class="codeLine">} // end namespace llvm</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">124</td>
+    <td class="codeLine">} // end namespace llvm</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">125</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">125</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">126</td>
+    <td class="codeLine">#endif // LLVM_LIB_CODEGEN_SELECTIONDAG_STATEPOINTLOWERING_H</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">126</td>
+    <td class="codeLine">#endif // LLVM_LIB_CODEGEN_SELECTIONDAG_STATEPOINTLOWERING_H</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">127</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">127</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+</table>
+    </div>
+    <button id="myBtn" onclick="topFunction()" title="Go to top" type="button">Top</button>
+    <script src="../Javascript/drop_down.js"></script>
+    <script src="../Javascript/top_button.js"></script>
+  </body>
+</html>

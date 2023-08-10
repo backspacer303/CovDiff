@@ -1,0 +1,2979 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>RISCVInsertReadWriteCSR.cpp</title>
+    <link rel="stylesheet" href="../Style/style.css" />
+  </head>
+  <body>
+    <div class="headerDiv">
+      <h1>
+        Code Coverage
+      </h1>
+      <p>
+        Source file: /home/nikola/Desktop/llvm-project/llvm/lib/Target/RISCV/RISCVInsertReadWriteCSR.cpp
+      </p>
+    </div>
+    <button class="collapsible" type="button">Open Summary Report</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Summary Report</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line number</th>
+    <th class="mainTh">Line</th>
+    <th class="mainTh">Number of hits</th>
+    <th class="mainTh">Tests that cover line</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="">//===-- RISCVInsertReadWriteCSR.cpp - Insert Read/Write of RISC-V CSR -----===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="">//===----------------------------------------------------------------------===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="">// This file implements the machine function pass to insert read/write of CSR-s</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="">// of the RISC-V instructions.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="">// Currently the pass implements naive insertion of a write to vxrm before an</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class="">// RVV fixed-point instruction.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class="">//===----------------------------------------------------------------------===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class="">#include "MCTargetDesc/RISCVBaseInfo.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class="">#include "RISCV.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class="">#include "RISCVSubtarget.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class="">#include "llvm/CodeGen/MachineFunctionPass.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class="">using namespace llvm;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class="">#define DEBUG_TYPE "riscv-insert-read-write-csr"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class="">#define RISCV_INSERT_READ_WRITE_CSR_NAME "RISC-V Insert Read/Write CSR Pass"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class="">namespace {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class="">class RISCVInsertReadWriteCSR : public MachineFunctionPass {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class="">  const TargetInstrInfo *TII;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class="">public:</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class="">  static char ID;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class="uncoveredLine">  RISCVInsertReadWriteCSR() : MachineFunctionPass(ID) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class="uncoveredLine">    initializeRISCVInsertReadWriteCSRPass(*PassRegistry::getPassRegistry());</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class="uncoveredLine">  }</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class="">  bool runOnMachineFunction(MachineFunction &MF) override;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class="uncoveredLine">  void getAnalysisUsage(AnalysisUsage &AU) const override {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class="uncoveredLine">    AU.setPreservesCFG();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class="uncoveredLine">    MachineFunctionPass::getAnalysisUsage(AU);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class="uncoveredLine">  }</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class="uncoveredLine">  StringRef getPassName() const override {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class="uncoveredLine">    return RISCV_INSERT_READ_WRITE_CSR_NAME;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class="">  }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class="">private:</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class="">  bool emitWriteRoundingMode(MachineBasicBlock &MBB);</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class="">};</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class="">} // end anonymous namespace</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class="">char RISCVInsertReadWriteCSR::ID = 0;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class="coveredLine">INITIALIZE_PASS(RISCVInsertReadWriteCSR, DEBUG_TYPE,</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class="">                RISCV_INSERT_READ_WRITE_CSR_NAME, false, false)</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class="">// Returns the index to the rounding mode immediate value if any, otherwise the</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class="">// function will return None.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class="uncoveredLine">static std::optional<unsigned> getRoundModeIdx(const MachineInstr &MI) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class="uncoveredLine">  uint64_t TSFlags = MI.getDesc().TSFlags;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class="uncoveredLine">  if (!RISCVII::hasRoundModeOp(TSFlags))</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class="uncoveredLine">    return std::nullopt;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class="">  // The operand order</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class="">  // -------------------------------------</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class="">  // | n-1 (if any)   | n-2  | n-3 | n-4 |</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class="">  // | policy         | sew  | vl  | rm  |</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class="">  // -------------------------------------</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class="uncoveredLine">  return MI.getNumExplicitOperands() - RISCVII::hasVecPolicyOp(TSFlags) - 3;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class="">}</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class="">// This function inserts a write to vxrm when encountering an RVV fixed-point</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class="">// instruction.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class="uncoveredLine">bool RISCVInsertReadWriteCSR::emitWriteRoundingMode(MachineBasicBlock &MBB) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class="uncoveredLine">  bool Changed = false;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class="uncoveredLine">  for (MachineInstr &MI : MBB) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class="uncoveredLine">    if (auto RoundModeIdx = getRoundModeIdx(MI)) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class="uncoveredLine">      if (RISCVII::usesVXRM(MI.getDesc().TSFlags)) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class="uncoveredLine">        unsigned VXRMImm = MI.getOperand(*RoundModeIdx).getImm();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class="uncoveredLine">        Changed = true;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class="uncoveredLine">        BuildMI(MBB, MI, MI.getDebugLoc(), TII->get(RISCV::WriteVXRMImm))</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class="uncoveredLine">            .addImm(VXRMImm);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class="uncoveredLine">        MI.addOperand(MachineOperand::CreateReg(RISCV::VXRM, /*IsDef*/ false,</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class="">                                                /*IsImp*/ true));</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class="">      } else { // FRM</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">90</td>
+    <td class="uncoveredLine">        unsigned FRMImm = MI.getOperand(*RoundModeIdx).getImm();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">91</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">92</td>
+    <td class="">        // The value is a hint to this pass to not alter the frm value.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">93</td>
+    <td class="uncoveredLine">        if (FRMImm == RISCVFPRndMode::DYN)</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">94</td>
+    <td class="uncoveredLine">          continue;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">95</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">96</td>
+    <td class="uncoveredLine">        Changed = true;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">97</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">98</td>
+    <td class="">        // Save</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">99</td>
+    <td class="uncoveredLine">        MachineRegisterInfo *MRI = &MBB.getParent()->getRegInfo();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">100</td>
+    <td class="uncoveredLine">        Register SavedFRM = MRI->createVirtualRegister(&RISCV::GPRRegClass);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">101</td>
+    <td class="uncoveredLine">        BuildMI(MBB, MI, MI.getDebugLoc(), TII->get(RISCV::SwapFRMImm),</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">102</td>
+    <td class="">                SavedFRM)</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">103</td>
+    <td class="uncoveredLine">            .addImm(FRMImm);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">104</td>
+    <td class="uncoveredLine">        MI.addOperand(MachineOperand::CreateReg(RISCV::FRM, /*IsDef*/ false,</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">105</td>
+    <td class="">                                                /*IsImp*/ true));</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">106</td>
+    <td class="">        // Restore</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">107</td>
+    <td class="">        MachineInstrBuilder MIB =</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">108</td>
+    <td class="uncoveredLine">            BuildMI(*MBB.getParent(), {}, TII->get(RISCV::WriteFRM))</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">109</td>
+    <td class="uncoveredLine">                .addReg(SavedFRM);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">110</td>
+    <td class="uncoveredLine">        MBB.insertAfter(MI, MIB);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">111</td>
+    <td class="">      }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">112</td>
+    <td class="">    }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">113</td>
+    <td class="">  }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">114</td>
+    <td class="uncoveredLine">  return Changed;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">115</td>
+    <td class="">}</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">116</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">117</td>
+    <td class="uncoveredLine">bool RISCVInsertReadWriteCSR::runOnMachineFunction(MachineFunction &MF) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">118</td>
+    <td class="">  // Skip if the vector extension is not enabled.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">119</td>
+    <td class="uncoveredLine">  const RISCVSubtarget &ST = MF.getSubtarget<RISCVSubtarget>();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">120</td>
+    <td class="uncoveredLine">  if (!ST.hasVInstructions())</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">121</td>
+    <td class="uncoveredLine">    return false;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">122</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">123</td>
+    <td class="uncoveredLine">  TII = ST.getInstrInfo();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">124</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">125</td>
+    <td class="uncoveredLine">  bool Changed = false;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">126</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">127</td>
+    <td class="uncoveredLine">  for (MachineBasicBlock &MBB : MF)</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">128</td>
+    <td class="uncoveredLine">    Changed |= emitWriteRoundingMode(MBB);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">129</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">130</td>
+    <td class="uncoveredLine">  return Changed;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">131</td>
+    <td class="">}</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">132</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">133</td>
+    <td class="uncoveredLine">FunctionPass *llvm::createRISCVInsertReadWriteCSRPass() {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">134</td>
+    <td class="uncoveredLine">  return new RISCVInsertReadWriteCSR();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">135</td>
+    <td class="">}</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">136</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Functions Report</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Functions Report</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Function name</th>
+    <th class="mainTh">Number of hits</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_123RISCVInsertReadWriteCSRC2Ev</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZNK12_GLOBAL__N_123RISCVInsertReadWriteCSR16getAnalysisUsageERN4llvm13AnalysisUsageE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZNK12_GLOBAL__N_123RISCVInsertReadWriteCSR11getPassNameEv</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN4llvm37initializeRISCVInsertReadWriteCSRPassERNS_12PassRegistryE</td>
+    <td class="numberOfCalls">2</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZL41initializeRISCVInsertReadWriteCSRPassOnceRN4llvm12PassRegistryE</td>
+    <td class="numberOfCalls">2</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZL15getRoundModeIdxRKN4llvm12MachineInstrE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_123RISCVInsertReadWriteCSR21emitWriteRoundingModeERN4llvm17MachineBasicBlockE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_123RISCVInsertReadWriteCSR20runOnMachineFunctionERN4llvm15MachineFunctionE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN4llvm33createRISCVInsertReadWriteCSRPassEv</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Coverage Diff</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Coverage Diff</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span> BUT NOT </span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </th>
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+      <span> BUT NOT </span>
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+    </th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="codeline">//===-- RISCVInsertReadWriteCSR.cpp - Insert Read/Write of RISC-V CSR -----===//</td>
+    <td class="lineNumber">1</td>
+    <td class="codeline">//===-- RISCVInsertReadWriteCSR.cpp - Insert Read/Write of RISC-V CSR -----===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">2</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="codeline">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">3</td>
+    <td class="codeline">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="codeline">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">4</td>
+    <td class="codeline">// See https://llvm.org/LICENSE.txt for license information.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="codeline">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">5</td>
+    <td class="codeline">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">6</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">7</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="codeline">// This file implements the machine function pass to insert read/write of CSR-s</td>
+    <td class="lineNumber">8</td>
+    <td class="codeline">// This file implements the machine function pass to insert read/write of CSR-s</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="codeline">// of the RISC-V instructions.</td>
+    <td class="lineNumber">9</td>
+    <td class="codeline">// of the RISC-V instructions.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">10</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="codeline">// Currently the pass implements naive insertion of a write to vxrm before an</td>
+    <td class="lineNumber">11</td>
+    <td class="codeline">// Currently the pass implements naive insertion of a write to vxrm before an</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class="codeline">// RVV fixed-point instruction.</td>
+    <td class="lineNumber">12</td>
+    <td class="codeline">// RVV fixed-point instruction.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">13</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">14</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">15</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class="codeline">#include "MCTargetDesc/RISCVBaseInfo.h"</td>
+    <td class="lineNumber">16</td>
+    <td class="codeline">#include "MCTargetDesc/RISCVBaseInfo.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class="codeline">#include "RISCV.h"</td>
+    <td class="lineNumber">17</td>
+    <td class="codeline">#include "RISCV.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class="codeline">#include "RISCVSubtarget.h"</td>
+    <td class="lineNumber">18</td>
+    <td class="codeline">#include "RISCVSubtarget.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class="codeline">#include "llvm/CodeGen/MachineFunctionPass.h"</td>
+    <td class="lineNumber">19</td>
+    <td class="codeline">#include "llvm/CodeGen/MachineFunctionPass.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class="codeline">using namespace llvm;</td>
+    <td class="lineNumber">20</td>
+    <td class="codeline">using namespace llvm;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">21</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class="codeline">#define DEBUG_TYPE "riscv-insert-read-write-csr"</td>
+    <td class="lineNumber">22</td>
+    <td class="codeline">#define DEBUG_TYPE "riscv-insert-read-write-csr"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class="codeline">#define RISCV_INSERT_READ_WRITE_CSR_NAME "RISC-V Insert Read/Write CSR Pass"</td>
+    <td class="lineNumber">23</td>
+    <td class="codeline">#define RISCV_INSERT_READ_WRITE_CSR_NAME "RISC-V Insert Read/Write CSR Pass"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">24</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class="codeline">namespace {</td>
+    <td class="lineNumber">25</td>
+    <td class="codeline">namespace {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">26</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class="codeline">class RISCVInsertReadWriteCSR : public MachineFunctionPass {</td>
+    <td class="lineNumber">27</td>
+    <td class="codeline">class RISCVInsertReadWriteCSR : public MachineFunctionPass {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class="codeline">  const TargetInstrInfo *TII;</td>
+    <td class="lineNumber">28</td>
+    <td class="codeline">  const TargetInstrInfo *TII;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">29</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class="codeline">public:</td>
+    <td class="lineNumber">30</td>
+    <td class="codeline">public:</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class="codeline">  static char ID;</td>
+    <td class="lineNumber">31</td>
+    <td class="codeline">  static char ID;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">32</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class="codeline">  RISCVInsertReadWriteCSR() : MachineFunctionPass(ID) {</td>
+    <td class="lineNumber">33</td>
+    <td class="codeline">  RISCVInsertReadWriteCSR() : MachineFunctionPass(ID) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class="codeline">    initializeRISCVInsertReadWriteCSRPass(*PassRegistry::getPassRegistry());</td>
+    <td class="lineNumber">34</td>
+    <td class="codeline">    initializeRISCVInsertReadWriteCSRPass(*PassRegistry::getPassRegistry());</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">35</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">36</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class="codeline">  bool runOnMachineFunction(MachineFunction &MF) override;</td>
+    <td class="lineNumber">37</td>
+    <td class="codeline">  bool runOnMachineFunction(MachineFunction &MF) override;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">38</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class="codeline">  void getAnalysisUsage(AnalysisUsage &AU) const override {</td>
+    <td class="lineNumber">39</td>
+    <td class="codeline">  void getAnalysisUsage(AnalysisUsage &AU) const override {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class="codeline">    AU.setPreservesCFG();</td>
+    <td class="lineNumber">40</td>
+    <td class="codeline">    AU.setPreservesCFG();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class="codeline">    MachineFunctionPass::getAnalysisUsage(AU);</td>
+    <td class="lineNumber">41</td>
+    <td class="codeline">    MachineFunctionPass::getAnalysisUsage(AU);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">42</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">43</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class="codeline">  StringRef getPassName() const override {</td>
+    <td class="lineNumber">44</td>
+    <td class="codeline">  StringRef getPassName() const override {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class="codeline">    return RISCV_INSERT_READ_WRITE_CSR_NAME;</td>
+    <td class="lineNumber">45</td>
+    <td class="codeline">    return RISCV_INSERT_READ_WRITE_CSR_NAME;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">46</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">47</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class="codeline">private:</td>
+    <td class="lineNumber">48</td>
+    <td class="codeline">private:</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class="codeline">  bool emitWriteRoundingMode(MachineBasicBlock &MBB);</td>
+    <td class="lineNumber">49</td>
+    <td class="codeline">  bool emitWriteRoundingMode(MachineBasicBlock &MBB);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class="codeline">};</td>
+    <td class="lineNumber">50</td>
+    <td class="codeline">};</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">51</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class="codeline">} // end anonymous namespace</td>
+    <td class="lineNumber">52</td>
+    <td class="codeline">} // end anonymous namespace</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">53</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class="codeline">char RISCVInsertReadWriteCSR::ID = 0;</td>
+    <td class="lineNumber">54</td>
+    <td class="codeline">char RISCVInsertReadWriteCSR::ID = 0;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">55</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class="codeline">INITIALIZE_PASS(RISCVInsertReadWriteCSR, DEBUG_TYPE,</td>
+    <td class="lineNumber">56</td>
+    <td class="codeline">INITIALIZE_PASS(RISCVInsertReadWriteCSR, DEBUG_TYPE,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class="codeline">                RISCV_INSERT_READ_WRITE_CSR_NAME, false, false)</td>
+    <td class="lineNumber">57</td>
+    <td class="codeline">                RISCV_INSERT_READ_WRITE_CSR_NAME, false, false)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">58</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class="codeline">// Returns the index to the rounding mode immediate value if any, otherwise the</td>
+    <td class="lineNumber">59</td>
+    <td class="codeline">// Returns the index to the rounding mode immediate value if any, otherwise the</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class="codeline">// function will return None.</td>
+    <td class="lineNumber">60</td>
+    <td class="codeline">// function will return None.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class="codeline">static std::optional<unsigned> getRoundModeIdx(const MachineInstr &MI) {</td>
+    <td class="lineNumber">61</td>
+    <td class="codeline">static std::optional<unsigned> getRoundModeIdx(const MachineInstr &MI) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class="codeline">  uint64_t TSFlags = MI.getDesc().TSFlags;</td>
+    <td class="lineNumber">62</td>
+    <td class="codeline">  uint64_t TSFlags = MI.getDesc().TSFlags;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class="codeline">  if (!RISCVII::hasRoundModeOp(TSFlags))</td>
+    <td class="lineNumber">63</td>
+    <td class="codeline">  if (!RISCVII::hasRoundModeOp(TSFlags))</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class="codeline">    return std::nullopt;</td>
+    <td class="lineNumber">64</td>
+    <td class="codeline">    return std::nullopt;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">65</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class="codeline">  // The operand order</td>
+    <td class="lineNumber">66</td>
+    <td class="codeline">  // The operand order</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class="codeline">  // -------------------------------------</td>
+    <td class="lineNumber">67</td>
+    <td class="codeline">  // -------------------------------------</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class="codeline">  // | n-1 (if any)   | n-2  | n-3 | n-4 |</td>
+    <td class="lineNumber">68</td>
+    <td class="codeline">  // | n-1 (if any)   | n-2  | n-3 | n-4 |</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class="codeline">  // | policy         | sew  | vl  | rm  |</td>
+    <td class="lineNumber">69</td>
+    <td class="codeline">  // | policy         | sew  | vl  | rm  |</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class="codeline">  // -------------------------------------</td>
+    <td class="lineNumber">70</td>
+    <td class="codeline">  // -------------------------------------</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class="codeline">  return MI.getNumExplicitOperands() - RISCVII::hasVecPolicyOp(TSFlags) - 3;</td>
+    <td class="lineNumber">71</td>
+    <td class="codeline">  return MI.getNumExplicitOperands() - RISCVII::hasVecPolicyOp(TSFlags) - 3;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">72</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">73</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class="codeline">// This function inserts a write to vxrm when encountering an RVV fixed-point</td>
+    <td class="lineNumber">74</td>
+    <td class="codeline">// This function inserts a write to vxrm when encountering an RVV fixed-point</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class="codeline">// instruction.</td>
+    <td class="lineNumber">75</td>
+    <td class="codeline">// instruction.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class="codeline">bool RISCVInsertReadWriteCSR::emitWriteRoundingMode(MachineBasicBlock &MBB) {</td>
+    <td class="lineNumber">76</td>
+    <td class="codeline">bool RISCVInsertReadWriteCSR::emitWriteRoundingMode(MachineBasicBlock &MBB) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class="codeline">  bool Changed = false;</td>
+    <td class="lineNumber">77</td>
+    <td class="codeline">  bool Changed = false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class="codeline">  for (MachineInstr &MI : MBB) {</td>
+    <td class="lineNumber">78</td>
+    <td class="codeline">  for (MachineInstr &MI : MBB) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class="codeline">    if (auto RoundModeIdx = getRoundModeIdx(MI)) {</td>
+    <td class="lineNumber">79</td>
+    <td class="codeline">    if (auto RoundModeIdx = getRoundModeIdx(MI)) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class="codeline">      if (RISCVII::usesVXRM(MI.getDesc().TSFlags)) {</td>
+    <td class="lineNumber">80</td>
+    <td class="codeline">      if (RISCVII::usesVXRM(MI.getDesc().TSFlags)) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class="codeline">        unsigned VXRMImm = MI.getOperand(*RoundModeIdx).getImm();</td>
+    <td class="lineNumber">81</td>
+    <td class="codeline">        unsigned VXRMImm = MI.getOperand(*RoundModeIdx).getImm();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">82</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class="codeline">        Changed = true;</td>
+    <td class="lineNumber">83</td>
+    <td class="codeline">        Changed = true;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">84</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class="codeline">        BuildMI(MBB, MI, MI.getDebugLoc(), TII->get(RISCV::WriteVXRMImm))</td>
+    <td class="lineNumber">85</td>
+    <td class="codeline">        BuildMI(MBB, MI, MI.getDebugLoc(), TII->get(RISCV::WriteVXRMImm))</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class="codeline">            .addImm(VXRMImm);</td>
+    <td class="lineNumber">86</td>
+    <td class="codeline">            .addImm(VXRMImm);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class="codeline">        MI.addOperand(MachineOperand::CreateReg(RISCV::VXRM, /*IsDef*/ false,</td>
+    <td class="lineNumber">87</td>
+    <td class="codeline">        MI.addOperand(MachineOperand::CreateReg(RISCV::VXRM, /*IsDef*/ false,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class="codeline">                                                /*IsImp*/ true));</td>
+    <td class="lineNumber">88</td>
+    <td class="codeline">                                                /*IsImp*/ true));</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class="codeline">      } else { // FRM</td>
+    <td class="lineNumber">89</td>
+    <td class="codeline">      } else { // FRM</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">90</td>
+    <td class="codeline">        unsigned FRMImm = MI.getOperand(*RoundModeIdx).getImm();</td>
+    <td class="lineNumber">90</td>
+    <td class="codeline">        unsigned FRMImm = MI.getOperand(*RoundModeIdx).getImm();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">91</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">91</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">92</td>
+    <td class="codeline">        // The value is a hint to this pass to not alter the frm value.</td>
+    <td class="lineNumber">92</td>
+    <td class="codeline">        // The value is a hint to this pass to not alter the frm value.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">93</td>
+    <td class="codeline">        if (FRMImm == RISCVFPRndMode::DYN)</td>
+    <td class="lineNumber">93</td>
+    <td class="codeline">        if (FRMImm == RISCVFPRndMode::DYN)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">94</td>
+    <td class="codeline">          continue;</td>
+    <td class="lineNumber">94</td>
+    <td class="codeline">          continue;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">95</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">95</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">96</td>
+    <td class="codeline">        Changed = true;</td>
+    <td class="lineNumber">96</td>
+    <td class="codeline">        Changed = true;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">97</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">97</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">98</td>
+    <td class="codeline">        // Save</td>
+    <td class="lineNumber">98</td>
+    <td class="codeline">        // Save</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">99</td>
+    <td class="codeline">        MachineRegisterInfo *MRI = &MBB.getParent()->getRegInfo();</td>
+    <td class="lineNumber">99</td>
+    <td class="codeline">        MachineRegisterInfo *MRI = &MBB.getParent()->getRegInfo();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">100</td>
+    <td class="codeline">        Register SavedFRM = MRI->createVirtualRegister(&RISCV::GPRRegClass);</td>
+    <td class="lineNumber">100</td>
+    <td class="codeline">        Register SavedFRM = MRI->createVirtualRegister(&RISCV::GPRRegClass);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">101</td>
+    <td class="codeline">        BuildMI(MBB, MI, MI.getDebugLoc(), TII->get(RISCV::SwapFRMImm),</td>
+    <td class="lineNumber">101</td>
+    <td class="codeline">        BuildMI(MBB, MI, MI.getDebugLoc(), TII->get(RISCV::SwapFRMImm),</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">102</td>
+    <td class="codeline">                SavedFRM)</td>
+    <td class="lineNumber">102</td>
+    <td class="codeline">                SavedFRM)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">103</td>
+    <td class="codeline">            .addImm(FRMImm);</td>
+    <td class="lineNumber">103</td>
+    <td class="codeline">            .addImm(FRMImm);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">104</td>
+    <td class="codeline">        MI.addOperand(MachineOperand::CreateReg(RISCV::FRM, /*IsDef*/ false,</td>
+    <td class="lineNumber">104</td>
+    <td class="codeline">        MI.addOperand(MachineOperand::CreateReg(RISCV::FRM, /*IsDef*/ false,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">105</td>
+    <td class="codeline">                                                /*IsImp*/ true));</td>
+    <td class="lineNumber">105</td>
+    <td class="codeline">                                                /*IsImp*/ true));</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">106</td>
+    <td class="codeline">        // Restore</td>
+    <td class="lineNumber">106</td>
+    <td class="codeline">        // Restore</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">107</td>
+    <td class="codeline">        MachineInstrBuilder MIB =</td>
+    <td class="lineNumber">107</td>
+    <td class="codeline">        MachineInstrBuilder MIB =</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">108</td>
+    <td class="codeline">            BuildMI(*MBB.getParent(), {}, TII->get(RISCV::WriteFRM))</td>
+    <td class="lineNumber">108</td>
+    <td class="codeline">            BuildMI(*MBB.getParent(), {}, TII->get(RISCV::WriteFRM))</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">109</td>
+    <td class="codeline">                .addReg(SavedFRM);</td>
+    <td class="lineNumber">109</td>
+    <td class="codeline">                .addReg(SavedFRM);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">110</td>
+    <td class="codeline">        MBB.insertAfter(MI, MIB);</td>
+    <td class="lineNumber">110</td>
+    <td class="codeline">        MBB.insertAfter(MI, MIB);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">111</td>
+    <td class="codeline">      }</td>
+    <td class="lineNumber">111</td>
+    <td class="codeline">      }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">112</td>
+    <td class="codeline">    }</td>
+    <td class="lineNumber">112</td>
+    <td class="codeline">    }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">113</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">113</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">114</td>
+    <td class="codeline">  return Changed;</td>
+    <td class="lineNumber">114</td>
+    <td class="codeline">  return Changed;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">115</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">115</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">116</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">116</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">117</td>
+    <td class="codeline">bool RISCVInsertReadWriteCSR::runOnMachineFunction(MachineFunction &MF) {</td>
+    <td class="lineNumber">117</td>
+    <td class="codeline">bool RISCVInsertReadWriteCSR::runOnMachineFunction(MachineFunction &MF) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">118</td>
+    <td class="codeline">  // Skip if the vector extension is not enabled.</td>
+    <td class="lineNumber">118</td>
+    <td class="codeline">  // Skip if the vector extension is not enabled.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">119</td>
+    <td class="codeline">  const RISCVSubtarget &ST = MF.getSubtarget<RISCVSubtarget>();</td>
+    <td class="lineNumber">119</td>
+    <td class="codeline">  const RISCVSubtarget &ST = MF.getSubtarget<RISCVSubtarget>();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">120</td>
+    <td class="codeline">  if (!ST.hasVInstructions())</td>
+    <td class="lineNumber">120</td>
+    <td class="codeline">  if (!ST.hasVInstructions())</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">121</td>
+    <td class="codeline">    return false;</td>
+    <td class="lineNumber">121</td>
+    <td class="codeline">    return false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">122</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">122</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">123</td>
+    <td class="codeline">  TII = ST.getInstrInfo();</td>
+    <td class="lineNumber">123</td>
+    <td class="codeline">  TII = ST.getInstrInfo();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">124</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">124</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">125</td>
+    <td class="codeline">  bool Changed = false;</td>
+    <td class="lineNumber">125</td>
+    <td class="codeline">  bool Changed = false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">126</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">126</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">127</td>
+    <td class="codeline">  for (MachineBasicBlock &MBB : MF)</td>
+    <td class="lineNumber">127</td>
+    <td class="codeline">  for (MachineBasicBlock &MBB : MF)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">128</td>
+    <td class="codeline">    Changed |= emitWriteRoundingMode(MBB);</td>
+    <td class="lineNumber">128</td>
+    <td class="codeline">    Changed |= emitWriteRoundingMode(MBB);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">129</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">129</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">130</td>
+    <td class="codeline">  return Changed;</td>
+    <td class="lineNumber">130</td>
+    <td class="codeline">  return Changed;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">131</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">131</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">132</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">132</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">133</td>
+    <td class="codeline">FunctionPass *llvm::createRISCVInsertReadWriteCSRPass() {</td>
+    <td class="lineNumber">133</td>
+    <td class="codeline">FunctionPass *llvm::createRISCVInsertReadWriteCSRPass() {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">134</td>
+    <td class="codeline">  return new RISCVInsertReadWriteCSR();</td>
+    <td class="lineNumber">134</td>
+    <td class="codeline">  return new RISCVInsertReadWriteCSR();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">135</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">135</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">136</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">136</td>
+    <td class="codeline"></td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Side By Side Comparison</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Side By Side Comparison</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+    </th>
+    <th class="mainTh">Hit count</th>
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </th>
+    <th class="mainTh">Hit count</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="codeLine">//===-- RISCVInsertReadWriteCSR.cpp - Insert Read/Write of RISC-V CSR -----===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">1</td>
+    <td class="codeLine">//===-- RISCVInsertReadWriteCSR.cpp - Insert Read/Write of RISC-V CSR -----===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">2</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="codeLine">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">3</td>
+    <td class="codeLine">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="codeLine">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">4</td>
+    <td class="codeLine">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="codeLine">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">5</td>
+    <td class="codeLine">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">6</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">7</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="codeLine">// This file implements the machine function pass to insert read/write of CSR-s</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">8</td>
+    <td class="codeLine">// This file implements the machine function pass to insert read/write of CSR-s</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="codeLine">// of the RISC-V instructions.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">9</td>
+    <td class="codeLine">// of the RISC-V instructions.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">10</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="codeLine">// Currently the pass implements naive insertion of a write to vxrm before an</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">11</td>
+    <td class="codeLine">// Currently the pass implements naive insertion of a write to vxrm before an</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class="codeLine">// RVV fixed-point instruction.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">12</td>
+    <td class="codeLine">// RVV fixed-point instruction.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">13</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">14</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">15</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class="codeLine">#include "MCTargetDesc/RISCVBaseInfo.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">16</td>
+    <td class="codeLine">#include "MCTargetDesc/RISCVBaseInfo.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class="codeLine">#include "RISCV.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">17</td>
+    <td class="codeLine">#include "RISCV.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class="codeLine">#include "RISCVSubtarget.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">18</td>
+    <td class="codeLine">#include "RISCVSubtarget.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class="codeLine">#include "llvm/CodeGen/MachineFunctionPass.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">19</td>
+    <td class="codeLine">#include "llvm/CodeGen/MachineFunctionPass.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class="codeLine">using namespace llvm;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">20</td>
+    <td class="codeLine">using namespace llvm;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">21</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class="codeLine">#define DEBUG_TYPE "riscv-insert-read-write-csr"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">22</td>
+    <td class="codeLine">#define DEBUG_TYPE "riscv-insert-read-write-csr"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class="codeLine">#define RISCV_INSERT_READ_WRITE_CSR_NAME "RISC-V Insert Read/Write CSR Pass"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">23</td>
+    <td class="codeLine">#define RISCV_INSERT_READ_WRITE_CSR_NAME "RISC-V Insert Read/Write CSR Pass"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">24</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class="codeLine">namespace {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">25</td>
+    <td class="codeLine">namespace {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">26</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class="codeLine">class RISCVInsertReadWriteCSR : public MachineFunctionPass {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">27</td>
+    <td class="codeLine">class RISCVInsertReadWriteCSR : public MachineFunctionPass {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class="codeLine">  const TargetInstrInfo *TII;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">28</td>
+    <td class="codeLine">  const TargetInstrInfo *TII;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">29</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class="codeLine">public:</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">30</td>
+    <td class="codeLine">public:</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class="codeLine">  static char ID;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">31</td>
+    <td class="codeLine">  static char ID;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">32</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class="codeLine">  RISCVInsertReadWriteCSR() : MachineFunctionPass(ID) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">33</td>
+    <td class="codeLine">  RISCVInsertReadWriteCSR() : MachineFunctionPass(ID) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class="codeLine">    initializeRISCVInsertReadWriteCSRPass(*PassRegistry::getPassRegistry());</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">34</td>
+    <td class="codeLine">    initializeRISCVInsertReadWriteCSRPass(*PassRegistry::getPassRegistry());</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">35</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">36</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class="codeLine">  bool runOnMachineFunction(MachineFunction &MF) override;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">37</td>
+    <td class="codeLine">  bool runOnMachineFunction(MachineFunction &MF) override;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">38</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class="codeLine">  void getAnalysisUsage(AnalysisUsage &AU) const override {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">39</td>
+    <td class="codeLine">  void getAnalysisUsage(AnalysisUsage &AU) const override {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class="codeLine">    AU.setPreservesCFG();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">40</td>
+    <td class="codeLine">    AU.setPreservesCFG();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class="codeLine">    MachineFunctionPass::getAnalysisUsage(AU);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">41</td>
+    <td class="codeLine">    MachineFunctionPass::getAnalysisUsage(AU);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">42</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">43</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class="codeLine">  StringRef getPassName() const override {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">44</td>
+    <td class="codeLine">  StringRef getPassName() const override {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class="codeLine">    return RISCV_INSERT_READ_WRITE_CSR_NAME;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">45</td>
+    <td class="codeLine">    return RISCV_INSERT_READ_WRITE_CSR_NAME;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">46</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">47</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class="codeLine">private:</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">48</td>
+    <td class="codeLine">private:</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class="codeLine">  bool emitWriteRoundingMode(MachineBasicBlock &MBB);</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">49</td>
+    <td class="codeLine">  bool emitWriteRoundingMode(MachineBasicBlock &MBB);</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class="codeLine">};</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">50</td>
+    <td class="codeLine">};</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">51</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class="codeLine">} // end anonymous namespace</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">52</td>
+    <td class="codeLine">} // end anonymous namespace</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">53</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class="codeLine">char RISCVInsertReadWriteCSR::ID = 0;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">54</td>
+    <td class="codeLine">char RISCVInsertReadWriteCSR::ID = 0;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">55</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS(RISCVInsertReadWriteCSR, DEBUG_TYPE,</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">56</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS(RISCVInsertReadWriteCSR, DEBUG_TYPE,</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class="codeLine">                RISCV_INSERT_READ_WRITE_CSR_NAME, false, false)</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">57</td>
+    <td class="codeLine">                RISCV_INSERT_READ_WRITE_CSR_NAME, false, false)</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">58</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class="codeLine">// Returns the index to the rounding mode immediate value if any, otherwise the</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">59</td>
+    <td class="codeLine">// Returns the index to the rounding mode immediate value if any, otherwise the</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class="codeLine">// function will return None.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">60</td>
+    <td class="codeLine">// function will return None.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class="codeLine">static std::optional<unsigned> getRoundModeIdx(const MachineInstr &MI) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">61</td>
+    <td class="codeLine">static std::optional<unsigned> getRoundModeIdx(const MachineInstr &MI) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class="codeLine">  uint64_t TSFlags = MI.getDesc().TSFlags;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">62</td>
+    <td class="codeLine">  uint64_t TSFlags = MI.getDesc().TSFlags;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class="codeLine">  if (!RISCVII::hasRoundModeOp(TSFlags))</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">63</td>
+    <td class="codeLine">  if (!RISCVII::hasRoundModeOp(TSFlags))</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class="codeLine">    return std::nullopt;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">64</td>
+    <td class="codeLine">    return std::nullopt;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">65</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class="codeLine">  // The operand order</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">66</td>
+    <td class="codeLine">  // The operand order</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class="codeLine">  // -------------------------------------</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">67</td>
+    <td class="codeLine">  // -------------------------------------</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class="codeLine">  // | n-1 (if any)   | n-2  | n-3 | n-4 |</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">68</td>
+    <td class="codeLine">  // | n-1 (if any)   | n-2  | n-3 | n-4 |</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class="codeLine">  // | policy         | sew  | vl  | rm  |</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">69</td>
+    <td class="codeLine">  // | policy         | sew  | vl  | rm  |</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class="codeLine">  // -------------------------------------</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">70</td>
+    <td class="codeLine">  // -------------------------------------</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class="codeLine">  return MI.getNumExplicitOperands() - RISCVII::hasVecPolicyOp(TSFlags) - 3;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">71</td>
+    <td class="codeLine">  return MI.getNumExplicitOperands() - RISCVII::hasVecPolicyOp(TSFlags) - 3;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">72</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">73</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class="codeLine">// This function inserts a write to vxrm when encountering an RVV fixed-point</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">74</td>
+    <td class="codeLine">// This function inserts a write to vxrm when encountering an RVV fixed-point</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class="codeLine">// instruction.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">75</td>
+    <td class="codeLine">// instruction.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class="codeLine">bool RISCVInsertReadWriteCSR::emitWriteRoundingMode(MachineBasicBlock &MBB) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">76</td>
+    <td class="codeLine">bool RISCVInsertReadWriteCSR::emitWriteRoundingMode(MachineBasicBlock &MBB) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class="codeLine">  bool Changed = false;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">77</td>
+    <td class="codeLine">  bool Changed = false;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class="codeLine">  for (MachineInstr &MI : MBB) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">78</td>
+    <td class="codeLine">  for (MachineInstr &MI : MBB) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class="codeLine">    if (auto RoundModeIdx = getRoundModeIdx(MI)) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">79</td>
+    <td class="codeLine">    if (auto RoundModeIdx = getRoundModeIdx(MI)) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class="codeLine">      if (RISCVII::usesVXRM(MI.getDesc().TSFlags)) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">80</td>
+    <td class="codeLine">      if (RISCVII::usesVXRM(MI.getDesc().TSFlags)) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class="codeLine">        unsigned VXRMImm = MI.getOperand(*RoundModeIdx).getImm();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">81</td>
+    <td class="codeLine">        unsigned VXRMImm = MI.getOperand(*RoundModeIdx).getImm();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">82</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class="codeLine">        Changed = true;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">83</td>
+    <td class="codeLine">        Changed = true;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">84</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class="codeLine">        BuildMI(MBB, MI, MI.getDebugLoc(), TII->get(RISCV::WriteVXRMImm))</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">85</td>
+    <td class="codeLine">        BuildMI(MBB, MI, MI.getDebugLoc(), TII->get(RISCV::WriteVXRMImm))</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class="codeLine">            .addImm(VXRMImm);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">86</td>
+    <td class="codeLine">            .addImm(VXRMImm);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class="codeLine">        MI.addOperand(MachineOperand::CreateReg(RISCV::VXRM, /*IsDef*/ false,</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">87</td>
+    <td class="codeLine">        MI.addOperand(MachineOperand::CreateReg(RISCV::VXRM, /*IsDef*/ false,</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class="codeLine">                                                /*IsImp*/ true));</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">88</td>
+    <td class="codeLine">                                                /*IsImp*/ true));</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class="codeLine">      } else { // FRM</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">89</td>
+    <td class="codeLine">      } else { // FRM</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">90</td>
+    <td class="codeLine">        unsigned FRMImm = MI.getOperand(*RoundModeIdx).getImm();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">90</td>
+    <td class="codeLine">        unsigned FRMImm = MI.getOperand(*RoundModeIdx).getImm();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">91</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">91</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">92</td>
+    <td class="codeLine">        // The value is a hint to this pass to not alter the frm value.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">92</td>
+    <td class="codeLine">        // The value is a hint to this pass to not alter the frm value.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">93</td>
+    <td class="codeLine">        if (FRMImm == RISCVFPRndMode::DYN)</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">93</td>
+    <td class="codeLine">        if (FRMImm == RISCVFPRndMode::DYN)</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">94</td>
+    <td class="codeLine">          continue;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">94</td>
+    <td class="codeLine">          continue;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">95</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">95</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">96</td>
+    <td class="codeLine">        Changed = true;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">96</td>
+    <td class="codeLine">        Changed = true;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">97</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">97</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">98</td>
+    <td class="codeLine">        // Save</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">98</td>
+    <td class="codeLine">        // Save</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">99</td>
+    <td class="codeLine">        MachineRegisterInfo *MRI = &MBB.getParent()->getRegInfo();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">99</td>
+    <td class="codeLine">        MachineRegisterInfo *MRI = &MBB.getParent()->getRegInfo();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">100</td>
+    <td class="codeLine">        Register SavedFRM = MRI->createVirtualRegister(&RISCV::GPRRegClass);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">100</td>
+    <td class="codeLine">        Register SavedFRM = MRI->createVirtualRegister(&RISCV::GPRRegClass);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">101</td>
+    <td class="codeLine">        BuildMI(MBB, MI, MI.getDebugLoc(), TII->get(RISCV::SwapFRMImm),</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">101</td>
+    <td class="codeLine">        BuildMI(MBB, MI, MI.getDebugLoc(), TII->get(RISCV::SwapFRMImm),</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">102</td>
+    <td class="codeLine">                SavedFRM)</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">102</td>
+    <td class="codeLine">                SavedFRM)</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">103</td>
+    <td class="codeLine">            .addImm(FRMImm);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">103</td>
+    <td class="codeLine">            .addImm(FRMImm);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">104</td>
+    <td class="codeLine">        MI.addOperand(MachineOperand::CreateReg(RISCV::FRM, /*IsDef*/ false,</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">104</td>
+    <td class="codeLine">        MI.addOperand(MachineOperand::CreateReg(RISCV::FRM, /*IsDef*/ false,</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">105</td>
+    <td class="codeLine">                                                /*IsImp*/ true));</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">105</td>
+    <td class="codeLine">                                                /*IsImp*/ true));</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">106</td>
+    <td class="codeLine">        // Restore</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">106</td>
+    <td class="codeLine">        // Restore</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">107</td>
+    <td class="codeLine">        MachineInstrBuilder MIB =</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">107</td>
+    <td class="codeLine">        MachineInstrBuilder MIB =</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">108</td>
+    <td class="codeLine">            BuildMI(*MBB.getParent(), {}, TII->get(RISCV::WriteFRM))</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">108</td>
+    <td class="codeLine">            BuildMI(*MBB.getParent(), {}, TII->get(RISCV::WriteFRM))</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">109</td>
+    <td class="codeLine">                .addReg(SavedFRM);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">109</td>
+    <td class="codeLine">                .addReg(SavedFRM);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">110</td>
+    <td class="codeLine">        MBB.insertAfter(MI, MIB);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">110</td>
+    <td class="codeLine">        MBB.insertAfter(MI, MIB);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">111</td>
+    <td class="codeLine">      }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">111</td>
+    <td class="codeLine">      }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">112</td>
+    <td class="codeLine">    }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">112</td>
+    <td class="codeLine">    }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">113</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">113</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">114</td>
+    <td class="codeLine">  return Changed;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">114</td>
+    <td class="codeLine">  return Changed;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">115</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">115</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">116</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">116</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">117</td>
+    <td class="codeLine">bool RISCVInsertReadWriteCSR::runOnMachineFunction(MachineFunction &MF) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">117</td>
+    <td class="codeLine">bool RISCVInsertReadWriteCSR::runOnMachineFunction(MachineFunction &MF) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">118</td>
+    <td class="codeLine">  // Skip if the vector extension is not enabled.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">118</td>
+    <td class="codeLine">  // Skip if the vector extension is not enabled.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">119</td>
+    <td class="codeLine">  const RISCVSubtarget &ST = MF.getSubtarget<RISCVSubtarget>();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">119</td>
+    <td class="codeLine">  const RISCVSubtarget &ST = MF.getSubtarget<RISCVSubtarget>();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">120</td>
+    <td class="codeLine">  if (!ST.hasVInstructions())</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">120</td>
+    <td class="codeLine">  if (!ST.hasVInstructions())</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">121</td>
+    <td class="codeLine">    return false;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">121</td>
+    <td class="codeLine">    return false;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">122</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">122</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">123</td>
+    <td class="codeLine">  TII = ST.getInstrInfo();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">123</td>
+    <td class="codeLine">  TII = ST.getInstrInfo();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">124</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">124</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">125</td>
+    <td class="codeLine">  bool Changed = false;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">125</td>
+    <td class="codeLine">  bool Changed = false;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">126</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">126</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">127</td>
+    <td class="codeLine">  for (MachineBasicBlock &MBB : MF)</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">127</td>
+    <td class="codeLine">  for (MachineBasicBlock &MBB : MF)</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">128</td>
+    <td class="codeLine">    Changed |= emitWriteRoundingMode(MBB);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">128</td>
+    <td class="codeLine">    Changed |= emitWriteRoundingMode(MBB);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">129</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">129</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">130</td>
+    <td class="codeLine">  return Changed;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">130</td>
+    <td class="codeLine">  return Changed;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">131</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">131</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">132</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">132</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">133</td>
+    <td class="codeLine">FunctionPass *llvm::createRISCVInsertReadWriteCSRPass() {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">133</td>
+    <td class="codeLine">FunctionPass *llvm::createRISCVInsertReadWriteCSRPass() {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">134</td>
+    <td class="codeLine">  return new RISCVInsertReadWriteCSR();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">134</td>
+    <td class="codeLine">  return new RISCVInsertReadWriteCSR();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">135</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">135</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">136</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">136</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+</table>
+    </div>
+    <button id="myBtn" onclick="topFunction()" title="Go to top" type="button">Top</button>
+    <script src="../Javascript/drop_down.js"></script>
+    <script src="../Javascript/top_button.js"></script>
+  </body>
+</html>

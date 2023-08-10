@@ -1,0 +1,4365 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>X86TileConfig.cpp</title>
+    <link rel="stylesheet" href="../Style/style.css" />
+  </head>
+  <body>
+    <div class="headerDiv">
+      <h1>
+        Code Coverage
+      </h1>
+      <p>
+        Source file: /home/nikola/Desktop/llvm-project/llvm/lib/Target/X86/X86TileConfig.cpp
+      </p>
+    </div>
+    <button class="collapsible" type="button">Open Summary Report</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Summary Report</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line number</th>
+    <th class="mainTh">Line</th>
+    <th class="mainTh">Number of hits</th>
+    <th class="mainTh">Tests that cover line</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="">//===-- X86TileConfig.cpp - Tile Register Configure----------------------===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="">//===----------------------------------------------------------------------===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="">/// \file Pass to config the shape of AMX physical registers</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="">/// AMX register need to be configured before use. In X86PreTileConfig pass</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="">/// the pldtilecfg instruction is inserted, however at that time we don't</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class="">/// know the shape of each physical tile registers, because the register</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class="">/// allocation is not done yet. This pass runs after egister allocation</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class="">/// pass. It collects the shape information of each physical tile register</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class="">/// and store the shape in the stack slot that is allocated for load config</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class="">/// to tile config register.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class="">//===----------------------------------------------------------------------===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class="">#include "X86.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class="">#include "X86InstrBuilder.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class="">#include "X86MachineFunctionInfo.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class="">#include "X86RegisterInfo.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class="">#include "X86Subtarget.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class="">#include "llvm/CodeGen/LiveIntervals.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class="">#include "llvm/CodeGen/MachineFrameInfo.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class="">#include "llvm/CodeGen/MachineFunctionPass.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class="">#include "llvm/CodeGen/MachineInstr.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class="">#include "llvm/CodeGen/MachineRegisterInfo.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class="">#include "llvm/CodeGen/Passes.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class="">#include "llvm/CodeGen/TargetInstrInfo.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class="">#include "llvm/CodeGen/TargetRegisterInfo.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class="">#include "llvm/CodeGen/TileShapeInfo.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class="">#include "llvm/CodeGen/VirtRegMap.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class="">#include "llvm/InitializePasses.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class="">using namespace llvm;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class="">#define DEBUG_TYPE "tileconfig"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class="">namespace {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class="">struct X86TileConfig : public MachineFunctionPass {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class="uncoveredLine">  X86TileConfig() : MachineFunctionPass(ID) {}</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class="">  /// Return the pass name.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class="uncoveredLine">  StringRef getPassName() const override { return "Tile Register Configure"; }</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class="">  /// X86TileConfig analysis usage.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class="uncoveredLine">  void getAnalysisUsage(AnalysisUsage &AU) const override {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class="uncoveredLine">    AU.setPreservesAll();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class="uncoveredLine">    AU.addRequired<VirtRegMap>();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class="uncoveredLine">    AU.addRequired<LiveIntervals>();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class="uncoveredLine">    MachineFunctionPass::getAnalysisUsage(AU);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class="uncoveredLine">  }</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class="">  /// Perform register allocation.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class="">  bool runOnMachineFunction(MachineFunction &mf) override;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class="uncoveredLine">  MachineFunctionProperties getRequiredProperties() const override {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class="uncoveredLine">    return MachineFunctionProperties().set(</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class="uncoveredLine">        MachineFunctionProperties::Property::NoPHIs);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class="">  }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class="">  static char ID;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class="">};</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class="">} // end anonymous namespace</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class="">char X86TileConfig::ID = 0;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class="coveredLine">INITIALIZE_PASS_BEGIN(X86TileConfig, DEBUG_TYPE, "Tile Register Configure",</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class="">                      false, false)</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class="coveredLine">INITIALIZE_PASS_DEPENDENCY(VirtRegMap)</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class="coveredLine">INITIALIZE_PASS_END(X86TileConfig, DEBUG_TYPE, "Tile Register Configure", false,</td>
+    <td>4</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class="">                    false)</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class="uncoveredLine">bool X86TileConfig::runOnMachineFunction(MachineFunction &MF) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class="uncoveredLine">  const X86Subtarget &ST = MF.getSubtarget<X86Subtarget>();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class="uncoveredLine">  const TargetRegisterInfo *TRI = ST.getRegisterInfo();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class="uncoveredLine">  const TargetInstrInfo *TII = ST.getInstrInfo();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class="uncoveredLine">  MachineRegisterInfo &MRI = MF.getRegInfo();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class="uncoveredLine">  LiveIntervals &LIS = getAnalysis<LiveIntervals>();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class="uncoveredLine">  VirtRegMap &VRM = getAnalysis<VirtRegMap>();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class="uncoveredLine">  if (VRM.isShapeMapEmpty())</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class="uncoveredLine">    return false;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">90</td>
+    <td class="uncoveredLine">  int SS = INT_MAX;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">91</td>
+    <td class="uncoveredLine">  for (MachineBasicBlock &MBB : MF) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">92</td>
+    <td class="uncoveredLine">    for (MachineInstr &MI : MBB) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">93</td>
+    <td class="uncoveredLine">      if (MI.getOpcode() == X86::PLDTILECFGV) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">94</td>
+    <td class="uncoveredLine">        SS = MI.getOperand(0).getIndex();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">95</td>
+    <td class="uncoveredLine">        break;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">96</td>
+    <td class="">      }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">97</td>
+    <td class="">    }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">98</td>
+    <td class="uncoveredLine">    if (SS != INT_MAX)</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">99</td>
+    <td class="uncoveredLine">      break;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">100</td>
+    <td class="">  }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">101</td>
+    <td class="">  // Didn't find PLDTILECFGV, just return false;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">102</td>
+    <td class="uncoveredLine">  if (SS == INT_MAX)</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">103</td>
+    <td class="uncoveredLine">    return false;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">104</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">105</td>
+    <td class="">  // Try to find a point to insert MIs for constant shapes.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">106</td>
+    <td class="">  // Here we are leveraging the palette id inserted in PreRA pass.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">107</td>
+    <td class="uncoveredLine">  unsigned ConstPos = 0;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">108</td>
+    <td class="uncoveredLine">  MachineInstr *ConstMI = nullptr;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">109</td>
+    <td class="uncoveredLine">  for (MachineInstr &MI : MF.front()) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">110</td>
+    <td class="uncoveredLine">    if (MI.getOpcode() == X86::MOV8mi && SS == MI.getOperand(0).getIndex()) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">111</td>
+    <td class="uncoveredLine">      ConstMI = &MI;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">112</td>
+    <td class="uncoveredLine">      break;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">113</td>
+    <td class="">    }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">114</td>
+    <td class="uncoveredLine">    ++ConstPos;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">115</td>
+    <td class="">  }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">116</td>
+    <td class="uncoveredLine">  assert(ConstMI && "Cannot find an insertion point");</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">117</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">118</td>
+    <td class="uncoveredLine">  unsigned AMXRegNum = TRI->getRegClass(X86::TILERegClassID)->getNumRegs();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">119</td>
+    <td class="uncoveredLine">  SmallVector<Register, 8> Phys2Virt(AMXRegNum, 0);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">120</td>
+    <td class="uncoveredLine">  for (unsigned I = 0, E = MRI.getNumVirtRegs(); I != E; ++I) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">121</td>
+    <td class="uncoveredLine">    Register VirtReg = Register::index2VirtReg(I);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">122</td>
+    <td class="uncoveredLine">    if (MRI.reg_nodbg_empty(VirtReg))</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">123</td>
+    <td class="uncoveredLine">      continue;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">124</td>
+    <td class="uncoveredLine">    if (MRI.getRegClass(VirtReg)->getID() != X86::TILERegClassID)</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">125</td>
+    <td class="uncoveredLine">      continue;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">126</td>
+    <td class="uncoveredLine">    if (VRM.getPhys(VirtReg) == VirtRegMap::NO_PHYS_REG)</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">127</td>
+    <td class="uncoveredLine">      continue;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">128</td>
+    <td class="uncoveredLine">    unsigned Index = VRM.getPhys(VirtReg) - X86::TMM0;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">129</td>
+    <td class="uncoveredLine">    if (!Phys2Virt[Index])</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">130</td>
+    <td class="uncoveredLine">      Phys2Virt[Index] = VirtReg;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">131</td>
+    <td class="">  }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">132</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">133</td>
+    <td class="">  // Fill in the shape of each tile physical register.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">134</td>
+    <td class="uncoveredLine">  for (unsigned I = 0; I < AMXRegNum; ++I) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">135</td>
+    <td class="uncoveredLine">    if (!Phys2Virt[I])</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">136</td>
+    <td class="uncoveredLine">      continue;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">137</td>
+    <td class="uncoveredLine">    DebugLoc DL;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">138</td>
+    <td class="uncoveredLine">    bool IsRow = true;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">139</td>
+    <td class="uncoveredLine">    MachineInstr *NewMI = nullptr;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">140</td>
+    <td class="uncoveredLine">    ShapeT Shape = VRM.getShape(Phys2Virt[I]);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">141</td>
+    <td class="uncoveredLine">    for (auto &R : {Shape.getRow()->getReg(), Shape.getCol()->getReg()}) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">142</td>
+    <td class="">      // Here is the data format for the tile config.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">143</td>
+    <td class="">      // 0      palette</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">144</td>
+    <td class="">      // 1      start_row</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">145</td>
+    <td class="">      // 2-15   reserved, must be zero</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">146</td>
+    <td class="">      // 16-17  tile0.colsb Tile 0 bytes per row.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">147</td>
+    <td class="">      // 18-19  tile1.colsb Tile 1 bytes per row.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">148</td>
+    <td class="">      // 20-21  tile2.colsb Tile 2 bytes per row.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">149</td>
+    <td class="">      // ... (sequence continues)</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">150</td>
+    <td class="">      // 30-31  tile7.colsb Tile 7 bytes per row.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">151</td>
+    <td class="">      // 32-47  reserved, must be zero</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">152</td>
+    <td class="">      // 48     tile0.rows Tile 0 rows.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">153</td>
+    <td class="">      // 49     tile1.rows Tile 1 rows.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">154</td>
+    <td class="">      // 50     tile2.rows Tile 2 rows.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">155</td>
+    <td class="">      // ... (sequence continues)</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">156</td>
+    <td class="">      // 55     tile7.rows Tile 7 rows.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">157</td>
+    <td class="">      // 56-63  reserved, must be zero</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">158</td>
+    <td class="uncoveredLine">      int64_t Imm = INT64_MAX;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">159</td>
+    <td class="uncoveredLine">      int Offset = IsRow ? 48 + I : 16 + I * 2;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">160</td>
+    <td class="uncoveredLine">      for (auto &DefMI : MRI.def_instructions(R)) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">161</td>
+    <td class="uncoveredLine">        MachineBasicBlock &MBB = *DefMI.getParent();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">162</td>
+    <td class="uncoveredLine">        if (DefMI.isMoveImmediate()) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">163</td>
+    <td class="uncoveredLine">          if (Imm != INT64_MAX) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">164</td>
+    <td class="">            // FIXME: We should handle this case in future.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">165</td>
+    <td class="uncoveredLine">            assert(Imm == DefMI.getOperand(1).getImm() &&</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">166</td>
+    <td class="">                   "Cannot initialize with different shapes");</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">167</td>
+    <td class="uncoveredLine">            continue;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">168</td>
+    <td class="">          }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">169</td>
+    <td class="uncoveredLine">          Imm = DefMI.getOperand(1).getImm();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">170</td>
+    <td class="uncoveredLine">          NewMI = addFrameReference(</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">171</td>
+    <td class="uncoveredLine">                      BuildMI(MF.front(), ++ConstMI->getIterator(), DL,</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">172</td>
+    <td class="">                              TII->get(IsRow ? X86::MOV8mi : X86::MOV16mi)),</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">173</td>
+    <td class="">                      SS, Offset)</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">174</td>
+    <td class="uncoveredLine">                      .addImm(Imm);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">175</td>
+    <td class="uncoveredLine">          ConstMI = NewMI;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">176</td>
+    <td class="uncoveredLine">          LIS.InsertMachineInstrInMaps(*NewMI);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">177</td>
+    <td class="">        } else {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">178</td>
+    <td class="uncoveredLine">          unsigned SubIdx = IsRow ? X86::sub_8bit : X86::sub_16bit;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">179</td>
+    <td class="uncoveredLine">          unsigned RegSize = TRI->getRegSizeInBits(*MRI.getRegClass(R));</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">180</td>
+    <td class="uncoveredLine">          if ((IsRow && RegSize == 8) || (!IsRow && RegSize == 16))</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">181</td>
+    <td class="uncoveredLine">            SubIdx = 0;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">182</td>
+    <td class="uncoveredLine">          auto Iter = DefMI.getIterator();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">183</td>
+    <td class="uncoveredLine">          if (&MBB == &MF.front() &&</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">184</td>
+    <td class="uncoveredLine">              (unsigned)std::distance(MBB.instr_begin(), Iter) < ConstPos)</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">185</td>
+    <td class="uncoveredLine">            Iter = ConstMI->getIterator();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">186</td>
+    <td class="uncoveredLine">          NewMI = addFrameReference(</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">187</td>
+    <td class="uncoveredLine">                      BuildMI(MBB, ++Iter, DL,</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">188</td>
+    <td class="">                              TII->get(IsRow ? X86::MOV8mr : X86::MOV16mr)),</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">189</td>
+    <td class="">                      SS, Offset)</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">190</td>
+    <td class="uncoveredLine">                      .addReg(R, 0, SubIdx);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">191</td>
+    <td class="uncoveredLine">          SlotIndex SIdx = LIS.InsertMachineInstrInMaps(*NewMI);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">192</td>
+    <td class="uncoveredLine">          LIS.extendToIndices(LIS.getInterval(R), {SIdx.getRegSlot()});</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">193</td>
+    <td class="">        }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">194</td>
+    <td class="">      }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">195</td>
+    <td class="uncoveredLine">      IsRow = false;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">196</td>
+    <td class="">    }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">197</td>
+    <td class="uncoveredLine">  }</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">198</td>
+    <td class="uncoveredLine">  return true;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">199</td>
+    <td class="uncoveredLine">}</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">200</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">201</td>
+    <td class="uncoveredLine">FunctionPass *llvm::createX86TileConfigPass() { return new X86TileConfig(); }</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">202</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Functions Report</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Functions Report</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Function name</th>
+    <th class="mainTh">Number of hits</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_113X86TileConfigC2Ev</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZNK12_GLOBAL__N_113X86TileConfig11getPassNameEv</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZNK12_GLOBAL__N_113X86TileConfig16getAnalysisUsageERN4llvm13AnalysisUsageE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZNK12_GLOBAL__N_113X86TileConfig21getRequiredPropertiesEv</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZL31initializeX86TileConfigPassOnceRN4llvm12PassRegistryE</td>
+    <td class="numberOfCalls">2</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN4llvm27initializeX86TileConfigPassERNS_12PassRegistryE</td>
+    <td class="numberOfCalls">2</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_113X86TileConfig20runOnMachineFunctionERN4llvm15MachineFunctionE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN4llvm23createX86TileConfigPassEv</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Coverage Diff</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Coverage Diff</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span> BUT NOT </span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </th>
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+      <span> BUT NOT </span>
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+    </th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="codeline">//===-- X86TileConfig.cpp - Tile Register Configure----------------------===//</td>
+    <td class="lineNumber">1</td>
+    <td class="codeline">//===-- X86TileConfig.cpp - Tile Register Configure----------------------===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">2</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="codeline">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">3</td>
+    <td class="codeline">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="codeline">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">4</td>
+    <td class="codeline">// See https://llvm.org/LICENSE.txt for license information.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="codeline">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">5</td>
+    <td class="codeline">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">6</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">7</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">8</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="codeline">/// \file Pass to config the shape of AMX physical registers</td>
+    <td class="lineNumber">9</td>
+    <td class="codeline">/// \file Pass to config the shape of AMX physical registers</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="codeline">/// AMX register need to be configured before use. In X86PreTileConfig pass</td>
+    <td class="lineNumber">10</td>
+    <td class="codeline">/// AMX register need to be configured before use. In X86PreTileConfig pass</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="codeline">/// the pldtilecfg instruction is inserted, however at that time we don't</td>
+    <td class="lineNumber">11</td>
+    <td class="codeline">/// the pldtilecfg instruction is inserted, however at that time we don't</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class="codeline">/// know the shape of each physical tile registers, because the register</td>
+    <td class="lineNumber">12</td>
+    <td class="codeline">/// know the shape of each physical tile registers, because the register</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class="codeline">/// allocation is not done yet. This pass runs after egister allocation</td>
+    <td class="lineNumber">13</td>
+    <td class="codeline">/// allocation is not done yet. This pass runs after egister allocation</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class="codeline">/// pass. It collects the shape information of each physical tile register</td>
+    <td class="lineNumber">14</td>
+    <td class="codeline">/// pass. It collects the shape information of each physical tile register</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class="codeline">/// and store the shape in the stack slot that is allocated for load config</td>
+    <td class="lineNumber">15</td>
+    <td class="codeline">/// and store the shape in the stack slot that is allocated for load config</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class="codeline">/// to tile config register.</td>
+    <td class="lineNumber">16</td>
+    <td class="codeline">/// to tile config register.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">17</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">18</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">19</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class="codeline">#include "X86.h"</td>
+    <td class="lineNumber">20</td>
+    <td class="codeline">#include "X86.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class="codeline">#include "X86InstrBuilder.h"</td>
+    <td class="lineNumber">21</td>
+    <td class="codeline">#include "X86InstrBuilder.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class="codeline">#include "X86MachineFunctionInfo.h"</td>
+    <td class="lineNumber">22</td>
+    <td class="codeline">#include "X86MachineFunctionInfo.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class="codeline">#include "X86RegisterInfo.h"</td>
+    <td class="lineNumber">23</td>
+    <td class="codeline">#include "X86RegisterInfo.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class="codeline">#include "X86Subtarget.h"</td>
+    <td class="lineNumber">24</td>
+    <td class="codeline">#include "X86Subtarget.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class="codeline">#include "llvm/CodeGen/LiveIntervals.h"</td>
+    <td class="lineNumber">25</td>
+    <td class="codeline">#include "llvm/CodeGen/LiveIntervals.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class="codeline">#include "llvm/CodeGen/MachineFrameInfo.h"</td>
+    <td class="lineNumber">26</td>
+    <td class="codeline">#include "llvm/CodeGen/MachineFrameInfo.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class="codeline">#include "llvm/CodeGen/MachineFunctionPass.h"</td>
+    <td class="lineNumber">27</td>
+    <td class="codeline">#include "llvm/CodeGen/MachineFunctionPass.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class="codeline">#include "llvm/CodeGen/MachineInstr.h"</td>
+    <td class="lineNumber">28</td>
+    <td class="codeline">#include "llvm/CodeGen/MachineInstr.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class="codeline">#include "llvm/CodeGen/MachineRegisterInfo.h"</td>
+    <td class="lineNumber">29</td>
+    <td class="codeline">#include "llvm/CodeGen/MachineRegisterInfo.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class="codeline">#include "llvm/CodeGen/Passes.h"</td>
+    <td class="lineNumber">30</td>
+    <td class="codeline">#include "llvm/CodeGen/Passes.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class="codeline">#include "llvm/CodeGen/TargetInstrInfo.h"</td>
+    <td class="lineNumber">31</td>
+    <td class="codeline">#include "llvm/CodeGen/TargetInstrInfo.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class="codeline">#include "llvm/CodeGen/TargetRegisterInfo.h"</td>
+    <td class="lineNumber">32</td>
+    <td class="codeline">#include "llvm/CodeGen/TargetRegisterInfo.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class="codeline">#include "llvm/CodeGen/TileShapeInfo.h"</td>
+    <td class="lineNumber">33</td>
+    <td class="codeline">#include "llvm/CodeGen/TileShapeInfo.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class="codeline">#include "llvm/CodeGen/VirtRegMap.h"</td>
+    <td class="lineNumber">34</td>
+    <td class="codeline">#include "llvm/CodeGen/VirtRegMap.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class="codeline">#include "llvm/InitializePasses.h"</td>
+    <td class="lineNumber">35</td>
+    <td class="codeline">#include "llvm/InitializePasses.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">36</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class="codeline">using namespace llvm;</td>
+    <td class="lineNumber">37</td>
+    <td class="codeline">using namespace llvm;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">38</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class="codeline">#define DEBUG_TYPE "tileconfig"</td>
+    <td class="lineNumber">39</td>
+    <td class="codeline">#define DEBUG_TYPE "tileconfig"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">40</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class="codeline">namespace {</td>
+    <td class="lineNumber">41</td>
+    <td class="codeline">namespace {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">42</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class="codeline">struct X86TileConfig : public MachineFunctionPass {</td>
+    <td class="lineNumber">43</td>
+    <td class="codeline">struct X86TileConfig : public MachineFunctionPass {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">44</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class="codeline">  X86TileConfig() : MachineFunctionPass(ID) {}</td>
+    <td class="lineNumber">45</td>
+    <td class="codeline">  X86TileConfig() : MachineFunctionPass(ID) {}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">46</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class="codeline">  /// Return the pass name.</td>
+    <td class="lineNumber">47</td>
+    <td class="codeline">  /// Return the pass name.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class="codeline">  StringRef getPassName() const override { return "Tile Register Configure"; }</td>
+    <td class="lineNumber">48</td>
+    <td class="codeline">  StringRef getPassName() const override { return "Tile Register Configure"; }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">49</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class="codeline">  /// X86TileConfig analysis usage.</td>
+    <td class="lineNumber">50</td>
+    <td class="codeline">  /// X86TileConfig analysis usage.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class="codeline">  void getAnalysisUsage(AnalysisUsage &AU) const override {</td>
+    <td class="lineNumber">51</td>
+    <td class="codeline">  void getAnalysisUsage(AnalysisUsage &AU) const override {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class="codeline">    AU.setPreservesAll();</td>
+    <td class="lineNumber">52</td>
+    <td class="codeline">    AU.setPreservesAll();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class="codeline">    AU.addRequired<VirtRegMap>();</td>
+    <td class="lineNumber">53</td>
+    <td class="codeline">    AU.addRequired<VirtRegMap>();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class="codeline">    AU.addRequired<LiveIntervals>();</td>
+    <td class="lineNumber">54</td>
+    <td class="codeline">    AU.addRequired<LiveIntervals>();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class="codeline">    MachineFunctionPass::getAnalysisUsage(AU);</td>
+    <td class="lineNumber">55</td>
+    <td class="codeline">    MachineFunctionPass::getAnalysisUsage(AU);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">56</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">57</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class="codeline">  /// Perform register allocation.</td>
+    <td class="lineNumber">58</td>
+    <td class="codeline">  /// Perform register allocation.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class="codeline">  bool runOnMachineFunction(MachineFunction &mf) override;</td>
+    <td class="lineNumber">59</td>
+    <td class="codeline">  bool runOnMachineFunction(MachineFunction &mf) override;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">60</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class="codeline">  MachineFunctionProperties getRequiredProperties() const override {</td>
+    <td class="lineNumber">61</td>
+    <td class="codeline">  MachineFunctionProperties getRequiredProperties() const override {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class="codeline">    return MachineFunctionProperties().set(</td>
+    <td class="lineNumber">62</td>
+    <td class="codeline">    return MachineFunctionProperties().set(</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class="codeline">        MachineFunctionProperties::Property::NoPHIs);</td>
+    <td class="lineNumber">63</td>
+    <td class="codeline">        MachineFunctionProperties::Property::NoPHIs);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">64</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">65</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class="codeline">  static char ID;</td>
+    <td class="lineNumber">66</td>
+    <td class="codeline">  static char ID;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class="codeline">};</td>
+    <td class="lineNumber">67</td>
+    <td class="codeline">};</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">68</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class="codeline">} // end anonymous namespace</td>
+    <td class="lineNumber">69</td>
+    <td class="codeline">} // end anonymous namespace</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">70</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class="codeline">char X86TileConfig::ID = 0;</td>
+    <td class="lineNumber">71</td>
+    <td class="codeline">char X86TileConfig::ID = 0;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">72</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class="codeline">INITIALIZE_PASS_BEGIN(X86TileConfig, DEBUG_TYPE, "Tile Register Configure",</td>
+    <td class="lineNumber">73</td>
+    <td class="codeline">INITIALIZE_PASS_BEGIN(X86TileConfig, DEBUG_TYPE, "Tile Register Configure",</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class="codeline">                      false, false)</td>
+    <td class="lineNumber">74</td>
+    <td class="codeline">                      false, false)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class="codeline">INITIALIZE_PASS_DEPENDENCY(VirtRegMap)</td>
+    <td class="lineNumber">75</td>
+    <td class="codeline">INITIALIZE_PASS_DEPENDENCY(VirtRegMap)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class="codeline">INITIALIZE_PASS_END(X86TileConfig, DEBUG_TYPE, "Tile Register Configure", false,</td>
+    <td class="lineNumber">76</td>
+    <td class="codeline">INITIALIZE_PASS_END(X86TileConfig, DEBUG_TYPE, "Tile Register Configure", false,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class="codeline">                    false)</td>
+    <td class="lineNumber">77</td>
+    <td class="codeline">                    false)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">78</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class="codeline">bool X86TileConfig::runOnMachineFunction(MachineFunction &MF) {</td>
+    <td class="lineNumber">79</td>
+    <td class="codeline">bool X86TileConfig::runOnMachineFunction(MachineFunction &MF) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class="codeline">  const X86Subtarget &ST = MF.getSubtarget<X86Subtarget>();</td>
+    <td class="lineNumber">80</td>
+    <td class="codeline">  const X86Subtarget &ST = MF.getSubtarget<X86Subtarget>();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class="codeline">  const TargetRegisterInfo *TRI = ST.getRegisterInfo();</td>
+    <td class="lineNumber">81</td>
+    <td class="codeline">  const TargetRegisterInfo *TRI = ST.getRegisterInfo();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class="codeline">  const TargetInstrInfo *TII = ST.getInstrInfo();</td>
+    <td class="lineNumber">82</td>
+    <td class="codeline">  const TargetInstrInfo *TII = ST.getInstrInfo();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class="codeline">  MachineRegisterInfo &MRI = MF.getRegInfo();</td>
+    <td class="lineNumber">83</td>
+    <td class="codeline">  MachineRegisterInfo &MRI = MF.getRegInfo();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class="codeline">  LiveIntervals &LIS = getAnalysis<LiveIntervals>();</td>
+    <td class="lineNumber">84</td>
+    <td class="codeline">  LiveIntervals &LIS = getAnalysis<LiveIntervals>();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class="codeline">  VirtRegMap &VRM = getAnalysis<VirtRegMap>();</td>
+    <td class="lineNumber">85</td>
+    <td class="codeline">  VirtRegMap &VRM = getAnalysis<VirtRegMap>();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">86</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class="codeline">  if (VRM.isShapeMapEmpty())</td>
+    <td class="lineNumber">87</td>
+    <td class="codeline">  if (VRM.isShapeMapEmpty())</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class="codeline">    return false;</td>
+    <td class="lineNumber">88</td>
+    <td class="codeline">    return false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">89</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">90</td>
+    <td class="codeline">  int SS = INT_MAX;</td>
+    <td class="lineNumber">90</td>
+    <td class="codeline">  int SS = INT_MAX;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">91</td>
+    <td class="codeline">  for (MachineBasicBlock &MBB : MF) {</td>
+    <td class="lineNumber">91</td>
+    <td class="codeline">  for (MachineBasicBlock &MBB : MF) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">92</td>
+    <td class="codeline">    for (MachineInstr &MI : MBB) {</td>
+    <td class="lineNumber">92</td>
+    <td class="codeline">    for (MachineInstr &MI : MBB) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">93</td>
+    <td class="codeline">      if (MI.getOpcode() == X86::PLDTILECFGV) {</td>
+    <td class="lineNumber">93</td>
+    <td class="codeline">      if (MI.getOpcode() == X86::PLDTILECFGV) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">94</td>
+    <td class="codeline">        SS = MI.getOperand(0).getIndex();</td>
+    <td class="lineNumber">94</td>
+    <td class="codeline">        SS = MI.getOperand(0).getIndex();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">95</td>
+    <td class="codeline">        break;</td>
+    <td class="lineNumber">95</td>
+    <td class="codeline">        break;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">96</td>
+    <td class="codeline">      }</td>
+    <td class="lineNumber">96</td>
+    <td class="codeline">      }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">97</td>
+    <td class="codeline">    }</td>
+    <td class="lineNumber">97</td>
+    <td class="codeline">    }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">98</td>
+    <td class="codeline">    if (SS != INT_MAX)</td>
+    <td class="lineNumber">98</td>
+    <td class="codeline">    if (SS != INT_MAX)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">99</td>
+    <td class="codeline">      break;</td>
+    <td class="lineNumber">99</td>
+    <td class="codeline">      break;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">100</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">100</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">101</td>
+    <td class="codeline">  // Didn't find PLDTILECFGV, just return false;</td>
+    <td class="lineNumber">101</td>
+    <td class="codeline">  // Didn't find PLDTILECFGV, just return false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">102</td>
+    <td class="codeline">  if (SS == INT_MAX)</td>
+    <td class="lineNumber">102</td>
+    <td class="codeline">  if (SS == INT_MAX)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">103</td>
+    <td class="codeline">    return false;</td>
+    <td class="lineNumber">103</td>
+    <td class="codeline">    return false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">104</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">104</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">105</td>
+    <td class="codeline">  // Try to find a point to insert MIs for constant shapes.</td>
+    <td class="lineNumber">105</td>
+    <td class="codeline">  // Try to find a point to insert MIs for constant shapes.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">106</td>
+    <td class="codeline">  // Here we are leveraging the palette id inserted in PreRA pass.</td>
+    <td class="lineNumber">106</td>
+    <td class="codeline">  // Here we are leveraging the palette id inserted in PreRA pass.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">107</td>
+    <td class="codeline">  unsigned ConstPos = 0;</td>
+    <td class="lineNumber">107</td>
+    <td class="codeline">  unsigned ConstPos = 0;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">108</td>
+    <td class="codeline">  MachineInstr *ConstMI = nullptr;</td>
+    <td class="lineNumber">108</td>
+    <td class="codeline">  MachineInstr *ConstMI = nullptr;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">109</td>
+    <td class="codeline">  for (MachineInstr &MI : MF.front()) {</td>
+    <td class="lineNumber">109</td>
+    <td class="codeline">  for (MachineInstr &MI : MF.front()) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">110</td>
+    <td class="codeline">    if (MI.getOpcode() == X86::MOV8mi && SS == MI.getOperand(0).getIndex()) {</td>
+    <td class="lineNumber">110</td>
+    <td class="codeline">    if (MI.getOpcode() == X86::MOV8mi && SS == MI.getOperand(0).getIndex()) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">111</td>
+    <td class="codeline">      ConstMI = &MI;</td>
+    <td class="lineNumber">111</td>
+    <td class="codeline">      ConstMI = &MI;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">112</td>
+    <td class="codeline">      break;</td>
+    <td class="lineNumber">112</td>
+    <td class="codeline">      break;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">113</td>
+    <td class="codeline">    }</td>
+    <td class="lineNumber">113</td>
+    <td class="codeline">    }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">114</td>
+    <td class="codeline">    ++ConstPos;</td>
+    <td class="lineNumber">114</td>
+    <td class="codeline">    ++ConstPos;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">115</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">115</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">116</td>
+    <td class="codeline">  assert(ConstMI && "Cannot find an insertion point");</td>
+    <td class="lineNumber">116</td>
+    <td class="codeline">  assert(ConstMI && "Cannot find an insertion point");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">117</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">117</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">118</td>
+    <td class="codeline">  unsigned AMXRegNum = TRI->getRegClass(X86::TILERegClassID)->getNumRegs();</td>
+    <td class="lineNumber">118</td>
+    <td class="codeline">  unsigned AMXRegNum = TRI->getRegClass(X86::TILERegClassID)->getNumRegs();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">119</td>
+    <td class="codeline">  SmallVector<Register, 8> Phys2Virt(AMXRegNum, 0);</td>
+    <td class="lineNumber">119</td>
+    <td class="codeline">  SmallVector<Register, 8> Phys2Virt(AMXRegNum, 0);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">120</td>
+    <td class="codeline">  for (unsigned I = 0, E = MRI.getNumVirtRegs(); I != E; ++I) {</td>
+    <td class="lineNumber">120</td>
+    <td class="codeline">  for (unsigned I = 0, E = MRI.getNumVirtRegs(); I != E; ++I) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">121</td>
+    <td class="codeline">    Register VirtReg = Register::index2VirtReg(I);</td>
+    <td class="lineNumber">121</td>
+    <td class="codeline">    Register VirtReg = Register::index2VirtReg(I);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">122</td>
+    <td class="codeline">    if (MRI.reg_nodbg_empty(VirtReg))</td>
+    <td class="lineNumber">122</td>
+    <td class="codeline">    if (MRI.reg_nodbg_empty(VirtReg))</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">123</td>
+    <td class="codeline">      continue;</td>
+    <td class="lineNumber">123</td>
+    <td class="codeline">      continue;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">124</td>
+    <td class="codeline">    if (MRI.getRegClass(VirtReg)->getID() != X86::TILERegClassID)</td>
+    <td class="lineNumber">124</td>
+    <td class="codeline">    if (MRI.getRegClass(VirtReg)->getID() != X86::TILERegClassID)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">125</td>
+    <td class="codeline">      continue;</td>
+    <td class="lineNumber">125</td>
+    <td class="codeline">      continue;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">126</td>
+    <td class="codeline">    if (VRM.getPhys(VirtReg) == VirtRegMap::NO_PHYS_REG)</td>
+    <td class="lineNumber">126</td>
+    <td class="codeline">    if (VRM.getPhys(VirtReg) == VirtRegMap::NO_PHYS_REG)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">127</td>
+    <td class="codeline">      continue;</td>
+    <td class="lineNumber">127</td>
+    <td class="codeline">      continue;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">128</td>
+    <td class="codeline">    unsigned Index = VRM.getPhys(VirtReg) - X86::TMM0;</td>
+    <td class="lineNumber">128</td>
+    <td class="codeline">    unsigned Index = VRM.getPhys(VirtReg) - X86::TMM0;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">129</td>
+    <td class="codeline">    if (!Phys2Virt[Index])</td>
+    <td class="lineNumber">129</td>
+    <td class="codeline">    if (!Phys2Virt[Index])</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">130</td>
+    <td class="codeline">      Phys2Virt[Index] = VirtReg;</td>
+    <td class="lineNumber">130</td>
+    <td class="codeline">      Phys2Virt[Index] = VirtReg;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">131</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">131</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">132</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">132</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">133</td>
+    <td class="codeline">  // Fill in the shape of each tile physical register.</td>
+    <td class="lineNumber">133</td>
+    <td class="codeline">  // Fill in the shape of each tile physical register.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">134</td>
+    <td class="codeline">  for (unsigned I = 0; I < AMXRegNum; ++I) {</td>
+    <td class="lineNumber">134</td>
+    <td class="codeline">  for (unsigned I = 0; I < AMXRegNum; ++I) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">135</td>
+    <td class="codeline">    if (!Phys2Virt[I])</td>
+    <td class="lineNumber">135</td>
+    <td class="codeline">    if (!Phys2Virt[I])</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">136</td>
+    <td class="codeline">      continue;</td>
+    <td class="lineNumber">136</td>
+    <td class="codeline">      continue;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">137</td>
+    <td class="codeline">    DebugLoc DL;</td>
+    <td class="lineNumber">137</td>
+    <td class="codeline">    DebugLoc DL;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">138</td>
+    <td class="codeline">    bool IsRow = true;</td>
+    <td class="lineNumber">138</td>
+    <td class="codeline">    bool IsRow = true;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">139</td>
+    <td class="codeline">    MachineInstr *NewMI = nullptr;</td>
+    <td class="lineNumber">139</td>
+    <td class="codeline">    MachineInstr *NewMI = nullptr;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">140</td>
+    <td class="codeline">    ShapeT Shape = VRM.getShape(Phys2Virt[I]);</td>
+    <td class="lineNumber">140</td>
+    <td class="codeline">    ShapeT Shape = VRM.getShape(Phys2Virt[I]);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">141</td>
+    <td class="codeline">    for (auto &R : {Shape.getRow()->getReg(), Shape.getCol()->getReg()}) {</td>
+    <td class="lineNumber">141</td>
+    <td class="codeline">    for (auto &R : {Shape.getRow()->getReg(), Shape.getCol()->getReg()}) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">142</td>
+    <td class="codeline">      // Here is the data format for the tile config.</td>
+    <td class="lineNumber">142</td>
+    <td class="codeline">      // Here is the data format for the tile config.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">143</td>
+    <td class="codeline">      // 0      palette</td>
+    <td class="lineNumber">143</td>
+    <td class="codeline">      // 0      palette</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">144</td>
+    <td class="codeline">      // 1      start_row</td>
+    <td class="lineNumber">144</td>
+    <td class="codeline">      // 1      start_row</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">145</td>
+    <td class="codeline">      // 2-15   reserved, must be zero</td>
+    <td class="lineNumber">145</td>
+    <td class="codeline">      // 2-15   reserved, must be zero</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">146</td>
+    <td class="codeline">      // 16-17  tile0.colsb Tile 0 bytes per row.</td>
+    <td class="lineNumber">146</td>
+    <td class="codeline">      // 16-17  tile0.colsb Tile 0 bytes per row.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">147</td>
+    <td class="codeline">      // 18-19  tile1.colsb Tile 1 bytes per row.</td>
+    <td class="lineNumber">147</td>
+    <td class="codeline">      // 18-19  tile1.colsb Tile 1 bytes per row.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">148</td>
+    <td class="codeline">      // 20-21  tile2.colsb Tile 2 bytes per row.</td>
+    <td class="lineNumber">148</td>
+    <td class="codeline">      // 20-21  tile2.colsb Tile 2 bytes per row.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">149</td>
+    <td class="codeline">      // ... (sequence continues)</td>
+    <td class="lineNumber">149</td>
+    <td class="codeline">      // ... (sequence continues)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">150</td>
+    <td class="codeline">      // 30-31  tile7.colsb Tile 7 bytes per row.</td>
+    <td class="lineNumber">150</td>
+    <td class="codeline">      // 30-31  tile7.colsb Tile 7 bytes per row.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">151</td>
+    <td class="codeline">      // 32-47  reserved, must be zero</td>
+    <td class="lineNumber">151</td>
+    <td class="codeline">      // 32-47  reserved, must be zero</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">152</td>
+    <td class="codeline">      // 48     tile0.rows Tile 0 rows.</td>
+    <td class="lineNumber">152</td>
+    <td class="codeline">      // 48     tile0.rows Tile 0 rows.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">153</td>
+    <td class="codeline">      // 49     tile1.rows Tile 1 rows.</td>
+    <td class="lineNumber">153</td>
+    <td class="codeline">      // 49     tile1.rows Tile 1 rows.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">154</td>
+    <td class="codeline">      // 50     tile2.rows Tile 2 rows.</td>
+    <td class="lineNumber">154</td>
+    <td class="codeline">      // 50     tile2.rows Tile 2 rows.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">155</td>
+    <td class="codeline">      // ... (sequence continues)</td>
+    <td class="lineNumber">155</td>
+    <td class="codeline">      // ... (sequence continues)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">156</td>
+    <td class="codeline">      // 55     tile7.rows Tile 7 rows.</td>
+    <td class="lineNumber">156</td>
+    <td class="codeline">      // 55     tile7.rows Tile 7 rows.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">157</td>
+    <td class="codeline">      // 56-63  reserved, must be zero</td>
+    <td class="lineNumber">157</td>
+    <td class="codeline">      // 56-63  reserved, must be zero</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">158</td>
+    <td class="codeline">      int64_t Imm = INT64_MAX;</td>
+    <td class="lineNumber">158</td>
+    <td class="codeline">      int64_t Imm = INT64_MAX;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">159</td>
+    <td class="codeline">      int Offset = IsRow ? 48 + I : 16 + I * 2;</td>
+    <td class="lineNumber">159</td>
+    <td class="codeline">      int Offset = IsRow ? 48 + I : 16 + I * 2;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">160</td>
+    <td class="codeline">      for (auto &DefMI : MRI.def_instructions(R)) {</td>
+    <td class="lineNumber">160</td>
+    <td class="codeline">      for (auto &DefMI : MRI.def_instructions(R)) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">161</td>
+    <td class="codeline">        MachineBasicBlock &MBB = *DefMI.getParent();</td>
+    <td class="lineNumber">161</td>
+    <td class="codeline">        MachineBasicBlock &MBB = *DefMI.getParent();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">162</td>
+    <td class="codeline">        if (DefMI.isMoveImmediate()) {</td>
+    <td class="lineNumber">162</td>
+    <td class="codeline">        if (DefMI.isMoveImmediate()) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">163</td>
+    <td class="codeline">          if (Imm != INT64_MAX) {</td>
+    <td class="lineNumber">163</td>
+    <td class="codeline">          if (Imm != INT64_MAX) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">164</td>
+    <td class="codeline">            // FIXME: We should handle this case in future.</td>
+    <td class="lineNumber">164</td>
+    <td class="codeline">            // FIXME: We should handle this case in future.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">165</td>
+    <td class="codeline">            assert(Imm == DefMI.getOperand(1).getImm() &&</td>
+    <td class="lineNumber">165</td>
+    <td class="codeline">            assert(Imm == DefMI.getOperand(1).getImm() &&</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">166</td>
+    <td class="codeline">                   "Cannot initialize with different shapes");</td>
+    <td class="lineNumber">166</td>
+    <td class="codeline">                   "Cannot initialize with different shapes");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">167</td>
+    <td class="codeline">            continue;</td>
+    <td class="lineNumber">167</td>
+    <td class="codeline">            continue;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">168</td>
+    <td class="codeline">          }</td>
+    <td class="lineNumber">168</td>
+    <td class="codeline">          }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">169</td>
+    <td class="codeline">          Imm = DefMI.getOperand(1).getImm();</td>
+    <td class="lineNumber">169</td>
+    <td class="codeline">          Imm = DefMI.getOperand(1).getImm();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">170</td>
+    <td class="codeline">          NewMI = addFrameReference(</td>
+    <td class="lineNumber">170</td>
+    <td class="codeline">          NewMI = addFrameReference(</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">171</td>
+    <td class="codeline">                      BuildMI(MF.front(), ++ConstMI->getIterator(), DL,</td>
+    <td class="lineNumber">171</td>
+    <td class="codeline">                      BuildMI(MF.front(), ++ConstMI->getIterator(), DL,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">172</td>
+    <td class="codeline">                              TII->get(IsRow ? X86::MOV8mi : X86::MOV16mi)),</td>
+    <td class="lineNumber">172</td>
+    <td class="codeline">                              TII->get(IsRow ? X86::MOV8mi : X86::MOV16mi)),</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">173</td>
+    <td class="codeline">                      SS, Offset)</td>
+    <td class="lineNumber">173</td>
+    <td class="codeline">                      SS, Offset)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">174</td>
+    <td class="codeline">                      .addImm(Imm);</td>
+    <td class="lineNumber">174</td>
+    <td class="codeline">                      .addImm(Imm);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">175</td>
+    <td class="codeline">          ConstMI = NewMI;</td>
+    <td class="lineNumber">175</td>
+    <td class="codeline">          ConstMI = NewMI;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">176</td>
+    <td class="codeline">          LIS.InsertMachineInstrInMaps(*NewMI);</td>
+    <td class="lineNumber">176</td>
+    <td class="codeline">          LIS.InsertMachineInstrInMaps(*NewMI);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">177</td>
+    <td class="codeline">        } else {</td>
+    <td class="lineNumber">177</td>
+    <td class="codeline">        } else {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">178</td>
+    <td class="codeline">          unsigned SubIdx = IsRow ? X86::sub_8bit : X86::sub_16bit;</td>
+    <td class="lineNumber">178</td>
+    <td class="codeline">          unsigned SubIdx = IsRow ? X86::sub_8bit : X86::sub_16bit;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">179</td>
+    <td class="codeline">          unsigned RegSize = TRI->getRegSizeInBits(*MRI.getRegClass(R));</td>
+    <td class="lineNumber">179</td>
+    <td class="codeline">          unsigned RegSize = TRI->getRegSizeInBits(*MRI.getRegClass(R));</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">180</td>
+    <td class="codeline">          if ((IsRow && RegSize == 8) || (!IsRow && RegSize == 16))</td>
+    <td class="lineNumber">180</td>
+    <td class="codeline">          if ((IsRow && RegSize == 8) || (!IsRow && RegSize == 16))</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">181</td>
+    <td class="codeline">            SubIdx = 0;</td>
+    <td class="lineNumber">181</td>
+    <td class="codeline">            SubIdx = 0;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">182</td>
+    <td class="codeline">          auto Iter = DefMI.getIterator();</td>
+    <td class="lineNumber">182</td>
+    <td class="codeline">          auto Iter = DefMI.getIterator();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">183</td>
+    <td class="codeline">          if (&MBB == &MF.front() &&</td>
+    <td class="lineNumber">183</td>
+    <td class="codeline">          if (&MBB == &MF.front() &&</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">184</td>
+    <td class="codeline">              (unsigned)std::distance(MBB.instr_begin(), Iter) < ConstPos)</td>
+    <td class="lineNumber">184</td>
+    <td class="codeline">              (unsigned)std::distance(MBB.instr_begin(), Iter) < ConstPos)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">185</td>
+    <td class="codeline">            Iter = ConstMI->getIterator();</td>
+    <td class="lineNumber">185</td>
+    <td class="codeline">            Iter = ConstMI->getIterator();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">186</td>
+    <td class="codeline">          NewMI = addFrameReference(</td>
+    <td class="lineNumber">186</td>
+    <td class="codeline">          NewMI = addFrameReference(</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">187</td>
+    <td class="codeline">                      BuildMI(MBB, ++Iter, DL,</td>
+    <td class="lineNumber">187</td>
+    <td class="codeline">                      BuildMI(MBB, ++Iter, DL,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">188</td>
+    <td class="codeline">                              TII->get(IsRow ? X86::MOV8mr : X86::MOV16mr)),</td>
+    <td class="lineNumber">188</td>
+    <td class="codeline">                              TII->get(IsRow ? X86::MOV8mr : X86::MOV16mr)),</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">189</td>
+    <td class="codeline">                      SS, Offset)</td>
+    <td class="lineNumber">189</td>
+    <td class="codeline">                      SS, Offset)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">190</td>
+    <td class="codeline">                      .addReg(R, 0, SubIdx);</td>
+    <td class="lineNumber">190</td>
+    <td class="codeline">                      .addReg(R, 0, SubIdx);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">191</td>
+    <td class="codeline">          SlotIndex SIdx = LIS.InsertMachineInstrInMaps(*NewMI);</td>
+    <td class="lineNumber">191</td>
+    <td class="codeline">          SlotIndex SIdx = LIS.InsertMachineInstrInMaps(*NewMI);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">192</td>
+    <td class="codeline">          LIS.extendToIndices(LIS.getInterval(R), {SIdx.getRegSlot()});</td>
+    <td class="lineNumber">192</td>
+    <td class="codeline">          LIS.extendToIndices(LIS.getInterval(R), {SIdx.getRegSlot()});</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">193</td>
+    <td class="codeline">        }</td>
+    <td class="lineNumber">193</td>
+    <td class="codeline">        }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">194</td>
+    <td class="codeline">      }</td>
+    <td class="lineNumber">194</td>
+    <td class="codeline">      }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">195</td>
+    <td class="codeline">      IsRow = false;</td>
+    <td class="lineNumber">195</td>
+    <td class="codeline">      IsRow = false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">196</td>
+    <td class="codeline">    }</td>
+    <td class="lineNumber">196</td>
+    <td class="codeline">    }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">197</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">197</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">198</td>
+    <td class="codeline">  return true;</td>
+    <td class="lineNumber">198</td>
+    <td class="codeline">  return true;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">199</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">199</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">200</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">200</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">201</td>
+    <td class="codeline">FunctionPass *llvm::createX86TileConfigPass() { return new X86TileConfig(); }</td>
+    <td class="lineNumber">201</td>
+    <td class="codeline">FunctionPass *llvm::createX86TileConfigPass() { return new X86TileConfig(); }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">202</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">202</td>
+    <td class="codeline"></td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Side By Side Comparison</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Side By Side Comparison</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+    </th>
+    <th class="mainTh">Hit count</th>
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </th>
+    <th class="mainTh">Hit count</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="codeLine">//===-- X86TileConfig.cpp - Tile Register Configure----------------------===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">1</td>
+    <td class="codeLine">//===-- X86TileConfig.cpp - Tile Register Configure----------------------===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">2</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="codeLine">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">3</td>
+    <td class="codeLine">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="codeLine">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">4</td>
+    <td class="codeLine">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="codeLine">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">5</td>
+    <td class="codeLine">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">6</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">7</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">8</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="codeLine">/// \file Pass to config the shape of AMX physical registers</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">9</td>
+    <td class="codeLine">/// \file Pass to config the shape of AMX physical registers</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="codeLine">/// AMX register need to be configured before use. In X86PreTileConfig pass</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">10</td>
+    <td class="codeLine">/// AMX register need to be configured before use. In X86PreTileConfig pass</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="codeLine">/// the pldtilecfg instruction is inserted, however at that time we don't</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">11</td>
+    <td class="codeLine">/// the pldtilecfg instruction is inserted, however at that time we don't</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class="codeLine">/// know the shape of each physical tile registers, because the register</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">12</td>
+    <td class="codeLine">/// know the shape of each physical tile registers, because the register</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class="codeLine">/// allocation is not done yet. This pass runs after egister allocation</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">13</td>
+    <td class="codeLine">/// allocation is not done yet. This pass runs after egister allocation</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class="codeLine">/// pass. It collects the shape information of each physical tile register</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">14</td>
+    <td class="codeLine">/// pass. It collects the shape information of each physical tile register</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class="codeLine">/// and store the shape in the stack slot that is allocated for load config</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">15</td>
+    <td class="codeLine">/// and store the shape in the stack slot that is allocated for load config</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class="codeLine">/// to tile config register.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">16</td>
+    <td class="codeLine">/// to tile config register.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">17</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">18</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">19</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class="codeLine">#include "X86.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">20</td>
+    <td class="codeLine">#include "X86.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class="codeLine">#include "X86InstrBuilder.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">21</td>
+    <td class="codeLine">#include "X86InstrBuilder.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class="codeLine">#include "X86MachineFunctionInfo.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">22</td>
+    <td class="codeLine">#include "X86MachineFunctionInfo.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class="codeLine">#include "X86RegisterInfo.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">23</td>
+    <td class="codeLine">#include "X86RegisterInfo.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class="codeLine">#include "X86Subtarget.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">24</td>
+    <td class="codeLine">#include "X86Subtarget.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class="codeLine">#include "llvm/CodeGen/LiveIntervals.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">25</td>
+    <td class="codeLine">#include "llvm/CodeGen/LiveIntervals.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class="codeLine">#include "llvm/CodeGen/MachineFrameInfo.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">26</td>
+    <td class="codeLine">#include "llvm/CodeGen/MachineFrameInfo.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class="codeLine">#include "llvm/CodeGen/MachineFunctionPass.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">27</td>
+    <td class="codeLine">#include "llvm/CodeGen/MachineFunctionPass.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class="codeLine">#include "llvm/CodeGen/MachineInstr.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">28</td>
+    <td class="codeLine">#include "llvm/CodeGen/MachineInstr.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class="codeLine">#include "llvm/CodeGen/MachineRegisterInfo.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">29</td>
+    <td class="codeLine">#include "llvm/CodeGen/MachineRegisterInfo.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class="codeLine">#include "llvm/CodeGen/Passes.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">30</td>
+    <td class="codeLine">#include "llvm/CodeGen/Passes.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class="codeLine">#include "llvm/CodeGen/TargetInstrInfo.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">31</td>
+    <td class="codeLine">#include "llvm/CodeGen/TargetInstrInfo.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class="codeLine">#include "llvm/CodeGen/TargetRegisterInfo.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">32</td>
+    <td class="codeLine">#include "llvm/CodeGen/TargetRegisterInfo.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class="codeLine">#include "llvm/CodeGen/TileShapeInfo.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">33</td>
+    <td class="codeLine">#include "llvm/CodeGen/TileShapeInfo.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class="codeLine">#include "llvm/CodeGen/VirtRegMap.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">34</td>
+    <td class="codeLine">#include "llvm/CodeGen/VirtRegMap.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class="codeLine">#include "llvm/InitializePasses.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">35</td>
+    <td class="codeLine">#include "llvm/InitializePasses.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">36</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class="codeLine">using namespace llvm;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">37</td>
+    <td class="codeLine">using namespace llvm;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">38</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class="codeLine">#define DEBUG_TYPE "tileconfig"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">39</td>
+    <td class="codeLine">#define DEBUG_TYPE "tileconfig"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">40</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class="codeLine">namespace {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">41</td>
+    <td class="codeLine">namespace {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">42</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class="codeLine">struct X86TileConfig : public MachineFunctionPass {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">43</td>
+    <td class="codeLine">struct X86TileConfig : public MachineFunctionPass {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">44</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class="codeLine">  X86TileConfig() : MachineFunctionPass(ID) {}</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">45</td>
+    <td class="codeLine">  X86TileConfig() : MachineFunctionPass(ID) {}</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">46</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class="codeLine">  /// Return the pass name.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">47</td>
+    <td class="codeLine">  /// Return the pass name.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class="codeLine">  StringRef getPassName() const override { return "Tile Register Configure"; }</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">48</td>
+    <td class="codeLine">  StringRef getPassName() const override { return "Tile Register Configure"; }</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">49</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class="codeLine">  /// X86TileConfig analysis usage.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">50</td>
+    <td class="codeLine">  /// X86TileConfig analysis usage.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class="codeLine">  void getAnalysisUsage(AnalysisUsage &AU) const override {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">51</td>
+    <td class="codeLine">  void getAnalysisUsage(AnalysisUsage &AU) const override {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class="codeLine">    AU.setPreservesAll();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">52</td>
+    <td class="codeLine">    AU.setPreservesAll();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class="codeLine">    AU.addRequired<VirtRegMap>();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">53</td>
+    <td class="codeLine">    AU.addRequired<VirtRegMap>();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class="codeLine">    AU.addRequired<LiveIntervals>();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">54</td>
+    <td class="codeLine">    AU.addRequired<LiveIntervals>();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class="codeLine">    MachineFunctionPass::getAnalysisUsage(AU);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">55</td>
+    <td class="codeLine">    MachineFunctionPass::getAnalysisUsage(AU);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">56</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">57</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class="codeLine">  /// Perform register allocation.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">58</td>
+    <td class="codeLine">  /// Perform register allocation.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class="codeLine">  bool runOnMachineFunction(MachineFunction &mf) override;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">59</td>
+    <td class="codeLine">  bool runOnMachineFunction(MachineFunction &mf) override;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">60</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class="codeLine">  MachineFunctionProperties getRequiredProperties() const override {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">61</td>
+    <td class="codeLine">  MachineFunctionProperties getRequiredProperties() const override {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class="codeLine">    return MachineFunctionProperties().set(</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">62</td>
+    <td class="codeLine">    return MachineFunctionProperties().set(</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class="codeLine">        MachineFunctionProperties::Property::NoPHIs);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">63</td>
+    <td class="codeLine">        MachineFunctionProperties::Property::NoPHIs);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">64</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">65</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class="codeLine">  static char ID;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">66</td>
+    <td class="codeLine">  static char ID;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class="codeLine">};</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">67</td>
+    <td class="codeLine">};</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">68</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class="codeLine">} // end anonymous namespace</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">69</td>
+    <td class="codeLine">} // end anonymous namespace</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">70</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class="codeLine">char X86TileConfig::ID = 0;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">71</td>
+    <td class="codeLine">char X86TileConfig::ID = 0;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">72</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_BEGIN(X86TileConfig, DEBUG_TYPE, "Tile Register Configure",</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">73</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_BEGIN(X86TileConfig, DEBUG_TYPE, "Tile Register Configure",</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class="codeLine">                      false, false)</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">74</td>
+    <td class="codeLine">                      false, false)</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_DEPENDENCY(VirtRegMap)</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">75</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_DEPENDENCY(VirtRegMap)</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_END(X86TileConfig, DEBUG_TYPE, "Tile Register Configure", false,</td>
+    <td class="lineNumber">2</td>
+    <td class="lineNumber">76</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_END(X86TileConfig, DEBUG_TYPE, "Tile Register Configure", false,</td>
+    <td class="lineNumber">2</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class="codeLine">                    false)</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">77</td>
+    <td class="codeLine">                    false)</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">78</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class="codeLine">bool X86TileConfig::runOnMachineFunction(MachineFunction &MF) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">79</td>
+    <td class="codeLine">bool X86TileConfig::runOnMachineFunction(MachineFunction &MF) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class="codeLine">  const X86Subtarget &ST = MF.getSubtarget<X86Subtarget>();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">80</td>
+    <td class="codeLine">  const X86Subtarget &ST = MF.getSubtarget<X86Subtarget>();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class="codeLine">  const TargetRegisterInfo *TRI = ST.getRegisterInfo();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">81</td>
+    <td class="codeLine">  const TargetRegisterInfo *TRI = ST.getRegisterInfo();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class="codeLine">  const TargetInstrInfo *TII = ST.getInstrInfo();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">82</td>
+    <td class="codeLine">  const TargetInstrInfo *TII = ST.getInstrInfo();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class="codeLine">  MachineRegisterInfo &MRI = MF.getRegInfo();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">83</td>
+    <td class="codeLine">  MachineRegisterInfo &MRI = MF.getRegInfo();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class="codeLine">  LiveIntervals &LIS = getAnalysis<LiveIntervals>();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">84</td>
+    <td class="codeLine">  LiveIntervals &LIS = getAnalysis<LiveIntervals>();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class="codeLine">  VirtRegMap &VRM = getAnalysis<VirtRegMap>();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">85</td>
+    <td class="codeLine">  VirtRegMap &VRM = getAnalysis<VirtRegMap>();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">86</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class="codeLine">  if (VRM.isShapeMapEmpty())</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">87</td>
+    <td class="codeLine">  if (VRM.isShapeMapEmpty())</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class="codeLine">    return false;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">88</td>
+    <td class="codeLine">    return false;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">89</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">90</td>
+    <td class="codeLine">  int SS = INT_MAX;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">90</td>
+    <td class="codeLine">  int SS = INT_MAX;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">91</td>
+    <td class="codeLine">  for (MachineBasicBlock &MBB : MF) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">91</td>
+    <td class="codeLine">  for (MachineBasicBlock &MBB : MF) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">92</td>
+    <td class="codeLine">    for (MachineInstr &MI : MBB) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">92</td>
+    <td class="codeLine">    for (MachineInstr &MI : MBB) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">93</td>
+    <td class="codeLine">      if (MI.getOpcode() == X86::PLDTILECFGV) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">93</td>
+    <td class="codeLine">      if (MI.getOpcode() == X86::PLDTILECFGV) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">94</td>
+    <td class="codeLine">        SS = MI.getOperand(0).getIndex();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">94</td>
+    <td class="codeLine">        SS = MI.getOperand(0).getIndex();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">95</td>
+    <td class="codeLine">        break;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">95</td>
+    <td class="codeLine">        break;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">96</td>
+    <td class="codeLine">      }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">96</td>
+    <td class="codeLine">      }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">97</td>
+    <td class="codeLine">    }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">97</td>
+    <td class="codeLine">    }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">98</td>
+    <td class="codeLine">    if (SS != INT_MAX)</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">98</td>
+    <td class="codeLine">    if (SS != INT_MAX)</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">99</td>
+    <td class="codeLine">      break;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">99</td>
+    <td class="codeLine">      break;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">100</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">100</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">101</td>
+    <td class="codeLine">  // Didn't find PLDTILECFGV, just return false;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">101</td>
+    <td class="codeLine">  // Didn't find PLDTILECFGV, just return false;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">102</td>
+    <td class="codeLine">  if (SS == INT_MAX)</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">102</td>
+    <td class="codeLine">  if (SS == INT_MAX)</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">103</td>
+    <td class="codeLine">    return false;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">103</td>
+    <td class="codeLine">    return false;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">104</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">104</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">105</td>
+    <td class="codeLine">  // Try to find a point to insert MIs for constant shapes.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">105</td>
+    <td class="codeLine">  // Try to find a point to insert MIs for constant shapes.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">106</td>
+    <td class="codeLine">  // Here we are leveraging the palette id inserted in PreRA pass.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">106</td>
+    <td class="codeLine">  // Here we are leveraging the palette id inserted in PreRA pass.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">107</td>
+    <td class="codeLine">  unsigned ConstPos = 0;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">107</td>
+    <td class="codeLine">  unsigned ConstPos = 0;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">108</td>
+    <td class="codeLine">  MachineInstr *ConstMI = nullptr;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">108</td>
+    <td class="codeLine">  MachineInstr *ConstMI = nullptr;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">109</td>
+    <td class="codeLine">  for (MachineInstr &MI : MF.front()) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">109</td>
+    <td class="codeLine">  for (MachineInstr &MI : MF.front()) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">110</td>
+    <td class="codeLine">    if (MI.getOpcode() == X86::MOV8mi && SS == MI.getOperand(0).getIndex()) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">110</td>
+    <td class="codeLine">    if (MI.getOpcode() == X86::MOV8mi && SS == MI.getOperand(0).getIndex()) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">111</td>
+    <td class="codeLine">      ConstMI = &MI;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">111</td>
+    <td class="codeLine">      ConstMI = &MI;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">112</td>
+    <td class="codeLine">      break;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">112</td>
+    <td class="codeLine">      break;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">113</td>
+    <td class="codeLine">    }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">113</td>
+    <td class="codeLine">    }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">114</td>
+    <td class="codeLine">    ++ConstPos;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">114</td>
+    <td class="codeLine">    ++ConstPos;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">115</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">115</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">116</td>
+    <td class="codeLine">  assert(ConstMI && "Cannot find an insertion point");</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">116</td>
+    <td class="codeLine">  assert(ConstMI && "Cannot find an insertion point");</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">117</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">117</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">118</td>
+    <td class="codeLine">  unsigned AMXRegNum = TRI->getRegClass(X86::TILERegClassID)->getNumRegs();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">118</td>
+    <td class="codeLine">  unsigned AMXRegNum = TRI->getRegClass(X86::TILERegClassID)->getNumRegs();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">119</td>
+    <td class="codeLine">  SmallVector<Register, 8> Phys2Virt(AMXRegNum, 0);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">119</td>
+    <td class="codeLine">  SmallVector<Register, 8> Phys2Virt(AMXRegNum, 0);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">120</td>
+    <td class="codeLine">  for (unsigned I = 0, E = MRI.getNumVirtRegs(); I != E; ++I) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">120</td>
+    <td class="codeLine">  for (unsigned I = 0, E = MRI.getNumVirtRegs(); I != E; ++I) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">121</td>
+    <td class="codeLine">    Register VirtReg = Register::index2VirtReg(I);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">121</td>
+    <td class="codeLine">    Register VirtReg = Register::index2VirtReg(I);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">122</td>
+    <td class="codeLine">    if (MRI.reg_nodbg_empty(VirtReg))</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">122</td>
+    <td class="codeLine">    if (MRI.reg_nodbg_empty(VirtReg))</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">123</td>
+    <td class="codeLine">      continue;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">123</td>
+    <td class="codeLine">      continue;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">124</td>
+    <td class="codeLine">    if (MRI.getRegClass(VirtReg)->getID() != X86::TILERegClassID)</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">124</td>
+    <td class="codeLine">    if (MRI.getRegClass(VirtReg)->getID() != X86::TILERegClassID)</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">125</td>
+    <td class="codeLine">      continue;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">125</td>
+    <td class="codeLine">      continue;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">126</td>
+    <td class="codeLine">    if (VRM.getPhys(VirtReg) == VirtRegMap::NO_PHYS_REG)</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">126</td>
+    <td class="codeLine">    if (VRM.getPhys(VirtReg) == VirtRegMap::NO_PHYS_REG)</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">127</td>
+    <td class="codeLine">      continue;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">127</td>
+    <td class="codeLine">      continue;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">128</td>
+    <td class="codeLine">    unsigned Index = VRM.getPhys(VirtReg) - X86::TMM0;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">128</td>
+    <td class="codeLine">    unsigned Index = VRM.getPhys(VirtReg) - X86::TMM0;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">129</td>
+    <td class="codeLine">    if (!Phys2Virt[Index])</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">129</td>
+    <td class="codeLine">    if (!Phys2Virt[Index])</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">130</td>
+    <td class="codeLine">      Phys2Virt[Index] = VirtReg;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">130</td>
+    <td class="codeLine">      Phys2Virt[Index] = VirtReg;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">131</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">131</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">132</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">132</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">133</td>
+    <td class="codeLine">  // Fill in the shape of each tile physical register.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">133</td>
+    <td class="codeLine">  // Fill in the shape of each tile physical register.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">134</td>
+    <td class="codeLine">  for (unsigned I = 0; I < AMXRegNum; ++I) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">134</td>
+    <td class="codeLine">  for (unsigned I = 0; I < AMXRegNum; ++I) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">135</td>
+    <td class="codeLine">    if (!Phys2Virt[I])</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">135</td>
+    <td class="codeLine">    if (!Phys2Virt[I])</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">136</td>
+    <td class="codeLine">      continue;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">136</td>
+    <td class="codeLine">      continue;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">137</td>
+    <td class="codeLine">    DebugLoc DL;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">137</td>
+    <td class="codeLine">    DebugLoc DL;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">138</td>
+    <td class="codeLine">    bool IsRow = true;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">138</td>
+    <td class="codeLine">    bool IsRow = true;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">139</td>
+    <td class="codeLine">    MachineInstr *NewMI = nullptr;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">139</td>
+    <td class="codeLine">    MachineInstr *NewMI = nullptr;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">140</td>
+    <td class="codeLine">    ShapeT Shape = VRM.getShape(Phys2Virt[I]);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">140</td>
+    <td class="codeLine">    ShapeT Shape = VRM.getShape(Phys2Virt[I]);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">141</td>
+    <td class="codeLine">    for (auto &R : {Shape.getRow()->getReg(), Shape.getCol()->getReg()}) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">141</td>
+    <td class="codeLine">    for (auto &R : {Shape.getRow()->getReg(), Shape.getCol()->getReg()}) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">142</td>
+    <td class="codeLine">      // Here is the data format for the tile config.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">142</td>
+    <td class="codeLine">      // Here is the data format for the tile config.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">143</td>
+    <td class="codeLine">      // 0      palette</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">143</td>
+    <td class="codeLine">      // 0      palette</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">144</td>
+    <td class="codeLine">      // 1      start_row</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">144</td>
+    <td class="codeLine">      // 1      start_row</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">145</td>
+    <td class="codeLine">      // 2-15   reserved, must be zero</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">145</td>
+    <td class="codeLine">      // 2-15   reserved, must be zero</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">146</td>
+    <td class="codeLine">      // 16-17  tile0.colsb Tile 0 bytes per row.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">146</td>
+    <td class="codeLine">      // 16-17  tile0.colsb Tile 0 bytes per row.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">147</td>
+    <td class="codeLine">      // 18-19  tile1.colsb Tile 1 bytes per row.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">147</td>
+    <td class="codeLine">      // 18-19  tile1.colsb Tile 1 bytes per row.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">148</td>
+    <td class="codeLine">      // 20-21  tile2.colsb Tile 2 bytes per row.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">148</td>
+    <td class="codeLine">      // 20-21  tile2.colsb Tile 2 bytes per row.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">149</td>
+    <td class="codeLine">      // ... (sequence continues)</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">149</td>
+    <td class="codeLine">      // ... (sequence continues)</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">150</td>
+    <td class="codeLine">      // 30-31  tile7.colsb Tile 7 bytes per row.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">150</td>
+    <td class="codeLine">      // 30-31  tile7.colsb Tile 7 bytes per row.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">151</td>
+    <td class="codeLine">      // 32-47  reserved, must be zero</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">151</td>
+    <td class="codeLine">      // 32-47  reserved, must be zero</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">152</td>
+    <td class="codeLine">      // 48     tile0.rows Tile 0 rows.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">152</td>
+    <td class="codeLine">      // 48     tile0.rows Tile 0 rows.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">153</td>
+    <td class="codeLine">      // 49     tile1.rows Tile 1 rows.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">153</td>
+    <td class="codeLine">      // 49     tile1.rows Tile 1 rows.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">154</td>
+    <td class="codeLine">      // 50     tile2.rows Tile 2 rows.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">154</td>
+    <td class="codeLine">      // 50     tile2.rows Tile 2 rows.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">155</td>
+    <td class="codeLine">      // ... (sequence continues)</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">155</td>
+    <td class="codeLine">      // ... (sequence continues)</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">156</td>
+    <td class="codeLine">      // 55     tile7.rows Tile 7 rows.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">156</td>
+    <td class="codeLine">      // 55     tile7.rows Tile 7 rows.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">157</td>
+    <td class="codeLine">      // 56-63  reserved, must be zero</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">157</td>
+    <td class="codeLine">      // 56-63  reserved, must be zero</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">158</td>
+    <td class="codeLine">      int64_t Imm = INT64_MAX;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">158</td>
+    <td class="codeLine">      int64_t Imm = INT64_MAX;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">159</td>
+    <td class="codeLine">      int Offset = IsRow ? 48 + I : 16 + I * 2;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">159</td>
+    <td class="codeLine">      int Offset = IsRow ? 48 + I : 16 + I * 2;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">160</td>
+    <td class="codeLine">      for (auto &DefMI : MRI.def_instructions(R)) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">160</td>
+    <td class="codeLine">      for (auto &DefMI : MRI.def_instructions(R)) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">161</td>
+    <td class="codeLine">        MachineBasicBlock &MBB = *DefMI.getParent();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">161</td>
+    <td class="codeLine">        MachineBasicBlock &MBB = *DefMI.getParent();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">162</td>
+    <td class="codeLine">        if (DefMI.isMoveImmediate()) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">162</td>
+    <td class="codeLine">        if (DefMI.isMoveImmediate()) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">163</td>
+    <td class="codeLine">          if (Imm != INT64_MAX) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">163</td>
+    <td class="codeLine">          if (Imm != INT64_MAX) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">164</td>
+    <td class="codeLine">            // FIXME: We should handle this case in future.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">164</td>
+    <td class="codeLine">            // FIXME: We should handle this case in future.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">165</td>
+    <td class="codeLine">            assert(Imm == DefMI.getOperand(1).getImm() &&</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">165</td>
+    <td class="codeLine">            assert(Imm == DefMI.getOperand(1).getImm() &&</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">166</td>
+    <td class="codeLine">                   "Cannot initialize with different shapes");</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">166</td>
+    <td class="codeLine">                   "Cannot initialize with different shapes");</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">167</td>
+    <td class="codeLine">            continue;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">167</td>
+    <td class="codeLine">            continue;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">168</td>
+    <td class="codeLine">          }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">168</td>
+    <td class="codeLine">          }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">169</td>
+    <td class="codeLine">          Imm = DefMI.getOperand(1).getImm();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">169</td>
+    <td class="codeLine">          Imm = DefMI.getOperand(1).getImm();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">170</td>
+    <td class="codeLine">          NewMI = addFrameReference(</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">170</td>
+    <td class="codeLine">          NewMI = addFrameReference(</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">171</td>
+    <td class="codeLine">                      BuildMI(MF.front(), ++ConstMI->getIterator(), DL,</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">171</td>
+    <td class="codeLine">                      BuildMI(MF.front(), ++ConstMI->getIterator(), DL,</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">172</td>
+    <td class="codeLine">                              TII->get(IsRow ? X86::MOV8mi : X86::MOV16mi)),</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">172</td>
+    <td class="codeLine">                              TII->get(IsRow ? X86::MOV8mi : X86::MOV16mi)),</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">173</td>
+    <td class="codeLine">                      SS, Offset)</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">173</td>
+    <td class="codeLine">                      SS, Offset)</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">174</td>
+    <td class="codeLine">                      .addImm(Imm);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">174</td>
+    <td class="codeLine">                      .addImm(Imm);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">175</td>
+    <td class="codeLine">          ConstMI = NewMI;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">175</td>
+    <td class="codeLine">          ConstMI = NewMI;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">176</td>
+    <td class="codeLine">          LIS.InsertMachineInstrInMaps(*NewMI);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">176</td>
+    <td class="codeLine">          LIS.InsertMachineInstrInMaps(*NewMI);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">177</td>
+    <td class="codeLine">        } else {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">177</td>
+    <td class="codeLine">        } else {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">178</td>
+    <td class="codeLine">          unsigned SubIdx = IsRow ? X86::sub_8bit : X86::sub_16bit;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">178</td>
+    <td class="codeLine">          unsigned SubIdx = IsRow ? X86::sub_8bit : X86::sub_16bit;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">179</td>
+    <td class="codeLine">          unsigned RegSize = TRI->getRegSizeInBits(*MRI.getRegClass(R));</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">179</td>
+    <td class="codeLine">          unsigned RegSize = TRI->getRegSizeInBits(*MRI.getRegClass(R));</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">180</td>
+    <td class="codeLine">          if ((IsRow && RegSize == 8) || (!IsRow && RegSize == 16))</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">180</td>
+    <td class="codeLine">          if ((IsRow && RegSize == 8) || (!IsRow && RegSize == 16))</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">181</td>
+    <td class="codeLine">            SubIdx = 0;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">181</td>
+    <td class="codeLine">            SubIdx = 0;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">182</td>
+    <td class="codeLine">          auto Iter = DefMI.getIterator();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">182</td>
+    <td class="codeLine">          auto Iter = DefMI.getIterator();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">183</td>
+    <td class="codeLine">          if (&MBB == &MF.front() &&</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">183</td>
+    <td class="codeLine">          if (&MBB == &MF.front() &&</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">184</td>
+    <td class="codeLine">              (unsigned)std::distance(MBB.instr_begin(), Iter) < ConstPos)</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">184</td>
+    <td class="codeLine">              (unsigned)std::distance(MBB.instr_begin(), Iter) < ConstPos)</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">185</td>
+    <td class="codeLine">            Iter = ConstMI->getIterator();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">185</td>
+    <td class="codeLine">            Iter = ConstMI->getIterator();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">186</td>
+    <td class="codeLine">          NewMI = addFrameReference(</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">186</td>
+    <td class="codeLine">          NewMI = addFrameReference(</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">187</td>
+    <td class="codeLine">                      BuildMI(MBB, ++Iter, DL,</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">187</td>
+    <td class="codeLine">                      BuildMI(MBB, ++Iter, DL,</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">188</td>
+    <td class="codeLine">                              TII->get(IsRow ? X86::MOV8mr : X86::MOV16mr)),</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">188</td>
+    <td class="codeLine">                              TII->get(IsRow ? X86::MOV8mr : X86::MOV16mr)),</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">189</td>
+    <td class="codeLine">                      SS, Offset)</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">189</td>
+    <td class="codeLine">                      SS, Offset)</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">190</td>
+    <td class="codeLine">                      .addReg(R, 0, SubIdx);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">190</td>
+    <td class="codeLine">                      .addReg(R, 0, SubIdx);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">191</td>
+    <td class="codeLine">          SlotIndex SIdx = LIS.InsertMachineInstrInMaps(*NewMI);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">191</td>
+    <td class="codeLine">          SlotIndex SIdx = LIS.InsertMachineInstrInMaps(*NewMI);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">192</td>
+    <td class="codeLine">          LIS.extendToIndices(LIS.getInterval(R), {SIdx.getRegSlot()});</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">192</td>
+    <td class="codeLine">          LIS.extendToIndices(LIS.getInterval(R), {SIdx.getRegSlot()});</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">193</td>
+    <td class="codeLine">        }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">193</td>
+    <td class="codeLine">        }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">194</td>
+    <td class="codeLine">      }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">194</td>
+    <td class="codeLine">      }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">195</td>
+    <td class="codeLine">      IsRow = false;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">195</td>
+    <td class="codeLine">      IsRow = false;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">196</td>
+    <td class="codeLine">    }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">196</td>
+    <td class="codeLine">    }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">197</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">197</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">198</td>
+    <td class="codeLine">  return true;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">198</td>
+    <td class="codeLine">  return true;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">199</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">199</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">200</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">200</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">201</td>
+    <td class="codeLine">FunctionPass *llvm::createX86TileConfigPass() { return new X86TileConfig(); }</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">201</td>
+    <td class="codeLine">FunctionPass *llvm::createX86TileConfigPass() { return new X86TileConfig(); }</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">202</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">202</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+</table>
+    </div>
+    <button id="myBtn" onclick="topFunction()" title="Go to top" type="button">Top</button>
+    <script src="../Javascript/drop_down.js"></script>
+    <script src="../Javascript/top_button.js"></script>
+  </body>
+</html>

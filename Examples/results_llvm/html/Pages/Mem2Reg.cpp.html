@@ -1,0 +1,2670 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Mem2Reg.cpp</title>
+    <link rel="stylesheet" href="../Style/style.css" />
+  </head>
+  <body>
+    <div class="headerDiv">
+      <h1>
+        Code Coverage
+      </h1>
+      <p>
+        Source file: /home/nikola/Desktop/llvm-project/llvm/lib/Transforms/Utils/Mem2Reg.cpp
+      </p>
+    </div>
+    <button class="collapsible" type="button">Open Summary Report</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Summary Report</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line number</th>
+    <th class="mainTh">Line</th>
+    <th class="mainTh">Number of hits</th>
+    <th class="mainTh">Tests that cover line</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="">//===- Mem2Reg.cpp - The -mem2reg pass, a wrapper around the Utils lib ----===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="">//===----------------------------------------------------------------------===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="">// This pass is a simple pass wrapper around the PromoteMemToReg function call</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="">// exposed by the Utils library.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class="">//===----------------------------------------------------------------------===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class="">#include "llvm/Transforms/Utils/Mem2Reg.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class="">#include "llvm/ADT/Statistic.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class="">#include "llvm/Analysis/AssumptionCache.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class="">#include "llvm/IR/BasicBlock.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class="">#include "llvm/IR/Dominators.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class="">#include "llvm/IR/Function.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class="">#include "llvm/IR/Instructions.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class="">#include "llvm/IR/PassManager.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class="">#include "llvm/InitializePasses.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class="">#include "llvm/Pass.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class="">#include "llvm/Support/Casting.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class="">#include "llvm/Transforms/Utils.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class="">#include "llvm/Transforms/Utils/PromoteMemToReg.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class="">#include <vector></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class="">using namespace llvm;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class="">#define DEBUG_TYPE "mem2reg"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class="">STATISTIC(NumPromoted, "Number of alloca's promoted");</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class="uncoveredLine">static bool promoteMemoryToRegister(Function &F, DominatorTree &DT,</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class="">                                    AssumptionCache &AC) {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class="uncoveredLine">  std::vector<AllocaInst *> Allocas;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class="uncoveredLine">  BasicBlock &BB = F.getEntryBlock(); // Get the entry node for the function</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class="uncoveredLine">  bool Changed = false;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class="">  while (true) {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class="uncoveredLine">    Allocas.clear();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class="">    // Find allocas that are safe to promote, by looking at all instructions in</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class="">    // the entry node</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class="uncoveredLine">    for (BasicBlock::iterator I = BB.begin(), E = --BB.end(); I != E; ++I)</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class="uncoveredLine">      if (AllocaInst *AI = dyn_cast<AllocaInst>(I)) // Is it an alloca?</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class="uncoveredLine">        if (isAllocaPromotable(AI))</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class="uncoveredLine">          Allocas.push_back(AI);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class="uncoveredLine">    if (Allocas.empty())</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class="uncoveredLine">      break;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class="uncoveredLine">    PromoteMemToReg(Allocas, DT, &AC);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class="uncoveredLine">    NumPromoted += Allocas.size();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class="uncoveredLine">    Changed = true;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class="uncoveredLine">  }</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class="uncoveredLine">  return Changed;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class="uncoveredLine">}</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class="uncoveredLine">PreservedAnalyses PromotePass::run(Function &F, FunctionAnalysisManager &AM) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class="uncoveredLine">  auto &DT = AM.getResult<DominatorTreeAnalysis>(F);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class="uncoveredLine">  auto &AC = AM.getResult<AssumptionAnalysis>(F);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class="uncoveredLine">  if (!promoteMemoryToRegister(F, DT, AC))</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class="uncoveredLine">    return PreservedAnalyses::all();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class="uncoveredLine">  PreservedAnalyses PA;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class="uncoveredLine">  PA.preserveSet<CFGAnalyses>();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class="uncoveredLine">  return PA;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class="uncoveredLine">}</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class="">namespace {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class="">struct PromoteLegacyPass : public FunctionPass {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class="">  // Pass identification, replacement for typeid</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class="">  static char ID;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class="">  bool ForcePass; /// If true, forces pass to execute, instead of skipping.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class="uncoveredLine">  PromoteLegacyPass() : FunctionPass(ID), ForcePass(false) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class="uncoveredLine">    initializePromoteLegacyPassPass(*PassRegistry::getPassRegistry());</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class="uncoveredLine">  }</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class="uncoveredLine">  PromoteLegacyPass(bool IsForced) : FunctionPass(ID), ForcePass(IsForced) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class="uncoveredLine">    initializePromoteLegacyPassPass(*PassRegistry::getPassRegistry());</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class="uncoveredLine">  }</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class="">  // runOnFunction - To run this pass, first we calculate the alloca</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class="">  // instructions that are safe for promotion, then we promote each one.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class="uncoveredLine">  bool runOnFunction(Function &F) override {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class="uncoveredLine">    if (!ForcePass && skipFunction(F))</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">90</td>
+    <td class="uncoveredLine">      return false;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">91</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">92</td>
+    <td class="uncoveredLine">    DominatorTree &DT = getAnalysis<DominatorTreeWrapperPass>().getDomTree();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">93</td>
+    <td class="">    AssumptionCache &AC =</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">94</td>
+    <td class="uncoveredLine">        getAnalysis<AssumptionCacheTracker>().getAssumptionCache(F);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">95</td>
+    <td class="uncoveredLine">    return promoteMemoryToRegister(F, DT, AC);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">96</td>
+    <td class="">  }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">97</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">98</td>
+    <td class="uncoveredLine">  void getAnalysisUsage(AnalysisUsage &AU) const override {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">99</td>
+    <td class="uncoveredLine">    AU.addRequired<AssumptionCacheTracker>();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">100</td>
+    <td class="uncoveredLine">    AU.addRequired<DominatorTreeWrapperPass>();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">101</td>
+    <td class="uncoveredLine">    AU.setPreservesCFG();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">102</td>
+    <td class="uncoveredLine">  }</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">103</td>
+    <td class="">};</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">104</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">105</td>
+    <td class="">} // end anonymous namespace</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">106</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">107</td>
+    <td class="">char PromoteLegacyPass::ID = 0;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">108</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">109</td>
+    <td class="coveredLine">INITIALIZE_PASS_BEGIN(PromoteLegacyPass, "mem2reg", "Promote Memory to "</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">110</td>
+    <td class="">                                                    "Register",</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">111</td>
+    <td class="">                      false, false)</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">112</td>
+    <td class="coveredLine">INITIALIZE_PASS_DEPENDENCY(AssumptionCacheTracker)</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">113</td>
+    <td class="coveredLine">INITIALIZE_PASS_DEPENDENCY(DominatorTreeWrapperPass)</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">114</td>
+    <td class="coveredLine">INITIALIZE_PASS_END(PromoteLegacyPass, "mem2reg", "Promote Memory to Register",</td>
+    <td>4</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">115</td>
+    <td class="">                    false, false)</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">116</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">117</td>
+    <td class="">// createPromoteMemoryToRegister - Provide an entry point to create this pass.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">118</td>
+    <td class="uncoveredLine">FunctionPass *llvm::createPromoteMemoryToRegisterPass(bool IsForced) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">119</td>
+    <td class="uncoveredLine">  return new PromoteLegacyPass(IsForced);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">120</td>
+    <td class="">}</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">121</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Functions Report</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Functions Report</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Function name</th>
+    <th class="mainTh">Number of hits</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZL23promoteMemoryToRegisterRN4llvm8FunctionERNS_13DominatorTreeERNS_15AssumptionCacheE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN4llvm11PromotePass3runERNS_8FunctionERNS_15AnalysisManagerIS1_JEEE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_117PromoteLegacyPassC2Ev</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_117PromoteLegacyPassC2Eb</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_117PromoteLegacyPass13runOnFunctionERN4llvm8FunctionE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZNK12_GLOBAL__N_117PromoteLegacyPass16getAnalysisUsageERN4llvm13AnalysisUsageE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZL35initializePromoteLegacyPassPassOnceRN4llvm12PassRegistryE</td>
+    <td class="numberOfCalls">2</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN4llvm31initializePromoteLegacyPassPassERNS_12PassRegistryE</td>
+    <td class="numberOfCalls">2</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN4llvm33createPromoteMemoryToRegisterPassEb</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Coverage Diff</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Coverage Diff</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span> BUT NOT </span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </th>
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+      <span> BUT NOT </span>
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+    </th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="codeline">//===- Mem2Reg.cpp - The -mem2reg pass, a wrapper around the Utils lib ----===//</td>
+    <td class="lineNumber">1</td>
+    <td class="codeline">//===- Mem2Reg.cpp - The -mem2reg pass, a wrapper around the Utils lib ----===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">2</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="codeline">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">3</td>
+    <td class="codeline">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="codeline">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">4</td>
+    <td class="codeline">// See https://llvm.org/LICENSE.txt for license information.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="codeline">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">5</td>
+    <td class="codeline">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">6</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">7</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">8</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="codeline">// This pass is a simple pass wrapper around the PromoteMemToReg function call</td>
+    <td class="lineNumber">9</td>
+    <td class="codeline">// This pass is a simple pass wrapper around the PromoteMemToReg function call</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="codeline">// exposed by the Utils library.</td>
+    <td class="lineNumber">10</td>
+    <td class="codeline">// exposed by the Utils library.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">11</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">12</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">13</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class="codeline">#include "llvm/Transforms/Utils/Mem2Reg.h"</td>
+    <td class="lineNumber">14</td>
+    <td class="codeline">#include "llvm/Transforms/Utils/Mem2Reg.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class="codeline">#include "llvm/ADT/Statistic.h"</td>
+    <td class="lineNumber">15</td>
+    <td class="codeline">#include "llvm/ADT/Statistic.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class="codeline">#include "llvm/Analysis/AssumptionCache.h"</td>
+    <td class="lineNumber">16</td>
+    <td class="codeline">#include "llvm/Analysis/AssumptionCache.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class="codeline">#include "llvm/IR/BasicBlock.h"</td>
+    <td class="lineNumber">17</td>
+    <td class="codeline">#include "llvm/IR/BasicBlock.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class="codeline">#include "llvm/IR/Dominators.h"</td>
+    <td class="lineNumber">18</td>
+    <td class="codeline">#include "llvm/IR/Dominators.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class="codeline">#include "llvm/IR/Function.h"</td>
+    <td class="lineNumber">19</td>
+    <td class="codeline">#include "llvm/IR/Function.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class="codeline">#include "llvm/IR/Instructions.h"</td>
+    <td class="lineNumber">20</td>
+    <td class="codeline">#include "llvm/IR/Instructions.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class="codeline">#include "llvm/IR/PassManager.h"</td>
+    <td class="lineNumber">21</td>
+    <td class="codeline">#include "llvm/IR/PassManager.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class="codeline">#include "llvm/InitializePasses.h"</td>
+    <td class="lineNumber">22</td>
+    <td class="codeline">#include "llvm/InitializePasses.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class="codeline">#include "llvm/Pass.h"</td>
+    <td class="lineNumber">23</td>
+    <td class="codeline">#include "llvm/Pass.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class="codeline">#include "llvm/Support/Casting.h"</td>
+    <td class="lineNumber">24</td>
+    <td class="codeline">#include "llvm/Support/Casting.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class="codeline">#include "llvm/Transforms/Utils.h"</td>
+    <td class="lineNumber">25</td>
+    <td class="codeline">#include "llvm/Transforms/Utils.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class="codeline">#include "llvm/Transforms/Utils/PromoteMemToReg.h"</td>
+    <td class="lineNumber">26</td>
+    <td class="codeline">#include "llvm/Transforms/Utils/PromoteMemToReg.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class="codeline">#include <vector></td>
+    <td class="lineNumber">27</td>
+    <td class="codeline">#include <vector></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">28</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class="codeline">using namespace llvm;</td>
+    <td class="lineNumber">29</td>
+    <td class="codeline">using namespace llvm;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">30</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class="codeline">#define DEBUG_TYPE "mem2reg"</td>
+    <td class="lineNumber">31</td>
+    <td class="codeline">#define DEBUG_TYPE "mem2reg"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">32</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class="codeline">STATISTIC(NumPromoted, "Number of alloca's promoted");</td>
+    <td class="lineNumber">33</td>
+    <td class="codeline">STATISTIC(NumPromoted, "Number of alloca's promoted");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">34</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class="codeline">static bool promoteMemoryToRegister(Function &F, DominatorTree &DT,</td>
+    <td class="lineNumber">35</td>
+    <td class="codeline">static bool promoteMemoryToRegister(Function &F, DominatorTree &DT,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class="codeline">                                    AssumptionCache &AC) {</td>
+    <td class="lineNumber">36</td>
+    <td class="codeline">                                    AssumptionCache &AC) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class="codeline">  std::vector<AllocaInst *> Allocas;</td>
+    <td class="lineNumber">37</td>
+    <td class="codeline">  std::vector<AllocaInst *> Allocas;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class="codeline">  BasicBlock &BB = F.getEntryBlock(); // Get the entry node for the function</td>
+    <td class="lineNumber">38</td>
+    <td class="codeline">  BasicBlock &BB = F.getEntryBlock(); // Get the entry node for the function</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class="codeline">  bool Changed = false;</td>
+    <td class="lineNumber">39</td>
+    <td class="codeline">  bool Changed = false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">40</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class="codeline">  while (true) {</td>
+    <td class="lineNumber">41</td>
+    <td class="codeline">  while (true) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class="codeline">    Allocas.clear();</td>
+    <td class="lineNumber">42</td>
+    <td class="codeline">    Allocas.clear();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">43</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class="codeline">    // Find allocas that are safe to promote, by looking at all instructions in</td>
+    <td class="lineNumber">44</td>
+    <td class="codeline">    // Find allocas that are safe to promote, by looking at all instructions in</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class="codeline">    // the entry node</td>
+    <td class="lineNumber">45</td>
+    <td class="codeline">    // the entry node</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class="codeline">    for (BasicBlock::iterator I = BB.begin(), E = --BB.end(); I != E; ++I)</td>
+    <td class="lineNumber">46</td>
+    <td class="codeline">    for (BasicBlock::iterator I = BB.begin(), E = --BB.end(); I != E; ++I)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class="codeline">      if (AllocaInst *AI = dyn_cast<AllocaInst>(I)) // Is it an alloca?</td>
+    <td class="lineNumber">47</td>
+    <td class="codeline">      if (AllocaInst *AI = dyn_cast<AllocaInst>(I)) // Is it an alloca?</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class="codeline">        if (isAllocaPromotable(AI))</td>
+    <td class="lineNumber">48</td>
+    <td class="codeline">        if (isAllocaPromotable(AI))</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class="codeline">          Allocas.push_back(AI);</td>
+    <td class="lineNumber">49</td>
+    <td class="codeline">          Allocas.push_back(AI);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">50</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class="codeline">    if (Allocas.empty())</td>
+    <td class="lineNumber">51</td>
+    <td class="codeline">    if (Allocas.empty())</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class="codeline">      break;</td>
+    <td class="lineNumber">52</td>
+    <td class="codeline">      break;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">53</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class="codeline">    PromoteMemToReg(Allocas, DT, &AC);</td>
+    <td class="lineNumber">54</td>
+    <td class="codeline">    PromoteMemToReg(Allocas, DT, &AC);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class="codeline">    NumPromoted += Allocas.size();</td>
+    <td class="lineNumber">55</td>
+    <td class="codeline">    NumPromoted += Allocas.size();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class="codeline">    Changed = true;</td>
+    <td class="lineNumber">56</td>
+    <td class="codeline">    Changed = true;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">57</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class="codeline">  return Changed;</td>
+    <td class="lineNumber">58</td>
+    <td class="codeline">  return Changed;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">59</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">60</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class="codeline">PreservedAnalyses PromotePass::run(Function &F, FunctionAnalysisManager &AM) {</td>
+    <td class="lineNumber">61</td>
+    <td class="codeline">PreservedAnalyses PromotePass::run(Function &F, FunctionAnalysisManager &AM) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class="codeline">  auto &DT = AM.getResult<DominatorTreeAnalysis>(F);</td>
+    <td class="lineNumber">62</td>
+    <td class="codeline">  auto &DT = AM.getResult<DominatorTreeAnalysis>(F);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class="codeline">  auto &AC = AM.getResult<AssumptionAnalysis>(F);</td>
+    <td class="lineNumber">63</td>
+    <td class="codeline">  auto &AC = AM.getResult<AssumptionAnalysis>(F);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class="codeline">  if (!promoteMemoryToRegister(F, DT, AC))</td>
+    <td class="lineNumber">64</td>
+    <td class="codeline">  if (!promoteMemoryToRegister(F, DT, AC))</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class="codeline">    return PreservedAnalyses::all();</td>
+    <td class="lineNumber">65</td>
+    <td class="codeline">    return PreservedAnalyses::all();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">66</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class="codeline">  PreservedAnalyses PA;</td>
+    <td class="lineNumber">67</td>
+    <td class="codeline">  PreservedAnalyses PA;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class="codeline">  PA.preserveSet<CFGAnalyses>();</td>
+    <td class="lineNumber">68</td>
+    <td class="codeline">  PA.preserveSet<CFGAnalyses>();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class="codeline">  return PA;</td>
+    <td class="lineNumber">69</td>
+    <td class="codeline">  return PA;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">70</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">71</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class="codeline">namespace {</td>
+    <td class="lineNumber">72</td>
+    <td class="codeline">namespace {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">73</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class="codeline">struct PromoteLegacyPass : public FunctionPass {</td>
+    <td class="lineNumber">74</td>
+    <td class="codeline">struct PromoteLegacyPass : public FunctionPass {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class="codeline">  // Pass identification, replacement for typeid</td>
+    <td class="lineNumber">75</td>
+    <td class="codeline">  // Pass identification, replacement for typeid</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class="codeline">  static char ID;</td>
+    <td class="lineNumber">76</td>
+    <td class="codeline">  static char ID;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class="codeline">  bool ForcePass; /// If true, forces pass to execute, instead of skipping.</td>
+    <td class="lineNumber">77</td>
+    <td class="codeline">  bool ForcePass; /// If true, forces pass to execute, instead of skipping.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">78</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class="codeline">  PromoteLegacyPass() : FunctionPass(ID), ForcePass(false) {</td>
+    <td class="lineNumber">79</td>
+    <td class="codeline">  PromoteLegacyPass() : FunctionPass(ID), ForcePass(false) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class="codeline">    initializePromoteLegacyPassPass(*PassRegistry::getPassRegistry());</td>
+    <td class="lineNumber">80</td>
+    <td class="codeline">    initializePromoteLegacyPassPass(*PassRegistry::getPassRegistry());</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">81</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class="codeline">  PromoteLegacyPass(bool IsForced) : FunctionPass(ID), ForcePass(IsForced) {</td>
+    <td class="lineNumber">82</td>
+    <td class="codeline">  PromoteLegacyPass(bool IsForced) : FunctionPass(ID), ForcePass(IsForced) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class="codeline">    initializePromoteLegacyPassPass(*PassRegistry::getPassRegistry());</td>
+    <td class="lineNumber">83</td>
+    <td class="codeline">    initializePromoteLegacyPassPass(*PassRegistry::getPassRegistry());</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">84</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">85</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class="codeline">  // runOnFunction - To run this pass, first we calculate the alloca</td>
+    <td class="lineNumber">86</td>
+    <td class="codeline">  // runOnFunction - To run this pass, first we calculate the alloca</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class="codeline">  // instructions that are safe for promotion, then we promote each one.</td>
+    <td class="lineNumber">87</td>
+    <td class="codeline">  // instructions that are safe for promotion, then we promote each one.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class="codeline">  bool runOnFunction(Function &F) override {</td>
+    <td class="lineNumber">88</td>
+    <td class="codeline">  bool runOnFunction(Function &F) override {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class="codeline">    if (!ForcePass && skipFunction(F))</td>
+    <td class="lineNumber">89</td>
+    <td class="codeline">    if (!ForcePass && skipFunction(F))</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">90</td>
+    <td class="codeline">      return false;</td>
+    <td class="lineNumber">90</td>
+    <td class="codeline">      return false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">91</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">91</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">92</td>
+    <td class="codeline">    DominatorTree &DT = getAnalysis<DominatorTreeWrapperPass>().getDomTree();</td>
+    <td class="lineNumber">92</td>
+    <td class="codeline">    DominatorTree &DT = getAnalysis<DominatorTreeWrapperPass>().getDomTree();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">93</td>
+    <td class="codeline">    AssumptionCache &AC =</td>
+    <td class="lineNumber">93</td>
+    <td class="codeline">    AssumptionCache &AC =</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">94</td>
+    <td class="codeline">        getAnalysis<AssumptionCacheTracker>().getAssumptionCache(F);</td>
+    <td class="lineNumber">94</td>
+    <td class="codeline">        getAnalysis<AssumptionCacheTracker>().getAssumptionCache(F);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">95</td>
+    <td class="codeline">    return promoteMemoryToRegister(F, DT, AC);</td>
+    <td class="lineNumber">95</td>
+    <td class="codeline">    return promoteMemoryToRegister(F, DT, AC);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">96</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">96</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">97</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">97</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">98</td>
+    <td class="codeline">  void getAnalysisUsage(AnalysisUsage &AU) const override {</td>
+    <td class="lineNumber">98</td>
+    <td class="codeline">  void getAnalysisUsage(AnalysisUsage &AU) const override {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">99</td>
+    <td class="codeline">    AU.addRequired<AssumptionCacheTracker>();</td>
+    <td class="lineNumber">99</td>
+    <td class="codeline">    AU.addRequired<AssumptionCacheTracker>();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">100</td>
+    <td class="codeline">    AU.addRequired<DominatorTreeWrapperPass>();</td>
+    <td class="lineNumber">100</td>
+    <td class="codeline">    AU.addRequired<DominatorTreeWrapperPass>();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">101</td>
+    <td class="codeline">    AU.setPreservesCFG();</td>
+    <td class="lineNumber">101</td>
+    <td class="codeline">    AU.setPreservesCFG();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">102</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">102</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">103</td>
+    <td class="codeline">};</td>
+    <td class="lineNumber">103</td>
+    <td class="codeline">};</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">104</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">104</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">105</td>
+    <td class="codeline">} // end anonymous namespace</td>
+    <td class="lineNumber">105</td>
+    <td class="codeline">} // end anonymous namespace</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">106</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">106</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">107</td>
+    <td class="codeline">char PromoteLegacyPass::ID = 0;</td>
+    <td class="lineNumber">107</td>
+    <td class="codeline">char PromoteLegacyPass::ID = 0;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">108</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">108</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">109</td>
+    <td class="codeline">INITIALIZE_PASS_BEGIN(PromoteLegacyPass, "mem2reg", "Promote Memory to "</td>
+    <td class="lineNumber">109</td>
+    <td class="codeline">INITIALIZE_PASS_BEGIN(PromoteLegacyPass, "mem2reg", "Promote Memory to "</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">110</td>
+    <td class="codeline">                                                    "Register",</td>
+    <td class="lineNumber">110</td>
+    <td class="codeline">                                                    "Register",</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">111</td>
+    <td class="codeline">                      false, false)</td>
+    <td class="lineNumber">111</td>
+    <td class="codeline">                      false, false)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">112</td>
+    <td class="codeline">INITIALIZE_PASS_DEPENDENCY(AssumptionCacheTracker)</td>
+    <td class="lineNumber">112</td>
+    <td class="codeline">INITIALIZE_PASS_DEPENDENCY(AssumptionCacheTracker)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">113</td>
+    <td class="codeline">INITIALIZE_PASS_DEPENDENCY(DominatorTreeWrapperPass)</td>
+    <td class="lineNumber">113</td>
+    <td class="codeline">INITIALIZE_PASS_DEPENDENCY(DominatorTreeWrapperPass)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">114</td>
+    <td class="codeline">INITIALIZE_PASS_END(PromoteLegacyPass, "mem2reg", "Promote Memory to Register",</td>
+    <td class="lineNumber">114</td>
+    <td class="codeline">INITIALIZE_PASS_END(PromoteLegacyPass, "mem2reg", "Promote Memory to Register",</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">115</td>
+    <td class="codeline">                    false, false)</td>
+    <td class="lineNumber">115</td>
+    <td class="codeline">                    false, false)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">116</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">116</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">117</td>
+    <td class="codeline">// createPromoteMemoryToRegister - Provide an entry point to create this pass.</td>
+    <td class="lineNumber">117</td>
+    <td class="codeline">// createPromoteMemoryToRegister - Provide an entry point to create this pass.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">118</td>
+    <td class="codeline">FunctionPass *llvm::createPromoteMemoryToRegisterPass(bool IsForced) {</td>
+    <td class="lineNumber">118</td>
+    <td class="codeline">FunctionPass *llvm::createPromoteMemoryToRegisterPass(bool IsForced) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">119</td>
+    <td class="codeline">  return new PromoteLegacyPass(IsForced);</td>
+    <td class="lineNumber">119</td>
+    <td class="codeline">  return new PromoteLegacyPass(IsForced);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">120</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">120</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">121</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">121</td>
+    <td class="codeline"></td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Side By Side Comparison</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Side By Side Comparison</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+    </th>
+    <th class="mainTh">Hit count</th>
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </th>
+    <th class="mainTh">Hit count</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="codeLine">//===- Mem2Reg.cpp - The -mem2reg pass, a wrapper around the Utils lib ----===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">1</td>
+    <td class="codeLine">//===- Mem2Reg.cpp - The -mem2reg pass, a wrapper around the Utils lib ----===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">2</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="codeLine">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">3</td>
+    <td class="codeLine">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="codeLine">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">4</td>
+    <td class="codeLine">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="codeLine">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">5</td>
+    <td class="codeLine">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">6</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">7</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">8</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="codeLine">// This pass is a simple pass wrapper around the PromoteMemToReg function call</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">9</td>
+    <td class="codeLine">// This pass is a simple pass wrapper around the PromoteMemToReg function call</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="codeLine">// exposed by the Utils library.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">10</td>
+    <td class="codeLine">// exposed by the Utils library.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">11</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">12</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">13</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class="codeLine">#include "llvm/Transforms/Utils/Mem2Reg.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">14</td>
+    <td class="codeLine">#include "llvm/Transforms/Utils/Mem2Reg.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class="codeLine">#include "llvm/ADT/Statistic.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">15</td>
+    <td class="codeLine">#include "llvm/ADT/Statistic.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class="codeLine">#include "llvm/Analysis/AssumptionCache.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">16</td>
+    <td class="codeLine">#include "llvm/Analysis/AssumptionCache.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class="codeLine">#include "llvm/IR/BasicBlock.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">17</td>
+    <td class="codeLine">#include "llvm/IR/BasicBlock.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class="codeLine">#include "llvm/IR/Dominators.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">18</td>
+    <td class="codeLine">#include "llvm/IR/Dominators.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class="codeLine">#include "llvm/IR/Function.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">19</td>
+    <td class="codeLine">#include "llvm/IR/Function.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class="codeLine">#include "llvm/IR/Instructions.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">20</td>
+    <td class="codeLine">#include "llvm/IR/Instructions.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class="codeLine">#include "llvm/IR/PassManager.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">21</td>
+    <td class="codeLine">#include "llvm/IR/PassManager.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class="codeLine">#include "llvm/InitializePasses.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">22</td>
+    <td class="codeLine">#include "llvm/InitializePasses.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class="codeLine">#include "llvm/Pass.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">23</td>
+    <td class="codeLine">#include "llvm/Pass.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class="codeLine">#include "llvm/Support/Casting.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">24</td>
+    <td class="codeLine">#include "llvm/Support/Casting.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class="codeLine">#include "llvm/Transforms/Utils.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">25</td>
+    <td class="codeLine">#include "llvm/Transforms/Utils.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class="codeLine">#include "llvm/Transforms/Utils/PromoteMemToReg.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">26</td>
+    <td class="codeLine">#include "llvm/Transforms/Utils/PromoteMemToReg.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class="codeLine">#include <vector></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">27</td>
+    <td class="codeLine">#include <vector></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">28</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class="codeLine">using namespace llvm;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">29</td>
+    <td class="codeLine">using namespace llvm;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">30</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class="codeLine">#define DEBUG_TYPE "mem2reg"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">31</td>
+    <td class="codeLine">#define DEBUG_TYPE "mem2reg"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">32</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class="codeLine">STATISTIC(NumPromoted, "Number of alloca's promoted");</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">33</td>
+    <td class="codeLine">STATISTIC(NumPromoted, "Number of alloca's promoted");</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">34</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class="codeLine">static bool promoteMemoryToRegister(Function &F, DominatorTree &DT,</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">35</td>
+    <td class="codeLine">static bool promoteMemoryToRegister(Function &F, DominatorTree &DT,</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class="codeLine">                                    AssumptionCache &AC) {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">36</td>
+    <td class="codeLine">                                    AssumptionCache &AC) {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class="codeLine">  std::vector<AllocaInst *> Allocas;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">37</td>
+    <td class="codeLine">  std::vector<AllocaInst *> Allocas;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class="codeLine">  BasicBlock &BB = F.getEntryBlock(); // Get the entry node for the function</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">38</td>
+    <td class="codeLine">  BasicBlock &BB = F.getEntryBlock(); // Get the entry node for the function</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class="codeLine">  bool Changed = false;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">39</td>
+    <td class="codeLine">  bool Changed = false;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">40</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class="codeLine">  while (true) {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">41</td>
+    <td class="codeLine">  while (true) {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class="codeLine">    Allocas.clear();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">42</td>
+    <td class="codeLine">    Allocas.clear();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">43</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class="codeLine">    // Find allocas that are safe to promote, by looking at all instructions in</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">44</td>
+    <td class="codeLine">    // Find allocas that are safe to promote, by looking at all instructions in</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class="codeLine">    // the entry node</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">45</td>
+    <td class="codeLine">    // the entry node</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class="codeLine">    for (BasicBlock::iterator I = BB.begin(), E = --BB.end(); I != E; ++I)</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">46</td>
+    <td class="codeLine">    for (BasicBlock::iterator I = BB.begin(), E = --BB.end(); I != E; ++I)</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class="codeLine">      if (AllocaInst *AI = dyn_cast<AllocaInst>(I)) // Is it an alloca?</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">47</td>
+    <td class="codeLine">      if (AllocaInst *AI = dyn_cast<AllocaInst>(I)) // Is it an alloca?</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class="codeLine">        if (isAllocaPromotable(AI))</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">48</td>
+    <td class="codeLine">        if (isAllocaPromotable(AI))</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class="codeLine">          Allocas.push_back(AI);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">49</td>
+    <td class="codeLine">          Allocas.push_back(AI);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">50</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class="codeLine">    if (Allocas.empty())</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">51</td>
+    <td class="codeLine">    if (Allocas.empty())</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class="codeLine">      break;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">52</td>
+    <td class="codeLine">      break;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">53</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class="codeLine">    PromoteMemToReg(Allocas, DT, &AC);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">54</td>
+    <td class="codeLine">    PromoteMemToReg(Allocas, DT, &AC);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class="codeLine">    NumPromoted += Allocas.size();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">55</td>
+    <td class="codeLine">    NumPromoted += Allocas.size();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class="codeLine">    Changed = true;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">56</td>
+    <td class="codeLine">    Changed = true;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">57</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class="codeLine">  return Changed;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">58</td>
+    <td class="codeLine">  return Changed;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">59</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">60</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class="codeLine">PreservedAnalyses PromotePass::run(Function &F, FunctionAnalysisManager &AM) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">61</td>
+    <td class="codeLine">PreservedAnalyses PromotePass::run(Function &F, FunctionAnalysisManager &AM) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class="codeLine">  auto &DT = AM.getResult<DominatorTreeAnalysis>(F);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">62</td>
+    <td class="codeLine">  auto &DT = AM.getResult<DominatorTreeAnalysis>(F);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class="codeLine">  auto &AC = AM.getResult<AssumptionAnalysis>(F);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">63</td>
+    <td class="codeLine">  auto &AC = AM.getResult<AssumptionAnalysis>(F);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class="codeLine">  if (!promoteMemoryToRegister(F, DT, AC))</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">64</td>
+    <td class="codeLine">  if (!promoteMemoryToRegister(F, DT, AC))</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class="codeLine">    return PreservedAnalyses::all();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">65</td>
+    <td class="codeLine">    return PreservedAnalyses::all();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">66</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class="codeLine">  PreservedAnalyses PA;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">67</td>
+    <td class="codeLine">  PreservedAnalyses PA;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class="codeLine">  PA.preserveSet<CFGAnalyses>();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">68</td>
+    <td class="codeLine">  PA.preserveSet<CFGAnalyses>();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class="codeLine">  return PA;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">69</td>
+    <td class="codeLine">  return PA;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">70</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">71</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class="codeLine">namespace {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">72</td>
+    <td class="codeLine">namespace {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">73</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class="codeLine">struct PromoteLegacyPass : public FunctionPass {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">74</td>
+    <td class="codeLine">struct PromoteLegacyPass : public FunctionPass {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class="codeLine">  // Pass identification, replacement for typeid</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">75</td>
+    <td class="codeLine">  // Pass identification, replacement for typeid</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class="codeLine">  static char ID;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">76</td>
+    <td class="codeLine">  static char ID;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class="codeLine">  bool ForcePass; /// If true, forces pass to execute, instead of skipping.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">77</td>
+    <td class="codeLine">  bool ForcePass; /// If true, forces pass to execute, instead of skipping.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">78</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class="codeLine">  PromoteLegacyPass() : FunctionPass(ID), ForcePass(false) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">79</td>
+    <td class="codeLine">  PromoteLegacyPass() : FunctionPass(ID), ForcePass(false) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class="codeLine">    initializePromoteLegacyPassPass(*PassRegistry::getPassRegistry());</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">80</td>
+    <td class="codeLine">    initializePromoteLegacyPassPass(*PassRegistry::getPassRegistry());</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">81</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class="codeLine">  PromoteLegacyPass(bool IsForced) : FunctionPass(ID), ForcePass(IsForced) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">82</td>
+    <td class="codeLine">  PromoteLegacyPass(bool IsForced) : FunctionPass(ID), ForcePass(IsForced) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class="codeLine">    initializePromoteLegacyPassPass(*PassRegistry::getPassRegistry());</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">83</td>
+    <td class="codeLine">    initializePromoteLegacyPassPass(*PassRegistry::getPassRegistry());</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">84</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">85</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class="codeLine">  // runOnFunction - To run this pass, first we calculate the alloca</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">86</td>
+    <td class="codeLine">  // runOnFunction - To run this pass, first we calculate the alloca</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class="codeLine">  // instructions that are safe for promotion, then we promote each one.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">87</td>
+    <td class="codeLine">  // instructions that are safe for promotion, then we promote each one.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class="codeLine">  bool runOnFunction(Function &F) override {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">88</td>
+    <td class="codeLine">  bool runOnFunction(Function &F) override {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class="codeLine">    if (!ForcePass && skipFunction(F))</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">89</td>
+    <td class="codeLine">    if (!ForcePass && skipFunction(F))</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">90</td>
+    <td class="codeLine">      return false;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">90</td>
+    <td class="codeLine">      return false;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">91</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">91</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">92</td>
+    <td class="codeLine">    DominatorTree &DT = getAnalysis<DominatorTreeWrapperPass>().getDomTree();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">92</td>
+    <td class="codeLine">    DominatorTree &DT = getAnalysis<DominatorTreeWrapperPass>().getDomTree();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">93</td>
+    <td class="codeLine">    AssumptionCache &AC =</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">93</td>
+    <td class="codeLine">    AssumptionCache &AC =</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">94</td>
+    <td class="codeLine">        getAnalysis<AssumptionCacheTracker>().getAssumptionCache(F);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">94</td>
+    <td class="codeLine">        getAnalysis<AssumptionCacheTracker>().getAssumptionCache(F);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">95</td>
+    <td class="codeLine">    return promoteMemoryToRegister(F, DT, AC);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">95</td>
+    <td class="codeLine">    return promoteMemoryToRegister(F, DT, AC);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">96</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">96</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">97</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">97</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">98</td>
+    <td class="codeLine">  void getAnalysisUsage(AnalysisUsage &AU) const override {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">98</td>
+    <td class="codeLine">  void getAnalysisUsage(AnalysisUsage &AU) const override {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">99</td>
+    <td class="codeLine">    AU.addRequired<AssumptionCacheTracker>();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">99</td>
+    <td class="codeLine">    AU.addRequired<AssumptionCacheTracker>();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">100</td>
+    <td class="codeLine">    AU.addRequired<DominatorTreeWrapperPass>();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">100</td>
+    <td class="codeLine">    AU.addRequired<DominatorTreeWrapperPass>();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">101</td>
+    <td class="codeLine">    AU.setPreservesCFG();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">101</td>
+    <td class="codeLine">    AU.setPreservesCFG();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">102</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">102</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">103</td>
+    <td class="codeLine">};</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">103</td>
+    <td class="codeLine">};</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">104</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">104</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">105</td>
+    <td class="codeLine">} // end anonymous namespace</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">105</td>
+    <td class="codeLine">} // end anonymous namespace</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">106</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">106</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">107</td>
+    <td class="codeLine">char PromoteLegacyPass::ID = 0;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">107</td>
+    <td class="codeLine">char PromoteLegacyPass::ID = 0;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">108</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">108</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">109</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_BEGIN(PromoteLegacyPass, "mem2reg", "Promote Memory to "</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">109</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_BEGIN(PromoteLegacyPass, "mem2reg", "Promote Memory to "</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">110</td>
+    <td class="codeLine">                                                    "Register",</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">110</td>
+    <td class="codeLine">                                                    "Register",</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">111</td>
+    <td class="codeLine">                      false, false)</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">111</td>
+    <td class="codeLine">                      false, false)</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">112</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_DEPENDENCY(AssumptionCacheTracker)</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">112</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_DEPENDENCY(AssumptionCacheTracker)</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">113</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_DEPENDENCY(DominatorTreeWrapperPass)</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">113</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_DEPENDENCY(DominatorTreeWrapperPass)</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">114</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_END(PromoteLegacyPass, "mem2reg", "Promote Memory to Register",</td>
+    <td class="lineNumber">2</td>
+    <td class="lineNumber">114</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_END(PromoteLegacyPass, "mem2reg", "Promote Memory to Register",</td>
+    <td class="lineNumber">2</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">115</td>
+    <td class="codeLine">                    false, false)</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">115</td>
+    <td class="codeLine">                    false, false)</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">116</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">116</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">117</td>
+    <td class="codeLine">// createPromoteMemoryToRegister - Provide an entry point to create this pass.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">117</td>
+    <td class="codeLine">// createPromoteMemoryToRegister - Provide an entry point to create this pass.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">118</td>
+    <td class="codeLine">FunctionPass *llvm::createPromoteMemoryToRegisterPass(bool IsForced) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">118</td>
+    <td class="codeLine">FunctionPass *llvm::createPromoteMemoryToRegisterPass(bool IsForced) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">119</td>
+    <td class="codeLine">  return new PromoteLegacyPass(IsForced);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">119</td>
+    <td class="codeLine">  return new PromoteLegacyPass(IsForced);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">120</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">120</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">121</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">121</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+</table>
+    </div>
+    <button id="myBtn" onclick="topFunction()" title="Go to top" type="button">Top</button>
+    <script src="../Javascript/drop_down.js"></script>
+    <script src="../Javascript/top_button.js"></script>
+  </body>
+</html>

@@ -1,0 +1,2925 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>X86FixupSetCC.cpp</title>
+    <link rel="stylesheet" href="../Style/style.css" />
+  </head>
+  <body>
+    <div class="headerDiv">
+      <h1>
+        Code Coverage
+      </h1>
+      <p>
+        Source file: /home/nikola/Desktop/llvm-project/llvm/lib/Target/X86/X86FixupSetCC.cpp
+      </p>
+    </div>
+    <button class="collapsible" type="button">Open Summary Report</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Summary Report</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line number</th>
+    <th class="mainTh">Line</th>
+    <th class="mainTh">Number of hits</th>
+    <th class="mainTh">Tests that cover line</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="">//===---- X86FixupSetCC.cpp - optimize usage of LEA instructions ----------===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="">//===----------------------------------------------------------------------===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="">// This file defines a pass that fixes zero-extension of setcc patterns.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="">// X86 setcc instructions are modeled to have no input arguments, and a single</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="">// GR8 output argument. This is consistent with other similar instructions</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class="">// (e.g. movb), but means it is impossible to directly generate a setcc into</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class="">// the lower GR8 of a specified GR32.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class="">// This means that ISel must select (zext (setcc)) into something like</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class="">// seta %al; movzbl %al, %eax.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class="">// Unfortunately, this can cause a stall due to the partial register write</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class="">// performed by the setcc. Instead, we can use:</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class="">// xor %eax, %eax; seta %al</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class="">// This both avoids the stall, and encodes shorter.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class="">//===----------------------------------------------------------------------===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class="">#include "X86.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class="">#include "X86InstrInfo.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class="">#include "X86Subtarget.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class="">#include "llvm/ADT/Statistic.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class="">#include "llvm/CodeGen/MachineFunctionPass.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class="">#include "llvm/CodeGen/MachineInstrBuilder.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class="">#include "llvm/CodeGen/MachineRegisterInfo.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class="">using namespace llvm;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class="">#define DEBUG_TYPE "x86-fixup-setcc"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class="">STATISTIC(NumSubstZexts, "Number of setcc + zext pairs substituted");</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class="">namespace {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class="">class X86FixupSetCCPass : public MachineFunctionPass {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class="">public:</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class="">  static char ID;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class="uncoveredLine">  X86FixupSetCCPass() : MachineFunctionPass(ID) {}</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class="uncoveredLine">  StringRef getPassName() const override { return "X86 Fixup SetCC"; }</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class="">  bool runOnMachineFunction(MachineFunction &MF) override;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class="">private:</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class="">  MachineRegisterInfo *MRI = nullptr;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class="">  const X86InstrInfo *TII = nullptr;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class="">  enum { SearchBound = 16 };</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class="">};</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class="">} // end anonymous namespace</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class="">char X86FixupSetCCPass::ID = 0;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class="coveredLine">INITIALIZE_PASS(X86FixupSetCCPass, DEBUG_TYPE, DEBUG_TYPE, false, false)</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class="uncoveredLine">FunctionPass *llvm::createX86FixupSetCC() { return new X86FixupSetCCPass(); }</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class="uncoveredLine">bool X86FixupSetCCPass::runOnMachineFunction(MachineFunction &MF) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class="uncoveredLine">  bool Changed = false;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class="uncoveredLine">  MRI = &MF.getRegInfo();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class="uncoveredLine">  TII = MF.getSubtarget<X86Subtarget>().getInstrInfo();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class="uncoveredLine">  SmallVector<MachineInstr*, 4> ToErase;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class="uncoveredLine">  for (auto &MBB : MF) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class="uncoveredLine">    MachineInstr *FlagsDefMI = nullptr;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class="uncoveredLine">    for (auto &MI : MBB) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class="">      // Remember the most recent preceding eflags defining instruction.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class="uncoveredLine">      if (MI.definesRegister(X86::EFLAGS))</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class="uncoveredLine">        FlagsDefMI = &MI;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class="">      // Find a setcc that is used by a zext.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class="">      // This doesn't have to be the only use, the transformation is safe</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class="">      // regardless.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class="uncoveredLine">      if (MI.getOpcode() != X86::SETCCr)</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class="uncoveredLine">        continue;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class="uncoveredLine">      MachineInstr *ZExt = nullptr;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class="uncoveredLine">      for (auto &Use : MRI->use_instructions(MI.getOperand(0).getReg()))</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class="uncoveredLine">        if (Use.getOpcode() == X86::MOVZX32rr8)</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class="uncoveredLine">          ZExt = &Use;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class="uncoveredLine">      if (!ZExt)</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class="uncoveredLine">        continue;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class="uncoveredLine">      if (!FlagsDefMI)</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">90</td>
+    <td class="uncoveredLine">        continue;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">91</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">92</td>
+    <td class="">      // We'd like to put something that clobbers eflags directly before</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">93</td>
+    <td class="">      // FlagsDefMI. This can't hurt anything after FlagsDefMI, because</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">94</td>
+    <td class="">      // it, itself, by definition, clobbers eflags. But it may happen that</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">95</td>
+    <td class="">      // FlagsDefMI also *uses* eflags, in which case the transformation is</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">96</td>
+    <td class="">      // invalid.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">97</td>
+    <td class="uncoveredLine">      if (FlagsDefMI->readsRegister(X86::EFLAGS))</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">98</td>
+    <td class="uncoveredLine">        continue;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">99</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">100</td>
+    <td class="">      // On 32-bit, we need to be careful to force an ABCD register.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">101</td>
+    <td class="uncoveredLine">      const TargetRegisterClass *RC = MF.getSubtarget<X86Subtarget>().is64Bit()</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">102</td>
+    <td class="uncoveredLine">                                          ? &X86::GR32RegClass</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">103</td>
+    <td class="uncoveredLine">                                          : &X86::GR32_ABCDRegClass;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">104</td>
+    <td class="uncoveredLine">      if (!MRI->constrainRegClass(ZExt->getOperand(0).getReg(), RC)) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">105</td>
+    <td class="">        // If we cannot constrain the register, we would need an additional copy</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">106</td>
+    <td class="">        // and are better off keeping the MOVZX32rr8 we have now.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">107</td>
+    <td class="uncoveredLine">        continue;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">108</td>
+    <td class="">      }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">109</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">110</td>
+    <td class="uncoveredLine">      ++NumSubstZexts;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">111</td>
+    <td class="uncoveredLine">      Changed = true;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">112</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">113</td>
+    <td class="">      // Initialize a register with 0. This must go before the eflags def</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">114</td>
+    <td class="uncoveredLine">      Register ZeroReg = MRI->createVirtualRegister(RC);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">115</td>
+    <td class="uncoveredLine">      BuildMI(MBB, FlagsDefMI, MI.getDebugLoc(), TII->get(X86::MOV32r0),</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">116</td>
+    <td class="">              ZeroReg);</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">117</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">118</td>
+    <td class="">      // X86 setcc only takes an output GR8, so fake a GR32 input by inserting</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">119</td>
+    <td class="">      // the setcc result into the low byte of the zeroed register.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">120</td>
+    <td class="uncoveredLine">      BuildMI(*ZExt->getParent(), ZExt, ZExt->getDebugLoc(),</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">121</td>
+    <td class="uncoveredLine">              TII->get(X86::INSERT_SUBREG), ZExt->getOperand(0).getReg())</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">122</td>
+    <td class="uncoveredLine">          .addReg(ZeroReg)</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">123</td>
+    <td class="uncoveredLine">          .addReg(MI.getOperand(0).getReg())</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">124</td>
+    <td class="uncoveredLine">          .addImm(X86::sub_8bit);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">125</td>
+    <td class="uncoveredLine">      ToErase.push_back(ZExt);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">126</td>
+    <td class="">    }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">127</td>
+    <td class="">  }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">128</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">129</td>
+    <td class="uncoveredLine">  for (auto &I : ToErase)</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">130</td>
+    <td class="uncoveredLine">    I->eraseFromParent();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">131</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">132</td>
+    <td class="uncoveredLine">  return Changed;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">133</td>
+    <td class="uncoveredLine">}</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">134</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Functions Report</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Functions Report</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Function name</th>
+    <th class="mainTh">Number of hits</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_117X86FixupSetCCPassC2Ev</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZNK12_GLOBAL__N_117X86FixupSetCCPass11getPassNameEv</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN4llvm31initializeX86FixupSetCCPassPassERNS_12PassRegistryE</td>
+    <td class="numberOfCalls">2</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZL35initializeX86FixupSetCCPassPassOnceRN4llvm12PassRegistryE</td>
+    <td class="numberOfCalls">2</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN4llvm19createX86FixupSetCCEv</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_117X86FixupSetCCPass20runOnMachineFunctionERN4llvm15MachineFunctionE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Coverage Diff</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Coverage Diff</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span> BUT NOT </span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </th>
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+      <span> BUT NOT </span>
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+    </th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="codeline">//===---- X86FixupSetCC.cpp - optimize usage of LEA instructions ----------===//</td>
+    <td class="lineNumber">1</td>
+    <td class="codeline">//===---- X86FixupSetCC.cpp - optimize usage of LEA instructions ----------===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">2</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="codeline">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">3</td>
+    <td class="codeline">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="codeline">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">4</td>
+    <td class="codeline">// See https://llvm.org/LICENSE.txt for license information.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="codeline">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">5</td>
+    <td class="codeline">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">6</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">7</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">8</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="codeline">// This file defines a pass that fixes zero-extension of setcc patterns.</td>
+    <td class="lineNumber">9</td>
+    <td class="codeline">// This file defines a pass that fixes zero-extension of setcc patterns.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="codeline">// X86 setcc instructions are modeled to have no input arguments, and a single</td>
+    <td class="lineNumber">10</td>
+    <td class="codeline">// X86 setcc instructions are modeled to have no input arguments, and a single</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="codeline">// GR8 output argument. This is consistent with other similar instructions</td>
+    <td class="lineNumber">11</td>
+    <td class="codeline">// GR8 output argument. This is consistent with other similar instructions</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class="codeline">// (e.g. movb), but means it is impossible to directly generate a setcc into</td>
+    <td class="lineNumber">12</td>
+    <td class="codeline">// (e.g. movb), but means it is impossible to directly generate a setcc into</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class="codeline">// the lower GR8 of a specified GR32.</td>
+    <td class="lineNumber">13</td>
+    <td class="codeline">// the lower GR8 of a specified GR32.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class="codeline">// This means that ISel must select (zext (setcc)) into something like</td>
+    <td class="lineNumber">14</td>
+    <td class="codeline">// This means that ISel must select (zext (setcc)) into something like</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class="codeline">// seta %al; movzbl %al, %eax.</td>
+    <td class="lineNumber">15</td>
+    <td class="codeline">// seta %al; movzbl %al, %eax.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class="codeline">// Unfortunately, this can cause a stall due to the partial register write</td>
+    <td class="lineNumber">16</td>
+    <td class="codeline">// Unfortunately, this can cause a stall due to the partial register write</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class="codeline">// performed by the setcc. Instead, we can use:</td>
+    <td class="lineNumber">17</td>
+    <td class="codeline">// performed by the setcc. Instead, we can use:</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class="codeline">// xor %eax, %eax; seta %al</td>
+    <td class="lineNumber">18</td>
+    <td class="codeline">// xor %eax, %eax; seta %al</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class="codeline">// This both avoids the stall, and encodes shorter.</td>
+    <td class="lineNumber">19</td>
+    <td class="codeline">// This both avoids the stall, and encodes shorter.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">20</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">21</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class="codeline">#include "X86.h"</td>
+    <td class="lineNumber">22</td>
+    <td class="codeline">#include "X86.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class="codeline">#include "X86InstrInfo.h"</td>
+    <td class="lineNumber">23</td>
+    <td class="codeline">#include "X86InstrInfo.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class="codeline">#include "X86Subtarget.h"</td>
+    <td class="lineNumber">24</td>
+    <td class="codeline">#include "X86Subtarget.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class="codeline">#include "llvm/ADT/Statistic.h"</td>
+    <td class="lineNumber">25</td>
+    <td class="codeline">#include "llvm/ADT/Statistic.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class="codeline">#include "llvm/CodeGen/MachineFunctionPass.h"</td>
+    <td class="lineNumber">26</td>
+    <td class="codeline">#include "llvm/CodeGen/MachineFunctionPass.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class="codeline">#include "llvm/CodeGen/MachineInstrBuilder.h"</td>
+    <td class="lineNumber">27</td>
+    <td class="codeline">#include "llvm/CodeGen/MachineInstrBuilder.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class="codeline">#include "llvm/CodeGen/MachineRegisterInfo.h"</td>
+    <td class="lineNumber">28</td>
+    <td class="codeline">#include "llvm/CodeGen/MachineRegisterInfo.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">29</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class="codeline">using namespace llvm;</td>
+    <td class="lineNumber">30</td>
+    <td class="codeline">using namespace llvm;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">31</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class="codeline">#define DEBUG_TYPE "x86-fixup-setcc"</td>
+    <td class="lineNumber">32</td>
+    <td class="codeline">#define DEBUG_TYPE "x86-fixup-setcc"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">33</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class="codeline">STATISTIC(NumSubstZexts, "Number of setcc + zext pairs substituted");</td>
+    <td class="lineNumber">34</td>
+    <td class="codeline">STATISTIC(NumSubstZexts, "Number of setcc + zext pairs substituted");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">35</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class="codeline">namespace {</td>
+    <td class="lineNumber">36</td>
+    <td class="codeline">namespace {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class="codeline">class X86FixupSetCCPass : public MachineFunctionPass {</td>
+    <td class="lineNumber">37</td>
+    <td class="codeline">class X86FixupSetCCPass : public MachineFunctionPass {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class="codeline">public:</td>
+    <td class="lineNumber">38</td>
+    <td class="codeline">public:</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class="codeline">  static char ID;</td>
+    <td class="lineNumber">39</td>
+    <td class="codeline">  static char ID;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">40</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class="codeline">  X86FixupSetCCPass() : MachineFunctionPass(ID) {}</td>
+    <td class="lineNumber">41</td>
+    <td class="codeline">  X86FixupSetCCPass() : MachineFunctionPass(ID) {}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">42</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class="codeline">  StringRef getPassName() const override { return "X86 Fixup SetCC"; }</td>
+    <td class="lineNumber">43</td>
+    <td class="codeline">  StringRef getPassName() const override { return "X86 Fixup SetCC"; }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">44</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class="codeline">  bool runOnMachineFunction(MachineFunction &MF) override;</td>
+    <td class="lineNumber">45</td>
+    <td class="codeline">  bool runOnMachineFunction(MachineFunction &MF) override;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">46</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class="codeline">private:</td>
+    <td class="lineNumber">47</td>
+    <td class="codeline">private:</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class="codeline">  MachineRegisterInfo *MRI = nullptr;</td>
+    <td class="lineNumber">48</td>
+    <td class="codeline">  MachineRegisterInfo *MRI = nullptr;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class="codeline">  const X86InstrInfo *TII = nullptr;</td>
+    <td class="lineNumber">49</td>
+    <td class="codeline">  const X86InstrInfo *TII = nullptr;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">50</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class="codeline">  enum { SearchBound = 16 };</td>
+    <td class="lineNumber">51</td>
+    <td class="codeline">  enum { SearchBound = 16 };</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class="codeline">};</td>
+    <td class="lineNumber">52</td>
+    <td class="codeline">};</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class="codeline">} // end anonymous namespace</td>
+    <td class="lineNumber">53</td>
+    <td class="codeline">} // end anonymous namespace</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">54</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class="codeline">char X86FixupSetCCPass::ID = 0;</td>
+    <td class="lineNumber">55</td>
+    <td class="codeline">char X86FixupSetCCPass::ID = 0;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">56</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class="codeline">INITIALIZE_PASS(X86FixupSetCCPass, DEBUG_TYPE, DEBUG_TYPE, false, false)</td>
+    <td class="lineNumber">57</td>
+    <td class="codeline">INITIALIZE_PASS(X86FixupSetCCPass, DEBUG_TYPE, DEBUG_TYPE, false, false)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">58</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class="codeline">FunctionPass *llvm::createX86FixupSetCC() { return new X86FixupSetCCPass(); }</td>
+    <td class="lineNumber">59</td>
+    <td class="codeline">FunctionPass *llvm::createX86FixupSetCC() { return new X86FixupSetCCPass(); }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">60</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class="codeline">bool X86FixupSetCCPass::runOnMachineFunction(MachineFunction &MF) {</td>
+    <td class="lineNumber">61</td>
+    <td class="codeline">bool X86FixupSetCCPass::runOnMachineFunction(MachineFunction &MF) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class="codeline">  bool Changed = false;</td>
+    <td class="lineNumber">62</td>
+    <td class="codeline">  bool Changed = false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class="codeline">  MRI = &MF.getRegInfo();</td>
+    <td class="lineNumber">63</td>
+    <td class="codeline">  MRI = &MF.getRegInfo();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class="codeline">  TII = MF.getSubtarget<X86Subtarget>().getInstrInfo();</td>
+    <td class="lineNumber">64</td>
+    <td class="codeline">  TII = MF.getSubtarget<X86Subtarget>().getInstrInfo();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">65</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class="codeline">  SmallVector<MachineInstr*, 4> ToErase;</td>
+    <td class="lineNumber">66</td>
+    <td class="codeline">  SmallVector<MachineInstr*, 4> ToErase;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">67</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class="codeline">  for (auto &MBB : MF) {</td>
+    <td class="lineNumber">68</td>
+    <td class="codeline">  for (auto &MBB : MF) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class="codeline">    MachineInstr *FlagsDefMI = nullptr;</td>
+    <td class="lineNumber">69</td>
+    <td class="codeline">    MachineInstr *FlagsDefMI = nullptr;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class="codeline">    for (auto &MI : MBB) {</td>
+    <td class="lineNumber">70</td>
+    <td class="codeline">    for (auto &MI : MBB) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class="codeline">      // Remember the most recent preceding eflags defining instruction.</td>
+    <td class="lineNumber">71</td>
+    <td class="codeline">      // Remember the most recent preceding eflags defining instruction.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class="codeline">      if (MI.definesRegister(X86::EFLAGS))</td>
+    <td class="lineNumber">72</td>
+    <td class="codeline">      if (MI.definesRegister(X86::EFLAGS))</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class="codeline">        FlagsDefMI = &MI;</td>
+    <td class="lineNumber">73</td>
+    <td class="codeline">        FlagsDefMI = &MI;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">74</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class="codeline">      // Find a setcc that is used by a zext.</td>
+    <td class="lineNumber">75</td>
+    <td class="codeline">      // Find a setcc that is used by a zext.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class="codeline">      // This doesn't have to be the only use, the transformation is safe</td>
+    <td class="lineNumber">76</td>
+    <td class="codeline">      // This doesn't have to be the only use, the transformation is safe</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class="codeline">      // regardless.</td>
+    <td class="lineNumber">77</td>
+    <td class="codeline">      // regardless.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class="codeline">      if (MI.getOpcode() != X86::SETCCr)</td>
+    <td class="lineNumber">78</td>
+    <td class="codeline">      if (MI.getOpcode() != X86::SETCCr)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class="codeline">        continue;</td>
+    <td class="lineNumber">79</td>
+    <td class="codeline">        continue;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">80</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class="codeline">      MachineInstr *ZExt = nullptr;</td>
+    <td class="lineNumber">81</td>
+    <td class="codeline">      MachineInstr *ZExt = nullptr;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class="codeline">      for (auto &Use : MRI->use_instructions(MI.getOperand(0).getReg()))</td>
+    <td class="lineNumber">82</td>
+    <td class="codeline">      for (auto &Use : MRI->use_instructions(MI.getOperand(0).getReg()))</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class="codeline">        if (Use.getOpcode() == X86::MOVZX32rr8)</td>
+    <td class="lineNumber">83</td>
+    <td class="codeline">        if (Use.getOpcode() == X86::MOVZX32rr8)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class="codeline">          ZExt = &Use;</td>
+    <td class="lineNumber">84</td>
+    <td class="codeline">          ZExt = &Use;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">85</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class="codeline">      if (!ZExt)</td>
+    <td class="lineNumber">86</td>
+    <td class="codeline">      if (!ZExt)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class="codeline">        continue;</td>
+    <td class="lineNumber">87</td>
+    <td class="codeline">        continue;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">88</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class="codeline">      if (!FlagsDefMI)</td>
+    <td class="lineNumber">89</td>
+    <td class="codeline">      if (!FlagsDefMI)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">90</td>
+    <td class="codeline">        continue;</td>
+    <td class="lineNumber">90</td>
+    <td class="codeline">        continue;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">91</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">91</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">92</td>
+    <td class="codeline">      // We'd like to put something that clobbers eflags directly before</td>
+    <td class="lineNumber">92</td>
+    <td class="codeline">      // We'd like to put something that clobbers eflags directly before</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">93</td>
+    <td class="codeline">      // FlagsDefMI. This can't hurt anything after FlagsDefMI, because</td>
+    <td class="lineNumber">93</td>
+    <td class="codeline">      // FlagsDefMI. This can't hurt anything after FlagsDefMI, because</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">94</td>
+    <td class="codeline">      // it, itself, by definition, clobbers eflags. But it may happen that</td>
+    <td class="lineNumber">94</td>
+    <td class="codeline">      // it, itself, by definition, clobbers eflags. But it may happen that</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">95</td>
+    <td class="codeline">      // FlagsDefMI also *uses* eflags, in which case the transformation is</td>
+    <td class="lineNumber">95</td>
+    <td class="codeline">      // FlagsDefMI also *uses* eflags, in which case the transformation is</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">96</td>
+    <td class="codeline">      // invalid.</td>
+    <td class="lineNumber">96</td>
+    <td class="codeline">      // invalid.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">97</td>
+    <td class="codeline">      if (FlagsDefMI->readsRegister(X86::EFLAGS))</td>
+    <td class="lineNumber">97</td>
+    <td class="codeline">      if (FlagsDefMI->readsRegister(X86::EFLAGS))</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">98</td>
+    <td class="codeline">        continue;</td>
+    <td class="lineNumber">98</td>
+    <td class="codeline">        continue;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">99</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">99</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">100</td>
+    <td class="codeline">      // On 32-bit, we need to be careful to force an ABCD register.</td>
+    <td class="lineNumber">100</td>
+    <td class="codeline">      // On 32-bit, we need to be careful to force an ABCD register.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">101</td>
+    <td class="codeline">      const TargetRegisterClass *RC = MF.getSubtarget<X86Subtarget>().is64Bit()</td>
+    <td class="lineNumber">101</td>
+    <td class="codeline">      const TargetRegisterClass *RC = MF.getSubtarget<X86Subtarget>().is64Bit()</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">102</td>
+    <td class="codeline">                                          ? &X86::GR32RegClass</td>
+    <td class="lineNumber">102</td>
+    <td class="codeline">                                          ? &X86::GR32RegClass</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">103</td>
+    <td class="codeline">                                          : &X86::GR32_ABCDRegClass;</td>
+    <td class="lineNumber">103</td>
+    <td class="codeline">                                          : &X86::GR32_ABCDRegClass;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">104</td>
+    <td class="codeline">      if (!MRI->constrainRegClass(ZExt->getOperand(0).getReg(), RC)) {</td>
+    <td class="lineNumber">104</td>
+    <td class="codeline">      if (!MRI->constrainRegClass(ZExt->getOperand(0).getReg(), RC)) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">105</td>
+    <td class="codeline">        // If we cannot constrain the register, we would need an additional copy</td>
+    <td class="lineNumber">105</td>
+    <td class="codeline">        // If we cannot constrain the register, we would need an additional copy</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">106</td>
+    <td class="codeline">        // and are better off keeping the MOVZX32rr8 we have now.</td>
+    <td class="lineNumber">106</td>
+    <td class="codeline">        // and are better off keeping the MOVZX32rr8 we have now.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">107</td>
+    <td class="codeline">        continue;</td>
+    <td class="lineNumber">107</td>
+    <td class="codeline">        continue;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">108</td>
+    <td class="codeline">      }</td>
+    <td class="lineNumber">108</td>
+    <td class="codeline">      }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">109</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">109</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">110</td>
+    <td class="codeline">      ++NumSubstZexts;</td>
+    <td class="lineNumber">110</td>
+    <td class="codeline">      ++NumSubstZexts;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">111</td>
+    <td class="codeline">      Changed = true;</td>
+    <td class="lineNumber">111</td>
+    <td class="codeline">      Changed = true;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">112</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">112</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">113</td>
+    <td class="codeline">      // Initialize a register with 0. This must go before the eflags def</td>
+    <td class="lineNumber">113</td>
+    <td class="codeline">      // Initialize a register with 0. This must go before the eflags def</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">114</td>
+    <td class="codeline">      Register ZeroReg = MRI->createVirtualRegister(RC);</td>
+    <td class="lineNumber">114</td>
+    <td class="codeline">      Register ZeroReg = MRI->createVirtualRegister(RC);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">115</td>
+    <td class="codeline">      BuildMI(MBB, FlagsDefMI, MI.getDebugLoc(), TII->get(X86::MOV32r0),</td>
+    <td class="lineNumber">115</td>
+    <td class="codeline">      BuildMI(MBB, FlagsDefMI, MI.getDebugLoc(), TII->get(X86::MOV32r0),</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">116</td>
+    <td class="codeline">              ZeroReg);</td>
+    <td class="lineNumber">116</td>
+    <td class="codeline">              ZeroReg);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">117</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">117</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">118</td>
+    <td class="codeline">      // X86 setcc only takes an output GR8, so fake a GR32 input by inserting</td>
+    <td class="lineNumber">118</td>
+    <td class="codeline">      // X86 setcc only takes an output GR8, so fake a GR32 input by inserting</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">119</td>
+    <td class="codeline">      // the setcc result into the low byte of the zeroed register.</td>
+    <td class="lineNumber">119</td>
+    <td class="codeline">      // the setcc result into the low byte of the zeroed register.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">120</td>
+    <td class="codeline">      BuildMI(*ZExt->getParent(), ZExt, ZExt->getDebugLoc(),</td>
+    <td class="lineNumber">120</td>
+    <td class="codeline">      BuildMI(*ZExt->getParent(), ZExt, ZExt->getDebugLoc(),</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">121</td>
+    <td class="codeline">              TII->get(X86::INSERT_SUBREG), ZExt->getOperand(0).getReg())</td>
+    <td class="lineNumber">121</td>
+    <td class="codeline">              TII->get(X86::INSERT_SUBREG), ZExt->getOperand(0).getReg())</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">122</td>
+    <td class="codeline">          .addReg(ZeroReg)</td>
+    <td class="lineNumber">122</td>
+    <td class="codeline">          .addReg(ZeroReg)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">123</td>
+    <td class="codeline">          .addReg(MI.getOperand(0).getReg())</td>
+    <td class="lineNumber">123</td>
+    <td class="codeline">          .addReg(MI.getOperand(0).getReg())</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">124</td>
+    <td class="codeline">          .addImm(X86::sub_8bit);</td>
+    <td class="lineNumber">124</td>
+    <td class="codeline">          .addImm(X86::sub_8bit);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">125</td>
+    <td class="codeline">      ToErase.push_back(ZExt);</td>
+    <td class="lineNumber">125</td>
+    <td class="codeline">      ToErase.push_back(ZExt);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">126</td>
+    <td class="codeline">    }</td>
+    <td class="lineNumber">126</td>
+    <td class="codeline">    }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">127</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">127</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">128</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">128</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">129</td>
+    <td class="codeline">  for (auto &I : ToErase)</td>
+    <td class="lineNumber">129</td>
+    <td class="codeline">  for (auto &I : ToErase)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">130</td>
+    <td class="codeline">    I->eraseFromParent();</td>
+    <td class="lineNumber">130</td>
+    <td class="codeline">    I->eraseFromParent();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">131</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">131</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">132</td>
+    <td class="codeline">  return Changed;</td>
+    <td class="lineNumber">132</td>
+    <td class="codeline">  return Changed;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">133</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">133</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">134</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">134</td>
+    <td class="codeline"></td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Side By Side Comparison</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Side By Side Comparison</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+    </th>
+    <th class="mainTh">Hit count</th>
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </th>
+    <th class="mainTh">Hit count</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="codeLine">//===---- X86FixupSetCC.cpp - optimize usage of LEA instructions ----------===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">1</td>
+    <td class="codeLine">//===---- X86FixupSetCC.cpp - optimize usage of LEA instructions ----------===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">2</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="codeLine">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">3</td>
+    <td class="codeLine">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="codeLine">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">4</td>
+    <td class="codeLine">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="codeLine">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">5</td>
+    <td class="codeLine">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">6</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">7</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">8</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="codeLine">// This file defines a pass that fixes zero-extension of setcc patterns.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">9</td>
+    <td class="codeLine">// This file defines a pass that fixes zero-extension of setcc patterns.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="codeLine">// X86 setcc instructions are modeled to have no input arguments, and a single</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">10</td>
+    <td class="codeLine">// X86 setcc instructions are modeled to have no input arguments, and a single</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="codeLine">// GR8 output argument. This is consistent with other similar instructions</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">11</td>
+    <td class="codeLine">// GR8 output argument. This is consistent with other similar instructions</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class="codeLine">// (e.g. movb), but means it is impossible to directly generate a setcc into</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">12</td>
+    <td class="codeLine">// (e.g. movb), but means it is impossible to directly generate a setcc into</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class="codeLine">// the lower GR8 of a specified GR32.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">13</td>
+    <td class="codeLine">// the lower GR8 of a specified GR32.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class="codeLine">// This means that ISel must select (zext (setcc)) into something like</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">14</td>
+    <td class="codeLine">// This means that ISel must select (zext (setcc)) into something like</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class="codeLine">// seta %al; movzbl %al, %eax.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">15</td>
+    <td class="codeLine">// seta %al; movzbl %al, %eax.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class="codeLine">// Unfortunately, this can cause a stall due to the partial register write</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">16</td>
+    <td class="codeLine">// Unfortunately, this can cause a stall due to the partial register write</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class="codeLine">// performed by the setcc. Instead, we can use:</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">17</td>
+    <td class="codeLine">// performed by the setcc. Instead, we can use:</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class="codeLine">// xor %eax, %eax; seta %al</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">18</td>
+    <td class="codeLine">// xor %eax, %eax; seta %al</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class="codeLine">// This both avoids the stall, and encodes shorter.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">19</td>
+    <td class="codeLine">// This both avoids the stall, and encodes shorter.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">20</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">21</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class="codeLine">#include "X86.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">22</td>
+    <td class="codeLine">#include "X86.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class="codeLine">#include "X86InstrInfo.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">23</td>
+    <td class="codeLine">#include "X86InstrInfo.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class="codeLine">#include "X86Subtarget.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">24</td>
+    <td class="codeLine">#include "X86Subtarget.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class="codeLine">#include "llvm/ADT/Statistic.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">25</td>
+    <td class="codeLine">#include "llvm/ADT/Statistic.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class="codeLine">#include "llvm/CodeGen/MachineFunctionPass.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">26</td>
+    <td class="codeLine">#include "llvm/CodeGen/MachineFunctionPass.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class="codeLine">#include "llvm/CodeGen/MachineInstrBuilder.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">27</td>
+    <td class="codeLine">#include "llvm/CodeGen/MachineInstrBuilder.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class="codeLine">#include "llvm/CodeGen/MachineRegisterInfo.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">28</td>
+    <td class="codeLine">#include "llvm/CodeGen/MachineRegisterInfo.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">29</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class="codeLine">using namespace llvm;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">30</td>
+    <td class="codeLine">using namespace llvm;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">31</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class="codeLine">#define DEBUG_TYPE "x86-fixup-setcc"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">32</td>
+    <td class="codeLine">#define DEBUG_TYPE "x86-fixup-setcc"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">33</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class="codeLine">STATISTIC(NumSubstZexts, "Number of setcc + zext pairs substituted");</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">34</td>
+    <td class="codeLine">STATISTIC(NumSubstZexts, "Number of setcc + zext pairs substituted");</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">35</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class="codeLine">namespace {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">36</td>
+    <td class="codeLine">namespace {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class="codeLine">class X86FixupSetCCPass : public MachineFunctionPass {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">37</td>
+    <td class="codeLine">class X86FixupSetCCPass : public MachineFunctionPass {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class="codeLine">public:</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">38</td>
+    <td class="codeLine">public:</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class="codeLine">  static char ID;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">39</td>
+    <td class="codeLine">  static char ID;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">40</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class="codeLine">  X86FixupSetCCPass() : MachineFunctionPass(ID) {}</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">41</td>
+    <td class="codeLine">  X86FixupSetCCPass() : MachineFunctionPass(ID) {}</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">42</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class="codeLine">  StringRef getPassName() const override { return "X86 Fixup SetCC"; }</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">43</td>
+    <td class="codeLine">  StringRef getPassName() const override { return "X86 Fixup SetCC"; }</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">44</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class="codeLine">  bool runOnMachineFunction(MachineFunction &MF) override;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">45</td>
+    <td class="codeLine">  bool runOnMachineFunction(MachineFunction &MF) override;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">46</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class="codeLine">private:</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">47</td>
+    <td class="codeLine">private:</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class="codeLine">  MachineRegisterInfo *MRI = nullptr;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">48</td>
+    <td class="codeLine">  MachineRegisterInfo *MRI = nullptr;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class="codeLine">  const X86InstrInfo *TII = nullptr;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">49</td>
+    <td class="codeLine">  const X86InstrInfo *TII = nullptr;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">50</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class="codeLine">  enum { SearchBound = 16 };</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">51</td>
+    <td class="codeLine">  enum { SearchBound = 16 };</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class="codeLine">};</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">52</td>
+    <td class="codeLine">};</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class="codeLine">} // end anonymous namespace</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">53</td>
+    <td class="codeLine">} // end anonymous namespace</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">54</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class="codeLine">char X86FixupSetCCPass::ID = 0;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">55</td>
+    <td class="codeLine">char X86FixupSetCCPass::ID = 0;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">56</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS(X86FixupSetCCPass, DEBUG_TYPE, DEBUG_TYPE, false, false)</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">57</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS(X86FixupSetCCPass, DEBUG_TYPE, DEBUG_TYPE, false, false)</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">58</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class="codeLine">FunctionPass *llvm::createX86FixupSetCC() { return new X86FixupSetCCPass(); }</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">59</td>
+    <td class="codeLine">FunctionPass *llvm::createX86FixupSetCC() { return new X86FixupSetCCPass(); }</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">60</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class="codeLine">bool X86FixupSetCCPass::runOnMachineFunction(MachineFunction &MF) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">61</td>
+    <td class="codeLine">bool X86FixupSetCCPass::runOnMachineFunction(MachineFunction &MF) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class="codeLine">  bool Changed = false;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">62</td>
+    <td class="codeLine">  bool Changed = false;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class="codeLine">  MRI = &MF.getRegInfo();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">63</td>
+    <td class="codeLine">  MRI = &MF.getRegInfo();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class="codeLine">  TII = MF.getSubtarget<X86Subtarget>().getInstrInfo();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">64</td>
+    <td class="codeLine">  TII = MF.getSubtarget<X86Subtarget>().getInstrInfo();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">65</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class="codeLine">  SmallVector<MachineInstr*, 4> ToErase;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">66</td>
+    <td class="codeLine">  SmallVector<MachineInstr*, 4> ToErase;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">67</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class="codeLine">  for (auto &MBB : MF) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">68</td>
+    <td class="codeLine">  for (auto &MBB : MF) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class="codeLine">    MachineInstr *FlagsDefMI = nullptr;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">69</td>
+    <td class="codeLine">    MachineInstr *FlagsDefMI = nullptr;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class="codeLine">    for (auto &MI : MBB) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">70</td>
+    <td class="codeLine">    for (auto &MI : MBB) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class="codeLine">      // Remember the most recent preceding eflags defining instruction.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">71</td>
+    <td class="codeLine">      // Remember the most recent preceding eflags defining instruction.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class="codeLine">      if (MI.definesRegister(X86::EFLAGS))</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">72</td>
+    <td class="codeLine">      if (MI.definesRegister(X86::EFLAGS))</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class="codeLine">        FlagsDefMI = &MI;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">73</td>
+    <td class="codeLine">        FlagsDefMI = &MI;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">74</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class="codeLine">      // Find a setcc that is used by a zext.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">75</td>
+    <td class="codeLine">      // Find a setcc that is used by a zext.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class="codeLine">      // This doesn't have to be the only use, the transformation is safe</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">76</td>
+    <td class="codeLine">      // This doesn't have to be the only use, the transformation is safe</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class="codeLine">      // regardless.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">77</td>
+    <td class="codeLine">      // regardless.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class="codeLine">      if (MI.getOpcode() != X86::SETCCr)</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">78</td>
+    <td class="codeLine">      if (MI.getOpcode() != X86::SETCCr)</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class="codeLine">        continue;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">79</td>
+    <td class="codeLine">        continue;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">80</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class="codeLine">      MachineInstr *ZExt = nullptr;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">81</td>
+    <td class="codeLine">      MachineInstr *ZExt = nullptr;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class="codeLine">      for (auto &Use : MRI->use_instructions(MI.getOperand(0).getReg()))</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">82</td>
+    <td class="codeLine">      for (auto &Use : MRI->use_instructions(MI.getOperand(0).getReg()))</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class="codeLine">        if (Use.getOpcode() == X86::MOVZX32rr8)</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">83</td>
+    <td class="codeLine">        if (Use.getOpcode() == X86::MOVZX32rr8)</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class="codeLine">          ZExt = &Use;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">84</td>
+    <td class="codeLine">          ZExt = &Use;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">85</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class="codeLine">      if (!ZExt)</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">86</td>
+    <td class="codeLine">      if (!ZExt)</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class="codeLine">        continue;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">87</td>
+    <td class="codeLine">        continue;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">88</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class="codeLine">      if (!FlagsDefMI)</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">89</td>
+    <td class="codeLine">      if (!FlagsDefMI)</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">90</td>
+    <td class="codeLine">        continue;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">90</td>
+    <td class="codeLine">        continue;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">91</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">91</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">92</td>
+    <td class="codeLine">      // We'd like to put something that clobbers eflags directly before</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">92</td>
+    <td class="codeLine">      // We'd like to put something that clobbers eflags directly before</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">93</td>
+    <td class="codeLine">      // FlagsDefMI. This can't hurt anything after FlagsDefMI, because</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">93</td>
+    <td class="codeLine">      // FlagsDefMI. This can't hurt anything after FlagsDefMI, because</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">94</td>
+    <td class="codeLine">      // it, itself, by definition, clobbers eflags. But it may happen that</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">94</td>
+    <td class="codeLine">      // it, itself, by definition, clobbers eflags. But it may happen that</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">95</td>
+    <td class="codeLine">      // FlagsDefMI also *uses* eflags, in which case the transformation is</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">95</td>
+    <td class="codeLine">      // FlagsDefMI also *uses* eflags, in which case the transformation is</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">96</td>
+    <td class="codeLine">      // invalid.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">96</td>
+    <td class="codeLine">      // invalid.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">97</td>
+    <td class="codeLine">      if (FlagsDefMI->readsRegister(X86::EFLAGS))</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">97</td>
+    <td class="codeLine">      if (FlagsDefMI->readsRegister(X86::EFLAGS))</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">98</td>
+    <td class="codeLine">        continue;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">98</td>
+    <td class="codeLine">        continue;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">99</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">99</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">100</td>
+    <td class="codeLine">      // On 32-bit, we need to be careful to force an ABCD register.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">100</td>
+    <td class="codeLine">      // On 32-bit, we need to be careful to force an ABCD register.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">101</td>
+    <td class="codeLine">      const TargetRegisterClass *RC = MF.getSubtarget<X86Subtarget>().is64Bit()</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">101</td>
+    <td class="codeLine">      const TargetRegisterClass *RC = MF.getSubtarget<X86Subtarget>().is64Bit()</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">102</td>
+    <td class="codeLine">                                          ? &X86::GR32RegClass</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">102</td>
+    <td class="codeLine">                                          ? &X86::GR32RegClass</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">103</td>
+    <td class="codeLine">                                          : &X86::GR32_ABCDRegClass;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">103</td>
+    <td class="codeLine">                                          : &X86::GR32_ABCDRegClass;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">104</td>
+    <td class="codeLine">      if (!MRI->constrainRegClass(ZExt->getOperand(0).getReg(), RC)) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">104</td>
+    <td class="codeLine">      if (!MRI->constrainRegClass(ZExt->getOperand(0).getReg(), RC)) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">105</td>
+    <td class="codeLine">        // If we cannot constrain the register, we would need an additional copy</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">105</td>
+    <td class="codeLine">        // If we cannot constrain the register, we would need an additional copy</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">106</td>
+    <td class="codeLine">        // and are better off keeping the MOVZX32rr8 we have now.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">106</td>
+    <td class="codeLine">        // and are better off keeping the MOVZX32rr8 we have now.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">107</td>
+    <td class="codeLine">        continue;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">107</td>
+    <td class="codeLine">        continue;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">108</td>
+    <td class="codeLine">      }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">108</td>
+    <td class="codeLine">      }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">109</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">109</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">110</td>
+    <td class="codeLine">      ++NumSubstZexts;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">110</td>
+    <td class="codeLine">      ++NumSubstZexts;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">111</td>
+    <td class="codeLine">      Changed = true;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">111</td>
+    <td class="codeLine">      Changed = true;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">112</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">112</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">113</td>
+    <td class="codeLine">      // Initialize a register with 0. This must go before the eflags def</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">113</td>
+    <td class="codeLine">      // Initialize a register with 0. This must go before the eflags def</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">114</td>
+    <td class="codeLine">      Register ZeroReg = MRI->createVirtualRegister(RC);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">114</td>
+    <td class="codeLine">      Register ZeroReg = MRI->createVirtualRegister(RC);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">115</td>
+    <td class="codeLine">      BuildMI(MBB, FlagsDefMI, MI.getDebugLoc(), TII->get(X86::MOV32r0),</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">115</td>
+    <td class="codeLine">      BuildMI(MBB, FlagsDefMI, MI.getDebugLoc(), TII->get(X86::MOV32r0),</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">116</td>
+    <td class="codeLine">              ZeroReg);</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">116</td>
+    <td class="codeLine">              ZeroReg);</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">117</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">117</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">118</td>
+    <td class="codeLine">      // X86 setcc only takes an output GR8, so fake a GR32 input by inserting</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">118</td>
+    <td class="codeLine">      // X86 setcc only takes an output GR8, so fake a GR32 input by inserting</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">119</td>
+    <td class="codeLine">      // the setcc result into the low byte of the zeroed register.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">119</td>
+    <td class="codeLine">      // the setcc result into the low byte of the zeroed register.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">120</td>
+    <td class="codeLine">      BuildMI(*ZExt->getParent(), ZExt, ZExt->getDebugLoc(),</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">120</td>
+    <td class="codeLine">      BuildMI(*ZExt->getParent(), ZExt, ZExt->getDebugLoc(),</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">121</td>
+    <td class="codeLine">              TII->get(X86::INSERT_SUBREG), ZExt->getOperand(0).getReg())</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">121</td>
+    <td class="codeLine">              TII->get(X86::INSERT_SUBREG), ZExt->getOperand(0).getReg())</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">122</td>
+    <td class="codeLine">          .addReg(ZeroReg)</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">122</td>
+    <td class="codeLine">          .addReg(ZeroReg)</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">123</td>
+    <td class="codeLine">          .addReg(MI.getOperand(0).getReg())</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">123</td>
+    <td class="codeLine">          .addReg(MI.getOperand(0).getReg())</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">124</td>
+    <td class="codeLine">          .addImm(X86::sub_8bit);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">124</td>
+    <td class="codeLine">          .addImm(X86::sub_8bit);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">125</td>
+    <td class="codeLine">      ToErase.push_back(ZExt);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">125</td>
+    <td class="codeLine">      ToErase.push_back(ZExt);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">126</td>
+    <td class="codeLine">    }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">126</td>
+    <td class="codeLine">    }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">127</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">127</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">128</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">128</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">129</td>
+    <td class="codeLine">  for (auto &I : ToErase)</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">129</td>
+    <td class="codeLine">  for (auto &I : ToErase)</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">130</td>
+    <td class="codeLine">    I->eraseFromParent();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">130</td>
+    <td class="codeLine">    I->eraseFromParent();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">131</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">131</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">132</td>
+    <td class="codeLine">  return Changed;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">132</td>
+    <td class="codeLine">  return Changed;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">133</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">133</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">134</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">134</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+</table>
+    </div>
+    <button id="myBtn" onclick="topFunction()" title="Go to top" type="button">Top</button>
+    <script src="../Javascript/drop_down.js"></script>
+    <script src="../Javascript/top_button.js"></script>
+  </body>
+</html>

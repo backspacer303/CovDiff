@@ -1,0 +1,3130 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Reg2Mem.cpp</title>
+    <link rel="stylesheet" href="../Style/style.css" />
+  </head>
+  <body>
+    <div class="headerDiv">
+      <h1>
+        Code Coverage
+      </h1>
+      <p>
+        Source file: /home/nikola/Desktop/llvm-project/llvm/lib/Transforms/Scalar/Reg2Mem.cpp
+      </p>
+    </div>
+    <button class="collapsible" type="button">Open Summary Report</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Summary Report</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line number</th>
+    <th class="mainTh">Line</th>
+    <th class="mainTh">Number of hits</th>
+    <th class="mainTh">Tests that cover line</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="">//===- Reg2Mem.cpp - Convert registers to allocas -------------------------===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="">//===----------------------------------------------------------------------===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="">// This file demotes all registers to memory references.  It is intended to be</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="">// the inverse of PromoteMemoryToRegister.  By converting to loads, the only</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="">// values live across basic blocks are allocas and loads before phi nodes.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class="">// It is intended that this should make CFG hacking much easier.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class="">// To make later hacking easier, the entry block is split into two, such that</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class="">// all introduced allocas and nothing else are in the entry block.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class="">//===----------------------------------------------------------------------===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class="">#include "llvm/Transforms/Scalar/Reg2Mem.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class="">#include "llvm/ADT/Statistic.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class="">#include "llvm/Analysis/LoopInfo.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class="">#include "llvm/IR/BasicBlock.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class="">#include "llvm/IR/CFG.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class="">#include "llvm/IR/Dominators.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class="">#include "llvm/IR/Function.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class="">#include "llvm/IR/InstIterator.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class="">#include "llvm/IR/Instructions.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class="">#include "llvm/IR/PassManager.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class="">#include "llvm/InitializePasses.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class="">#include "llvm/Pass.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class="">#include "llvm/Transforms/Scalar.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class="">#include "llvm/Transforms/Utils.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class="">#include "llvm/Transforms/Utils/BasicBlockUtils.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class="">#include "llvm/Transforms/Utils/Local.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class="">#include <list></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class="">using namespace llvm;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class="">#define DEBUG_TYPE "reg2mem"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class="">STATISTIC(NumRegsDemoted, "Number of registers demoted");</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class="">STATISTIC(NumPhisDemoted, "Number of phi-nodes demoted");</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class="uncoveredLine">static bool valueEscapes(const Instruction &Inst) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class="uncoveredLine">  if (!Inst.getType()->isSized())</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class="uncoveredLine">    return false;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class="uncoveredLine">  const BasicBlock *BB = Inst.getParent();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class="uncoveredLine">  for (const User *U : Inst.users()) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class="uncoveredLine">    const Instruction *UI = cast<Instruction>(U);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class="uncoveredLine">    if (UI->getParent() != BB || isa<PHINode>(UI))</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class="uncoveredLine">      return true;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class="">  }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class="uncoveredLine">  return false;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class="">}</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class="uncoveredLine">static bool runPass(Function &F) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class="">  // Insert all new allocas into entry block.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class="uncoveredLine">  BasicBlock *BBEntry = &F.getEntryBlock();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class="uncoveredLine">  assert(pred_empty(BBEntry) &&</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class="">         "Entry block to function must not have predecessors!");</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class="">  // Find first non-alloca instruction and create insertion point. This is</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class="">  // safe if block is well-formed: it always have terminator, otherwise</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class="">  // we'll get and assertion.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class="uncoveredLine">  BasicBlock::iterator I = BBEntry->begin();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class="uncoveredLine">  while (isa<AllocaInst>(I)) ++I;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class="">  CastInst *AllocaInsertionPoint = new BitCastInst(</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class="uncoveredLine">      Constant::getNullValue(Type::getInt32Ty(F.getContext())),</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class="uncoveredLine">      Type::getInt32Ty(F.getContext()), "reg2mem alloca point", &*I);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class="">  // Find the escaped instructions. But don't create stack slots for</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class="">  // allocas in entry block.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class="uncoveredLine">  std::list<Instruction*> WorkList;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class="uncoveredLine">  for (Instruction &I : instructions(F))</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class="uncoveredLine">    if (!(isa<AllocaInst>(I) && I.getParent() == BBEntry) && valueEscapes(I))</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class="uncoveredLine">      WorkList.push_front(&I);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class="">  // Demote escaped instructions</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class="uncoveredLine">  NumRegsDemoted += WorkList.size();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class="uncoveredLine">  for (Instruction *I : WorkList)</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class="uncoveredLine">    DemoteRegToStack(*I, false, AllocaInsertionPoint);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class="uncoveredLine">  WorkList.clear();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class="">  // Find all phi's</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class="uncoveredLine">  for (BasicBlock &BB : F)</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class="uncoveredLine">    for (auto &Phi : BB.phis())</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class="uncoveredLine">      WorkList.push_front(&Phi);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">90</td>
+    <td class="">  // Demote phi nodes</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">91</td>
+    <td class="uncoveredLine">  NumPhisDemoted += WorkList.size();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">92</td>
+    <td class="uncoveredLine">  for (Instruction *I : WorkList)</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">93</td>
+    <td class="uncoveredLine">    DemotePHIToStack(cast<PHINode>(I), AllocaInsertionPoint);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">94</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">95</td>
+    <td class="uncoveredLine">  return true;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">96</td>
+    <td class="uncoveredLine">}</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">97</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">98</td>
+    <td class="uncoveredLine">PreservedAnalyses RegToMemPass::run(Function &F, FunctionAnalysisManager &AM) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">99</td>
+    <td class="uncoveredLine">  auto *DT = &AM.getResult<DominatorTreeAnalysis>(F);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">100</td>
+    <td class="uncoveredLine">  auto *LI = &AM.getResult<LoopAnalysis>(F);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">101</td>
+    <td class="uncoveredLine">  unsigned N = SplitAllCriticalEdges(F, CriticalEdgeSplittingOptions(DT, LI));</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">102</td>
+    <td class="uncoveredLine">  bool Changed = runPass(F);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">103</td>
+    <td class="uncoveredLine">  if (N == 0 && !Changed)</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">104</td>
+    <td class="uncoveredLine">    return PreservedAnalyses::all();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">105</td>
+    <td class="uncoveredLine">  PreservedAnalyses PA;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">106</td>
+    <td class="uncoveredLine">  PA.preserve<DominatorTreeAnalysis>();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">107</td>
+    <td class="uncoveredLine">  PA.preserve<LoopAnalysis>();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">108</td>
+    <td class="uncoveredLine">  return PA;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">109</td>
+    <td class="uncoveredLine">}</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">110</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">111</td>
+    <td class="">namespace {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">112</td>
+    <td class="">struct RegToMemLegacy : public FunctionPass {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">113</td>
+    <td class="">  static char ID; // Pass identification, replacement for typeid</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">114</td>
+    <td class="uncoveredLine">  RegToMemLegacy() : FunctionPass(ID) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">115</td>
+    <td class="uncoveredLine">    initializeRegToMemLegacyPass(*PassRegistry::getPassRegistry());</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">116</td>
+    <td class="uncoveredLine">  }</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">117</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">118</td>
+    <td class="uncoveredLine">  void getAnalysisUsage(AnalysisUsage &AU) const override {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">119</td>
+    <td class="uncoveredLine">    AU.addRequiredID(BreakCriticalEdgesID);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">120</td>
+    <td class="uncoveredLine">    AU.addPreservedID(BreakCriticalEdgesID);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">121</td>
+    <td class="uncoveredLine">  }</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">122</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">123</td>
+    <td class="uncoveredLine">  bool runOnFunction(Function &F) override {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">124</td>
+    <td class="uncoveredLine">    if (F.isDeclaration() || skipFunction(F))</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">125</td>
+    <td class="uncoveredLine">      return false;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">126</td>
+    <td class="uncoveredLine">    return runPass(F);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">127</td>
+    <td class="">  }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">128</td>
+    <td class="">};</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">129</td>
+    <td class="">} // namespace</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">130</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">131</td>
+    <td class="">char RegToMemLegacy::ID = 0;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">132</td>
+    <td class="coveredLine">INITIALIZE_PASS_BEGIN(RegToMemLegacy, "reg2mem",</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">133</td>
+    <td class="">                      "Demote all values to stack slots", false, false)</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">134</td>
+    <td class="coveredLine">INITIALIZE_PASS_DEPENDENCY(BreakCriticalEdges)</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">135</td>
+    <td class="coveredLine">INITIALIZE_PASS_END(RegToMemLegacy, "reg2mem",</td>
+    <td>4</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">136</td>
+    <td class="">                    "Demote all values to stack slots", false, false)</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">137</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">138</td>
+    <td class="">// createDemoteRegisterToMemory - Provide an entry point to create this pass.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">139</td>
+    <td class="">char &llvm::DemoteRegisterToMemoryID = RegToMemLegacy::ID;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">140</td>
+    <td class="uncoveredLine">FunctionPass *llvm::createDemoteRegisterToMemoryPass() {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">141</td>
+    <td class="uncoveredLine">  return new RegToMemLegacy();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">142</td>
+    <td class="">}</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">143</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Functions Report</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Functions Report</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Function name</th>
+    <th class="mainTh">Number of hits</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZL12valueEscapesRKN4llvm11InstructionE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZL7runPassRN4llvm8FunctionE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN4llvm12RegToMemPass3runERNS_8FunctionERNS_15AnalysisManagerIS1_JEEE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_114RegToMemLegacyC2Ev</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZNK12_GLOBAL__N_114RegToMemLegacy16getAnalysisUsageERN4llvm13AnalysisUsageE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_114RegToMemLegacy13runOnFunctionERN4llvm8FunctionE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZL32initializeRegToMemLegacyPassOnceRN4llvm12PassRegistryE</td>
+    <td class="numberOfCalls">2</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN4llvm28initializeRegToMemLegacyPassERNS_12PassRegistryE</td>
+    <td class="numberOfCalls">2</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN4llvm32createDemoteRegisterToMemoryPassEv</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Coverage Diff</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Coverage Diff</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span> BUT NOT </span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </th>
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+      <span> BUT NOT </span>
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+    </th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="codeline">//===- Reg2Mem.cpp - Convert registers to allocas -------------------------===//</td>
+    <td class="lineNumber">1</td>
+    <td class="codeline">//===- Reg2Mem.cpp - Convert registers to allocas -------------------------===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">2</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="codeline">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">3</td>
+    <td class="codeline">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="codeline">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">4</td>
+    <td class="codeline">// See https://llvm.org/LICENSE.txt for license information.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="codeline">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">5</td>
+    <td class="codeline">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">6</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">7</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">8</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="codeline">// This file demotes all registers to memory references.  It is intended to be</td>
+    <td class="lineNumber">9</td>
+    <td class="codeline">// This file demotes all registers to memory references.  It is intended to be</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="codeline">// the inverse of PromoteMemoryToRegister.  By converting to loads, the only</td>
+    <td class="lineNumber">10</td>
+    <td class="codeline">// the inverse of PromoteMemoryToRegister.  By converting to loads, the only</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="codeline">// values live across basic blocks are allocas and loads before phi nodes.</td>
+    <td class="lineNumber">11</td>
+    <td class="codeline">// values live across basic blocks are allocas and loads before phi nodes.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class="codeline">// It is intended that this should make CFG hacking much easier.</td>
+    <td class="lineNumber">12</td>
+    <td class="codeline">// It is intended that this should make CFG hacking much easier.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class="codeline">// To make later hacking easier, the entry block is split into two, such that</td>
+    <td class="lineNumber">13</td>
+    <td class="codeline">// To make later hacking easier, the entry block is split into two, such that</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class="codeline">// all introduced allocas and nothing else are in the entry block.</td>
+    <td class="lineNumber">14</td>
+    <td class="codeline">// all introduced allocas and nothing else are in the entry block.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">15</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">16</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">17</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class="codeline">#include "llvm/Transforms/Scalar/Reg2Mem.h"</td>
+    <td class="lineNumber">18</td>
+    <td class="codeline">#include "llvm/Transforms/Scalar/Reg2Mem.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class="codeline">#include "llvm/ADT/Statistic.h"</td>
+    <td class="lineNumber">19</td>
+    <td class="codeline">#include "llvm/ADT/Statistic.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class="codeline">#include "llvm/Analysis/LoopInfo.h"</td>
+    <td class="lineNumber">20</td>
+    <td class="codeline">#include "llvm/Analysis/LoopInfo.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class="codeline">#include "llvm/IR/BasicBlock.h"</td>
+    <td class="lineNumber">21</td>
+    <td class="codeline">#include "llvm/IR/BasicBlock.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class="codeline">#include "llvm/IR/CFG.h"</td>
+    <td class="lineNumber">22</td>
+    <td class="codeline">#include "llvm/IR/CFG.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class="codeline">#include "llvm/IR/Dominators.h"</td>
+    <td class="lineNumber">23</td>
+    <td class="codeline">#include "llvm/IR/Dominators.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class="codeline">#include "llvm/IR/Function.h"</td>
+    <td class="lineNumber">24</td>
+    <td class="codeline">#include "llvm/IR/Function.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class="codeline">#include "llvm/IR/InstIterator.h"</td>
+    <td class="lineNumber">25</td>
+    <td class="codeline">#include "llvm/IR/InstIterator.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class="codeline">#include "llvm/IR/Instructions.h"</td>
+    <td class="lineNumber">26</td>
+    <td class="codeline">#include "llvm/IR/Instructions.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class="codeline">#include "llvm/IR/PassManager.h"</td>
+    <td class="lineNumber">27</td>
+    <td class="codeline">#include "llvm/IR/PassManager.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class="codeline">#include "llvm/InitializePasses.h"</td>
+    <td class="lineNumber">28</td>
+    <td class="codeline">#include "llvm/InitializePasses.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class="codeline">#include "llvm/Pass.h"</td>
+    <td class="lineNumber">29</td>
+    <td class="codeline">#include "llvm/Pass.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class="codeline">#include "llvm/Transforms/Scalar.h"</td>
+    <td class="lineNumber">30</td>
+    <td class="codeline">#include "llvm/Transforms/Scalar.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class="codeline">#include "llvm/Transforms/Utils.h"</td>
+    <td class="lineNumber">31</td>
+    <td class="codeline">#include "llvm/Transforms/Utils.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class="codeline">#include "llvm/Transforms/Utils/BasicBlockUtils.h"</td>
+    <td class="lineNumber">32</td>
+    <td class="codeline">#include "llvm/Transforms/Utils/BasicBlockUtils.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class="codeline">#include "llvm/Transforms/Utils/Local.h"</td>
+    <td class="lineNumber">33</td>
+    <td class="codeline">#include "llvm/Transforms/Utils/Local.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class="codeline">#include <list></td>
+    <td class="lineNumber">34</td>
+    <td class="codeline">#include <list></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class="codeline">using namespace llvm;</td>
+    <td class="lineNumber">35</td>
+    <td class="codeline">using namespace llvm;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">36</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class="codeline">#define DEBUG_TYPE "reg2mem"</td>
+    <td class="lineNumber">37</td>
+    <td class="codeline">#define DEBUG_TYPE "reg2mem"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">38</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class="codeline">STATISTIC(NumRegsDemoted, "Number of registers demoted");</td>
+    <td class="lineNumber">39</td>
+    <td class="codeline">STATISTIC(NumRegsDemoted, "Number of registers demoted");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class="codeline">STATISTIC(NumPhisDemoted, "Number of phi-nodes demoted");</td>
+    <td class="lineNumber">40</td>
+    <td class="codeline">STATISTIC(NumPhisDemoted, "Number of phi-nodes demoted");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">41</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class="codeline">static bool valueEscapes(const Instruction &Inst) {</td>
+    <td class="lineNumber">42</td>
+    <td class="codeline">static bool valueEscapes(const Instruction &Inst) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class="codeline">  if (!Inst.getType()->isSized())</td>
+    <td class="lineNumber">43</td>
+    <td class="codeline">  if (!Inst.getType()->isSized())</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class="codeline">    return false;</td>
+    <td class="lineNumber">44</td>
+    <td class="codeline">    return false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">45</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class="codeline">  const BasicBlock *BB = Inst.getParent();</td>
+    <td class="lineNumber">46</td>
+    <td class="codeline">  const BasicBlock *BB = Inst.getParent();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class="codeline">  for (const User *U : Inst.users()) {</td>
+    <td class="lineNumber">47</td>
+    <td class="codeline">  for (const User *U : Inst.users()) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class="codeline">    const Instruction *UI = cast<Instruction>(U);</td>
+    <td class="lineNumber">48</td>
+    <td class="codeline">    const Instruction *UI = cast<Instruction>(U);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class="codeline">    if (UI->getParent() != BB || isa<PHINode>(UI))</td>
+    <td class="lineNumber">49</td>
+    <td class="codeline">    if (UI->getParent() != BB || isa<PHINode>(UI))</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class="codeline">      return true;</td>
+    <td class="lineNumber">50</td>
+    <td class="codeline">      return true;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">51</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class="codeline">  return false;</td>
+    <td class="lineNumber">52</td>
+    <td class="codeline">  return false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">53</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">54</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class="codeline">static bool runPass(Function &F) {</td>
+    <td class="lineNumber">55</td>
+    <td class="codeline">static bool runPass(Function &F) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class="codeline">  // Insert all new allocas into entry block.</td>
+    <td class="lineNumber">56</td>
+    <td class="codeline">  // Insert all new allocas into entry block.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class="codeline">  BasicBlock *BBEntry = &F.getEntryBlock();</td>
+    <td class="lineNumber">57</td>
+    <td class="codeline">  BasicBlock *BBEntry = &F.getEntryBlock();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class="codeline">  assert(pred_empty(BBEntry) &&</td>
+    <td class="lineNumber">58</td>
+    <td class="codeline">  assert(pred_empty(BBEntry) &&</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class="codeline">         "Entry block to function must not have predecessors!");</td>
+    <td class="lineNumber">59</td>
+    <td class="codeline">         "Entry block to function must not have predecessors!");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">60</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class="codeline">  // Find first non-alloca instruction and create insertion point. This is</td>
+    <td class="lineNumber">61</td>
+    <td class="codeline">  // Find first non-alloca instruction and create insertion point. This is</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class="codeline">  // safe if block is well-formed: it always have terminator, otherwise</td>
+    <td class="lineNumber">62</td>
+    <td class="codeline">  // safe if block is well-formed: it always have terminator, otherwise</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class="codeline">  // we'll get and assertion.</td>
+    <td class="lineNumber">63</td>
+    <td class="codeline">  // we'll get and assertion.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class="codeline">  BasicBlock::iterator I = BBEntry->begin();</td>
+    <td class="lineNumber">64</td>
+    <td class="codeline">  BasicBlock::iterator I = BBEntry->begin();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class="codeline">  while (isa<AllocaInst>(I)) ++I;</td>
+    <td class="lineNumber">65</td>
+    <td class="codeline">  while (isa<AllocaInst>(I)) ++I;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">66</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class="codeline">  CastInst *AllocaInsertionPoint = new BitCastInst(</td>
+    <td class="lineNumber">67</td>
+    <td class="codeline">  CastInst *AllocaInsertionPoint = new BitCastInst(</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class="codeline">      Constant::getNullValue(Type::getInt32Ty(F.getContext())),</td>
+    <td class="lineNumber">68</td>
+    <td class="codeline">      Constant::getNullValue(Type::getInt32Ty(F.getContext())),</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class="codeline">      Type::getInt32Ty(F.getContext()), "reg2mem alloca point", &*I);</td>
+    <td class="lineNumber">69</td>
+    <td class="codeline">      Type::getInt32Ty(F.getContext()), "reg2mem alloca point", &*I);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">70</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class="codeline">  // Find the escaped instructions. But don't create stack slots for</td>
+    <td class="lineNumber">71</td>
+    <td class="codeline">  // Find the escaped instructions. But don't create stack slots for</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class="codeline">  // allocas in entry block.</td>
+    <td class="lineNumber">72</td>
+    <td class="codeline">  // allocas in entry block.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class="codeline">  std::list<Instruction*> WorkList;</td>
+    <td class="lineNumber">73</td>
+    <td class="codeline">  std::list<Instruction*> WorkList;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class="codeline">  for (Instruction &I : instructions(F))</td>
+    <td class="lineNumber">74</td>
+    <td class="codeline">  for (Instruction &I : instructions(F))</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class="codeline">    if (!(isa<AllocaInst>(I) && I.getParent() == BBEntry) && valueEscapes(I))</td>
+    <td class="lineNumber">75</td>
+    <td class="codeline">    if (!(isa<AllocaInst>(I) && I.getParent() == BBEntry) && valueEscapes(I))</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class="codeline">      WorkList.push_front(&I);</td>
+    <td class="lineNumber">76</td>
+    <td class="codeline">      WorkList.push_front(&I);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">77</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class="codeline">  // Demote escaped instructions</td>
+    <td class="lineNumber">78</td>
+    <td class="codeline">  // Demote escaped instructions</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class="codeline">  NumRegsDemoted += WorkList.size();</td>
+    <td class="lineNumber">79</td>
+    <td class="codeline">  NumRegsDemoted += WorkList.size();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class="codeline">  for (Instruction *I : WorkList)</td>
+    <td class="lineNumber">80</td>
+    <td class="codeline">  for (Instruction *I : WorkList)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class="codeline">    DemoteRegToStack(*I, false, AllocaInsertionPoint);</td>
+    <td class="lineNumber">81</td>
+    <td class="codeline">    DemoteRegToStack(*I, false, AllocaInsertionPoint);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">82</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class="codeline">  WorkList.clear();</td>
+    <td class="lineNumber">83</td>
+    <td class="codeline">  WorkList.clear();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">84</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class="codeline">  // Find all phi's</td>
+    <td class="lineNumber">85</td>
+    <td class="codeline">  // Find all phi's</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class="codeline">  for (BasicBlock &BB : F)</td>
+    <td class="lineNumber">86</td>
+    <td class="codeline">  for (BasicBlock &BB : F)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class="codeline">    for (auto &Phi : BB.phis())</td>
+    <td class="lineNumber">87</td>
+    <td class="codeline">    for (auto &Phi : BB.phis())</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class="codeline">      WorkList.push_front(&Phi);</td>
+    <td class="lineNumber">88</td>
+    <td class="codeline">      WorkList.push_front(&Phi);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">89</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">90</td>
+    <td class="codeline">  // Demote phi nodes</td>
+    <td class="lineNumber">90</td>
+    <td class="codeline">  // Demote phi nodes</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">91</td>
+    <td class="codeline">  NumPhisDemoted += WorkList.size();</td>
+    <td class="lineNumber">91</td>
+    <td class="codeline">  NumPhisDemoted += WorkList.size();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">92</td>
+    <td class="codeline">  for (Instruction *I : WorkList)</td>
+    <td class="lineNumber">92</td>
+    <td class="codeline">  for (Instruction *I : WorkList)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">93</td>
+    <td class="codeline">    DemotePHIToStack(cast<PHINode>(I), AllocaInsertionPoint);</td>
+    <td class="lineNumber">93</td>
+    <td class="codeline">    DemotePHIToStack(cast<PHINode>(I), AllocaInsertionPoint);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">94</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">94</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">95</td>
+    <td class="codeline">  return true;</td>
+    <td class="lineNumber">95</td>
+    <td class="codeline">  return true;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">96</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">96</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">97</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">97</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">98</td>
+    <td class="codeline">PreservedAnalyses RegToMemPass::run(Function &F, FunctionAnalysisManager &AM) {</td>
+    <td class="lineNumber">98</td>
+    <td class="codeline">PreservedAnalyses RegToMemPass::run(Function &F, FunctionAnalysisManager &AM) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">99</td>
+    <td class="codeline">  auto *DT = &AM.getResult<DominatorTreeAnalysis>(F);</td>
+    <td class="lineNumber">99</td>
+    <td class="codeline">  auto *DT = &AM.getResult<DominatorTreeAnalysis>(F);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">100</td>
+    <td class="codeline">  auto *LI = &AM.getResult<LoopAnalysis>(F);</td>
+    <td class="lineNumber">100</td>
+    <td class="codeline">  auto *LI = &AM.getResult<LoopAnalysis>(F);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">101</td>
+    <td class="codeline">  unsigned N = SplitAllCriticalEdges(F, CriticalEdgeSplittingOptions(DT, LI));</td>
+    <td class="lineNumber">101</td>
+    <td class="codeline">  unsigned N = SplitAllCriticalEdges(F, CriticalEdgeSplittingOptions(DT, LI));</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">102</td>
+    <td class="codeline">  bool Changed = runPass(F);</td>
+    <td class="lineNumber">102</td>
+    <td class="codeline">  bool Changed = runPass(F);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">103</td>
+    <td class="codeline">  if (N == 0 && !Changed)</td>
+    <td class="lineNumber">103</td>
+    <td class="codeline">  if (N == 0 && !Changed)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">104</td>
+    <td class="codeline">    return PreservedAnalyses::all();</td>
+    <td class="lineNumber">104</td>
+    <td class="codeline">    return PreservedAnalyses::all();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">105</td>
+    <td class="codeline">  PreservedAnalyses PA;</td>
+    <td class="lineNumber">105</td>
+    <td class="codeline">  PreservedAnalyses PA;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">106</td>
+    <td class="codeline">  PA.preserve<DominatorTreeAnalysis>();</td>
+    <td class="lineNumber">106</td>
+    <td class="codeline">  PA.preserve<DominatorTreeAnalysis>();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">107</td>
+    <td class="codeline">  PA.preserve<LoopAnalysis>();</td>
+    <td class="lineNumber">107</td>
+    <td class="codeline">  PA.preserve<LoopAnalysis>();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">108</td>
+    <td class="codeline">  return PA;</td>
+    <td class="lineNumber">108</td>
+    <td class="codeline">  return PA;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">109</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">109</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">110</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">110</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">111</td>
+    <td class="codeline">namespace {</td>
+    <td class="lineNumber">111</td>
+    <td class="codeline">namespace {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">112</td>
+    <td class="codeline">struct RegToMemLegacy : public FunctionPass {</td>
+    <td class="lineNumber">112</td>
+    <td class="codeline">struct RegToMemLegacy : public FunctionPass {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">113</td>
+    <td class="codeline">  static char ID; // Pass identification, replacement for typeid</td>
+    <td class="lineNumber">113</td>
+    <td class="codeline">  static char ID; // Pass identification, replacement for typeid</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">114</td>
+    <td class="codeline">  RegToMemLegacy() : FunctionPass(ID) {</td>
+    <td class="lineNumber">114</td>
+    <td class="codeline">  RegToMemLegacy() : FunctionPass(ID) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">115</td>
+    <td class="codeline">    initializeRegToMemLegacyPass(*PassRegistry::getPassRegistry());</td>
+    <td class="lineNumber">115</td>
+    <td class="codeline">    initializeRegToMemLegacyPass(*PassRegistry::getPassRegistry());</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">116</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">116</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">117</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">117</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">118</td>
+    <td class="codeline">  void getAnalysisUsage(AnalysisUsage &AU) const override {</td>
+    <td class="lineNumber">118</td>
+    <td class="codeline">  void getAnalysisUsage(AnalysisUsage &AU) const override {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">119</td>
+    <td class="codeline">    AU.addRequiredID(BreakCriticalEdgesID);</td>
+    <td class="lineNumber">119</td>
+    <td class="codeline">    AU.addRequiredID(BreakCriticalEdgesID);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">120</td>
+    <td class="codeline">    AU.addPreservedID(BreakCriticalEdgesID);</td>
+    <td class="lineNumber">120</td>
+    <td class="codeline">    AU.addPreservedID(BreakCriticalEdgesID);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">121</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">121</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">122</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">122</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">123</td>
+    <td class="codeline">  bool runOnFunction(Function &F) override {</td>
+    <td class="lineNumber">123</td>
+    <td class="codeline">  bool runOnFunction(Function &F) override {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">124</td>
+    <td class="codeline">    if (F.isDeclaration() || skipFunction(F))</td>
+    <td class="lineNumber">124</td>
+    <td class="codeline">    if (F.isDeclaration() || skipFunction(F))</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">125</td>
+    <td class="codeline">      return false;</td>
+    <td class="lineNumber">125</td>
+    <td class="codeline">      return false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">126</td>
+    <td class="codeline">    return runPass(F);</td>
+    <td class="lineNumber">126</td>
+    <td class="codeline">    return runPass(F);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">127</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">127</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">128</td>
+    <td class="codeline">};</td>
+    <td class="lineNumber">128</td>
+    <td class="codeline">};</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">129</td>
+    <td class="codeline">} // namespace</td>
+    <td class="lineNumber">129</td>
+    <td class="codeline">} // namespace</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">130</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">130</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">131</td>
+    <td class="codeline">char RegToMemLegacy::ID = 0;</td>
+    <td class="lineNumber">131</td>
+    <td class="codeline">char RegToMemLegacy::ID = 0;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">132</td>
+    <td class="codeline">INITIALIZE_PASS_BEGIN(RegToMemLegacy, "reg2mem",</td>
+    <td class="lineNumber">132</td>
+    <td class="codeline">INITIALIZE_PASS_BEGIN(RegToMemLegacy, "reg2mem",</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">133</td>
+    <td class="codeline">                      "Demote all values to stack slots", false, false)</td>
+    <td class="lineNumber">133</td>
+    <td class="codeline">                      "Demote all values to stack slots", false, false)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">134</td>
+    <td class="codeline">INITIALIZE_PASS_DEPENDENCY(BreakCriticalEdges)</td>
+    <td class="lineNumber">134</td>
+    <td class="codeline">INITIALIZE_PASS_DEPENDENCY(BreakCriticalEdges)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">135</td>
+    <td class="codeline">INITIALIZE_PASS_END(RegToMemLegacy, "reg2mem",</td>
+    <td class="lineNumber">135</td>
+    <td class="codeline">INITIALIZE_PASS_END(RegToMemLegacy, "reg2mem",</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">136</td>
+    <td class="codeline">                    "Demote all values to stack slots", false, false)</td>
+    <td class="lineNumber">136</td>
+    <td class="codeline">                    "Demote all values to stack slots", false, false)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">137</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">137</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">138</td>
+    <td class="codeline">// createDemoteRegisterToMemory - Provide an entry point to create this pass.</td>
+    <td class="lineNumber">138</td>
+    <td class="codeline">// createDemoteRegisterToMemory - Provide an entry point to create this pass.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">139</td>
+    <td class="codeline">char &llvm::DemoteRegisterToMemoryID = RegToMemLegacy::ID;</td>
+    <td class="lineNumber">139</td>
+    <td class="codeline">char &llvm::DemoteRegisterToMemoryID = RegToMemLegacy::ID;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">140</td>
+    <td class="codeline">FunctionPass *llvm::createDemoteRegisterToMemoryPass() {</td>
+    <td class="lineNumber">140</td>
+    <td class="codeline">FunctionPass *llvm::createDemoteRegisterToMemoryPass() {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">141</td>
+    <td class="codeline">  return new RegToMemLegacy();</td>
+    <td class="lineNumber">141</td>
+    <td class="codeline">  return new RegToMemLegacy();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">142</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">142</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">143</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">143</td>
+    <td class="codeline"></td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Side By Side Comparison</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Side By Side Comparison</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+    </th>
+    <th class="mainTh">Hit count</th>
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </th>
+    <th class="mainTh">Hit count</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="codeLine">//===- Reg2Mem.cpp - Convert registers to allocas -------------------------===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">1</td>
+    <td class="codeLine">//===- Reg2Mem.cpp - Convert registers to allocas -------------------------===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">2</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="codeLine">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">3</td>
+    <td class="codeLine">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="codeLine">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">4</td>
+    <td class="codeLine">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="codeLine">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">5</td>
+    <td class="codeLine">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">6</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">7</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">8</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="codeLine">// This file demotes all registers to memory references.  It is intended to be</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">9</td>
+    <td class="codeLine">// This file demotes all registers to memory references.  It is intended to be</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="codeLine">// the inverse of PromoteMemoryToRegister.  By converting to loads, the only</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">10</td>
+    <td class="codeLine">// the inverse of PromoteMemoryToRegister.  By converting to loads, the only</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="codeLine">// values live across basic blocks are allocas and loads before phi nodes.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">11</td>
+    <td class="codeLine">// values live across basic blocks are allocas and loads before phi nodes.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class="codeLine">// It is intended that this should make CFG hacking much easier.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">12</td>
+    <td class="codeLine">// It is intended that this should make CFG hacking much easier.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class="codeLine">// To make later hacking easier, the entry block is split into two, such that</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">13</td>
+    <td class="codeLine">// To make later hacking easier, the entry block is split into two, such that</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class="codeLine">// all introduced allocas and nothing else are in the entry block.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">14</td>
+    <td class="codeLine">// all introduced allocas and nothing else are in the entry block.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">15</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">16</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">17</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class="codeLine">#include "llvm/Transforms/Scalar/Reg2Mem.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">18</td>
+    <td class="codeLine">#include "llvm/Transforms/Scalar/Reg2Mem.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class="codeLine">#include "llvm/ADT/Statistic.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">19</td>
+    <td class="codeLine">#include "llvm/ADT/Statistic.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class="codeLine">#include "llvm/Analysis/LoopInfo.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">20</td>
+    <td class="codeLine">#include "llvm/Analysis/LoopInfo.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class="codeLine">#include "llvm/IR/BasicBlock.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">21</td>
+    <td class="codeLine">#include "llvm/IR/BasicBlock.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class="codeLine">#include "llvm/IR/CFG.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">22</td>
+    <td class="codeLine">#include "llvm/IR/CFG.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class="codeLine">#include "llvm/IR/Dominators.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">23</td>
+    <td class="codeLine">#include "llvm/IR/Dominators.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class="codeLine">#include "llvm/IR/Function.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">24</td>
+    <td class="codeLine">#include "llvm/IR/Function.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class="codeLine">#include "llvm/IR/InstIterator.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">25</td>
+    <td class="codeLine">#include "llvm/IR/InstIterator.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class="codeLine">#include "llvm/IR/Instructions.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">26</td>
+    <td class="codeLine">#include "llvm/IR/Instructions.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class="codeLine">#include "llvm/IR/PassManager.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">27</td>
+    <td class="codeLine">#include "llvm/IR/PassManager.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class="codeLine">#include "llvm/InitializePasses.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">28</td>
+    <td class="codeLine">#include "llvm/InitializePasses.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class="codeLine">#include "llvm/Pass.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">29</td>
+    <td class="codeLine">#include "llvm/Pass.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class="codeLine">#include "llvm/Transforms/Scalar.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">30</td>
+    <td class="codeLine">#include "llvm/Transforms/Scalar.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class="codeLine">#include "llvm/Transforms/Utils.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">31</td>
+    <td class="codeLine">#include "llvm/Transforms/Utils.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class="codeLine">#include "llvm/Transforms/Utils/BasicBlockUtils.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">32</td>
+    <td class="codeLine">#include "llvm/Transforms/Utils/BasicBlockUtils.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class="codeLine">#include "llvm/Transforms/Utils/Local.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">33</td>
+    <td class="codeLine">#include "llvm/Transforms/Utils/Local.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class="codeLine">#include <list></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">34</td>
+    <td class="codeLine">#include <list></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class="codeLine">using namespace llvm;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">35</td>
+    <td class="codeLine">using namespace llvm;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">36</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class="codeLine">#define DEBUG_TYPE "reg2mem"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">37</td>
+    <td class="codeLine">#define DEBUG_TYPE "reg2mem"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">38</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class="codeLine">STATISTIC(NumRegsDemoted, "Number of registers demoted");</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">39</td>
+    <td class="codeLine">STATISTIC(NumRegsDemoted, "Number of registers demoted");</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class="codeLine">STATISTIC(NumPhisDemoted, "Number of phi-nodes demoted");</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">40</td>
+    <td class="codeLine">STATISTIC(NumPhisDemoted, "Number of phi-nodes demoted");</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">41</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class="codeLine">static bool valueEscapes(const Instruction &Inst) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">42</td>
+    <td class="codeLine">static bool valueEscapes(const Instruction &Inst) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class="codeLine">  if (!Inst.getType()->isSized())</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">43</td>
+    <td class="codeLine">  if (!Inst.getType()->isSized())</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class="codeLine">    return false;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">44</td>
+    <td class="codeLine">    return false;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">45</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class="codeLine">  const BasicBlock *BB = Inst.getParent();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">46</td>
+    <td class="codeLine">  const BasicBlock *BB = Inst.getParent();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class="codeLine">  for (const User *U : Inst.users()) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">47</td>
+    <td class="codeLine">  for (const User *U : Inst.users()) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class="codeLine">    const Instruction *UI = cast<Instruction>(U);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">48</td>
+    <td class="codeLine">    const Instruction *UI = cast<Instruction>(U);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class="codeLine">    if (UI->getParent() != BB || isa<PHINode>(UI))</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">49</td>
+    <td class="codeLine">    if (UI->getParent() != BB || isa<PHINode>(UI))</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class="codeLine">      return true;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">50</td>
+    <td class="codeLine">      return true;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">51</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class="codeLine">  return false;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">52</td>
+    <td class="codeLine">  return false;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">53</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">54</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class="codeLine">static bool runPass(Function &F) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">55</td>
+    <td class="codeLine">static bool runPass(Function &F) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class="codeLine">  // Insert all new allocas into entry block.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">56</td>
+    <td class="codeLine">  // Insert all new allocas into entry block.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class="codeLine">  BasicBlock *BBEntry = &F.getEntryBlock();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">57</td>
+    <td class="codeLine">  BasicBlock *BBEntry = &F.getEntryBlock();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class="codeLine">  assert(pred_empty(BBEntry) &&</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">58</td>
+    <td class="codeLine">  assert(pred_empty(BBEntry) &&</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class="codeLine">         "Entry block to function must not have predecessors!");</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">59</td>
+    <td class="codeLine">         "Entry block to function must not have predecessors!");</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">60</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class="codeLine">  // Find first non-alloca instruction and create insertion point. This is</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">61</td>
+    <td class="codeLine">  // Find first non-alloca instruction and create insertion point. This is</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class="codeLine">  // safe if block is well-formed: it always have terminator, otherwise</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">62</td>
+    <td class="codeLine">  // safe if block is well-formed: it always have terminator, otherwise</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class="codeLine">  // we'll get and assertion.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">63</td>
+    <td class="codeLine">  // we'll get and assertion.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class="codeLine">  BasicBlock::iterator I = BBEntry->begin();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">64</td>
+    <td class="codeLine">  BasicBlock::iterator I = BBEntry->begin();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class="codeLine">  while (isa<AllocaInst>(I)) ++I;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">65</td>
+    <td class="codeLine">  while (isa<AllocaInst>(I)) ++I;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">66</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class="codeLine">  CastInst *AllocaInsertionPoint = new BitCastInst(</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">67</td>
+    <td class="codeLine">  CastInst *AllocaInsertionPoint = new BitCastInst(</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class="codeLine">      Constant::getNullValue(Type::getInt32Ty(F.getContext())),</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">68</td>
+    <td class="codeLine">      Constant::getNullValue(Type::getInt32Ty(F.getContext())),</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class="codeLine">      Type::getInt32Ty(F.getContext()), "reg2mem alloca point", &*I);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">69</td>
+    <td class="codeLine">      Type::getInt32Ty(F.getContext()), "reg2mem alloca point", &*I);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">70</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class="codeLine">  // Find the escaped instructions. But don't create stack slots for</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">71</td>
+    <td class="codeLine">  // Find the escaped instructions. But don't create stack slots for</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class="codeLine">  // allocas in entry block.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">72</td>
+    <td class="codeLine">  // allocas in entry block.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class="codeLine">  std::list<Instruction*> WorkList;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">73</td>
+    <td class="codeLine">  std::list<Instruction*> WorkList;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class="codeLine">  for (Instruction &I : instructions(F))</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">74</td>
+    <td class="codeLine">  for (Instruction &I : instructions(F))</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class="codeLine">    if (!(isa<AllocaInst>(I) && I.getParent() == BBEntry) && valueEscapes(I))</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">75</td>
+    <td class="codeLine">    if (!(isa<AllocaInst>(I) && I.getParent() == BBEntry) && valueEscapes(I))</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class="codeLine">      WorkList.push_front(&I);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">76</td>
+    <td class="codeLine">      WorkList.push_front(&I);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">77</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class="codeLine">  // Demote escaped instructions</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">78</td>
+    <td class="codeLine">  // Demote escaped instructions</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class="codeLine">  NumRegsDemoted += WorkList.size();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">79</td>
+    <td class="codeLine">  NumRegsDemoted += WorkList.size();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class="codeLine">  for (Instruction *I : WorkList)</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">80</td>
+    <td class="codeLine">  for (Instruction *I : WorkList)</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class="codeLine">    DemoteRegToStack(*I, false, AllocaInsertionPoint);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">81</td>
+    <td class="codeLine">    DemoteRegToStack(*I, false, AllocaInsertionPoint);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">82</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class="codeLine">  WorkList.clear();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">83</td>
+    <td class="codeLine">  WorkList.clear();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">84</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class="codeLine">  // Find all phi's</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">85</td>
+    <td class="codeLine">  // Find all phi's</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class="codeLine">  for (BasicBlock &BB : F)</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">86</td>
+    <td class="codeLine">  for (BasicBlock &BB : F)</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class="codeLine">    for (auto &Phi : BB.phis())</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">87</td>
+    <td class="codeLine">    for (auto &Phi : BB.phis())</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class="codeLine">      WorkList.push_front(&Phi);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">88</td>
+    <td class="codeLine">      WorkList.push_front(&Phi);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">89</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">90</td>
+    <td class="codeLine">  // Demote phi nodes</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">90</td>
+    <td class="codeLine">  // Demote phi nodes</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">91</td>
+    <td class="codeLine">  NumPhisDemoted += WorkList.size();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">91</td>
+    <td class="codeLine">  NumPhisDemoted += WorkList.size();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">92</td>
+    <td class="codeLine">  for (Instruction *I : WorkList)</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">92</td>
+    <td class="codeLine">  for (Instruction *I : WorkList)</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">93</td>
+    <td class="codeLine">    DemotePHIToStack(cast<PHINode>(I), AllocaInsertionPoint);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">93</td>
+    <td class="codeLine">    DemotePHIToStack(cast<PHINode>(I), AllocaInsertionPoint);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">94</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">94</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">95</td>
+    <td class="codeLine">  return true;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">95</td>
+    <td class="codeLine">  return true;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">96</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">96</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">97</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">97</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">98</td>
+    <td class="codeLine">PreservedAnalyses RegToMemPass::run(Function &F, FunctionAnalysisManager &AM) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">98</td>
+    <td class="codeLine">PreservedAnalyses RegToMemPass::run(Function &F, FunctionAnalysisManager &AM) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">99</td>
+    <td class="codeLine">  auto *DT = &AM.getResult<DominatorTreeAnalysis>(F);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">99</td>
+    <td class="codeLine">  auto *DT = &AM.getResult<DominatorTreeAnalysis>(F);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">100</td>
+    <td class="codeLine">  auto *LI = &AM.getResult<LoopAnalysis>(F);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">100</td>
+    <td class="codeLine">  auto *LI = &AM.getResult<LoopAnalysis>(F);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">101</td>
+    <td class="codeLine">  unsigned N = SplitAllCriticalEdges(F, CriticalEdgeSplittingOptions(DT, LI));</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">101</td>
+    <td class="codeLine">  unsigned N = SplitAllCriticalEdges(F, CriticalEdgeSplittingOptions(DT, LI));</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">102</td>
+    <td class="codeLine">  bool Changed = runPass(F);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">102</td>
+    <td class="codeLine">  bool Changed = runPass(F);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">103</td>
+    <td class="codeLine">  if (N == 0 && !Changed)</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">103</td>
+    <td class="codeLine">  if (N == 0 && !Changed)</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">104</td>
+    <td class="codeLine">    return PreservedAnalyses::all();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">104</td>
+    <td class="codeLine">    return PreservedAnalyses::all();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">105</td>
+    <td class="codeLine">  PreservedAnalyses PA;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">105</td>
+    <td class="codeLine">  PreservedAnalyses PA;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">106</td>
+    <td class="codeLine">  PA.preserve<DominatorTreeAnalysis>();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">106</td>
+    <td class="codeLine">  PA.preserve<DominatorTreeAnalysis>();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">107</td>
+    <td class="codeLine">  PA.preserve<LoopAnalysis>();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">107</td>
+    <td class="codeLine">  PA.preserve<LoopAnalysis>();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">108</td>
+    <td class="codeLine">  return PA;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">108</td>
+    <td class="codeLine">  return PA;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">109</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">109</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">110</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">110</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">111</td>
+    <td class="codeLine">namespace {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">111</td>
+    <td class="codeLine">namespace {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">112</td>
+    <td class="codeLine">struct RegToMemLegacy : public FunctionPass {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">112</td>
+    <td class="codeLine">struct RegToMemLegacy : public FunctionPass {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">113</td>
+    <td class="codeLine">  static char ID; // Pass identification, replacement for typeid</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">113</td>
+    <td class="codeLine">  static char ID; // Pass identification, replacement for typeid</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">114</td>
+    <td class="codeLine">  RegToMemLegacy() : FunctionPass(ID) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">114</td>
+    <td class="codeLine">  RegToMemLegacy() : FunctionPass(ID) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">115</td>
+    <td class="codeLine">    initializeRegToMemLegacyPass(*PassRegistry::getPassRegistry());</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">115</td>
+    <td class="codeLine">    initializeRegToMemLegacyPass(*PassRegistry::getPassRegistry());</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">116</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">116</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">117</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">117</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">118</td>
+    <td class="codeLine">  void getAnalysisUsage(AnalysisUsage &AU) const override {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">118</td>
+    <td class="codeLine">  void getAnalysisUsage(AnalysisUsage &AU) const override {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">119</td>
+    <td class="codeLine">    AU.addRequiredID(BreakCriticalEdgesID);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">119</td>
+    <td class="codeLine">    AU.addRequiredID(BreakCriticalEdgesID);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">120</td>
+    <td class="codeLine">    AU.addPreservedID(BreakCriticalEdgesID);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">120</td>
+    <td class="codeLine">    AU.addPreservedID(BreakCriticalEdgesID);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">121</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">121</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">122</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">122</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">123</td>
+    <td class="codeLine">  bool runOnFunction(Function &F) override {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">123</td>
+    <td class="codeLine">  bool runOnFunction(Function &F) override {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">124</td>
+    <td class="codeLine">    if (F.isDeclaration() || skipFunction(F))</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">124</td>
+    <td class="codeLine">    if (F.isDeclaration() || skipFunction(F))</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">125</td>
+    <td class="codeLine">      return false;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">125</td>
+    <td class="codeLine">      return false;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">126</td>
+    <td class="codeLine">    return runPass(F);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">126</td>
+    <td class="codeLine">    return runPass(F);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">127</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">127</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">128</td>
+    <td class="codeLine">};</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">128</td>
+    <td class="codeLine">};</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">129</td>
+    <td class="codeLine">} // namespace</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">129</td>
+    <td class="codeLine">} // namespace</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">130</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">130</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">131</td>
+    <td class="codeLine">char RegToMemLegacy::ID = 0;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">131</td>
+    <td class="codeLine">char RegToMemLegacy::ID = 0;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">132</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_BEGIN(RegToMemLegacy, "reg2mem",</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">132</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_BEGIN(RegToMemLegacy, "reg2mem",</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">133</td>
+    <td class="codeLine">                      "Demote all values to stack slots", false, false)</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">133</td>
+    <td class="codeLine">                      "Demote all values to stack slots", false, false)</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">134</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_DEPENDENCY(BreakCriticalEdges)</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">134</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_DEPENDENCY(BreakCriticalEdges)</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">135</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_END(RegToMemLegacy, "reg2mem",</td>
+    <td class="lineNumber">2</td>
+    <td class="lineNumber">135</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_END(RegToMemLegacy, "reg2mem",</td>
+    <td class="lineNumber">2</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">136</td>
+    <td class="codeLine">                    "Demote all values to stack slots", false, false)</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">136</td>
+    <td class="codeLine">                    "Demote all values to stack slots", false, false)</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">137</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">137</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">138</td>
+    <td class="codeLine">// createDemoteRegisterToMemory - Provide an entry point to create this pass.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">138</td>
+    <td class="codeLine">// createDemoteRegisterToMemory - Provide an entry point to create this pass.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">139</td>
+    <td class="codeLine">char &llvm::DemoteRegisterToMemoryID = RegToMemLegacy::ID;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">139</td>
+    <td class="codeLine">char &llvm::DemoteRegisterToMemoryID = RegToMemLegacy::ID;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">140</td>
+    <td class="codeLine">FunctionPass *llvm::createDemoteRegisterToMemoryPass() {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">140</td>
+    <td class="codeLine">FunctionPass *llvm::createDemoteRegisterToMemoryPass() {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">141</td>
+    <td class="codeLine">  return new RegToMemLegacy();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">141</td>
+    <td class="codeLine">  return new RegToMemLegacy();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">142</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">142</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">143</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">143</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+</table>
+    </div>
+    <button id="myBtn" onclick="topFunction()" title="Go to top" type="button">Top</button>
+    <script src="../Javascript/drop_down.js"></script>
+    <script src="../Javascript/top_button.js"></script>
+  </body>
+</html>

@@ -1,0 +1,3773 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>StackMapLivenessAnalysis.cpp</title>
+    <link rel="stylesheet" href="../Style/style.css" />
+  </head>
+  <body>
+    <div class="headerDiv">
+      <h1>
+        Code Coverage
+      </h1>
+      <p>
+        Source file: /home/nikola/Desktop/llvm-project/llvm/lib/CodeGen/StackMapLivenessAnalysis.cpp
+      </p>
+    </div>
+    <button class="collapsible" type="button">Open Summary Report</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Summary Report</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line number</th>
+    <th class="mainTh">Line</th>
+    <th class="mainTh">Number of hits</th>
+    <th class="mainTh">Tests that cover line</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="">//===-- StackMapLivenessAnalysis.cpp - StackMap live Out Analysis ----------===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="">//===----------------------------------------------------------------------===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="">// This file implements the StackMap Liveness analysis pass. The pass calculates</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="">// the liveness for each basic block in a function and attaches the register</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="">// live-out information to a stackmap or patchpoint intrinsic if present.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class="">//===----------------------------------------------------------------------===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class="">#include "llvm/ADT/Statistic.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class="">#include "llvm/CodeGen/LivePhysRegs.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class="">#include "llvm/CodeGen/MachineFrameInfo.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class="">#include "llvm/CodeGen/MachineFunction.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class="">#include "llvm/CodeGen/MachineFunctionPass.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class="">#include "llvm/CodeGen/TargetSubtargetInfo.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class="">#include "llvm/InitializePasses.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class="">#include "llvm/Pass.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class="">#include "llvm/Support/CommandLine.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class="">#include "llvm/Support/Debug.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class="">#include "llvm/Support/raw_ostream.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class="">using namespace llvm;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class="">#define DEBUG_TYPE "stackmaps"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class="">static cl::opt<bool> EnablePatchPointLiveness(</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class="">    "enable-patchpoint-liveness", cl::Hidden, cl::init(true),</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class="">    cl::desc("Enable PatchPoint Liveness Analysis Pass"));</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class="">STATISTIC(NumStackMapFuncVisited, "Number of functions visited");</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class="">STATISTIC(NumStackMapFuncSkipped, "Number of functions skipped");</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class="">STATISTIC(NumBBsVisited,          "Number of basic blocks visited");</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class="">STATISTIC(NumBBsHaveNoStackmap,   "Number of basic blocks with no stackmap");</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class="">STATISTIC(NumStackMaps,           "Number of StackMaps visited");</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class="">namespace {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class="">/// This pass calculates the liveness information for each basic block in</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class="">/// a function and attaches the register live-out information to a patchpoint</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class="">/// intrinsic if present.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class="">///</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class="">/// This pass can be disabled via the -enable-patchpoint-liveness=false flag.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class="">/// The pass skips functions that don't have any patchpoint intrinsics. The</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class="">/// information provided by this pass is optional and not required by the</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class="">/// aformentioned intrinsic to function.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class="">class StackMapLiveness : public MachineFunctionPass {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class="">  const TargetRegisterInfo *TRI = nullptr;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class="">  LivePhysRegs LiveRegs;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class="">public:</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class="">  static char ID;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class="">  /// Default construct and initialize the pass.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class="">  StackMapLiveness();</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class="">  /// Tell the pass manager which passes we depend on and what</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class="">  /// information we preserve.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class="">  void getAnalysisUsage(AnalysisUsage &AU) const override;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class="coveredLine">  MachineFunctionProperties getRequiredProperties() const override {</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class="coveredLine">    return MachineFunctionProperties().set(</td>
+    <td>4</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class="coveredLine">        MachineFunctionProperties::Property::NoVRegs);</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class="">  }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class="">  /// Calculate the liveness information for the given machine function.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class="">  bool runOnMachineFunction(MachineFunction &MF) override;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class="">private:</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class="">  /// Performs the actual liveness calculation for the function.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class="">  bool calculateLiveness(MachineFunction &MF);</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class="">  /// Add the current register live set to the instruction.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class="">  void addLiveOutSetToMI(MachineFunction &MF, MachineInstr &MI);</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class="">  /// Create a register mask and initialize it with the registers from</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class="">  /// the register live set.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class="">  uint32_t *createRegisterMask(MachineFunction &MF) const;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class="">};</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class="">} // namespace</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class="">char StackMapLiveness::ID = 0;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class="">char &llvm::StackMapLivenessID = StackMapLiveness::ID;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class="coveredLine">INITIALIZE_PASS(StackMapLiveness, "stackmap-liveness",</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class="">                "StackMap Liveness Analysis", false, false)</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">90</td>
+    <td class="">/// Default construct and initialize the pass.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">91</td>
+    <td class="coveredLine">StackMapLiveness::StackMapLiveness() : MachineFunctionPass(ID) {</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">92</td>
+    <td class="coveredLine">  initializeStackMapLivenessPass(*PassRegistry::getPassRegistry());</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">93</td>
+    <td class="coveredLine">}</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">94</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">95</td>
+    <td class="">/// Tell the pass manager which passes we depend on and what information we</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">96</td>
+    <td class="">/// preserve.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">97</td>
+    <td class="coveredLine">void StackMapLiveness::getAnalysisUsage(AnalysisUsage &AU) const {</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">98</td>
+    <td class="">  // We preserve all information.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">99</td>
+    <td class="coveredLine">  AU.setPreservesAll();</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">100</td>
+    <td class="coveredLine">  AU.setPreservesCFG();</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">101</td>
+    <td class="coveredLine">  MachineFunctionPass::getAnalysisUsage(AU);</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">102</td>
+    <td class="coveredLine">}</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">103</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">104</td>
+    <td class="">/// Calculate the liveness information for the given machine function.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">105</td>
+    <td class="coveredLine">bool StackMapLiveness::runOnMachineFunction(MachineFunction &MF) {</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">106</td>
+    <td class="coveredLine">  if (!EnablePatchPointLiveness)</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">107</td>
+    <td class="uncoveredLine">    return false;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">108</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">109</td>
+    <td class="coveredLine">  LLVM_DEBUG(dbgs() << "********** COMPUTING STACKMAP LIVENESS: "</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">110</td>
+    <td class="">                    << MF.getName() << " **********\n");</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">111</td>
+    <td class="coveredLine">  TRI = MF.getSubtarget().getRegisterInfo();</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">112</td>
+    <td class="coveredLine">  ++NumStackMapFuncVisited;</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">113</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">114</td>
+    <td class="">  // Skip this function if there are no patchpoints to process.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">115</td>
+    <td class="coveredLine">  if (!MF.getFrameInfo().hasPatchPoint()) {</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">116</td>
+    <td class="coveredLine">    ++NumStackMapFuncSkipped;</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">117</td>
+    <td class="coveredLine">    return false;</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">118</td>
+    <td class="">  }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">119</td>
+    <td class="uncoveredLine">  return calculateLiveness(MF);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">120</td>
+    <td class="">}</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">121</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">122</td>
+    <td class="">/// Performs the actual liveness calculation for the function.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">123</td>
+    <td class="uncoveredLine">bool StackMapLiveness::calculateLiveness(MachineFunction &MF) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">124</td>
+    <td class="uncoveredLine">  bool HasChanged = false;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">125</td>
+    <td class="">  // For all basic blocks in the function.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">126</td>
+    <td class="uncoveredLine">  for (auto &MBB : MF) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">127</td>
+    <td class="uncoveredLine">    LLVM_DEBUG(dbgs() << "****** BB " << MBB.getName() << " ******\n");</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">128</td>
+    <td class="uncoveredLine">    LiveRegs.init(*TRI);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">129</td>
+    <td class="">    // FIXME: This should probably be addLiveOuts().</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">130</td>
+    <td class="uncoveredLine">    LiveRegs.addLiveOutsNoPristines(MBB);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">131</td>
+    <td class="uncoveredLine">    bool HasStackMap = false;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">132</td>
+    <td class="">    // Reverse iterate over all instructions and add the current live register</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">133</td>
+    <td class="">    // set to an instruction if we encounter a patchpoint instruction.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">134</td>
+    <td class="uncoveredLine">    for (MachineInstr &MI : llvm::reverse(MBB)) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">135</td>
+    <td class="uncoveredLine">      if (MI.getOpcode() == TargetOpcode::PATCHPOINT) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">136</td>
+    <td class="uncoveredLine">        addLiveOutSetToMI(MF, MI);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">137</td>
+    <td class="uncoveredLine">        HasChanged = true;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">138</td>
+    <td class="uncoveredLine">        HasStackMap = true;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">139</td>
+    <td class="uncoveredLine">        ++NumStackMaps;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">140</td>
+    <td class="">      }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">141</td>
+    <td class="uncoveredLine">      LLVM_DEBUG(dbgs() << "   " << LiveRegs << "   " << MI);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">142</td>
+    <td class="uncoveredLine">      LiveRegs.stepBackward(MI);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">143</td>
+    <td class="">    }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">144</td>
+    <td class="uncoveredLine">    ++NumBBsVisited;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">145</td>
+    <td class="uncoveredLine">    if (!HasStackMap)</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">146</td>
+    <td class="uncoveredLine">      ++NumBBsHaveNoStackmap;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">147</td>
+    <td class="">  }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">148</td>
+    <td class="uncoveredLine">  return HasChanged;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">149</td>
+    <td class="">}</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">150</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">151</td>
+    <td class="">/// Add the current register live set to the instruction.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">152</td>
+    <td class="uncoveredLine">void StackMapLiveness::addLiveOutSetToMI(MachineFunction &MF,</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">153</td>
+    <td class="">                                         MachineInstr &MI) {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">154</td>
+    <td class="uncoveredLine">  uint32_t *Mask = createRegisterMask(MF);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">155</td>
+    <td class="uncoveredLine">  MachineOperand MO = MachineOperand::CreateRegLiveOut(Mask);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">156</td>
+    <td class="uncoveredLine">  MI.addOperand(MF, MO);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">157</td>
+    <td class="uncoveredLine">}</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">158</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">159</td>
+    <td class="">/// Create a register mask and initialize it with the registers from the</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">160</td>
+    <td class="">/// register live set.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">161</td>
+    <td class="uncoveredLine">uint32_t *StackMapLiveness::createRegisterMask(MachineFunction &MF) const {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">162</td>
+    <td class="">  // The mask is owned and cleaned up by the Machine Function.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">163</td>
+    <td class="uncoveredLine">  uint32_t *Mask = MF.allocateRegMask();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">164</td>
+    <td class="uncoveredLine">  for (auto Reg : LiveRegs)</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">165</td>
+    <td class="uncoveredLine">    Mask[Reg / 32] |= 1U << (Reg % 32);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">166</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">167</td>
+    <td class="">  // Give the target a chance to adjust the mask.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">168</td>
+    <td class="uncoveredLine">  TRI->adjustStackMapLiveOutMask(Mask);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">169</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">170</td>
+    <td class="uncoveredLine">  return Mask;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">171</td>
+    <td class="">}</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">172</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Functions Report</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Functions Report</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Function name</th>
+    <th class="mainTh">Number of hits</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZNK12_GLOBAL__N_116StackMapLiveness21getRequiredPropertiesEv</td>
+    <td class="numberOfCalls">2</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN4llvm30initializeStackMapLivenessPassERNS_12PassRegistryE</td>
+    <td class="numberOfCalls">6</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZL34initializeStackMapLivenessPassOnceRN4llvm12PassRegistryE</td>
+    <td class="numberOfCalls">2</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_116StackMapLivenessC2Ev</td>
+    <td class="numberOfCalls">2</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZNK12_GLOBAL__N_116StackMapLiveness16getAnalysisUsageERN4llvm13AnalysisUsageE</td>
+    <td class="numberOfCalls">2</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_116StackMapLiveness20runOnMachineFunctionERN4llvm15MachineFunctionE</td>
+    <td class="numberOfCalls">2</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_116StackMapLiveness17calculateLivenessERN4llvm15MachineFunctionE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_116StackMapLiveness17addLiveOutSetToMIERN4llvm15MachineFunctionERNS1_12MachineInstrE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZNK12_GLOBAL__N_116StackMapLiveness18createRegisterMaskERN4llvm15MachineFunctionE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Coverage Diff</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Coverage Diff</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span> BUT NOT </span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </th>
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+      <span> BUT NOT </span>
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+    </th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="codeline">//===-- StackMapLivenessAnalysis.cpp - StackMap live Out Analysis ----------===//</td>
+    <td class="lineNumber">1</td>
+    <td class="codeline">//===-- StackMapLivenessAnalysis.cpp - StackMap live Out Analysis ----------===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">2</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="codeline">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">3</td>
+    <td class="codeline">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="codeline">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">4</td>
+    <td class="codeline">// See https://llvm.org/LICENSE.txt for license information.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="codeline">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">5</td>
+    <td class="codeline">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">6</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">7</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">8</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="codeline">// This file implements the StackMap Liveness analysis pass. The pass calculates</td>
+    <td class="lineNumber">9</td>
+    <td class="codeline">// This file implements the StackMap Liveness analysis pass. The pass calculates</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="codeline">// the liveness for each basic block in a function and attaches the register</td>
+    <td class="lineNumber">10</td>
+    <td class="codeline">// the liveness for each basic block in a function and attaches the register</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="codeline">// live-out information to a stackmap or patchpoint intrinsic if present.</td>
+    <td class="lineNumber">11</td>
+    <td class="codeline">// live-out information to a stackmap or patchpoint intrinsic if present.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">12</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">13</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">14</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class="codeline">#include "llvm/ADT/Statistic.h"</td>
+    <td class="lineNumber">15</td>
+    <td class="codeline">#include "llvm/ADT/Statistic.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class="codeline">#include "llvm/CodeGen/LivePhysRegs.h"</td>
+    <td class="lineNumber">16</td>
+    <td class="codeline">#include "llvm/CodeGen/LivePhysRegs.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class="codeline">#include "llvm/CodeGen/MachineFrameInfo.h"</td>
+    <td class="lineNumber">17</td>
+    <td class="codeline">#include "llvm/CodeGen/MachineFrameInfo.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class="codeline">#include "llvm/CodeGen/MachineFunction.h"</td>
+    <td class="lineNumber">18</td>
+    <td class="codeline">#include "llvm/CodeGen/MachineFunction.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class="codeline">#include "llvm/CodeGen/MachineFunctionPass.h"</td>
+    <td class="lineNumber">19</td>
+    <td class="codeline">#include "llvm/CodeGen/MachineFunctionPass.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class="codeline">#include "llvm/CodeGen/TargetSubtargetInfo.h"</td>
+    <td class="lineNumber">20</td>
+    <td class="codeline">#include "llvm/CodeGen/TargetSubtargetInfo.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class="codeline">#include "llvm/InitializePasses.h"</td>
+    <td class="lineNumber">21</td>
+    <td class="codeline">#include "llvm/InitializePasses.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class="codeline">#include "llvm/Pass.h"</td>
+    <td class="lineNumber">22</td>
+    <td class="codeline">#include "llvm/Pass.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class="codeline">#include "llvm/Support/CommandLine.h"</td>
+    <td class="lineNumber">23</td>
+    <td class="codeline">#include "llvm/Support/CommandLine.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class="codeline">#include "llvm/Support/Debug.h"</td>
+    <td class="lineNumber">24</td>
+    <td class="codeline">#include "llvm/Support/Debug.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class="codeline">#include "llvm/Support/raw_ostream.h"</td>
+    <td class="lineNumber">25</td>
+    <td class="codeline">#include "llvm/Support/raw_ostream.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">26</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class="codeline">using namespace llvm;</td>
+    <td class="lineNumber">27</td>
+    <td class="codeline">using namespace llvm;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">28</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class="codeline">#define DEBUG_TYPE "stackmaps"</td>
+    <td class="lineNumber">29</td>
+    <td class="codeline">#define DEBUG_TYPE "stackmaps"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">30</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class="codeline">static cl::opt<bool> EnablePatchPointLiveness(</td>
+    <td class="lineNumber">31</td>
+    <td class="codeline">static cl::opt<bool> EnablePatchPointLiveness(</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class="codeline">    "enable-patchpoint-liveness", cl::Hidden, cl::init(true),</td>
+    <td class="lineNumber">32</td>
+    <td class="codeline">    "enable-patchpoint-liveness", cl::Hidden, cl::init(true),</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class="codeline">    cl::desc("Enable PatchPoint Liveness Analysis Pass"));</td>
+    <td class="lineNumber">33</td>
+    <td class="codeline">    cl::desc("Enable PatchPoint Liveness Analysis Pass"));</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">34</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class="codeline">STATISTIC(NumStackMapFuncVisited, "Number of functions visited");</td>
+    <td class="lineNumber">35</td>
+    <td class="codeline">STATISTIC(NumStackMapFuncVisited, "Number of functions visited");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class="codeline">STATISTIC(NumStackMapFuncSkipped, "Number of functions skipped");</td>
+    <td class="lineNumber">36</td>
+    <td class="codeline">STATISTIC(NumStackMapFuncSkipped, "Number of functions skipped");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class="codeline">STATISTIC(NumBBsVisited,          "Number of basic blocks visited");</td>
+    <td class="lineNumber">37</td>
+    <td class="codeline">STATISTIC(NumBBsVisited,          "Number of basic blocks visited");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class="codeline">STATISTIC(NumBBsHaveNoStackmap,   "Number of basic blocks with no stackmap");</td>
+    <td class="lineNumber">38</td>
+    <td class="codeline">STATISTIC(NumBBsHaveNoStackmap,   "Number of basic blocks with no stackmap");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class="codeline">STATISTIC(NumStackMaps,           "Number of StackMaps visited");</td>
+    <td class="lineNumber">39</td>
+    <td class="codeline">STATISTIC(NumStackMaps,           "Number of StackMaps visited");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">40</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class="codeline">namespace {</td>
+    <td class="lineNumber">41</td>
+    <td class="codeline">namespace {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class="codeline">/// This pass calculates the liveness information for each basic block in</td>
+    <td class="lineNumber">42</td>
+    <td class="codeline">/// This pass calculates the liveness information for each basic block in</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class="codeline">/// a function and attaches the register live-out information to a patchpoint</td>
+    <td class="lineNumber">43</td>
+    <td class="codeline">/// a function and attaches the register live-out information to a patchpoint</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class="codeline">/// intrinsic if present.</td>
+    <td class="lineNumber">44</td>
+    <td class="codeline">/// intrinsic if present.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class="codeline">///</td>
+    <td class="lineNumber">45</td>
+    <td class="codeline">///</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class="codeline">/// This pass can be disabled via the -enable-patchpoint-liveness=false flag.</td>
+    <td class="lineNumber">46</td>
+    <td class="codeline">/// This pass can be disabled via the -enable-patchpoint-liveness=false flag.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class="codeline">/// The pass skips functions that don't have any patchpoint intrinsics. The</td>
+    <td class="lineNumber">47</td>
+    <td class="codeline">/// The pass skips functions that don't have any patchpoint intrinsics. The</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class="codeline">/// information provided by this pass is optional and not required by the</td>
+    <td class="lineNumber">48</td>
+    <td class="codeline">/// information provided by this pass is optional and not required by the</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class="codeline">/// aformentioned intrinsic to function.</td>
+    <td class="lineNumber">49</td>
+    <td class="codeline">/// aformentioned intrinsic to function.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class="codeline">class StackMapLiveness : public MachineFunctionPass {</td>
+    <td class="lineNumber">50</td>
+    <td class="codeline">class StackMapLiveness : public MachineFunctionPass {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class="codeline">  const TargetRegisterInfo *TRI = nullptr;</td>
+    <td class="lineNumber">51</td>
+    <td class="codeline">  const TargetRegisterInfo *TRI = nullptr;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class="codeline">  LivePhysRegs LiveRegs;</td>
+    <td class="lineNumber">52</td>
+    <td class="codeline">  LivePhysRegs LiveRegs;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">53</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class="codeline">public:</td>
+    <td class="lineNumber">54</td>
+    <td class="codeline">public:</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class="codeline">  static char ID;</td>
+    <td class="lineNumber">55</td>
+    <td class="codeline">  static char ID;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">56</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class="codeline">  /// Default construct and initialize the pass.</td>
+    <td class="lineNumber">57</td>
+    <td class="codeline">  /// Default construct and initialize the pass.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class="codeline">  StackMapLiveness();</td>
+    <td class="lineNumber">58</td>
+    <td class="codeline">  StackMapLiveness();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">59</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class="codeline">  /// Tell the pass manager which passes we depend on and what</td>
+    <td class="lineNumber">60</td>
+    <td class="codeline">  /// Tell the pass manager which passes we depend on and what</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class="codeline">  /// information we preserve.</td>
+    <td class="lineNumber">61</td>
+    <td class="codeline">  /// information we preserve.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class="codeline">  void getAnalysisUsage(AnalysisUsage &AU) const override;</td>
+    <td class="lineNumber">62</td>
+    <td class="codeline">  void getAnalysisUsage(AnalysisUsage &AU) const override;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">63</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class="codeline">  MachineFunctionProperties getRequiredProperties() const override {</td>
+    <td class="lineNumber">64</td>
+    <td class="codeline">  MachineFunctionProperties getRequiredProperties() const override {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class="codeline">    return MachineFunctionProperties().set(</td>
+    <td class="lineNumber">65</td>
+    <td class="codeline">    return MachineFunctionProperties().set(</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class="codeline">        MachineFunctionProperties::Property::NoVRegs);</td>
+    <td class="lineNumber">66</td>
+    <td class="codeline">        MachineFunctionProperties::Property::NoVRegs);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">67</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">68</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class="codeline">  /// Calculate the liveness information for the given machine function.</td>
+    <td class="lineNumber">69</td>
+    <td class="codeline">  /// Calculate the liveness information for the given machine function.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class="codeline">  bool runOnMachineFunction(MachineFunction &MF) override;</td>
+    <td class="lineNumber">70</td>
+    <td class="codeline">  bool runOnMachineFunction(MachineFunction &MF) override;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">71</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class="codeline">private:</td>
+    <td class="lineNumber">72</td>
+    <td class="codeline">private:</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class="codeline">  /// Performs the actual liveness calculation for the function.</td>
+    <td class="lineNumber">73</td>
+    <td class="codeline">  /// Performs the actual liveness calculation for the function.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class="codeline">  bool calculateLiveness(MachineFunction &MF);</td>
+    <td class="lineNumber">74</td>
+    <td class="codeline">  bool calculateLiveness(MachineFunction &MF);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">75</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class="codeline">  /// Add the current register live set to the instruction.</td>
+    <td class="lineNumber">76</td>
+    <td class="codeline">  /// Add the current register live set to the instruction.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class="codeline">  void addLiveOutSetToMI(MachineFunction &MF, MachineInstr &MI);</td>
+    <td class="lineNumber">77</td>
+    <td class="codeline">  void addLiveOutSetToMI(MachineFunction &MF, MachineInstr &MI);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">78</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class="codeline">  /// Create a register mask and initialize it with the registers from</td>
+    <td class="lineNumber">79</td>
+    <td class="codeline">  /// Create a register mask and initialize it with the registers from</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class="codeline">  /// the register live set.</td>
+    <td class="lineNumber">80</td>
+    <td class="codeline">  /// the register live set.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class="codeline">  uint32_t *createRegisterMask(MachineFunction &MF) const;</td>
+    <td class="lineNumber">81</td>
+    <td class="codeline">  uint32_t *createRegisterMask(MachineFunction &MF) const;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class="codeline">};</td>
+    <td class="lineNumber">82</td>
+    <td class="codeline">};</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class="codeline">} // namespace</td>
+    <td class="lineNumber">83</td>
+    <td class="codeline">} // namespace</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">84</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class="codeline">char StackMapLiveness::ID = 0;</td>
+    <td class="lineNumber">85</td>
+    <td class="codeline">char StackMapLiveness::ID = 0;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class="codeline">char &llvm::StackMapLivenessID = StackMapLiveness::ID;</td>
+    <td class="lineNumber">86</td>
+    <td class="codeline">char &llvm::StackMapLivenessID = StackMapLiveness::ID;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class="codeline">INITIALIZE_PASS(StackMapLiveness, "stackmap-liveness",</td>
+    <td class="lineNumber">87</td>
+    <td class="codeline">INITIALIZE_PASS(StackMapLiveness, "stackmap-liveness",</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class="codeline">                "StackMap Liveness Analysis", false, false)</td>
+    <td class="lineNumber">88</td>
+    <td class="codeline">                "StackMap Liveness Analysis", false, false)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">89</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">90</td>
+    <td class="codeline">/// Default construct and initialize the pass.</td>
+    <td class="lineNumber">90</td>
+    <td class="codeline">/// Default construct and initialize the pass.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">91</td>
+    <td class="codeline">StackMapLiveness::StackMapLiveness() : MachineFunctionPass(ID) {</td>
+    <td class="lineNumber">91</td>
+    <td class="codeline">StackMapLiveness::StackMapLiveness() : MachineFunctionPass(ID) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">92</td>
+    <td class="codeline">  initializeStackMapLivenessPass(*PassRegistry::getPassRegistry());</td>
+    <td class="lineNumber">92</td>
+    <td class="codeline">  initializeStackMapLivenessPass(*PassRegistry::getPassRegistry());</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">93</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">93</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">94</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">94</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">95</td>
+    <td class="codeline">/// Tell the pass manager which passes we depend on and what information we</td>
+    <td class="lineNumber">95</td>
+    <td class="codeline">/// Tell the pass manager which passes we depend on and what information we</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">96</td>
+    <td class="codeline">/// preserve.</td>
+    <td class="lineNumber">96</td>
+    <td class="codeline">/// preserve.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">97</td>
+    <td class="codeline">void StackMapLiveness::getAnalysisUsage(AnalysisUsage &AU) const {</td>
+    <td class="lineNumber">97</td>
+    <td class="codeline">void StackMapLiveness::getAnalysisUsage(AnalysisUsage &AU) const {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">98</td>
+    <td class="codeline">  // We preserve all information.</td>
+    <td class="lineNumber">98</td>
+    <td class="codeline">  // We preserve all information.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">99</td>
+    <td class="codeline">  AU.setPreservesAll();</td>
+    <td class="lineNumber">99</td>
+    <td class="codeline">  AU.setPreservesAll();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">100</td>
+    <td class="codeline">  AU.setPreservesCFG();</td>
+    <td class="lineNumber">100</td>
+    <td class="codeline">  AU.setPreservesCFG();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">101</td>
+    <td class="codeline">  MachineFunctionPass::getAnalysisUsage(AU);</td>
+    <td class="lineNumber">101</td>
+    <td class="codeline">  MachineFunctionPass::getAnalysisUsage(AU);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">102</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">102</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">103</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">103</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">104</td>
+    <td class="codeline">/// Calculate the liveness information for the given machine function.</td>
+    <td class="lineNumber">104</td>
+    <td class="codeline">/// Calculate the liveness information for the given machine function.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">105</td>
+    <td class="codeline">bool StackMapLiveness::runOnMachineFunction(MachineFunction &MF) {</td>
+    <td class="lineNumber">105</td>
+    <td class="codeline">bool StackMapLiveness::runOnMachineFunction(MachineFunction &MF) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">106</td>
+    <td class="codeline">  if (!EnablePatchPointLiveness)</td>
+    <td class="lineNumber">106</td>
+    <td class="codeline">  if (!EnablePatchPointLiveness)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">107</td>
+    <td class="codeline">    return false;</td>
+    <td class="lineNumber">107</td>
+    <td class="codeline">    return false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">108</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">108</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">109</td>
+    <td class="codeline">  LLVM_DEBUG(dbgs() << "********** COMPUTING STACKMAP LIVENESS: "</td>
+    <td class="lineNumber">109</td>
+    <td class="codeline">  LLVM_DEBUG(dbgs() << "********** COMPUTING STACKMAP LIVENESS: "</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">110</td>
+    <td class="codeline">                    << MF.getName() << " **********\n");</td>
+    <td class="lineNumber">110</td>
+    <td class="codeline">                    << MF.getName() << " **********\n");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">111</td>
+    <td class="codeline">  TRI = MF.getSubtarget().getRegisterInfo();</td>
+    <td class="lineNumber">111</td>
+    <td class="codeline">  TRI = MF.getSubtarget().getRegisterInfo();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">112</td>
+    <td class="codeline">  ++NumStackMapFuncVisited;</td>
+    <td class="lineNumber">112</td>
+    <td class="codeline">  ++NumStackMapFuncVisited;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">113</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">113</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">114</td>
+    <td class="codeline">  // Skip this function if there are no patchpoints to process.</td>
+    <td class="lineNumber">114</td>
+    <td class="codeline">  // Skip this function if there are no patchpoints to process.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">115</td>
+    <td class="codeline">  if (!MF.getFrameInfo().hasPatchPoint()) {</td>
+    <td class="lineNumber">115</td>
+    <td class="codeline">  if (!MF.getFrameInfo().hasPatchPoint()) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">116</td>
+    <td class="codeline">    ++NumStackMapFuncSkipped;</td>
+    <td class="lineNumber">116</td>
+    <td class="codeline">    ++NumStackMapFuncSkipped;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">117</td>
+    <td class="codeline">    return false;</td>
+    <td class="lineNumber">117</td>
+    <td class="codeline">    return false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">118</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">118</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">119</td>
+    <td class="codeline">  return calculateLiveness(MF);</td>
+    <td class="lineNumber">119</td>
+    <td class="codeline">  return calculateLiveness(MF);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">120</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">120</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">121</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">121</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">122</td>
+    <td class="codeline">/// Performs the actual liveness calculation for the function.</td>
+    <td class="lineNumber">122</td>
+    <td class="codeline">/// Performs the actual liveness calculation for the function.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">123</td>
+    <td class="codeline">bool StackMapLiveness::calculateLiveness(MachineFunction &MF) {</td>
+    <td class="lineNumber">123</td>
+    <td class="codeline">bool StackMapLiveness::calculateLiveness(MachineFunction &MF) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">124</td>
+    <td class="codeline">  bool HasChanged = false;</td>
+    <td class="lineNumber">124</td>
+    <td class="codeline">  bool HasChanged = false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">125</td>
+    <td class="codeline">  // For all basic blocks in the function.</td>
+    <td class="lineNumber">125</td>
+    <td class="codeline">  // For all basic blocks in the function.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">126</td>
+    <td class="codeline">  for (auto &MBB : MF) {</td>
+    <td class="lineNumber">126</td>
+    <td class="codeline">  for (auto &MBB : MF) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">127</td>
+    <td class="codeline">    LLVM_DEBUG(dbgs() << "****** BB " << MBB.getName() << " ******\n");</td>
+    <td class="lineNumber">127</td>
+    <td class="codeline">    LLVM_DEBUG(dbgs() << "****** BB " << MBB.getName() << " ******\n");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">128</td>
+    <td class="codeline">    LiveRegs.init(*TRI);</td>
+    <td class="lineNumber">128</td>
+    <td class="codeline">    LiveRegs.init(*TRI);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">129</td>
+    <td class="codeline">    // FIXME: This should probably be addLiveOuts().</td>
+    <td class="lineNumber">129</td>
+    <td class="codeline">    // FIXME: This should probably be addLiveOuts().</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">130</td>
+    <td class="codeline">    LiveRegs.addLiveOutsNoPristines(MBB);</td>
+    <td class="lineNumber">130</td>
+    <td class="codeline">    LiveRegs.addLiveOutsNoPristines(MBB);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">131</td>
+    <td class="codeline">    bool HasStackMap = false;</td>
+    <td class="lineNumber">131</td>
+    <td class="codeline">    bool HasStackMap = false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">132</td>
+    <td class="codeline">    // Reverse iterate over all instructions and add the current live register</td>
+    <td class="lineNumber">132</td>
+    <td class="codeline">    // Reverse iterate over all instructions and add the current live register</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">133</td>
+    <td class="codeline">    // set to an instruction if we encounter a patchpoint instruction.</td>
+    <td class="lineNumber">133</td>
+    <td class="codeline">    // set to an instruction if we encounter a patchpoint instruction.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">134</td>
+    <td class="codeline">    for (MachineInstr &MI : llvm::reverse(MBB)) {</td>
+    <td class="lineNumber">134</td>
+    <td class="codeline">    for (MachineInstr &MI : llvm::reverse(MBB)) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">135</td>
+    <td class="codeline">      if (MI.getOpcode() == TargetOpcode::PATCHPOINT) {</td>
+    <td class="lineNumber">135</td>
+    <td class="codeline">      if (MI.getOpcode() == TargetOpcode::PATCHPOINT) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">136</td>
+    <td class="codeline">        addLiveOutSetToMI(MF, MI);</td>
+    <td class="lineNumber">136</td>
+    <td class="codeline">        addLiveOutSetToMI(MF, MI);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">137</td>
+    <td class="codeline">        HasChanged = true;</td>
+    <td class="lineNumber">137</td>
+    <td class="codeline">        HasChanged = true;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">138</td>
+    <td class="codeline">        HasStackMap = true;</td>
+    <td class="lineNumber">138</td>
+    <td class="codeline">        HasStackMap = true;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">139</td>
+    <td class="codeline">        ++NumStackMaps;</td>
+    <td class="lineNumber">139</td>
+    <td class="codeline">        ++NumStackMaps;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">140</td>
+    <td class="codeline">      }</td>
+    <td class="lineNumber">140</td>
+    <td class="codeline">      }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">141</td>
+    <td class="codeline">      LLVM_DEBUG(dbgs() << "   " << LiveRegs << "   " << MI);</td>
+    <td class="lineNumber">141</td>
+    <td class="codeline">      LLVM_DEBUG(dbgs() << "   " << LiveRegs << "   " << MI);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">142</td>
+    <td class="codeline">      LiveRegs.stepBackward(MI);</td>
+    <td class="lineNumber">142</td>
+    <td class="codeline">      LiveRegs.stepBackward(MI);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">143</td>
+    <td class="codeline">    }</td>
+    <td class="lineNumber">143</td>
+    <td class="codeline">    }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">144</td>
+    <td class="codeline">    ++NumBBsVisited;</td>
+    <td class="lineNumber">144</td>
+    <td class="codeline">    ++NumBBsVisited;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">145</td>
+    <td class="codeline">    if (!HasStackMap)</td>
+    <td class="lineNumber">145</td>
+    <td class="codeline">    if (!HasStackMap)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">146</td>
+    <td class="codeline">      ++NumBBsHaveNoStackmap;</td>
+    <td class="lineNumber">146</td>
+    <td class="codeline">      ++NumBBsHaveNoStackmap;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">147</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">147</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">148</td>
+    <td class="codeline">  return HasChanged;</td>
+    <td class="lineNumber">148</td>
+    <td class="codeline">  return HasChanged;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">149</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">149</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">150</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">150</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">151</td>
+    <td class="codeline">/// Add the current register live set to the instruction.</td>
+    <td class="lineNumber">151</td>
+    <td class="codeline">/// Add the current register live set to the instruction.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">152</td>
+    <td class="codeline">void StackMapLiveness::addLiveOutSetToMI(MachineFunction &MF,</td>
+    <td class="lineNumber">152</td>
+    <td class="codeline">void StackMapLiveness::addLiveOutSetToMI(MachineFunction &MF,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">153</td>
+    <td class="codeline">                                         MachineInstr &MI) {</td>
+    <td class="lineNumber">153</td>
+    <td class="codeline">                                         MachineInstr &MI) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">154</td>
+    <td class="codeline">  uint32_t *Mask = createRegisterMask(MF);</td>
+    <td class="lineNumber">154</td>
+    <td class="codeline">  uint32_t *Mask = createRegisterMask(MF);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">155</td>
+    <td class="codeline">  MachineOperand MO = MachineOperand::CreateRegLiveOut(Mask);</td>
+    <td class="lineNumber">155</td>
+    <td class="codeline">  MachineOperand MO = MachineOperand::CreateRegLiveOut(Mask);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">156</td>
+    <td class="codeline">  MI.addOperand(MF, MO);</td>
+    <td class="lineNumber">156</td>
+    <td class="codeline">  MI.addOperand(MF, MO);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">157</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">157</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">158</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">158</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">159</td>
+    <td class="codeline">/// Create a register mask and initialize it with the registers from the</td>
+    <td class="lineNumber">159</td>
+    <td class="codeline">/// Create a register mask and initialize it with the registers from the</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">160</td>
+    <td class="codeline">/// register live set.</td>
+    <td class="lineNumber">160</td>
+    <td class="codeline">/// register live set.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">161</td>
+    <td class="codeline">uint32_t *StackMapLiveness::createRegisterMask(MachineFunction &MF) const {</td>
+    <td class="lineNumber">161</td>
+    <td class="codeline">uint32_t *StackMapLiveness::createRegisterMask(MachineFunction &MF) const {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">162</td>
+    <td class="codeline">  // The mask is owned and cleaned up by the Machine Function.</td>
+    <td class="lineNumber">162</td>
+    <td class="codeline">  // The mask is owned and cleaned up by the Machine Function.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">163</td>
+    <td class="codeline">  uint32_t *Mask = MF.allocateRegMask();</td>
+    <td class="lineNumber">163</td>
+    <td class="codeline">  uint32_t *Mask = MF.allocateRegMask();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">164</td>
+    <td class="codeline">  for (auto Reg : LiveRegs)</td>
+    <td class="lineNumber">164</td>
+    <td class="codeline">  for (auto Reg : LiveRegs)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">165</td>
+    <td class="codeline">    Mask[Reg / 32] |= 1U << (Reg % 32);</td>
+    <td class="lineNumber">165</td>
+    <td class="codeline">    Mask[Reg / 32] |= 1U << (Reg % 32);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">166</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">166</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">167</td>
+    <td class="codeline">  // Give the target a chance to adjust the mask.</td>
+    <td class="lineNumber">167</td>
+    <td class="codeline">  // Give the target a chance to adjust the mask.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">168</td>
+    <td class="codeline">  TRI->adjustStackMapLiveOutMask(Mask);</td>
+    <td class="lineNumber">168</td>
+    <td class="codeline">  TRI->adjustStackMapLiveOutMask(Mask);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">169</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">169</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">170</td>
+    <td class="codeline">  return Mask;</td>
+    <td class="lineNumber">170</td>
+    <td class="codeline">  return Mask;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">171</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">171</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">172</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">172</td>
+    <td class="codeline"></td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Side By Side Comparison</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Side By Side Comparison</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+    </th>
+    <th class="mainTh">Hit count</th>
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </th>
+    <th class="mainTh">Hit count</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="codeLine">//===-- StackMapLivenessAnalysis.cpp - StackMap live Out Analysis ----------===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">1</td>
+    <td class="codeLine">//===-- StackMapLivenessAnalysis.cpp - StackMap live Out Analysis ----------===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">2</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="codeLine">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">3</td>
+    <td class="codeLine">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="codeLine">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">4</td>
+    <td class="codeLine">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="codeLine">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">5</td>
+    <td class="codeLine">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">6</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">7</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">8</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="codeLine">// This file implements the StackMap Liveness analysis pass. The pass calculates</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">9</td>
+    <td class="codeLine">// This file implements the StackMap Liveness analysis pass. The pass calculates</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="codeLine">// the liveness for each basic block in a function and attaches the register</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">10</td>
+    <td class="codeLine">// the liveness for each basic block in a function and attaches the register</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="codeLine">// live-out information to a stackmap or patchpoint intrinsic if present.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">11</td>
+    <td class="codeLine">// live-out information to a stackmap or patchpoint intrinsic if present.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">12</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">13</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">14</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class="codeLine">#include "llvm/ADT/Statistic.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">15</td>
+    <td class="codeLine">#include "llvm/ADT/Statistic.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class="codeLine">#include "llvm/CodeGen/LivePhysRegs.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">16</td>
+    <td class="codeLine">#include "llvm/CodeGen/LivePhysRegs.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class="codeLine">#include "llvm/CodeGen/MachineFrameInfo.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">17</td>
+    <td class="codeLine">#include "llvm/CodeGen/MachineFrameInfo.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class="codeLine">#include "llvm/CodeGen/MachineFunction.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">18</td>
+    <td class="codeLine">#include "llvm/CodeGen/MachineFunction.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class="codeLine">#include "llvm/CodeGen/MachineFunctionPass.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">19</td>
+    <td class="codeLine">#include "llvm/CodeGen/MachineFunctionPass.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class="codeLine">#include "llvm/CodeGen/TargetSubtargetInfo.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">20</td>
+    <td class="codeLine">#include "llvm/CodeGen/TargetSubtargetInfo.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class="codeLine">#include "llvm/InitializePasses.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">21</td>
+    <td class="codeLine">#include "llvm/InitializePasses.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class="codeLine">#include "llvm/Pass.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">22</td>
+    <td class="codeLine">#include "llvm/Pass.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class="codeLine">#include "llvm/Support/CommandLine.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">23</td>
+    <td class="codeLine">#include "llvm/Support/CommandLine.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class="codeLine">#include "llvm/Support/Debug.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">24</td>
+    <td class="codeLine">#include "llvm/Support/Debug.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class="codeLine">#include "llvm/Support/raw_ostream.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">25</td>
+    <td class="codeLine">#include "llvm/Support/raw_ostream.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">26</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class="codeLine">using namespace llvm;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">27</td>
+    <td class="codeLine">using namespace llvm;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">28</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class="codeLine">#define DEBUG_TYPE "stackmaps"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">29</td>
+    <td class="codeLine">#define DEBUG_TYPE "stackmaps"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">30</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class="codeLine">static cl::opt<bool> EnablePatchPointLiveness(</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">31</td>
+    <td class="codeLine">static cl::opt<bool> EnablePatchPointLiveness(</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class="codeLine">    "enable-patchpoint-liveness", cl::Hidden, cl::init(true),</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">32</td>
+    <td class="codeLine">    "enable-patchpoint-liveness", cl::Hidden, cl::init(true),</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class="codeLine">    cl::desc("Enable PatchPoint Liveness Analysis Pass"));</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">33</td>
+    <td class="codeLine">    cl::desc("Enable PatchPoint Liveness Analysis Pass"));</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">34</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class="codeLine">STATISTIC(NumStackMapFuncVisited, "Number of functions visited");</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">35</td>
+    <td class="codeLine">STATISTIC(NumStackMapFuncVisited, "Number of functions visited");</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class="codeLine">STATISTIC(NumStackMapFuncSkipped, "Number of functions skipped");</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">36</td>
+    <td class="codeLine">STATISTIC(NumStackMapFuncSkipped, "Number of functions skipped");</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class="codeLine">STATISTIC(NumBBsVisited,          "Number of basic blocks visited");</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">37</td>
+    <td class="codeLine">STATISTIC(NumBBsVisited,          "Number of basic blocks visited");</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class="codeLine">STATISTIC(NumBBsHaveNoStackmap,   "Number of basic blocks with no stackmap");</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">38</td>
+    <td class="codeLine">STATISTIC(NumBBsHaveNoStackmap,   "Number of basic blocks with no stackmap");</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class="codeLine">STATISTIC(NumStackMaps,           "Number of StackMaps visited");</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">39</td>
+    <td class="codeLine">STATISTIC(NumStackMaps,           "Number of StackMaps visited");</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">40</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class="codeLine">namespace {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">41</td>
+    <td class="codeLine">namespace {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class="codeLine">/// This pass calculates the liveness information for each basic block in</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">42</td>
+    <td class="codeLine">/// This pass calculates the liveness information for each basic block in</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class="codeLine">/// a function and attaches the register live-out information to a patchpoint</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">43</td>
+    <td class="codeLine">/// a function and attaches the register live-out information to a patchpoint</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class="codeLine">/// intrinsic if present.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">44</td>
+    <td class="codeLine">/// intrinsic if present.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class="codeLine">///</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">45</td>
+    <td class="codeLine">///</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class="codeLine">/// This pass can be disabled via the -enable-patchpoint-liveness=false flag.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">46</td>
+    <td class="codeLine">/// This pass can be disabled via the -enable-patchpoint-liveness=false flag.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class="codeLine">/// The pass skips functions that don't have any patchpoint intrinsics. The</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">47</td>
+    <td class="codeLine">/// The pass skips functions that don't have any patchpoint intrinsics. The</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class="codeLine">/// information provided by this pass is optional and not required by the</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">48</td>
+    <td class="codeLine">/// information provided by this pass is optional and not required by the</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class="codeLine">/// aformentioned intrinsic to function.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">49</td>
+    <td class="codeLine">/// aformentioned intrinsic to function.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class="codeLine">class StackMapLiveness : public MachineFunctionPass {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">50</td>
+    <td class="codeLine">class StackMapLiveness : public MachineFunctionPass {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class="codeLine">  const TargetRegisterInfo *TRI = nullptr;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">51</td>
+    <td class="codeLine">  const TargetRegisterInfo *TRI = nullptr;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class="codeLine">  LivePhysRegs LiveRegs;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">52</td>
+    <td class="codeLine">  LivePhysRegs LiveRegs;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">53</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class="codeLine">public:</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">54</td>
+    <td class="codeLine">public:</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class="codeLine">  static char ID;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">55</td>
+    <td class="codeLine">  static char ID;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">56</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class="codeLine">  /// Default construct and initialize the pass.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">57</td>
+    <td class="codeLine">  /// Default construct and initialize the pass.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class="codeLine">  StackMapLiveness();</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">58</td>
+    <td class="codeLine">  StackMapLiveness();</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">59</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class="codeLine">  /// Tell the pass manager which passes we depend on and what</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">60</td>
+    <td class="codeLine">  /// Tell the pass manager which passes we depend on and what</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class="codeLine">  /// information we preserve.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">61</td>
+    <td class="codeLine">  /// information we preserve.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class="codeLine">  void getAnalysisUsage(AnalysisUsage &AU) const override;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">62</td>
+    <td class="codeLine">  void getAnalysisUsage(AnalysisUsage &AU) const override;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">63</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class="codeLine coveredLine">  MachineFunctionProperties getRequiredProperties() const override {</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">64</td>
+    <td class="codeLine coveredLine">  MachineFunctionProperties getRequiredProperties() const override {</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class="codeLine coveredLine">    return MachineFunctionProperties().set(</td>
+    <td class="lineNumber">2</td>
+    <td class="lineNumber">65</td>
+    <td class="codeLine coveredLine">    return MachineFunctionProperties().set(</td>
+    <td class="lineNumber">2</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class="codeLine coveredLine">        MachineFunctionProperties::Property::NoVRegs);</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">66</td>
+    <td class="codeLine coveredLine">        MachineFunctionProperties::Property::NoVRegs);</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">67</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">68</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class="codeLine">  /// Calculate the liveness information for the given machine function.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">69</td>
+    <td class="codeLine">  /// Calculate the liveness information for the given machine function.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class="codeLine">  bool runOnMachineFunction(MachineFunction &MF) override;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">70</td>
+    <td class="codeLine">  bool runOnMachineFunction(MachineFunction &MF) override;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">71</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class="codeLine">private:</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">72</td>
+    <td class="codeLine">private:</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class="codeLine">  /// Performs the actual liveness calculation for the function.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">73</td>
+    <td class="codeLine">  /// Performs the actual liveness calculation for the function.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class="codeLine">  bool calculateLiveness(MachineFunction &MF);</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">74</td>
+    <td class="codeLine">  bool calculateLiveness(MachineFunction &MF);</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">75</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class="codeLine">  /// Add the current register live set to the instruction.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">76</td>
+    <td class="codeLine">  /// Add the current register live set to the instruction.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class="codeLine">  void addLiveOutSetToMI(MachineFunction &MF, MachineInstr &MI);</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">77</td>
+    <td class="codeLine">  void addLiveOutSetToMI(MachineFunction &MF, MachineInstr &MI);</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">78</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class="codeLine">  /// Create a register mask and initialize it with the registers from</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">79</td>
+    <td class="codeLine">  /// Create a register mask and initialize it with the registers from</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class="codeLine">  /// the register live set.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">80</td>
+    <td class="codeLine">  /// the register live set.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class="codeLine">  uint32_t *createRegisterMask(MachineFunction &MF) const;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">81</td>
+    <td class="codeLine">  uint32_t *createRegisterMask(MachineFunction &MF) const;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class="codeLine">};</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">82</td>
+    <td class="codeLine">};</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class="codeLine">} // namespace</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">83</td>
+    <td class="codeLine">} // namespace</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">84</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class="codeLine">char StackMapLiveness::ID = 0;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">85</td>
+    <td class="codeLine">char StackMapLiveness::ID = 0;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class="codeLine">char &llvm::StackMapLivenessID = StackMapLiveness::ID;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">86</td>
+    <td class="codeLine">char &llvm::StackMapLivenessID = StackMapLiveness::ID;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS(StackMapLiveness, "stackmap-liveness",</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">87</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS(StackMapLiveness, "stackmap-liveness",</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class="codeLine">                "StackMap Liveness Analysis", false, false)</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">88</td>
+    <td class="codeLine">                "StackMap Liveness Analysis", false, false)</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">89</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">90</td>
+    <td class="codeLine">/// Default construct and initialize the pass.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">90</td>
+    <td class="codeLine">/// Default construct and initialize the pass.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">91</td>
+    <td class="codeLine coveredLine">StackMapLiveness::StackMapLiveness() : MachineFunctionPass(ID) {</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">91</td>
+    <td class="codeLine coveredLine">StackMapLiveness::StackMapLiveness() : MachineFunctionPass(ID) {</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">92</td>
+    <td class="codeLine coveredLine">  initializeStackMapLivenessPass(*PassRegistry::getPassRegistry());</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">92</td>
+    <td class="codeLine coveredLine">  initializeStackMapLivenessPass(*PassRegistry::getPassRegistry());</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">93</td>
+    <td class="codeLine coveredLine">}</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">93</td>
+    <td class="codeLine coveredLine">}</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">94</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">94</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">95</td>
+    <td class="codeLine">/// Tell the pass manager which passes we depend on and what information we</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">95</td>
+    <td class="codeLine">/// Tell the pass manager which passes we depend on and what information we</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">96</td>
+    <td class="codeLine">/// preserve.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">96</td>
+    <td class="codeLine">/// preserve.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">97</td>
+    <td class="codeLine coveredLine">void StackMapLiveness::getAnalysisUsage(AnalysisUsage &AU) const {</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">97</td>
+    <td class="codeLine coveredLine">void StackMapLiveness::getAnalysisUsage(AnalysisUsage &AU) const {</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">98</td>
+    <td class="codeLine">  // We preserve all information.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">98</td>
+    <td class="codeLine">  // We preserve all information.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">99</td>
+    <td class="codeLine coveredLine">  AU.setPreservesAll();</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">99</td>
+    <td class="codeLine coveredLine">  AU.setPreservesAll();</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">100</td>
+    <td class="codeLine coveredLine">  AU.setPreservesCFG();</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">100</td>
+    <td class="codeLine coveredLine">  AU.setPreservesCFG();</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">101</td>
+    <td class="codeLine coveredLine">  MachineFunctionPass::getAnalysisUsage(AU);</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">101</td>
+    <td class="codeLine coveredLine">  MachineFunctionPass::getAnalysisUsage(AU);</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">102</td>
+    <td class="codeLine coveredLine">}</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">102</td>
+    <td class="codeLine coveredLine">}</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">103</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">103</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">104</td>
+    <td class="codeLine">/// Calculate the liveness information for the given machine function.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">104</td>
+    <td class="codeLine">/// Calculate the liveness information for the given machine function.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">105</td>
+    <td class="codeLine coveredLine">bool StackMapLiveness::runOnMachineFunction(MachineFunction &MF) {</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">105</td>
+    <td class="codeLine coveredLine">bool StackMapLiveness::runOnMachineFunction(MachineFunction &MF) {</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">106</td>
+    <td class="codeLine coveredLine">  if (!EnablePatchPointLiveness)</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">106</td>
+    <td class="codeLine coveredLine">  if (!EnablePatchPointLiveness)</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">107</td>
+    <td class="codeLine">    return false;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">107</td>
+    <td class="codeLine">    return false;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">108</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">108</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">109</td>
+    <td class="codeLine coveredLine">  LLVM_DEBUG(dbgs() << "********** COMPUTING STACKMAP LIVENESS: "</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">109</td>
+    <td class="codeLine coveredLine">  LLVM_DEBUG(dbgs() << "********** COMPUTING STACKMAP LIVENESS: "</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">110</td>
+    <td class="codeLine">                    << MF.getName() << " **********\n");</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">110</td>
+    <td class="codeLine">                    << MF.getName() << " **********\n");</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">111</td>
+    <td class="codeLine coveredLine">  TRI = MF.getSubtarget().getRegisterInfo();</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">111</td>
+    <td class="codeLine coveredLine">  TRI = MF.getSubtarget().getRegisterInfo();</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">112</td>
+    <td class="codeLine coveredLine">  ++NumStackMapFuncVisited;</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">112</td>
+    <td class="codeLine coveredLine">  ++NumStackMapFuncVisited;</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">113</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">113</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">114</td>
+    <td class="codeLine">  // Skip this function if there are no patchpoints to process.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">114</td>
+    <td class="codeLine">  // Skip this function if there are no patchpoints to process.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">115</td>
+    <td class="codeLine coveredLine">  if (!MF.getFrameInfo().hasPatchPoint()) {</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">115</td>
+    <td class="codeLine coveredLine">  if (!MF.getFrameInfo().hasPatchPoint()) {</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">116</td>
+    <td class="codeLine coveredLine">    ++NumStackMapFuncSkipped;</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">116</td>
+    <td class="codeLine coveredLine">    ++NumStackMapFuncSkipped;</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">117</td>
+    <td class="codeLine coveredLine">    return false;</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">117</td>
+    <td class="codeLine coveredLine">    return false;</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">118</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">118</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">119</td>
+    <td class="codeLine">  return calculateLiveness(MF);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">119</td>
+    <td class="codeLine">  return calculateLiveness(MF);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">120</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">120</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">121</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">121</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">122</td>
+    <td class="codeLine">/// Performs the actual liveness calculation for the function.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">122</td>
+    <td class="codeLine">/// Performs the actual liveness calculation for the function.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">123</td>
+    <td class="codeLine">bool StackMapLiveness::calculateLiveness(MachineFunction &MF) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">123</td>
+    <td class="codeLine">bool StackMapLiveness::calculateLiveness(MachineFunction &MF) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">124</td>
+    <td class="codeLine">  bool HasChanged = false;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">124</td>
+    <td class="codeLine">  bool HasChanged = false;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">125</td>
+    <td class="codeLine">  // For all basic blocks in the function.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">125</td>
+    <td class="codeLine">  // For all basic blocks in the function.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">126</td>
+    <td class="codeLine">  for (auto &MBB : MF) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">126</td>
+    <td class="codeLine">  for (auto &MBB : MF) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">127</td>
+    <td class="codeLine">    LLVM_DEBUG(dbgs() << "****** BB " << MBB.getName() << " ******\n");</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">127</td>
+    <td class="codeLine">    LLVM_DEBUG(dbgs() << "****** BB " << MBB.getName() << " ******\n");</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">128</td>
+    <td class="codeLine">    LiveRegs.init(*TRI);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">128</td>
+    <td class="codeLine">    LiveRegs.init(*TRI);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">129</td>
+    <td class="codeLine">    // FIXME: This should probably be addLiveOuts().</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">129</td>
+    <td class="codeLine">    // FIXME: This should probably be addLiveOuts().</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">130</td>
+    <td class="codeLine">    LiveRegs.addLiveOutsNoPristines(MBB);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">130</td>
+    <td class="codeLine">    LiveRegs.addLiveOutsNoPristines(MBB);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">131</td>
+    <td class="codeLine">    bool HasStackMap = false;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">131</td>
+    <td class="codeLine">    bool HasStackMap = false;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">132</td>
+    <td class="codeLine">    // Reverse iterate over all instructions and add the current live register</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">132</td>
+    <td class="codeLine">    // Reverse iterate over all instructions and add the current live register</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">133</td>
+    <td class="codeLine">    // set to an instruction if we encounter a patchpoint instruction.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">133</td>
+    <td class="codeLine">    // set to an instruction if we encounter a patchpoint instruction.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">134</td>
+    <td class="codeLine">    for (MachineInstr &MI : llvm::reverse(MBB)) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">134</td>
+    <td class="codeLine">    for (MachineInstr &MI : llvm::reverse(MBB)) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">135</td>
+    <td class="codeLine">      if (MI.getOpcode() == TargetOpcode::PATCHPOINT) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">135</td>
+    <td class="codeLine">      if (MI.getOpcode() == TargetOpcode::PATCHPOINT) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">136</td>
+    <td class="codeLine">        addLiveOutSetToMI(MF, MI);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">136</td>
+    <td class="codeLine">        addLiveOutSetToMI(MF, MI);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">137</td>
+    <td class="codeLine">        HasChanged = true;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">137</td>
+    <td class="codeLine">        HasChanged = true;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">138</td>
+    <td class="codeLine">        HasStackMap = true;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">138</td>
+    <td class="codeLine">        HasStackMap = true;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">139</td>
+    <td class="codeLine">        ++NumStackMaps;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">139</td>
+    <td class="codeLine">        ++NumStackMaps;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">140</td>
+    <td class="codeLine">      }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">140</td>
+    <td class="codeLine">      }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">141</td>
+    <td class="codeLine">      LLVM_DEBUG(dbgs() << "   " << LiveRegs << "   " << MI);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">141</td>
+    <td class="codeLine">      LLVM_DEBUG(dbgs() << "   " << LiveRegs << "   " << MI);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">142</td>
+    <td class="codeLine">      LiveRegs.stepBackward(MI);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">142</td>
+    <td class="codeLine">      LiveRegs.stepBackward(MI);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">143</td>
+    <td class="codeLine">    }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">143</td>
+    <td class="codeLine">    }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">144</td>
+    <td class="codeLine">    ++NumBBsVisited;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">144</td>
+    <td class="codeLine">    ++NumBBsVisited;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">145</td>
+    <td class="codeLine">    if (!HasStackMap)</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">145</td>
+    <td class="codeLine">    if (!HasStackMap)</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">146</td>
+    <td class="codeLine">      ++NumBBsHaveNoStackmap;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">146</td>
+    <td class="codeLine">      ++NumBBsHaveNoStackmap;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">147</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">147</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">148</td>
+    <td class="codeLine">  return HasChanged;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">148</td>
+    <td class="codeLine">  return HasChanged;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">149</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">149</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">150</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">150</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">151</td>
+    <td class="codeLine">/// Add the current register live set to the instruction.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">151</td>
+    <td class="codeLine">/// Add the current register live set to the instruction.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">152</td>
+    <td class="codeLine">void StackMapLiveness::addLiveOutSetToMI(MachineFunction &MF,</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">152</td>
+    <td class="codeLine">void StackMapLiveness::addLiveOutSetToMI(MachineFunction &MF,</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">153</td>
+    <td class="codeLine">                                         MachineInstr &MI) {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">153</td>
+    <td class="codeLine">                                         MachineInstr &MI) {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">154</td>
+    <td class="codeLine">  uint32_t *Mask = createRegisterMask(MF);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">154</td>
+    <td class="codeLine">  uint32_t *Mask = createRegisterMask(MF);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">155</td>
+    <td class="codeLine">  MachineOperand MO = MachineOperand::CreateRegLiveOut(Mask);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">155</td>
+    <td class="codeLine">  MachineOperand MO = MachineOperand::CreateRegLiveOut(Mask);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">156</td>
+    <td class="codeLine">  MI.addOperand(MF, MO);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">156</td>
+    <td class="codeLine">  MI.addOperand(MF, MO);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">157</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">157</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">158</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">158</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">159</td>
+    <td class="codeLine">/// Create a register mask and initialize it with the registers from the</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">159</td>
+    <td class="codeLine">/// Create a register mask and initialize it with the registers from the</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">160</td>
+    <td class="codeLine">/// register live set.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">160</td>
+    <td class="codeLine">/// register live set.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">161</td>
+    <td class="codeLine">uint32_t *StackMapLiveness::createRegisterMask(MachineFunction &MF) const {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">161</td>
+    <td class="codeLine">uint32_t *StackMapLiveness::createRegisterMask(MachineFunction &MF) const {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">162</td>
+    <td class="codeLine">  // The mask is owned and cleaned up by the Machine Function.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">162</td>
+    <td class="codeLine">  // The mask is owned and cleaned up by the Machine Function.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">163</td>
+    <td class="codeLine">  uint32_t *Mask = MF.allocateRegMask();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">163</td>
+    <td class="codeLine">  uint32_t *Mask = MF.allocateRegMask();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">164</td>
+    <td class="codeLine">  for (auto Reg : LiveRegs)</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">164</td>
+    <td class="codeLine">  for (auto Reg : LiveRegs)</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">165</td>
+    <td class="codeLine">    Mask[Reg / 32] |= 1U << (Reg % 32);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">165</td>
+    <td class="codeLine">    Mask[Reg / 32] |= 1U << (Reg % 32);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">166</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">166</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">167</td>
+    <td class="codeLine">  // Give the target a chance to adjust the mask.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">167</td>
+    <td class="codeLine">  // Give the target a chance to adjust the mask.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">168</td>
+    <td class="codeLine">  TRI->adjustStackMapLiveOutMask(Mask);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">168</td>
+    <td class="codeLine">  TRI->adjustStackMapLiveOutMask(Mask);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">169</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">169</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">170</td>
+    <td class="codeLine">  return Mask;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">170</td>
+    <td class="codeLine">  return Mask;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">171</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">171</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">172</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">172</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+</table>
+    </div>
+    <button id="myBtn" onclick="topFunction()" title="Go to top" type="button">Top</button>
+    <script src="../Javascript/drop_down.js"></script>
+    <script src="../Javascript/top_button.js"></script>
+  </body>
+</html>

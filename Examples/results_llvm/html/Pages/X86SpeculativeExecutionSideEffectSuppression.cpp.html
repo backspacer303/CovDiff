@@ -1,0 +1,3958 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>X86SpeculativeExecutionSideEffectSuppression.cpp</title>
+    <link rel="stylesheet" href="../Style/style.css" />
+  </head>
+  <body>
+    <div class="headerDiv">
+      <h1>
+        Code Coverage
+      </h1>
+      <p>
+        Source file: /home/nikola/Desktop/llvm-project/llvm/lib/Target/X86/X86SpeculativeExecutionSideEffectSuppression.cpp
+      </p>
+    </div>
+    <button class="collapsible" type="button">Open Summary Report</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Summary Report</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line number</th>
+    <th class="mainTh">Line</th>
+    <th class="mainTh">Number of hits</th>
+    <th class="mainTh">Tests that cover line</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="">//===-- X86SpeculativeExecutionSideEffectSuppression.cpp ------------------===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="">//===----------------------------------------------------------------------===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="">/// \file</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="">///</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="">/// This file contains the X86 implementation of the speculative execution side</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="">/// effect suppression mitigation.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class="">///</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class="">/// This must be used with the -mlvi-cfi flag in order to mitigate indirect</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class="">/// branches and returns.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class="">//===----------------------------------------------------------------------===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class="">#include "X86.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class="">#include "X86InstrInfo.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class="">#include "X86Subtarget.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class="">#include "llvm/ADT/Statistic.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class="">#include "llvm/CodeGen/MachineFunction.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class="">#include "llvm/CodeGen/MachineFunctionPass.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class="">#include "llvm/CodeGen/MachineInstrBuilder.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class="">#include "llvm/Pass.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class="">#include "llvm/Target/TargetMachine.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class="">using namespace llvm;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class="">#define DEBUG_TYPE "x86-seses"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class="">STATISTIC(NumLFENCEsInserted, "Number of lfence instructions inserted");</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class="">static cl::opt<bool> EnableSpeculativeExecutionSideEffectSuppression(</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class="">    "x86-seses-enable-without-lvi-cfi",</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class="">    cl::desc("Force enable speculative execution side effect suppression. "</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class="">             "(Note: User must pass -mlvi-cfi in order to mitigate indirect "</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class="">             "branches and returns.)"),</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class="">    cl::init(false), cl::Hidden);</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class="">static cl::opt<bool> OneLFENCEPerBasicBlock(</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class="">    "x86-seses-one-lfence-per-bb",</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class="">    cl::desc(</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class="">        "Omit all lfences other than the first to be placed in a basic block."),</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class="">    cl::init(false), cl::Hidden);</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class="">static cl::opt<bool> OnlyLFENCENonConst(</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class="">    "x86-seses-only-lfence-non-const",</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class="">    cl::desc("Only lfence before groups of terminators where at least one "</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class="">             "branch instruction has an input to the addressing mode that is a "</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class="">             "register other than %rip."),</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class="">    cl::init(false), cl::Hidden);</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class="">static cl::opt<bool></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class="">    OmitBranchLFENCEs("x86-seses-omit-branch-lfences",</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class="">                      cl::desc("Omit all lfences before branch instructions."),</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class="">                      cl::init(false), cl::Hidden);</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class="">namespace {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class="">class X86SpeculativeExecutionSideEffectSuppression</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class="">    : public MachineFunctionPass {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class="">public:</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class="uncoveredLine">  X86SpeculativeExecutionSideEffectSuppression() : MachineFunctionPass(ID) {}</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class="">  static char ID;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class="uncoveredLine">  StringRef getPassName() const override {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class="uncoveredLine">    return "X86 Speculative Execution Side Effect Suppression";</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class="">  }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class="">  bool runOnMachineFunction(MachineFunction &MF) override;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class="">};</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class="">} // namespace</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class="">char X86SpeculativeExecutionSideEffectSuppression::ID = 0;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class="">// This function returns whether the passed instruction uses a memory addressing</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class="">// mode that is constant. We treat all memory addressing modes that read</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class="">// from a register that is not %rip as non-constant. Note that the use</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class="">// of the EFLAGS register results in an addressing mode being considered</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class="">// non-constant, therefore all JCC instructions will return false from this</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class="">// function since one of their operands will always be the EFLAGS register.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class="uncoveredLine">static bool hasConstantAddressingMode(const MachineInstr &MI) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class="uncoveredLine">  for (const MachineOperand &MO : MI.uses())</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class="uncoveredLine">    if (MO.isReg() && X86::RIP != MO.getReg())</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class="uncoveredLine">      return false;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class="uncoveredLine">  return true;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class="">}</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class="uncoveredLine">bool X86SpeculativeExecutionSideEffectSuppression::runOnMachineFunction(</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class="">    MachineFunction &MF) {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">90</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">91</td>
+    <td class="uncoveredLine">  const auto &OptLevel = MF.getTarget().getOptLevel();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">92</td>
+    <td class="uncoveredLine">  const X86Subtarget &Subtarget = MF.getSubtarget<X86Subtarget>();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">93</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">94</td>
+    <td class="">  // Check whether SESES needs to run as the fallback for LVI at O0, whether the</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">95</td>
+    <td class="">  // user explicitly passed an SESES flag, or whether the SESES target feature</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">96</td>
+    <td class="">  // was set.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">97</td>
+    <td class="uncoveredLine">  if (!EnableSpeculativeExecutionSideEffectSuppression &&</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">98</td>
+    <td class="uncoveredLine">      !(Subtarget.useLVILoadHardening() && OptLevel == CodeGenOpt::None) &&</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">99</td>
+    <td class="uncoveredLine">      !Subtarget.useSpeculativeExecutionSideEffectSuppression())</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">100</td>
+    <td class="uncoveredLine">    return false;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">101</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">102</td>
+    <td class="uncoveredLine">  LLVM_DEBUG(dbgs() << "********** " << getPassName() << " : " << MF.getName()</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">103</td>
+    <td class="">                    << " **********\n");</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">104</td>
+    <td class="uncoveredLine">  bool Modified = false;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">105</td>
+    <td class="uncoveredLine">  const X86InstrInfo *TII = Subtarget.getInstrInfo();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">106</td>
+    <td class="uncoveredLine">  for (MachineBasicBlock &MBB : MF) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">107</td>
+    <td class="uncoveredLine">    MachineInstr *FirstTerminator = nullptr;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">108</td>
+    <td class="">    // Keep track of whether the previous instruction was an LFENCE to avoid</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">109</td>
+    <td class="">    // adding redundant LFENCEs.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">110</td>
+    <td class="uncoveredLine">    bool PrevInstIsLFENCE = false;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">111</td>
+    <td class="uncoveredLine">    for (auto &MI : MBB) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">112</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">113</td>
+    <td class="uncoveredLine">      if (MI.getOpcode() == X86::LFENCE) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">114</td>
+    <td class="uncoveredLine">        PrevInstIsLFENCE = true;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">115</td>
+    <td class="uncoveredLine">        continue;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">116</td>
+    <td class="">      }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">117</td>
+    <td class="">      // We want to put an LFENCE before any instruction that</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">118</td>
+    <td class="">      // may load or store. This LFENCE is intended to avoid leaking any secret</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">119</td>
+    <td class="">      // data due to a given load or store. This results in closing the cache</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">120</td>
+    <td class="">      // and memory timing side channels. We will treat terminators that load</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">121</td>
+    <td class="">      // or store separately.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">122</td>
+    <td class="uncoveredLine">      if (MI.mayLoadOrStore() && !MI.isTerminator()) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">123</td>
+    <td class="uncoveredLine">        if (!PrevInstIsLFENCE) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">124</td>
+    <td class="uncoveredLine">          BuildMI(MBB, MI, DebugLoc(), TII->get(X86::LFENCE));</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">125</td>
+    <td class="uncoveredLine">          NumLFENCEsInserted++;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">126</td>
+    <td class="uncoveredLine">          Modified = true;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">127</td>
+    <td class="">        }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">128</td>
+    <td class="uncoveredLine">        if (OneLFENCEPerBasicBlock)</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">129</td>
+    <td class="uncoveredLine">          break;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">130</td>
+    <td class="">      }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">131</td>
+    <td class="">      // The following section will be LFENCEing before groups of terminators</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">132</td>
+    <td class="">      // that include branches. This will close the branch prediction side</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">133</td>
+    <td class="">      // channels since we will prevent code executing after misspeculation as</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">134</td>
+    <td class="">      // a result of the LFENCEs placed with this logic.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">135</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">136</td>
+    <td class="">      // Keep track of the first terminator in a basic block since if we need</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">137</td>
+    <td class="">      // to LFENCE the terminators in this basic block we must add the</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">138</td>
+    <td class="">      // instruction before the first terminator in the basic block (as</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">139</td>
+    <td class="">      // opposed to before the terminator that indicates an LFENCE is</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">140</td>
+    <td class="">      // required). An example of why this is necessary is that the</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">141</td>
+    <td class="">      // X86InstrInfo::analyzeBranch method assumes all terminators are grouped</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">142</td>
+    <td class="">      // together and terminates it's analysis once the first non-termintor</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">143</td>
+    <td class="">      // instruction is found.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">144</td>
+    <td class="uncoveredLine">      if (MI.isTerminator() && FirstTerminator == nullptr)</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">145</td>
+    <td class="uncoveredLine">        FirstTerminator = &MI;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">146</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">147</td>
+    <td class="">      // Look for branch instructions that will require an LFENCE to be put</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">148</td>
+    <td class="">      // before this basic block's terminators.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">149</td>
+    <td class="uncoveredLine">      if (!MI.isBranch() || OmitBranchLFENCEs) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">150</td>
+    <td class="">        // This isn't a branch or we're not putting LFENCEs before branches.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">151</td>
+    <td class="uncoveredLine">        PrevInstIsLFENCE = false;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">152</td>
+    <td class="uncoveredLine">        continue;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">153</td>
+    <td class="">      }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">154</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">155</td>
+    <td class="uncoveredLine">      if (OnlyLFENCENonConst && hasConstantAddressingMode(MI)) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">156</td>
+    <td class="">        // This is a branch, but it only has constant addressing mode and we're</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">157</td>
+    <td class="">        // not adding LFENCEs before such branches.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">158</td>
+    <td class="uncoveredLine">        PrevInstIsLFENCE = false;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">159</td>
+    <td class="uncoveredLine">        continue;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">160</td>
+    <td class="">      }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">161</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">162</td>
+    <td class="">      // This branch requires adding an LFENCE.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">163</td>
+    <td class="uncoveredLine">      if (!PrevInstIsLFENCE) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">164</td>
+    <td class="uncoveredLine">        assert(FirstTerminator && "Unknown terminator instruction");</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">165</td>
+    <td class="uncoveredLine">        BuildMI(MBB, FirstTerminator, DebugLoc(), TII->get(X86::LFENCE));</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">166</td>
+    <td class="uncoveredLine">        NumLFENCEsInserted++;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">167</td>
+    <td class="uncoveredLine">        Modified = true;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">168</td>
+    <td class="">      }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">169</td>
+    <td class="uncoveredLine">      break;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">170</td>
+    <td class="">    }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">171</td>
+    <td class="">  }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">172</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">173</td>
+    <td class="uncoveredLine">  return Modified;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">174</td>
+    <td class="">}</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">175</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">176</td>
+    <td class="uncoveredLine">FunctionPass *llvm::createX86SpeculativeExecutionSideEffectSuppression() {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">177</td>
+    <td class="uncoveredLine">  return new X86SpeculativeExecutionSideEffectSuppression();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">178</td>
+    <td class="">}</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">179</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">180</td>
+    <td class="coveredLine">INITIALIZE_PASS(X86SpeculativeExecutionSideEffectSuppression, "x86-seses",</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">181</td>
+    <td class="">                "X86 Speculative Execution Side Effect Suppression", false,</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">182</td>
+    <td class="">                false)</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">183</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Functions Report</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Functions Report</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Function name</th>
+    <th class="mainTh">Number of hits</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_144X86SpeculativeExecutionSideEffectSuppressionC2Ev</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZNK12_GLOBAL__N_144X86SpeculativeExecutionSideEffectSuppression11getPassNameEv</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZL25hasConstantAddressingModeRKN4llvm12MachineInstrE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_144X86SpeculativeExecutionSideEffectSuppression20runOnMachineFunctionERN4llvm15MachineFunctionE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN4llvm50createX86SpeculativeExecutionSideEffectSuppressionEv</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN4llvm58initializeX86SpeculativeExecutionSideEffectSuppressionPassERNS_12PassRegistryE</td>
+    <td class="numberOfCalls">2</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZL62initializeX86SpeculativeExecutionSideEffectSuppressionPassOnceRN4llvm12PassRegistryE</td>
+    <td class="numberOfCalls">2</td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Coverage Diff</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Coverage Diff</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span> BUT NOT </span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </th>
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+      <span> BUT NOT </span>
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+    </th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="codeline">//===-- X86SpeculativeExecutionSideEffectSuppression.cpp ------------------===//</td>
+    <td class="lineNumber">1</td>
+    <td class="codeline">//===-- X86SpeculativeExecutionSideEffectSuppression.cpp ------------------===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">2</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="codeline">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">3</td>
+    <td class="codeline">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="codeline">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">4</td>
+    <td class="codeline">// See https://llvm.org/LICENSE.txt for license information.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="codeline">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">5</td>
+    <td class="codeline">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">6</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">7</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="codeline">/// \file</td>
+    <td class="lineNumber">8</td>
+    <td class="codeline">/// \file</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="codeline">///</td>
+    <td class="lineNumber">9</td>
+    <td class="codeline">///</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="codeline">/// This file contains the X86 implementation of the speculative execution side</td>
+    <td class="lineNumber">10</td>
+    <td class="codeline">/// This file contains the X86 implementation of the speculative execution side</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="codeline">/// effect suppression mitigation.</td>
+    <td class="lineNumber">11</td>
+    <td class="codeline">/// effect suppression mitigation.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class="codeline">///</td>
+    <td class="lineNumber">12</td>
+    <td class="codeline">///</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class="codeline">/// This must be used with the -mlvi-cfi flag in order to mitigate indirect</td>
+    <td class="lineNumber">13</td>
+    <td class="codeline">/// This must be used with the -mlvi-cfi flag in order to mitigate indirect</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class="codeline">/// branches and returns.</td>
+    <td class="lineNumber">14</td>
+    <td class="codeline">/// branches and returns.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">15</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">16</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class="codeline">#include "X86.h"</td>
+    <td class="lineNumber">17</td>
+    <td class="codeline">#include "X86.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class="codeline">#include "X86InstrInfo.h"</td>
+    <td class="lineNumber">18</td>
+    <td class="codeline">#include "X86InstrInfo.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class="codeline">#include "X86Subtarget.h"</td>
+    <td class="lineNumber">19</td>
+    <td class="codeline">#include "X86Subtarget.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class="codeline">#include "llvm/ADT/Statistic.h"</td>
+    <td class="lineNumber">20</td>
+    <td class="codeline">#include "llvm/ADT/Statistic.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class="codeline">#include "llvm/CodeGen/MachineFunction.h"</td>
+    <td class="lineNumber">21</td>
+    <td class="codeline">#include "llvm/CodeGen/MachineFunction.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class="codeline">#include "llvm/CodeGen/MachineFunctionPass.h"</td>
+    <td class="lineNumber">22</td>
+    <td class="codeline">#include "llvm/CodeGen/MachineFunctionPass.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class="codeline">#include "llvm/CodeGen/MachineInstrBuilder.h"</td>
+    <td class="lineNumber">23</td>
+    <td class="codeline">#include "llvm/CodeGen/MachineInstrBuilder.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class="codeline">#include "llvm/Pass.h"</td>
+    <td class="lineNumber">24</td>
+    <td class="codeline">#include "llvm/Pass.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class="codeline">#include "llvm/Target/TargetMachine.h"</td>
+    <td class="lineNumber">25</td>
+    <td class="codeline">#include "llvm/Target/TargetMachine.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class="codeline">using namespace llvm;</td>
+    <td class="lineNumber">26</td>
+    <td class="codeline">using namespace llvm;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">27</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class="codeline">#define DEBUG_TYPE "x86-seses"</td>
+    <td class="lineNumber">28</td>
+    <td class="codeline">#define DEBUG_TYPE "x86-seses"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">29</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class="codeline">STATISTIC(NumLFENCEsInserted, "Number of lfence instructions inserted");</td>
+    <td class="lineNumber">30</td>
+    <td class="codeline">STATISTIC(NumLFENCEsInserted, "Number of lfence instructions inserted");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">31</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class="codeline">static cl::opt<bool> EnableSpeculativeExecutionSideEffectSuppression(</td>
+    <td class="lineNumber">32</td>
+    <td class="codeline">static cl::opt<bool> EnableSpeculativeExecutionSideEffectSuppression(</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class="codeline">    "x86-seses-enable-without-lvi-cfi",</td>
+    <td class="lineNumber">33</td>
+    <td class="codeline">    "x86-seses-enable-without-lvi-cfi",</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class="codeline">    cl::desc("Force enable speculative execution side effect suppression. "</td>
+    <td class="lineNumber">34</td>
+    <td class="codeline">    cl::desc("Force enable speculative execution side effect suppression. "</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class="codeline">             "(Note: User must pass -mlvi-cfi in order to mitigate indirect "</td>
+    <td class="lineNumber">35</td>
+    <td class="codeline">             "(Note: User must pass -mlvi-cfi in order to mitigate indirect "</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class="codeline">             "branches and returns.)"),</td>
+    <td class="lineNumber">36</td>
+    <td class="codeline">             "branches and returns.)"),</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class="codeline">    cl::init(false), cl::Hidden);</td>
+    <td class="lineNumber">37</td>
+    <td class="codeline">    cl::init(false), cl::Hidden);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">38</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class="codeline">static cl::opt<bool> OneLFENCEPerBasicBlock(</td>
+    <td class="lineNumber">39</td>
+    <td class="codeline">static cl::opt<bool> OneLFENCEPerBasicBlock(</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class="codeline">    "x86-seses-one-lfence-per-bb",</td>
+    <td class="lineNumber">40</td>
+    <td class="codeline">    "x86-seses-one-lfence-per-bb",</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class="codeline">    cl::desc(</td>
+    <td class="lineNumber">41</td>
+    <td class="codeline">    cl::desc(</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class="codeline">        "Omit all lfences other than the first to be placed in a basic block."),</td>
+    <td class="lineNumber">42</td>
+    <td class="codeline">        "Omit all lfences other than the first to be placed in a basic block."),</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class="codeline">    cl::init(false), cl::Hidden);</td>
+    <td class="lineNumber">43</td>
+    <td class="codeline">    cl::init(false), cl::Hidden);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">44</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class="codeline">static cl::opt<bool> OnlyLFENCENonConst(</td>
+    <td class="lineNumber">45</td>
+    <td class="codeline">static cl::opt<bool> OnlyLFENCENonConst(</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class="codeline">    "x86-seses-only-lfence-non-const",</td>
+    <td class="lineNumber">46</td>
+    <td class="codeline">    "x86-seses-only-lfence-non-const",</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class="codeline">    cl::desc("Only lfence before groups of terminators where at least one "</td>
+    <td class="lineNumber">47</td>
+    <td class="codeline">    cl::desc("Only lfence before groups of terminators where at least one "</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class="codeline">             "branch instruction has an input to the addressing mode that is a "</td>
+    <td class="lineNumber">48</td>
+    <td class="codeline">             "branch instruction has an input to the addressing mode that is a "</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class="codeline">             "register other than %rip."),</td>
+    <td class="lineNumber">49</td>
+    <td class="codeline">             "register other than %rip."),</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class="codeline">    cl::init(false), cl::Hidden);</td>
+    <td class="lineNumber">50</td>
+    <td class="codeline">    cl::init(false), cl::Hidden);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">51</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class="codeline">static cl::opt<bool></td>
+    <td class="lineNumber">52</td>
+    <td class="codeline">static cl::opt<bool></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class="codeline">    OmitBranchLFENCEs("x86-seses-omit-branch-lfences",</td>
+    <td class="lineNumber">53</td>
+    <td class="codeline">    OmitBranchLFENCEs("x86-seses-omit-branch-lfences",</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class="codeline">                      cl::desc("Omit all lfences before branch instructions."),</td>
+    <td class="lineNumber">54</td>
+    <td class="codeline">                      cl::desc("Omit all lfences before branch instructions."),</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class="codeline">                      cl::init(false), cl::Hidden);</td>
+    <td class="lineNumber">55</td>
+    <td class="codeline">                      cl::init(false), cl::Hidden);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">56</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class="codeline">namespace {</td>
+    <td class="lineNumber">57</td>
+    <td class="codeline">namespace {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">58</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class="codeline">class X86SpeculativeExecutionSideEffectSuppression</td>
+    <td class="lineNumber">59</td>
+    <td class="codeline">class X86SpeculativeExecutionSideEffectSuppression</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class="codeline">    : public MachineFunctionPass {</td>
+    <td class="lineNumber">60</td>
+    <td class="codeline">    : public MachineFunctionPass {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class="codeline">public:</td>
+    <td class="lineNumber">61</td>
+    <td class="codeline">public:</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class="codeline">  X86SpeculativeExecutionSideEffectSuppression() : MachineFunctionPass(ID) {}</td>
+    <td class="lineNumber">62</td>
+    <td class="codeline">  X86SpeculativeExecutionSideEffectSuppression() : MachineFunctionPass(ID) {}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">63</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class="codeline">  static char ID;</td>
+    <td class="lineNumber">64</td>
+    <td class="codeline">  static char ID;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class="codeline">  StringRef getPassName() const override {</td>
+    <td class="lineNumber">65</td>
+    <td class="codeline">  StringRef getPassName() const override {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class="codeline">    return "X86 Speculative Execution Side Effect Suppression";</td>
+    <td class="lineNumber">66</td>
+    <td class="codeline">    return "X86 Speculative Execution Side Effect Suppression";</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">67</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">68</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class="codeline">  bool runOnMachineFunction(MachineFunction &MF) override;</td>
+    <td class="lineNumber">69</td>
+    <td class="codeline">  bool runOnMachineFunction(MachineFunction &MF) override;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class="codeline">};</td>
+    <td class="lineNumber">70</td>
+    <td class="codeline">};</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class="codeline">} // namespace</td>
+    <td class="lineNumber">71</td>
+    <td class="codeline">} // namespace</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">72</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class="codeline">char X86SpeculativeExecutionSideEffectSuppression::ID = 0;</td>
+    <td class="lineNumber">73</td>
+    <td class="codeline">char X86SpeculativeExecutionSideEffectSuppression::ID = 0;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">74</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class="codeline">// This function returns whether the passed instruction uses a memory addressing</td>
+    <td class="lineNumber">75</td>
+    <td class="codeline">// This function returns whether the passed instruction uses a memory addressing</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class="codeline">// mode that is constant. We treat all memory addressing modes that read</td>
+    <td class="lineNumber">76</td>
+    <td class="codeline">// mode that is constant. We treat all memory addressing modes that read</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class="codeline">// from a register that is not %rip as non-constant. Note that the use</td>
+    <td class="lineNumber">77</td>
+    <td class="codeline">// from a register that is not %rip as non-constant. Note that the use</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class="codeline">// of the EFLAGS register results in an addressing mode being considered</td>
+    <td class="lineNumber">78</td>
+    <td class="codeline">// of the EFLAGS register results in an addressing mode being considered</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class="codeline">// non-constant, therefore all JCC instructions will return false from this</td>
+    <td class="lineNumber">79</td>
+    <td class="codeline">// non-constant, therefore all JCC instructions will return false from this</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class="codeline">// function since one of their operands will always be the EFLAGS register.</td>
+    <td class="lineNumber">80</td>
+    <td class="codeline">// function since one of their operands will always be the EFLAGS register.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class="codeline">static bool hasConstantAddressingMode(const MachineInstr &MI) {</td>
+    <td class="lineNumber">81</td>
+    <td class="codeline">static bool hasConstantAddressingMode(const MachineInstr &MI) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class="codeline">  for (const MachineOperand &MO : MI.uses())</td>
+    <td class="lineNumber">82</td>
+    <td class="codeline">  for (const MachineOperand &MO : MI.uses())</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class="codeline">    if (MO.isReg() && X86::RIP != MO.getReg())</td>
+    <td class="lineNumber">83</td>
+    <td class="codeline">    if (MO.isReg() && X86::RIP != MO.getReg())</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class="codeline">      return false;</td>
+    <td class="lineNumber">84</td>
+    <td class="codeline">      return false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class="codeline">  return true;</td>
+    <td class="lineNumber">85</td>
+    <td class="codeline">  return true;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">86</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">87</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class="codeline">bool X86SpeculativeExecutionSideEffectSuppression::runOnMachineFunction(</td>
+    <td class="lineNumber">88</td>
+    <td class="codeline">bool X86SpeculativeExecutionSideEffectSuppression::runOnMachineFunction(</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class="codeline">    MachineFunction &MF) {</td>
+    <td class="lineNumber">89</td>
+    <td class="codeline">    MachineFunction &MF) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">90</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">90</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">91</td>
+    <td class="codeline">  const auto &OptLevel = MF.getTarget().getOptLevel();</td>
+    <td class="lineNumber">91</td>
+    <td class="codeline">  const auto &OptLevel = MF.getTarget().getOptLevel();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">92</td>
+    <td class="codeline">  const X86Subtarget &Subtarget = MF.getSubtarget<X86Subtarget>();</td>
+    <td class="lineNumber">92</td>
+    <td class="codeline">  const X86Subtarget &Subtarget = MF.getSubtarget<X86Subtarget>();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">93</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">93</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">94</td>
+    <td class="codeline">  // Check whether SESES needs to run as the fallback for LVI at O0, whether the</td>
+    <td class="lineNumber">94</td>
+    <td class="codeline">  // Check whether SESES needs to run as the fallback for LVI at O0, whether the</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">95</td>
+    <td class="codeline">  // user explicitly passed an SESES flag, or whether the SESES target feature</td>
+    <td class="lineNumber">95</td>
+    <td class="codeline">  // user explicitly passed an SESES flag, or whether the SESES target feature</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">96</td>
+    <td class="codeline">  // was set.</td>
+    <td class="lineNumber">96</td>
+    <td class="codeline">  // was set.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">97</td>
+    <td class="codeline">  if (!EnableSpeculativeExecutionSideEffectSuppression &&</td>
+    <td class="lineNumber">97</td>
+    <td class="codeline">  if (!EnableSpeculativeExecutionSideEffectSuppression &&</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">98</td>
+    <td class="codeline">      !(Subtarget.useLVILoadHardening() && OptLevel == CodeGenOpt::None) &&</td>
+    <td class="lineNumber">98</td>
+    <td class="codeline">      !(Subtarget.useLVILoadHardening() && OptLevel == CodeGenOpt::None) &&</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">99</td>
+    <td class="codeline">      !Subtarget.useSpeculativeExecutionSideEffectSuppression())</td>
+    <td class="lineNumber">99</td>
+    <td class="codeline">      !Subtarget.useSpeculativeExecutionSideEffectSuppression())</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">100</td>
+    <td class="codeline">    return false;</td>
+    <td class="lineNumber">100</td>
+    <td class="codeline">    return false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">101</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">101</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">102</td>
+    <td class="codeline">  LLVM_DEBUG(dbgs() << "********** " << getPassName() << " : " << MF.getName()</td>
+    <td class="lineNumber">102</td>
+    <td class="codeline">  LLVM_DEBUG(dbgs() << "********** " << getPassName() << " : " << MF.getName()</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">103</td>
+    <td class="codeline">                    << " **********\n");</td>
+    <td class="lineNumber">103</td>
+    <td class="codeline">                    << " **********\n");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">104</td>
+    <td class="codeline">  bool Modified = false;</td>
+    <td class="lineNumber">104</td>
+    <td class="codeline">  bool Modified = false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">105</td>
+    <td class="codeline">  const X86InstrInfo *TII = Subtarget.getInstrInfo();</td>
+    <td class="lineNumber">105</td>
+    <td class="codeline">  const X86InstrInfo *TII = Subtarget.getInstrInfo();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">106</td>
+    <td class="codeline">  for (MachineBasicBlock &MBB : MF) {</td>
+    <td class="lineNumber">106</td>
+    <td class="codeline">  for (MachineBasicBlock &MBB : MF) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">107</td>
+    <td class="codeline">    MachineInstr *FirstTerminator = nullptr;</td>
+    <td class="lineNumber">107</td>
+    <td class="codeline">    MachineInstr *FirstTerminator = nullptr;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">108</td>
+    <td class="codeline">    // Keep track of whether the previous instruction was an LFENCE to avoid</td>
+    <td class="lineNumber">108</td>
+    <td class="codeline">    // Keep track of whether the previous instruction was an LFENCE to avoid</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">109</td>
+    <td class="codeline">    // adding redundant LFENCEs.</td>
+    <td class="lineNumber">109</td>
+    <td class="codeline">    // adding redundant LFENCEs.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">110</td>
+    <td class="codeline">    bool PrevInstIsLFENCE = false;</td>
+    <td class="lineNumber">110</td>
+    <td class="codeline">    bool PrevInstIsLFENCE = false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">111</td>
+    <td class="codeline">    for (auto &MI : MBB) {</td>
+    <td class="lineNumber">111</td>
+    <td class="codeline">    for (auto &MI : MBB) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">112</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">112</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">113</td>
+    <td class="codeline">      if (MI.getOpcode() == X86::LFENCE) {</td>
+    <td class="lineNumber">113</td>
+    <td class="codeline">      if (MI.getOpcode() == X86::LFENCE) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">114</td>
+    <td class="codeline">        PrevInstIsLFENCE = true;</td>
+    <td class="lineNumber">114</td>
+    <td class="codeline">        PrevInstIsLFENCE = true;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">115</td>
+    <td class="codeline">        continue;</td>
+    <td class="lineNumber">115</td>
+    <td class="codeline">        continue;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">116</td>
+    <td class="codeline">      }</td>
+    <td class="lineNumber">116</td>
+    <td class="codeline">      }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">117</td>
+    <td class="codeline">      // We want to put an LFENCE before any instruction that</td>
+    <td class="lineNumber">117</td>
+    <td class="codeline">      // We want to put an LFENCE before any instruction that</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">118</td>
+    <td class="codeline">      // may load or store. This LFENCE is intended to avoid leaking any secret</td>
+    <td class="lineNumber">118</td>
+    <td class="codeline">      // may load or store. This LFENCE is intended to avoid leaking any secret</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">119</td>
+    <td class="codeline">      // data due to a given load or store. This results in closing the cache</td>
+    <td class="lineNumber">119</td>
+    <td class="codeline">      // data due to a given load or store. This results in closing the cache</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">120</td>
+    <td class="codeline">      // and memory timing side channels. We will treat terminators that load</td>
+    <td class="lineNumber">120</td>
+    <td class="codeline">      // and memory timing side channels. We will treat terminators that load</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">121</td>
+    <td class="codeline">      // or store separately.</td>
+    <td class="lineNumber">121</td>
+    <td class="codeline">      // or store separately.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">122</td>
+    <td class="codeline">      if (MI.mayLoadOrStore() && !MI.isTerminator()) {</td>
+    <td class="lineNumber">122</td>
+    <td class="codeline">      if (MI.mayLoadOrStore() && !MI.isTerminator()) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">123</td>
+    <td class="codeline">        if (!PrevInstIsLFENCE) {</td>
+    <td class="lineNumber">123</td>
+    <td class="codeline">        if (!PrevInstIsLFENCE) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">124</td>
+    <td class="codeline">          BuildMI(MBB, MI, DebugLoc(), TII->get(X86::LFENCE));</td>
+    <td class="lineNumber">124</td>
+    <td class="codeline">          BuildMI(MBB, MI, DebugLoc(), TII->get(X86::LFENCE));</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">125</td>
+    <td class="codeline">          NumLFENCEsInserted++;</td>
+    <td class="lineNumber">125</td>
+    <td class="codeline">          NumLFENCEsInserted++;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">126</td>
+    <td class="codeline">          Modified = true;</td>
+    <td class="lineNumber">126</td>
+    <td class="codeline">          Modified = true;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">127</td>
+    <td class="codeline">        }</td>
+    <td class="lineNumber">127</td>
+    <td class="codeline">        }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">128</td>
+    <td class="codeline">        if (OneLFENCEPerBasicBlock)</td>
+    <td class="lineNumber">128</td>
+    <td class="codeline">        if (OneLFENCEPerBasicBlock)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">129</td>
+    <td class="codeline">          break;</td>
+    <td class="lineNumber">129</td>
+    <td class="codeline">          break;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">130</td>
+    <td class="codeline">      }</td>
+    <td class="lineNumber">130</td>
+    <td class="codeline">      }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">131</td>
+    <td class="codeline">      // The following section will be LFENCEing before groups of terminators</td>
+    <td class="lineNumber">131</td>
+    <td class="codeline">      // The following section will be LFENCEing before groups of terminators</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">132</td>
+    <td class="codeline">      // that include branches. This will close the branch prediction side</td>
+    <td class="lineNumber">132</td>
+    <td class="codeline">      // that include branches. This will close the branch prediction side</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">133</td>
+    <td class="codeline">      // channels since we will prevent code executing after misspeculation as</td>
+    <td class="lineNumber">133</td>
+    <td class="codeline">      // channels since we will prevent code executing after misspeculation as</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">134</td>
+    <td class="codeline">      // a result of the LFENCEs placed with this logic.</td>
+    <td class="lineNumber">134</td>
+    <td class="codeline">      // a result of the LFENCEs placed with this logic.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">135</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">135</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">136</td>
+    <td class="codeline">      // Keep track of the first terminator in a basic block since if we need</td>
+    <td class="lineNumber">136</td>
+    <td class="codeline">      // Keep track of the first terminator in a basic block since if we need</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">137</td>
+    <td class="codeline">      // to LFENCE the terminators in this basic block we must add the</td>
+    <td class="lineNumber">137</td>
+    <td class="codeline">      // to LFENCE the terminators in this basic block we must add the</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">138</td>
+    <td class="codeline">      // instruction before the first terminator in the basic block (as</td>
+    <td class="lineNumber">138</td>
+    <td class="codeline">      // instruction before the first terminator in the basic block (as</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">139</td>
+    <td class="codeline">      // opposed to before the terminator that indicates an LFENCE is</td>
+    <td class="lineNumber">139</td>
+    <td class="codeline">      // opposed to before the terminator that indicates an LFENCE is</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">140</td>
+    <td class="codeline">      // required). An example of why this is necessary is that the</td>
+    <td class="lineNumber">140</td>
+    <td class="codeline">      // required). An example of why this is necessary is that the</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">141</td>
+    <td class="codeline">      // X86InstrInfo::analyzeBranch method assumes all terminators are grouped</td>
+    <td class="lineNumber">141</td>
+    <td class="codeline">      // X86InstrInfo::analyzeBranch method assumes all terminators are grouped</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">142</td>
+    <td class="codeline">      // together and terminates it's analysis once the first non-termintor</td>
+    <td class="lineNumber">142</td>
+    <td class="codeline">      // together and terminates it's analysis once the first non-termintor</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">143</td>
+    <td class="codeline">      // instruction is found.</td>
+    <td class="lineNumber">143</td>
+    <td class="codeline">      // instruction is found.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">144</td>
+    <td class="codeline">      if (MI.isTerminator() && FirstTerminator == nullptr)</td>
+    <td class="lineNumber">144</td>
+    <td class="codeline">      if (MI.isTerminator() && FirstTerminator == nullptr)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">145</td>
+    <td class="codeline">        FirstTerminator = &MI;</td>
+    <td class="lineNumber">145</td>
+    <td class="codeline">        FirstTerminator = &MI;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">146</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">146</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">147</td>
+    <td class="codeline">      // Look for branch instructions that will require an LFENCE to be put</td>
+    <td class="lineNumber">147</td>
+    <td class="codeline">      // Look for branch instructions that will require an LFENCE to be put</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">148</td>
+    <td class="codeline">      // before this basic block's terminators.</td>
+    <td class="lineNumber">148</td>
+    <td class="codeline">      // before this basic block's terminators.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">149</td>
+    <td class="codeline">      if (!MI.isBranch() || OmitBranchLFENCEs) {</td>
+    <td class="lineNumber">149</td>
+    <td class="codeline">      if (!MI.isBranch() || OmitBranchLFENCEs) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">150</td>
+    <td class="codeline">        // This isn't a branch or we're not putting LFENCEs before branches.</td>
+    <td class="lineNumber">150</td>
+    <td class="codeline">        // This isn't a branch or we're not putting LFENCEs before branches.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">151</td>
+    <td class="codeline">        PrevInstIsLFENCE = false;</td>
+    <td class="lineNumber">151</td>
+    <td class="codeline">        PrevInstIsLFENCE = false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">152</td>
+    <td class="codeline">        continue;</td>
+    <td class="lineNumber">152</td>
+    <td class="codeline">        continue;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">153</td>
+    <td class="codeline">      }</td>
+    <td class="lineNumber">153</td>
+    <td class="codeline">      }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">154</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">154</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">155</td>
+    <td class="codeline">      if (OnlyLFENCENonConst && hasConstantAddressingMode(MI)) {</td>
+    <td class="lineNumber">155</td>
+    <td class="codeline">      if (OnlyLFENCENonConst && hasConstantAddressingMode(MI)) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">156</td>
+    <td class="codeline">        // This is a branch, but it only has constant addressing mode and we're</td>
+    <td class="lineNumber">156</td>
+    <td class="codeline">        // This is a branch, but it only has constant addressing mode and we're</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">157</td>
+    <td class="codeline">        // not adding LFENCEs before such branches.</td>
+    <td class="lineNumber">157</td>
+    <td class="codeline">        // not adding LFENCEs before such branches.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">158</td>
+    <td class="codeline">        PrevInstIsLFENCE = false;</td>
+    <td class="lineNumber">158</td>
+    <td class="codeline">        PrevInstIsLFENCE = false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">159</td>
+    <td class="codeline">        continue;</td>
+    <td class="lineNumber">159</td>
+    <td class="codeline">        continue;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">160</td>
+    <td class="codeline">      }</td>
+    <td class="lineNumber">160</td>
+    <td class="codeline">      }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">161</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">161</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">162</td>
+    <td class="codeline">      // This branch requires adding an LFENCE.</td>
+    <td class="lineNumber">162</td>
+    <td class="codeline">      // This branch requires adding an LFENCE.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">163</td>
+    <td class="codeline">      if (!PrevInstIsLFENCE) {</td>
+    <td class="lineNumber">163</td>
+    <td class="codeline">      if (!PrevInstIsLFENCE) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">164</td>
+    <td class="codeline">        assert(FirstTerminator && "Unknown terminator instruction");</td>
+    <td class="lineNumber">164</td>
+    <td class="codeline">        assert(FirstTerminator && "Unknown terminator instruction");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">165</td>
+    <td class="codeline">        BuildMI(MBB, FirstTerminator, DebugLoc(), TII->get(X86::LFENCE));</td>
+    <td class="lineNumber">165</td>
+    <td class="codeline">        BuildMI(MBB, FirstTerminator, DebugLoc(), TII->get(X86::LFENCE));</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">166</td>
+    <td class="codeline">        NumLFENCEsInserted++;</td>
+    <td class="lineNumber">166</td>
+    <td class="codeline">        NumLFENCEsInserted++;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">167</td>
+    <td class="codeline">        Modified = true;</td>
+    <td class="lineNumber">167</td>
+    <td class="codeline">        Modified = true;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">168</td>
+    <td class="codeline">      }</td>
+    <td class="lineNumber">168</td>
+    <td class="codeline">      }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">169</td>
+    <td class="codeline">      break;</td>
+    <td class="lineNumber">169</td>
+    <td class="codeline">      break;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">170</td>
+    <td class="codeline">    }</td>
+    <td class="lineNumber">170</td>
+    <td class="codeline">    }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">171</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">171</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">172</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">172</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">173</td>
+    <td class="codeline">  return Modified;</td>
+    <td class="lineNumber">173</td>
+    <td class="codeline">  return Modified;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">174</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">174</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">175</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">175</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">176</td>
+    <td class="codeline">FunctionPass *llvm::createX86SpeculativeExecutionSideEffectSuppression() {</td>
+    <td class="lineNumber">176</td>
+    <td class="codeline">FunctionPass *llvm::createX86SpeculativeExecutionSideEffectSuppression() {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">177</td>
+    <td class="codeline">  return new X86SpeculativeExecutionSideEffectSuppression();</td>
+    <td class="lineNumber">177</td>
+    <td class="codeline">  return new X86SpeculativeExecutionSideEffectSuppression();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">178</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">178</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">179</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">179</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">180</td>
+    <td class="codeline">INITIALIZE_PASS(X86SpeculativeExecutionSideEffectSuppression, "x86-seses",</td>
+    <td class="lineNumber">180</td>
+    <td class="codeline">INITIALIZE_PASS(X86SpeculativeExecutionSideEffectSuppression, "x86-seses",</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">181</td>
+    <td class="codeline">                "X86 Speculative Execution Side Effect Suppression", false,</td>
+    <td class="lineNumber">181</td>
+    <td class="codeline">                "X86 Speculative Execution Side Effect Suppression", false,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">182</td>
+    <td class="codeline">                false)</td>
+    <td class="lineNumber">182</td>
+    <td class="codeline">                false)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">183</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">183</td>
+    <td class="codeline"></td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Side By Side Comparison</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Side By Side Comparison</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+    </th>
+    <th class="mainTh">Hit count</th>
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </th>
+    <th class="mainTh">Hit count</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="codeLine">//===-- X86SpeculativeExecutionSideEffectSuppression.cpp ------------------===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">1</td>
+    <td class="codeLine">//===-- X86SpeculativeExecutionSideEffectSuppression.cpp ------------------===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">2</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="codeLine">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">3</td>
+    <td class="codeLine">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="codeLine">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">4</td>
+    <td class="codeLine">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="codeLine">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">5</td>
+    <td class="codeLine">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">6</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">7</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="codeLine">/// \file</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">8</td>
+    <td class="codeLine">/// \file</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="codeLine">///</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">9</td>
+    <td class="codeLine">///</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="codeLine">/// This file contains the X86 implementation of the speculative execution side</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">10</td>
+    <td class="codeLine">/// This file contains the X86 implementation of the speculative execution side</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="codeLine">/// effect suppression mitigation.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">11</td>
+    <td class="codeLine">/// effect suppression mitigation.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class="codeLine">///</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">12</td>
+    <td class="codeLine">///</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class="codeLine">/// This must be used with the -mlvi-cfi flag in order to mitigate indirect</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">13</td>
+    <td class="codeLine">/// This must be used with the -mlvi-cfi flag in order to mitigate indirect</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class="codeLine">/// branches and returns.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">14</td>
+    <td class="codeLine">/// branches and returns.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">15</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">16</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class="codeLine">#include "X86.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">17</td>
+    <td class="codeLine">#include "X86.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class="codeLine">#include "X86InstrInfo.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">18</td>
+    <td class="codeLine">#include "X86InstrInfo.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class="codeLine">#include "X86Subtarget.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">19</td>
+    <td class="codeLine">#include "X86Subtarget.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class="codeLine">#include "llvm/ADT/Statistic.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">20</td>
+    <td class="codeLine">#include "llvm/ADT/Statistic.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class="codeLine">#include "llvm/CodeGen/MachineFunction.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">21</td>
+    <td class="codeLine">#include "llvm/CodeGen/MachineFunction.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class="codeLine">#include "llvm/CodeGen/MachineFunctionPass.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">22</td>
+    <td class="codeLine">#include "llvm/CodeGen/MachineFunctionPass.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class="codeLine">#include "llvm/CodeGen/MachineInstrBuilder.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">23</td>
+    <td class="codeLine">#include "llvm/CodeGen/MachineInstrBuilder.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class="codeLine">#include "llvm/Pass.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">24</td>
+    <td class="codeLine">#include "llvm/Pass.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class="codeLine">#include "llvm/Target/TargetMachine.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">25</td>
+    <td class="codeLine">#include "llvm/Target/TargetMachine.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class="codeLine">using namespace llvm;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">26</td>
+    <td class="codeLine">using namespace llvm;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">27</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class="codeLine">#define DEBUG_TYPE "x86-seses"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">28</td>
+    <td class="codeLine">#define DEBUG_TYPE "x86-seses"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">29</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class="codeLine">STATISTIC(NumLFENCEsInserted, "Number of lfence instructions inserted");</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">30</td>
+    <td class="codeLine">STATISTIC(NumLFENCEsInserted, "Number of lfence instructions inserted");</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">31</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class="codeLine">static cl::opt<bool> EnableSpeculativeExecutionSideEffectSuppression(</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">32</td>
+    <td class="codeLine">static cl::opt<bool> EnableSpeculativeExecutionSideEffectSuppression(</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class="codeLine">    "x86-seses-enable-without-lvi-cfi",</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">33</td>
+    <td class="codeLine">    "x86-seses-enable-without-lvi-cfi",</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class="codeLine">    cl::desc("Force enable speculative execution side effect suppression. "</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">34</td>
+    <td class="codeLine">    cl::desc("Force enable speculative execution side effect suppression. "</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class="codeLine">             "(Note: User must pass -mlvi-cfi in order to mitigate indirect "</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">35</td>
+    <td class="codeLine">             "(Note: User must pass -mlvi-cfi in order to mitigate indirect "</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class="codeLine">             "branches and returns.)"),</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">36</td>
+    <td class="codeLine">             "branches and returns.)"),</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class="codeLine">    cl::init(false), cl::Hidden);</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">37</td>
+    <td class="codeLine">    cl::init(false), cl::Hidden);</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">38</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class="codeLine">static cl::opt<bool> OneLFENCEPerBasicBlock(</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">39</td>
+    <td class="codeLine">static cl::opt<bool> OneLFENCEPerBasicBlock(</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class="codeLine">    "x86-seses-one-lfence-per-bb",</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">40</td>
+    <td class="codeLine">    "x86-seses-one-lfence-per-bb",</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class="codeLine">    cl::desc(</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">41</td>
+    <td class="codeLine">    cl::desc(</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class="codeLine">        "Omit all lfences other than the first to be placed in a basic block."),</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">42</td>
+    <td class="codeLine">        "Omit all lfences other than the first to be placed in a basic block."),</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class="codeLine">    cl::init(false), cl::Hidden);</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">43</td>
+    <td class="codeLine">    cl::init(false), cl::Hidden);</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">44</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class="codeLine">static cl::opt<bool> OnlyLFENCENonConst(</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">45</td>
+    <td class="codeLine">static cl::opt<bool> OnlyLFENCENonConst(</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class="codeLine">    "x86-seses-only-lfence-non-const",</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">46</td>
+    <td class="codeLine">    "x86-seses-only-lfence-non-const",</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class="codeLine">    cl::desc("Only lfence before groups of terminators where at least one "</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">47</td>
+    <td class="codeLine">    cl::desc("Only lfence before groups of terminators where at least one "</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class="codeLine">             "branch instruction has an input to the addressing mode that is a "</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">48</td>
+    <td class="codeLine">             "branch instruction has an input to the addressing mode that is a "</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class="codeLine">             "register other than %rip."),</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">49</td>
+    <td class="codeLine">             "register other than %rip."),</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class="codeLine">    cl::init(false), cl::Hidden);</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">50</td>
+    <td class="codeLine">    cl::init(false), cl::Hidden);</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">51</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class="codeLine">static cl::opt<bool></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">52</td>
+    <td class="codeLine">static cl::opt<bool></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class="codeLine">    OmitBranchLFENCEs("x86-seses-omit-branch-lfences",</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">53</td>
+    <td class="codeLine">    OmitBranchLFENCEs("x86-seses-omit-branch-lfences",</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class="codeLine">                      cl::desc("Omit all lfences before branch instructions."),</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">54</td>
+    <td class="codeLine">                      cl::desc("Omit all lfences before branch instructions."),</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class="codeLine">                      cl::init(false), cl::Hidden);</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">55</td>
+    <td class="codeLine">                      cl::init(false), cl::Hidden);</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">56</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class="codeLine">namespace {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">57</td>
+    <td class="codeLine">namespace {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">58</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class="codeLine">class X86SpeculativeExecutionSideEffectSuppression</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">59</td>
+    <td class="codeLine">class X86SpeculativeExecutionSideEffectSuppression</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class="codeLine">    : public MachineFunctionPass {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">60</td>
+    <td class="codeLine">    : public MachineFunctionPass {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class="codeLine">public:</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">61</td>
+    <td class="codeLine">public:</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class="codeLine">  X86SpeculativeExecutionSideEffectSuppression() : MachineFunctionPass(ID) {}</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">62</td>
+    <td class="codeLine">  X86SpeculativeExecutionSideEffectSuppression() : MachineFunctionPass(ID) {}</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">63</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class="codeLine">  static char ID;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">64</td>
+    <td class="codeLine">  static char ID;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class="codeLine">  StringRef getPassName() const override {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">65</td>
+    <td class="codeLine">  StringRef getPassName() const override {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class="codeLine">    return "X86 Speculative Execution Side Effect Suppression";</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">66</td>
+    <td class="codeLine">    return "X86 Speculative Execution Side Effect Suppression";</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">67</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">68</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class="codeLine">  bool runOnMachineFunction(MachineFunction &MF) override;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">69</td>
+    <td class="codeLine">  bool runOnMachineFunction(MachineFunction &MF) override;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class="codeLine">};</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">70</td>
+    <td class="codeLine">};</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class="codeLine">} // namespace</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">71</td>
+    <td class="codeLine">} // namespace</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">72</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class="codeLine">char X86SpeculativeExecutionSideEffectSuppression::ID = 0;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">73</td>
+    <td class="codeLine">char X86SpeculativeExecutionSideEffectSuppression::ID = 0;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">74</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class="codeLine">// This function returns whether the passed instruction uses a memory addressing</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">75</td>
+    <td class="codeLine">// This function returns whether the passed instruction uses a memory addressing</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class="codeLine">// mode that is constant. We treat all memory addressing modes that read</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">76</td>
+    <td class="codeLine">// mode that is constant. We treat all memory addressing modes that read</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class="codeLine">// from a register that is not %rip as non-constant. Note that the use</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">77</td>
+    <td class="codeLine">// from a register that is not %rip as non-constant. Note that the use</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class="codeLine">// of the EFLAGS register results in an addressing mode being considered</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">78</td>
+    <td class="codeLine">// of the EFLAGS register results in an addressing mode being considered</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class="codeLine">// non-constant, therefore all JCC instructions will return false from this</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">79</td>
+    <td class="codeLine">// non-constant, therefore all JCC instructions will return false from this</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class="codeLine">// function since one of their operands will always be the EFLAGS register.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">80</td>
+    <td class="codeLine">// function since one of their operands will always be the EFLAGS register.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class="codeLine">static bool hasConstantAddressingMode(const MachineInstr &MI) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">81</td>
+    <td class="codeLine">static bool hasConstantAddressingMode(const MachineInstr &MI) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class="codeLine">  for (const MachineOperand &MO : MI.uses())</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">82</td>
+    <td class="codeLine">  for (const MachineOperand &MO : MI.uses())</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class="codeLine">    if (MO.isReg() && X86::RIP != MO.getReg())</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">83</td>
+    <td class="codeLine">    if (MO.isReg() && X86::RIP != MO.getReg())</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class="codeLine">      return false;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">84</td>
+    <td class="codeLine">      return false;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class="codeLine">  return true;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">85</td>
+    <td class="codeLine">  return true;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">86</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">87</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class="codeLine">bool X86SpeculativeExecutionSideEffectSuppression::runOnMachineFunction(</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">88</td>
+    <td class="codeLine">bool X86SpeculativeExecutionSideEffectSuppression::runOnMachineFunction(</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class="codeLine">    MachineFunction &MF) {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">89</td>
+    <td class="codeLine">    MachineFunction &MF) {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">90</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">90</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">91</td>
+    <td class="codeLine">  const auto &OptLevel = MF.getTarget().getOptLevel();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">91</td>
+    <td class="codeLine">  const auto &OptLevel = MF.getTarget().getOptLevel();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">92</td>
+    <td class="codeLine">  const X86Subtarget &Subtarget = MF.getSubtarget<X86Subtarget>();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">92</td>
+    <td class="codeLine">  const X86Subtarget &Subtarget = MF.getSubtarget<X86Subtarget>();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">93</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">93</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">94</td>
+    <td class="codeLine">  // Check whether SESES needs to run as the fallback for LVI at O0, whether the</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">94</td>
+    <td class="codeLine">  // Check whether SESES needs to run as the fallback for LVI at O0, whether the</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">95</td>
+    <td class="codeLine">  // user explicitly passed an SESES flag, or whether the SESES target feature</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">95</td>
+    <td class="codeLine">  // user explicitly passed an SESES flag, or whether the SESES target feature</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">96</td>
+    <td class="codeLine">  // was set.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">96</td>
+    <td class="codeLine">  // was set.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">97</td>
+    <td class="codeLine">  if (!EnableSpeculativeExecutionSideEffectSuppression &&</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">97</td>
+    <td class="codeLine">  if (!EnableSpeculativeExecutionSideEffectSuppression &&</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">98</td>
+    <td class="codeLine">      !(Subtarget.useLVILoadHardening() && OptLevel == CodeGenOpt::None) &&</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">98</td>
+    <td class="codeLine">      !(Subtarget.useLVILoadHardening() && OptLevel == CodeGenOpt::None) &&</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">99</td>
+    <td class="codeLine">      !Subtarget.useSpeculativeExecutionSideEffectSuppression())</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">99</td>
+    <td class="codeLine">      !Subtarget.useSpeculativeExecutionSideEffectSuppression())</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">100</td>
+    <td class="codeLine">    return false;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">100</td>
+    <td class="codeLine">    return false;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">101</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">101</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">102</td>
+    <td class="codeLine">  LLVM_DEBUG(dbgs() << "********** " << getPassName() << " : " << MF.getName()</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">102</td>
+    <td class="codeLine">  LLVM_DEBUG(dbgs() << "********** " << getPassName() << " : " << MF.getName()</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">103</td>
+    <td class="codeLine">                    << " **********\n");</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">103</td>
+    <td class="codeLine">                    << " **********\n");</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">104</td>
+    <td class="codeLine">  bool Modified = false;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">104</td>
+    <td class="codeLine">  bool Modified = false;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">105</td>
+    <td class="codeLine">  const X86InstrInfo *TII = Subtarget.getInstrInfo();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">105</td>
+    <td class="codeLine">  const X86InstrInfo *TII = Subtarget.getInstrInfo();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">106</td>
+    <td class="codeLine">  for (MachineBasicBlock &MBB : MF) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">106</td>
+    <td class="codeLine">  for (MachineBasicBlock &MBB : MF) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">107</td>
+    <td class="codeLine">    MachineInstr *FirstTerminator = nullptr;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">107</td>
+    <td class="codeLine">    MachineInstr *FirstTerminator = nullptr;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">108</td>
+    <td class="codeLine">    // Keep track of whether the previous instruction was an LFENCE to avoid</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">108</td>
+    <td class="codeLine">    // Keep track of whether the previous instruction was an LFENCE to avoid</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">109</td>
+    <td class="codeLine">    // adding redundant LFENCEs.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">109</td>
+    <td class="codeLine">    // adding redundant LFENCEs.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">110</td>
+    <td class="codeLine">    bool PrevInstIsLFENCE = false;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">110</td>
+    <td class="codeLine">    bool PrevInstIsLFENCE = false;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">111</td>
+    <td class="codeLine">    for (auto &MI : MBB) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">111</td>
+    <td class="codeLine">    for (auto &MI : MBB) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">112</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">112</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">113</td>
+    <td class="codeLine">      if (MI.getOpcode() == X86::LFENCE) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">113</td>
+    <td class="codeLine">      if (MI.getOpcode() == X86::LFENCE) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">114</td>
+    <td class="codeLine">        PrevInstIsLFENCE = true;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">114</td>
+    <td class="codeLine">        PrevInstIsLFENCE = true;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">115</td>
+    <td class="codeLine">        continue;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">115</td>
+    <td class="codeLine">        continue;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">116</td>
+    <td class="codeLine">      }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">116</td>
+    <td class="codeLine">      }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">117</td>
+    <td class="codeLine">      // We want to put an LFENCE before any instruction that</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">117</td>
+    <td class="codeLine">      // We want to put an LFENCE before any instruction that</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">118</td>
+    <td class="codeLine">      // may load or store. This LFENCE is intended to avoid leaking any secret</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">118</td>
+    <td class="codeLine">      // may load or store. This LFENCE is intended to avoid leaking any secret</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">119</td>
+    <td class="codeLine">      // data due to a given load or store. This results in closing the cache</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">119</td>
+    <td class="codeLine">      // data due to a given load or store. This results in closing the cache</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">120</td>
+    <td class="codeLine">      // and memory timing side channels. We will treat terminators that load</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">120</td>
+    <td class="codeLine">      // and memory timing side channels. We will treat terminators that load</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">121</td>
+    <td class="codeLine">      // or store separately.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">121</td>
+    <td class="codeLine">      // or store separately.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">122</td>
+    <td class="codeLine">      if (MI.mayLoadOrStore() && !MI.isTerminator()) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">122</td>
+    <td class="codeLine">      if (MI.mayLoadOrStore() && !MI.isTerminator()) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">123</td>
+    <td class="codeLine">        if (!PrevInstIsLFENCE) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">123</td>
+    <td class="codeLine">        if (!PrevInstIsLFENCE) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">124</td>
+    <td class="codeLine">          BuildMI(MBB, MI, DebugLoc(), TII->get(X86::LFENCE));</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">124</td>
+    <td class="codeLine">          BuildMI(MBB, MI, DebugLoc(), TII->get(X86::LFENCE));</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">125</td>
+    <td class="codeLine">          NumLFENCEsInserted++;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">125</td>
+    <td class="codeLine">          NumLFENCEsInserted++;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">126</td>
+    <td class="codeLine">          Modified = true;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">126</td>
+    <td class="codeLine">          Modified = true;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">127</td>
+    <td class="codeLine">        }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">127</td>
+    <td class="codeLine">        }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">128</td>
+    <td class="codeLine">        if (OneLFENCEPerBasicBlock)</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">128</td>
+    <td class="codeLine">        if (OneLFENCEPerBasicBlock)</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">129</td>
+    <td class="codeLine">          break;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">129</td>
+    <td class="codeLine">          break;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">130</td>
+    <td class="codeLine">      }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">130</td>
+    <td class="codeLine">      }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">131</td>
+    <td class="codeLine">      // The following section will be LFENCEing before groups of terminators</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">131</td>
+    <td class="codeLine">      // The following section will be LFENCEing before groups of terminators</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">132</td>
+    <td class="codeLine">      // that include branches. This will close the branch prediction side</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">132</td>
+    <td class="codeLine">      // that include branches. This will close the branch prediction side</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">133</td>
+    <td class="codeLine">      // channels since we will prevent code executing after misspeculation as</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">133</td>
+    <td class="codeLine">      // channels since we will prevent code executing after misspeculation as</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">134</td>
+    <td class="codeLine">      // a result of the LFENCEs placed with this logic.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">134</td>
+    <td class="codeLine">      // a result of the LFENCEs placed with this logic.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">135</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">135</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">136</td>
+    <td class="codeLine">      // Keep track of the first terminator in a basic block since if we need</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">136</td>
+    <td class="codeLine">      // Keep track of the first terminator in a basic block since if we need</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">137</td>
+    <td class="codeLine">      // to LFENCE the terminators in this basic block we must add the</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">137</td>
+    <td class="codeLine">      // to LFENCE the terminators in this basic block we must add the</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">138</td>
+    <td class="codeLine">      // instruction before the first terminator in the basic block (as</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">138</td>
+    <td class="codeLine">      // instruction before the first terminator in the basic block (as</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">139</td>
+    <td class="codeLine">      // opposed to before the terminator that indicates an LFENCE is</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">139</td>
+    <td class="codeLine">      // opposed to before the terminator that indicates an LFENCE is</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">140</td>
+    <td class="codeLine">      // required). An example of why this is necessary is that the</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">140</td>
+    <td class="codeLine">      // required). An example of why this is necessary is that the</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">141</td>
+    <td class="codeLine">      // X86InstrInfo::analyzeBranch method assumes all terminators are grouped</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">141</td>
+    <td class="codeLine">      // X86InstrInfo::analyzeBranch method assumes all terminators are grouped</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">142</td>
+    <td class="codeLine">      // together and terminates it's analysis once the first non-termintor</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">142</td>
+    <td class="codeLine">      // together and terminates it's analysis once the first non-termintor</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">143</td>
+    <td class="codeLine">      // instruction is found.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">143</td>
+    <td class="codeLine">      // instruction is found.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">144</td>
+    <td class="codeLine">      if (MI.isTerminator() && FirstTerminator == nullptr)</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">144</td>
+    <td class="codeLine">      if (MI.isTerminator() && FirstTerminator == nullptr)</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">145</td>
+    <td class="codeLine">        FirstTerminator = &MI;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">145</td>
+    <td class="codeLine">        FirstTerminator = &MI;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">146</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">146</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">147</td>
+    <td class="codeLine">      // Look for branch instructions that will require an LFENCE to be put</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">147</td>
+    <td class="codeLine">      // Look for branch instructions that will require an LFENCE to be put</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">148</td>
+    <td class="codeLine">      // before this basic block's terminators.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">148</td>
+    <td class="codeLine">      // before this basic block's terminators.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">149</td>
+    <td class="codeLine">      if (!MI.isBranch() || OmitBranchLFENCEs) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">149</td>
+    <td class="codeLine">      if (!MI.isBranch() || OmitBranchLFENCEs) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">150</td>
+    <td class="codeLine">        // This isn't a branch or we're not putting LFENCEs before branches.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">150</td>
+    <td class="codeLine">        // This isn't a branch or we're not putting LFENCEs before branches.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">151</td>
+    <td class="codeLine">        PrevInstIsLFENCE = false;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">151</td>
+    <td class="codeLine">        PrevInstIsLFENCE = false;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">152</td>
+    <td class="codeLine">        continue;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">152</td>
+    <td class="codeLine">        continue;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">153</td>
+    <td class="codeLine">      }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">153</td>
+    <td class="codeLine">      }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">154</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">154</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">155</td>
+    <td class="codeLine">      if (OnlyLFENCENonConst && hasConstantAddressingMode(MI)) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">155</td>
+    <td class="codeLine">      if (OnlyLFENCENonConst && hasConstantAddressingMode(MI)) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">156</td>
+    <td class="codeLine">        // This is a branch, but it only has constant addressing mode and we're</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">156</td>
+    <td class="codeLine">        // This is a branch, but it only has constant addressing mode and we're</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">157</td>
+    <td class="codeLine">        // not adding LFENCEs before such branches.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">157</td>
+    <td class="codeLine">        // not adding LFENCEs before such branches.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">158</td>
+    <td class="codeLine">        PrevInstIsLFENCE = false;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">158</td>
+    <td class="codeLine">        PrevInstIsLFENCE = false;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">159</td>
+    <td class="codeLine">        continue;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">159</td>
+    <td class="codeLine">        continue;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">160</td>
+    <td class="codeLine">      }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">160</td>
+    <td class="codeLine">      }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">161</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">161</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">162</td>
+    <td class="codeLine">      // This branch requires adding an LFENCE.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">162</td>
+    <td class="codeLine">      // This branch requires adding an LFENCE.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">163</td>
+    <td class="codeLine">      if (!PrevInstIsLFENCE) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">163</td>
+    <td class="codeLine">      if (!PrevInstIsLFENCE) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">164</td>
+    <td class="codeLine">        assert(FirstTerminator && "Unknown terminator instruction");</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">164</td>
+    <td class="codeLine">        assert(FirstTerminator && "Unknown terminator instruction");</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">165</td>
+    <td class="codeLine">        BuildMI(MBB, FirstTerminator, DebugLoc(), TII->get(X86::LFENCE));</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">165</td>
+    <td class="codeLine">        BuildMI(MBB, FirstTerminator, DebugLoc(), TII->get(X86::LFENCE));</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">166</td>
+    <td class="codeLine">        NumLFENCEsInserted++;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">166</td>
+    <td class="codeLine">        NumLFENCEsInserted++;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">167</td>
+    <td class="codeLine">        Modified = true;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">167</td>
+    <td class="codeLine">        Modified = true;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">168</td>
+    <td class="codeLine">      }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">168</td>
+    <td class="codeLine">      }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">169</td>
+    <td class="codeLine">      break;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">169</td>
+    <td class="codeLine">      break;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">170</td>
+    <td class="codeLine">    }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">170</td>
+    <td class="codeLine">    }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">171</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">171</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">172</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">172</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">173</td>
+    <td class="codeLine">  return Modified;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">173</td>
+    <td class="codeLine">  return Modified;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">174</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">174</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">175</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">175</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">176</td>
+    <td class="codeLine">FunctionPass *llvm::createX86SpeculativeExecutionSideEffectSuppression() {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">176</td>
+    <td class="codeLine">FunctionPass *llvm::createX86SpeculativeExecutionSideEffectSuppression() {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">177</td>
+    <td class="codeLine">  return new X86SpeculativeExecutionSideEffectSuppression();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">177</td>
+    <td class="codeLine">  return new X86SpeculativeExecutionSideEffectSuppression();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">178</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">178</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">179</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">179</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">180</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS(X86SpeculativeExecutionSideEffectSuppression, "x86-seses",</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">180</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS(X86SpeculativeExecutionSideEffectSuppression, "x86-seses",</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">181</td>
+    <td class="codeLine">                "X86 Speculative Execution Side Effect Suppression", false,</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">181</td>
+    <td class="codeLine">                "X86 Speculative Execution Side Effect Suppression", false,</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">182</td>
+    <td class="codeLine">                false)</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">182</td>
+    <td class="codeLine">                false)</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">183</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">183</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+</table>
+    </div>
+    <button id="myBtn" onclick="topFunction()" title="Go to top" type="button">Top</button>
+    <script src="../Javascript/drop_down.js"></script>
+    <script src="../Javascript/top_button.js"></script>
+  </body>
+</html>

@@ -1,0 +1,5477 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>ReplaceWithVeclib.cpp</title>
+    <link rel="stylesheet" href="../Style/style.css" />
+  </head>
+  <body>
+    <div class="headerDiv">
+      <h1>
+        Code Coverage
+      </h1>
+      <p>
+        Source file: /home/nikola/Desktop/llvm-project/llvm/lib/CodeGen/ReplaceWithVeclib.cpp
+      </p>
+    </div>
+    <button class="collapsible" type="button">Open Summary Report</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Summary Report</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line number</th>
+    <th class="mainTh">Line</th>
+    <th class="mainTh">Number of hits</th>
+    <th class="mainTh">Tests that cover line</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="">//=== ReplaceWithVeclib.cpp - Replace vector intrinsics with veclib calls -===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="">//===----------------------------------------------------------------------===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="">// Replaces calls to LLVM vector intrinsics (i.e., calls to LLVM intrinsics</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="">// with vector operands) with matching calls to functions from a vector</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="">// library (e.g., libmvec, SVML) according to TargetLibraryInfo.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class="">//===----------------------------------------------------------------------===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class="">#include "llvm/CodeGen/ReplaceWithVeclib.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class="">#include "llvm/ADT/STLExtras.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class="">#include "llvm/ADT/Statistic.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class="">#include "llvm/Analysis/DemandedBits.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class="">#include "llvm/Analysis/GlobalsModRef.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class="">#include "llvm/Analysis/OptimizationRemarkEmitter.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class="">#include "llvm/Analysis/TargetLibraryInfo.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class="">#include "llvm/Analysis/VectorUtils.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class="">#include "llvm/CodeGen/Passes.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class="">#include "llvm/IR/IRBuilder.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class="">#include "llvm/IR/InstIterator.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class="">#include "llvm/Transforms/Utils/ModuleUtils.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class="">using namespace llvm;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class="">#define DEBUG_TYPE "replace-with-veclib"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class="">STATISTIC(NumCallsReplaced,</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class="">          "Number of calls to intrinsics that have been replaced.");</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class="">STATISTIC(NumTLIFuncDeclAdded,</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class="">          "Number of vector library function declarations added.");</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class="">STATISTIC(NumFuncUsedAdded,</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class="">          "Number of functions added to `llvm.compiler.used`");</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class="uncoveredLine">static bool replaceWithTLIFunction(CallInst &CI, const StringRef TLIName) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class="uncoveredLine">  Module *M = CI.getModule();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class="uncoveredLine">  Function *OldFunc = CI.getCalledFunction();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class="">  // Check if the vector library function is already declared in this module,</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class="">  // otherwise insert it.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class="uncoveredLine">  Function *TLIFunc = M->getFunction(TLIName);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class="uncoveredLine">  if (!TLIFunc) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class="uncoveredLine">    TLIFunc = Function::Create(OldFunc->getFunctionType(),</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class="">                               Function::ExternalLinkage, TLIName, *M);</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class="uncoveredLine">    TLIFunc->copyAttributesFrom(OldFunc);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class="uncoveredLine">    LLVM_DEBUG(dbgs() << DEBUG_TYPE << ": Added vector library function `"</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class="">                      << TLIName << "` of type `" << *(TLIFunc->getType())</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class="">                      << "` to module.\n");</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class="uncoveredLine">    ++NumTLIFuncDeclAdded;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class="">    // Add the freshly created function to llvm.compiler.used,</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class="">    // similar to as it is done in InjectTLIMappings</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class="uncoveredLine">    appendToCompilerUsed(*M, {TLIFunc});</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class="uncoveredLine">    LLVM_DEBUG(dbgs() << DEBUG_TYPE << ": Adding `" << TLIName</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class="">                      << "` to `@llvm.compiler.used`.\n");</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class="uncoveredLine">    ++NumFuncUsedAdded;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class="">  }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class="">  // Replace the call to the vector intrinsic with a call</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class="">  // to the corresponding function from the vector library.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class="uncoveredLine">  IRBuilder<> IRBuilder(&CI);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class="uncoveredLine">  SmallVector<Value *> Args(CI.args());</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class="">  // Preserve the operand bundles.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class="uncoveredLine">  SmallVector<OperandBundleDef, 1> OpBundles;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class="uncoveredLine">  CI.getOperandBundlesAsDefs(OpBundles);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class="uncoveredLine">  CallInst *Replacement = IRBuilder.CreateCall(TLIFunc, Args, OpBundles);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class="uncoveredLine">  assert(OldFunc->getFunctionType() == TLIFunc->getFunctionType() &&</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class="">         "Expecting function types to be identical");</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class="uncoveredLine">  CI.replaceAllUsesWith(Replacement);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class="uncoveredLine">  if (isa<FPMathOperator>(Replacement)) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class="">    // Preserve fast math flags for FP math.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class="uncoveredLine">    Replacement->copyFastMathFlags(&CI);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class="">  }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class="uncoveredLine">  LLVM_DEBUG(dbgs() << DEBUG_TYPE << ": Replaced call to `"</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class="">                    << OldFunc->getName() << "` with call to `" << TLIName</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class="">                    << "`.\n");</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class="uncoveredLine">  ++NumCallsReplaced;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class="uncoveredLine">  return true;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">90</td>
+    <td class="uncoveredLine">}</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">91</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">92</td>
+    <td class="coveredLine">static bool replaceWithCallToVeclib(const TargetLibraryInfo &TLI,</td>
+    <td>3</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">93</td>
+    <td class="">                                    CallInst &CI) {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">94</td>
+    <td class="coveredLine">  if (!CI.getCalledFunction()) {</td>
+    <td>3</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">95</td>
+    <td class="uncoveredLine">    return false;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">96</td>
+    <td class="">  }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">97</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">98</td>
+    <td class="coveredLine">  auto IntrinsicID = CI.getCalledFunction()->getIntrinsicID();</td>
+    <td>3</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">99</td>
+    <td class="coveredLine">  if (IntrinsicID == Intrinsic::not_intrinsic) {</td>
+    <td>3</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">100</td>
+    <td class="">    // Replacement is only performed for intrinsic functions</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">101</td>
+    <td class="uncoveredLine">    return false;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">102</td>
+    <td class="">  }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">103</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">104</td>
+    <td class="">  // Convert vector arguments to scalar type and check that</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">105</td>
+    <td class="">  // all vector operands have identical vector width.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">106</td>
+    <td class="coveredLine">  ElementCount VF = ElementCount::getFixed(0);</td>
+    <td>3</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">107</td>
+    <td class="coveredLine">  SmallVector<Type *> ScalarTypes;</td>
+    <td>3</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">108</td>
+    <td class="coveredLine">  for (auto Arg : enumerate(CI.args())) {</td>
+    <td>3</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">109</td>
+    <td class="coveredLine">    auto *ArgType = Arg.value()->getType();</td>
+    <td>3</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">110</td>
+    <td class="">    // Vector calls to intrinsics can still have</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">111</td>
+    <td class="">    // scalar operands for specific arguments.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">112</td>
+    <td class="coveredLine">    if (isVectorIntrinsicWithScalarOpAtArg(IntrinsicID, Arg.index())) {</td>
+    <td>3</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">113</td>
+    <td class="uncoveredLine">      ScalarTypes.push_back(ArgType);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">114</td>
+    <td class="">    } else {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">115</td>
+    <td class="">      // The argument in this place should be a vector if</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">116</td>
+    <td class="">      // this is a call to a vector intrinsic.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">117</td>
+    <td class="coveredLine">      auto *VectorArgTy = dyn_cast<VectorType>(ArgType);</td>
+    <td>3</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">118</td>
+    <td class="coveredLine">      if (!VectorArgTy) {</td>
+    <td>3</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">119</td>
+    <td class="">        // The argument is not a vector, do not perform</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">120</td>
+    <td class="">        // the replacement.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">121</td>
+    <td class="coveredLine">        return false;</td>
+    <td>3</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">122</td>
+    <td class="">      }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">123</td>
+    <td class="uncoveredLine">      ElementCount NumElements = VectorArgTy->getElementCount();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">124</td>
+    <td class="uncoveredLine">      if (NumElements.isScalable()) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">125</td>
+    <td class="">        // The current implementation does not support</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">126</td>
+    <td class="">        // scalable vectors.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">127</td>
+    <td class="uncoveredLine">        return false;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">128</td>
+    <td class="">      }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">129</td>
+    <td class="uncoveredLine">      if (VF.isNonZero() && VF != NumElements) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">130</td>
+    <td class="">        // The different arguments differ in vector size.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">131</td>
+    <td class="uncoveredLine">        return false;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">132</td>
+    <td class="">      } else {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">133</td>
+    <td class="uncoveredLine">        VF = NumElements;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">134</td>
+    <td class="">      }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">135</td>
+    <td class="uncoveredLine">      ScalarTypes.push_back(VectorArgTy->getElementType());</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">136</td>
+    <td class="">    }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">137</td>
+    <td class="">  }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">138</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">139</td>
+    <td class="">  // Try to reconstruct the name for the scalar version of this</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">140</td>
+    <td class="">  // intrinsic using the intrinsic ID and the argument types</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">141</td>
+    <td class="">  // converted to scalar above.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">142</td>
+    <td class="uncoveredLine">  std::string ScalarName;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">143</td>
+    <td class="uncoveredLine">  if (Intrinsic::isOverloaded(IntrinsicID)) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">144</td>
+    <td class="uncoveredLine">    ScalarName = Intrinsic::getName(IntrinsicID, ScalarTypes, CI.getModule());</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">145</td>
+    <td class="">  } else {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">146</td>
+    <td class="uncoveredLine">    ScalarName = Intrinsic::getName(IntrinsicID).str();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">147</td>
+    <td class="">  }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">148</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">149</td>
+    <td class="uncoveredLine">  if (!TLI.isFunctionVectorizable(ScalarName)) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">150</td>
+    <td class="">    // The TargetLibraryInfo does not contain a vectorized version of</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">151</td>
+    <td class="">    // the scalar function.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">152</td>
+    <td class="uncoveredLine">    return false;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">153</td>
+    <td class="">  }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">154</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">155</td>
+    <td class="">  // Try to find the mapping for the scalar version of this intrinsic</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">156</td>
+    <td class="">  // and the exact vector width of the call operands in the</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">157</td>
+    <td class="">  // TargetLibraryInfo.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">158</td>
+    <td class="">  const std::string TLIName =</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">159</td>
+    <td class="uncoveredLine">      std::string(TLI.getVectorizedFunction(ScalarName, VF));</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">160</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">161</td>
+    <td class="uncoveredLine">  LLVM_DEBUG(dbgs() << DEBUG_TYPE << ": Looking up TLI mapping for `"</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">162</td>
+    <td class="">                    << ScalarName << "` and vector width " << VF << ".\n");</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">163</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">164</td>
+    <td class="uncoveredLine">  if (!TLIName.empty()) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">165</td>
+    <td class="">    // Found the correct mapping in the TargetLibraryInfo,</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">166</td>
+    <td class="">    // replace the call to the intrinsic with a call to</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">167</td>
+    <td class="">    // the vector library function.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">168</td>
+    <td class="uncoveredLine">    LLVM_DEBUG(dbgs() << DEBUG_TYPE << ": Found TLI function `" << TLIName</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">169</td>
+    <td class="">                      << "`.\n");</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">170</td>
+    <td class="uncoveredLine">    return replaceWithTLIFunction(CI, TLIName);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">171</td>
+    <td class="">  }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">172</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">173</td>
+    <td class="uncoveredLine">  return false;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">174</td>
+    <td class="coveredLine">}</td>
+    <td>3</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">175</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">176</td>
+    <td class="coveredLine">static bool runImpl(const TargetLibraryInfo &TLI, Function &F) {</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">177</td>
+    <td class="coveredLine">  bool Changed = false;</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">178</td>
+    <td class="coveredLine">  SmallVector<CallInst *> ReplacedCalls;</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">179</td>
+    <td class="coveredLine">  for (auto &I : instructions(F)) {</td>
+    <td>39</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">180</td>
+    <td class="coveredLine">    if (auto *CI = dyn_cast<CallInst>(&I)) {</td>
+    <td>37</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">181</td>
+    <td class="coveredLine">      if (replaceWithCallToVeclib(TLI, *CI)) {</td>
+    <td>3</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">182</td>
+    <td class="uncoveredLine">        ReplacedCalls.push_back(CI);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">183</td>
+    <td class="uncoveredLine">        Changed = true;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">184</td>
+    <td class="">      }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">185</td>
+    <td class="">    }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">186</td>
+    <td class="">  }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">187</td>
+    <td class="">  // Erase the calls to the intrinsics that have been replaced</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">188</td>
+    <td class="">  // with calls to the vector library.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">189</td>
+    <td class="coveredLine">  for (auto *CI : ReplacedCalls) {</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">190</td>
+    <td class="uncoveredLine">    CI->eraseFromParent();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">191</td>
+    <td class="">  }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">192</td>
+    <td class="coveredLine">  return Changed;</td>
+    <td>4</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">193</td>
+    <td class="coveredLine">}</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">194</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">195</td>
+    <td class="">////////////////////////////////////////////////////////////////////////////////</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">196</td>
+    <td class="">// New pass manager implementation.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">197</td>
+    <td class="">////////////////////////////////////////////////////////////////////////////////</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">198</td>
+    <td class="uncoveredLine">PreservedAnalyses ReplaceWithVeclib::run(Function &F,</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">199</td>
+    <td class="">                                         FunctionAnalysisManager &AM) {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">200</td>
+    <td class="uncoveredLine">  const TargetLibraryInfo &TLI = AM.getResult<TargetLibraryAnalysis>(F);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">201</td>
+    <td class="uncoveredLine">  auto Changed = runImpl(TLI, F);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">202</td>
+    <td class="uncoveredLine">  if (Changed) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">203</td>
+    <td class="uncoveredLine">    PreservedAnalyses PA;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">204</td>
+    <td class="uncoveredLine">    PA.preserveSet<CFGAnalyses>();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">205</td>
+    <td class="uncoveredLine">    PA.preserve<TargetLibraryAnalysis>();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">206</td>
+    <td class="uncoveredLine">    PA.preserve<ScalarEvolutionAnalysis>();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">207</td>
+    <td class="uncoveredLine">    PA.preserve<LoopAccessAnalysis>();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">208</td>
+    <td class="uncoveredLine">    PA.preserve<DemandedBitsAnalysis>();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">209</td>
+    <td class="uncoveredLine">    PA.preserve<OptimizationRemarkEmitterAnalysis>();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">210</td>
+    <td class="uncoveredLine">    return PA;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">211</td>
+    <td class="uncoveredLine">  } else {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">212</td>
+    <td class="">    // The pass did not replace any calls, hence it preserves all analyses.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">213</td>
+    <td class="uncoveredLine">    return PreservedAnalyses::all();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">214</td>
+    <td class="">  }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">215</td>
+    <td class="">}</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">216</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">217</td>
+    <td class="">////////////////////////////////////////////////////////////////////////////////</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">218</td>
+    <td class="">// Legacy PM Implementation.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">219</td>
+    <td class="">////////////////////////////////////////////////////////////////////////////////</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">220</td>
+    <td class="coveredLine">bool ReplaceWithVeclibLegacy::runOnFunction(Function &F) {</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">221</td>
+    <td class="">  const TargetLibraryInfo &TLI =</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">222</td>
+    <td class="coveredLine">      getAnalysis<TargetLibraryInfoWrapperPass>().getTLI(F);</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">223</td>
+    <td class="coveredLine">  return runImpl(TLI, F);</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">224</td>
+    <td class="">}</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">225</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">226</td>
+    <td class="coveredLine">void ReplaceWithVeclibLegacy::getAnalysisUsage(AnalysisUsage &AU) const {</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">227</td>
+    <td class="coveredLine">  AU.setPreservesCFG();</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">228</td>
+    <td class="coveredLine">  AU.addRequired<TargetLibraryInfoWrapperPass>();</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">229</td>
+    <td class="coveredLine">  AU.addPreserved<TargetLibraryInfoWrapperPass>();</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">230</td>
+    <td class="coveredLine">  AU.addPreserved<ScalarEvolutionWrapperPass>();</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">231</td>
+    <td class="coveredLine">  AU.addPreserved<AAResultsWrapperPass>();</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">232</td>
+    <td class="coveredLine">  AU.addPreserved<OptimizationRemarkEmitterWrapperPass>();</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">233</td>
+    <td class="coveredLine">  AU.addPreserved<GlobalsAAWrapperPass>();</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">234</td>
+    <td class="coveredLine">}</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">235</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">236</td>
+    <td class="">////////////////////////////////////////////////////////////////////////////////</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">237</td>
+    <td class="">// Legacy Pass manager initialization</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">238</td>
+    <td class="">////////////////////////////////////////////////////////////////////////////////</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">239</td>
+    <td class="">char ReplaceWithVeclibLegacy::ID = 0;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">240</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">241</td>
+    <td class="coveredLine">INITIALIZE_PASS_BEGIN(ReplaceWithVeclibLegacy, DEBUG_TYPE,</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">242</td>
+    <td class="">                      "Replace intrinsics with calls to vector library", false,</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">243</td>
+    <td class="">                      false)</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">244</td>
+    <td class="coveredLine">INITIALIZE_PASS_DEPENDENCY(TargetLibraryInfoWrapperPass)</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">245</td>
+    <td class="coveredLine">INITIALIZE_PASS_END(ReplaceWithVeclibLegacy, DEBUG_TYPE,</td>
+    <td>6</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">246</td>
+    <td class="">                    "Replace intrinsics with calls to vector library", false,</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">247</td>
+    <td class="">                    false)</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">248</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">249</td>
+    <td class="coveredLine">FunctionPass *llvm::createReplaceWithVeclibLegacyPass() {</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">250</td>
+    <td class="coveredLine">  return new ReplaceWithVeclibLegacy();</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">251</td>
+    <td class="">}</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">252</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Functions Report</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Functions Report</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Function name</th>
+    <th class="mainTh">Number of hits</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZL22replaceWithTLIFunctionRN4llvm8CallInstENS_9StringRefE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZL23replaceWithCallToVeclibRKN4llvm17TargetLibraryInfoERNS_8CallInstE</td>
+    <td class="numberOfCalls">3</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZL7runImplRKN4llvm17TargetLibraryInfoERNS_8FunctionE</td>
+    <td class="numberOfCalls">2</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN4llvm17ReplaceWithVeclib3runERNS_8FunctionERNS_15AnalysisManagerIS1_JEEE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN4llvm23ReplaceWithVeclibLegacy13runOnFunctionERNS_8FunctionE</td>
+    <td class="numberOfCalls">2</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZNK4llvm23ReplaceWithVeclibLegacy16getAnalysisUsageERNS_13AnalysisUsageE</td>
+    <td class="numberOfCalls">2</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZL41initializeReplaceWithVeclibLegacyPassOnceRN4llvm12PassRegistryE</td>
+    <td class="numberOfCalls">2</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN4llvm37initializeReplaceWithVeclibLegacyPassERNS_12PassRegistryE</td>
+    <td class="numberOfCalls">4</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN4llvm33createReplaceWithVeclibLegacyPassEv</td>
+    <td class="numberOfCalls">2</td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Coverage Diff</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Coverage Diff</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span> BUT NOT </span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </th>
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+      <span> BUT NOT </span>
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+    </th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="codeline">//=== ReplaceWithVeclib.cpp - Replace vector intrinsics with veclib calls -===//</td>
+    <td class="lineNumber">1</td>
+    <td class="codeline">//=== ReplaceWithVeclib.cpp - Replace vector intrinsics with veclib calls -===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">2</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="codeline">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">3</td>
+    <td class="codeline">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="codeline">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">4</td>
+    <td class="codeline">// See https://llvm.org/LICENSE.txt for license information.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="codeline">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">5</td>
+    <td class="codeline">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">6</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">7</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">8</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="codeline">// Replaces calls to LLVM vector intrinsics (i.e., calls to LLVM intrinsics</td>
+    <td class="lineNumber">9</td>
+    <td class="codeline">// Replaces calls to LLVM vector intrinsics (i.e., calls to LLVM intrinsics</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="codeline">// with vector operands) with matching calls to functions from a vector</td>
+    <td class="lineNumber">10</td>
+    <td class="codeline">// with vector operands) with matching calls to functions from a vector</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="codeline">// library (e.g., libmvec, SVML) according to TargetLibraryInfo.</td>
+    <td class="lineNumber">11</td>
+    <td class="codeline">// library (e.g., libmvec, SVML) according to TargetLibraryInfo.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">12</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">13</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">14</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class="codeline">#include "llvm/CodeGen/ReplaceWithVeclib.h"</td>
+    <td class="lineNumber">15</td>
+    <td class="codeline">#include "llvm/CodeGen/ReplaceWithVeclib.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class="codeline">#include "llvm/ADT/STLExtras.h"</td>
+    <td class="lineNumber">16</td>
+    <td class="codeline">#include "llvm/ADT/STLExtras.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class="codeline">#include "llvm/ADT/Statistic.h"</td>
+    <td class="lineNumber">17</td>
+    <td class="codeline">#include "llvm/ADT/Statistic.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class="codeline">#include "llvm/Analysis/DemandedBits.h"</td>
+    <td class="lineNumber">18</td>
+    <td class="codeline">#include "llvm/Analysis/DemandedBits.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class="codeline">#include "llvm/Analysis/GlobalsModRef.h"</td>
+    <td class="lineNumber">19</td>
+    <td class="codeline">#include "llvm/Analysis/GlobalsModRef.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class="codeline">#include "llvm/Analysis/OptimizationRemarkEmitter.h"</td>
+    <td class="lineNumber">20</td>
+    <td class="codeline">#include "llvm/Analysis/OptimizationRemarkEmitter.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class="codeline">#include "llvm/Analysis/TargetLibraryInfo.h"</td>
+    <td class="lineNumber">21</td>
+    <td class="codeline">#include "llvm/Analysis/TargetLibraryInfo.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class="codeline">#include "llvm/Analysis/VectorUtils.h"</td>
+    <td class="lineNumber">22</td>
+    <td class="codeline">#include "llvm/Analysis/VectorUtils.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class="codeline">#include "llvm/CodeGen/Passes.h"</td>
+    <td class="lineNumber">23</td>
+    <td class="codeline">#include "llvm/CodeGen/Passes.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class="codeline">#include "llvm/IR/IRBuilder.h"</td>
+    <td class="lineNumber">24</td>
+    <td class="codeline">#include "llvm/IR/IRBuilder.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class="codeline">#include "llvm/IR/InstIterator.h"</td>
+    <td class="lineNumber">25</td>
+    <td class="codeline">#include "llvm/IR/InstIterator.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class="codeline">#include "llvm/Transforms/Utils/ModuleUtils.h"</td>
+    <td class="lineNumber">26</td>
+    <td class="codeline">#include "llvm/Transforms/Utils/ModuleUtils.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">27</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class="codeline">using namespace llvm;</td>
+    <td class="lineNumber">28</td>
+    <td class="codeline">using namespace llvm;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">29</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class="codeline">#define DEBUG_TYPE "replace-with-veclib"</td>
+    <td class="lineNumber">30</td>
+    <td class="codeline">#define DEBUG_TYPE "replace-with-veclib"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">31</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class="codeline">STATISTIC(NumCallsReplaced,</td>
+    <td class="lineNumber">32</td>
+    <td class="codeline">STATISTIC(NumCallsReplaced,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class="codeline">          "Number of calls to intrinsics that have been replaced.");</td>
+    <td class="lineNumber">33</td>
+    <td class="codeline">          "Number of calls to intrinsics that have been replaced.");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">34</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class="codeline">STATISTIC(NumTLIFuncDeclAdded,</td>
+    <td class="lineNumber">35</td>
+    <td class="codeline">STATISTIC(NumTLIFuncDeclAdded,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class="codeline">          "Number of vector library function declarations added.");</td>
+    <td class="lineNumber">36</td>
+    <td class="codeline">          "Number of vector library function declarations added.");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">37</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class="codeline">STATISTIC(NumFuncUsedAdded,</td>
+    <td class="lineNumber">38</td>
+    <td class="codeline">STATISTIC(NumFuncUsedAdded,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class="codeline">          "Number of functions added to `llvm.compiler.used`");</td>
+    <td class="lineNumber">39</td>
+    <td class="codeline">          "Number of functions added to `llvm.compiler.used`");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">40</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class="codeline">static bool replaceWithTLIFunction(CallInst &CI, const StringRef TLIName) {</td>
+    <td class="lineNumber">41</td>
+    <td class="codeline">static bool replaceWithTLIFunction(CallInst &CI, const StringRef TLIName) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class="codeline">  Module *M = CI.getModule();</td>
+    <td class="lineNumber">42</td>
+    <td class="codeline">  Module *M = CI.getModule();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">43</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class="codeline">  Function *OldFunc = CI.getCalledFunction();</td>
+    <td class="lineNumber">44</td>
+    <td class="codeline">  Function *OldFunc = CI.getCalledFunction();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">45</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class="codeline">  // Check if the vector library function is already declared in this module,</td>
+    <td class="lineNumber">46</td>
+    <td class="codeline">  // Check if the vector library function is already declared in this module,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class="codeline">  // otherwise insert it.</td>
+    <td class="lineNumber">47</td>
+    <td class="codeline">  // otherwise insert it.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class="codeline">  Function *TLIFunc = M->getFunction(TLIName);</td>
+    <td class="lineNumber">48</td>
+    <td class="codeline">  Function *TLIFunc = M->getFunction(TLIName);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class="codeline">  if (!TLIFunc) {</td>
+    <td class="lineNumber">49</td>
+    <td class="codeline">  if (!TLIFunc) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class="codeline">    TLIFunc = Function::Create(OldFunc->getFunctionType(),</td>
+    <td class="lineNumber">50</td>
+    <td class="codeline">    TLIFunc = Function::Create(OldFunc->getFunctionType(),</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class="codeline">                               Function::ExternalLinkage, TLIName, *M);</td>
+    <td class="lineNumber">51</td>
+    <td class="codeline">                               Function::ExternalLinkage, TLIName, *M);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class="codeline">    TLIFunc->copyAttributesFrom(OldFunc);</td>
+    <td class="lineNumber">52</td>
+    <td class="codeline">    TLIFunc->copyAttributesFrom(OldFunc);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">53</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class="codeline">    LLVM_DEBUG(dbgs() << DEBUG_TYPE << ": Added vector library function `"</td>
+    <td class="lineNumber">54</td>
+    <td class="codeline">    LLVM_DEBUG(dbgs() << DEBUG_TYPE << ": Added vector library function `"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class="codeline">                      << TLIName << "` of type `" << *(TLIFunc->getType())</td>
+    <td class="lineNumber">55</td>
+    <td class="codeline">                      << TLIName << "` of type `" << *(TLIFunc->getType())</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class="codeline">                      << "` to module.\n");</td>
+    <td class="lineNumber">56</td>
+    <td class="codeline">                      << "` to module.\n");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">57</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class="codeline">    ++NumTLIFuncDeclAdded;</td>
+    <td class="lineNumber">58</td>
+    <td class="codeline">    ++NumTLIFuncDeclAdded;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">59</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class="codeline">    // Add the freshly created function to llvm.compiler.used,</td>
+    <td class="lineNumber">60</td>
+    <td class="codeline">    // Add the freshly created function to llvm.compiler.used,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class="codeline">    // similar to as it is done in InjectTLIMappings</td>
+    <td class="lineNumber">61</td>
+    <td class="codeline">    // similar to as it is done in InjectTLIMappings</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class="codeline">    appendToCompilerUsed(*M, {TLIFunc});</td>
+    <td class="lineNumber">62</td>
+    <td class="codeline">    appendToCompilerUsed(*M, {TLIFunc});</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">63</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class="codeline">    LLVM_DEBUG(dbgs() << DEBUG_TYPE << ": Adding `" << TLIName</td>
+    <td class="lineNumber">64</td>
+    <td class="codeline">    LLVM_DEBUG(dbgs() << DEBUG_TYPE << ": Adding `" << TLIName</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class="codeline">                      << "` to `@llvm.compiler.used`.\n");</td>
+    <td class="lineNumber">65</td>
+    <td class="codeline">                      << "` to `@llvm.compiler.used`.\n");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class="codeline">    ++NumFuncUsedAdded;</td>
+    <td class="lineNumber">66</td>
+    <td class="codeline">    ++NumFuncUsedAdded;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">67</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">68</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class="codeline">  // Replace the call to the vector intrinsic with a call</td>
+    <td class="lineNumber">69</td>
+    <td class="codeline">  // Replace the call to the vector intrinsic with a call</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class="codeline">  // to the corresponding function from the vector library.</td>
+    <td class="lineNumber">70</td>
+    <td class="codeline">  // to the corresponding function from the vector library.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class="codeline">  IRBuilder<> IRBuilder(&CI);</td>
+    <td class="lineNumber">71</td>
+    <td class="codeline">  IRBuilder<> IRBuilder(&CI);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class="codeline">  SmallVector<Value *> Args(CI.args());</td>
+    <td class="lineNumber">72</td>
+    <td class="codeline">  SmallVector<Value *> Args(CI.args());</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class="codeline">  // Preserve the operand bundles.</td>
+    <td class="lineNumber">73</td>
+    <td class="codeline">  // Preserve the operand bundles.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class="codeline">  SmallVector<OperandBundleDef, 1> OpBundles;</td>
+    <td class="lineNumber">74</td>
+    <td class="codeline">  SmallVector<OperandBundleDef, 1> OpBundles;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class="codeline">  CI.getOperandBundlesAsDefs(OpBundles);</td>
+    <td class="lineNumber">75</td>
+    <td class="codeline">  CI.getOperandBundlesAsDefs(OpBundles);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class="codeline">  CallInst *Replacement = IRBuilder.CreateCall(TLIFunc, Args, OpBundles);</td>
+    <td class="lineNumber">76</td>
+    <td class="codeline">  CallInst *Replacement = IRBuilder.CreateCall(TLIFunc, Args, OpBundles);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class="codeline">  assert(OldFunc->getFunctionType() == TLIFunc->getFunctionType() &&</td>
+    <td class="lineNumber">77</td>
+    <td class="codeline">  assert(OldFunc->getFunctionType() == TLIFunc->getFunctionType() &&</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class="codeline">         "Expecting function types to be identical");</td>
+    <td class="lineNumber">78</td>
+    <td class="codeline">         "Expecting function types to be identical");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class="codeline">  CI.replaceAllUsesWith(Replacement);</td>
+    <td class="lineNumber">79</td>
+    <td class="codeline">  CI.replaceAllUsesWith(Replacement);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class="codeline">  if (isa<FPMathOperator>(Replacement)) {</td>
+    <td class="lineNumber">80</td>
+    <td class="codeline">  if (isa<FPMathOperator>(Replacement)) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class="codeline">    // Preserve fast math flags for FP math.</td>
+    <td class="lineNumber">81</td>
+    <td class="codeline">    // Preserve fast math flags for FP math.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class="codeline">    Replacement->copyFastMathFlags(&CI);</td>
+    <td class="lineNumber">82</td>
+    <td class="codeline">    Replacement->copyFastMathFlags(&CI);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">83</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">84</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class="codeline">  LLVM_DEBUG(dbgs() << DEBUG_TYPE << ": Replaced call to `"</td>
+    <td class="lineNumber">85</td>
+    <td class="codeline">  LLVM_DEBUG(dbgs() << DEBUG_TYPE << ": Replaced call to `"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class="codeline">                    << OldFunc->getName() << "` with call to `" << TLIName</td>
+    <td class="lineNumber">86</td>
+    <td class="codeline">                    << OldFunc->getName() << "` with call to `" << TLIName</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class="codeline">                    << "`.\n");</td>
+    <td class="lineNumber">87</td>
+    <td class="codeline">                    << "`.\n");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class="codeline">  ++NumCallsReplaced;</td>
+    <td class="lineNumber">88</td>
+    <td class="codeline">  ++NumCallsReplaced;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class="codeline">  return true;</td>
+    <td class="lineNumber">89</td>
+    <td class="codeline">  return true;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">90</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">90</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">91</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">91</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">92</td>
+    <td class="codeLine diffFirst">static bool replaceWithCallToVeclib(const TargetLibraryInfo &TLI,</td>
+    <td class="lineNumber">92</td>
+    <td class="codeline">static bool replaceWithCallToVeclib(const TargetLibraryInfo &TLI,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">93</td>
+    <td class="codeline">                                    CallInst &CI) {</td>
+    <td class="lineNumber">93</td>
+    <td class="codeline">                                    CallInst &CI) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">94</td>
+    <td class="codeLine diffFirst">  if (!CI.getCalledFunction()) {</td>
+    <td class="lineNumber">94</td>
+    <td class="codeline">  if (!CI.getCalledFunction()) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">95</td>
+    <td class="codeline">    return false;</td>
+    <td class="lineNumber">95</td>
+    <td class="codeline">    return false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">96</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">96</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">97</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">97</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">98</td>
+    <td class="codeLine diffFirst">  auto IntrinsicID = CI.getCalledFunction()->getIntrinsicID();</td>
+    <td class="lineNumber">98</td>
+    <td class="codeline">  auto IntrinsicID = CI.getCalledFunction()->getIntrinsicID();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">99</td>
+    <td class="codeLine diffFirst">  if (IntrinsicID == Intrinsic::not_intrinsic) {</td>
+    <td class="lineNumber">99</td>
+    <td class="codeline">  if (IntrinsicID == Intrinsic::not_intrinsic) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">100</td>
+    <td class="codeline">    // Replacement is only performed for intrinsic functions</td>
+    <td class="lineNumber">100</td>
+    <td class="codeline">    // Replacement is only performed for intrinsic functions</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">101</td>
+    <td class="codeline">    return false;</td>
+    <td class="lineNumber">101</td>
+    <td class="codeline">    return false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">102</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">102</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">103</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">103</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">104</td>
+    <td class="codeline">  // Convert vector arguments to scalar type and check that</td>
+    <td class="lineNumber">104</td>
+    <td class="codeline">  // Convert vector arguments to scalar type and check that</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">105</td>
+    <td class="codeline">  // all vector operands have identical vector width.</td>
+    <td class="lineNumber">105</td>
+    <td class="codeline">  // all vector operands have identical vector width.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">106</td>
+    <td class="codeLine diffFirst">  ElementCount VF = ElementCount::getFixed(0);</td>
+    <td class="lineNumber">106</td>
+    <td class="codeline">  ElementCount VF = ElementCount::getFixed(0);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">107</td>
+    <td class="codeLine diffFirst">  SmallVector<Type *> ScalarTypes;</td>
+    <td class="lineNumber">107</td>
+    <td class="codeline">  SmallVector<Type *> ScalarTypes;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">108</td>
+    <td class="codeLine diffFirst">  for (auto Arg : enumerate(CI.args())) {</td>
+    <td class="lineNumber">108</td>
+    <td class="codeline">  for (auto Arg : enumerate(CI.args())) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">109</td>
+    <td class="codeLine diffFirst">    auto *ArgType = Arg.value()->getType();</td>
+    <td class="lineNumber">109</td>
+    <td class="codeline">    auto *ArgType = Arg.value()->getType();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">110</td>
+    <td class="codeline">    // Vector calls to intrinsics can still have</td>
+    <td class="lineNumber">110</td>
+    <td class="codeline">    // Vector calls to intrinsics can still have</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">111</td>
+    <td class="codeline">    // scalar operands for specific arguments.</td>
+    <td class="lineNumber">111</td>
+    <td class="codeline">    // scalar operands for specific arguments.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">112</td>
+    <td class="codeLine diffFirst">    if (isVectorIntrinsicWithScalarOpAtArg(IntrinsicID, Arg.index())) {</td>
+    <td class="lineNumber">112</td>
+    <td class="codeline">    if (isVectorIntrinsicWithScalarOpAtArg(IntrinsicID, Arg.index())) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">113</td>
+    <td class="codeline">      ScalarTypes.push_back(ArgType);</td>
+    <td class="lineNumber">113</td>
+    <td class="codeline">      ScalarTypes.push_back(ArgType);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">114</td>
+    <td class="codeline">    } else {</td>
+    <td class="lineNumber">114</td>
+    <td class="codeline">    } else {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">115</td>
+    <td class="codeline">      // The argument in this place should be a vector if</td>
+    <td class="lineNumber">115</td>
+    <td class="codeline">      // The argument in this place should be a vector if</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">116</td>
+    <td class="codeline">      // this is a call to a vector intrinsic.</td>
+    <td class="lineNumber">116</td>
+    <td class="codeline">      // this is a call to a vector intrinsic.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">117</td>
+    <td class="codeLine diffFirst">      auto *VectorArgTy = dyn_cast<VectorType>(ArgType);</td>
+    <td class="lineNumber">117</td>
+    <td class="codeline">      auto *VectorArgTy = dyn_cast<VectorType>(ArgType);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">118</td>
+    <td class="codeLine diffFirst">      if (!VectorArgTy) {</td>
+    <td class="lineNumber">118</td>
+    <td class="codeline">      if (!VectorArgTy) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">119</td>
+    <td class="codeline">        // The argument is not a vector, do not perform</td>
+    <td class="lineNumber">119</td>
+    <td class="codeline">        // The argument is not a vector, do not perform</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">120</td>
+    <td class="codeline">        // the replacement.</td>
+    <td class="lineNumber">120</td>
+    <td class="codeline">        // the replacement.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">121</td>
+    <td class="codeLine diffFirst">        return false;</td>
+    <td class="lineNumber">121</td>
+    <td class="codeline">        return false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">122</td>
+    <td class="codeline">      }</td>
+    <td class="lineNumber">122</td>
+    <td class="codeline">      }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">123</td>
+    <td class="codeline">      ElementCount NumElements = VectorArgTy->getElementCount();</td>
+    <td class="lineNumber">123</td>
+    <td class="codeline">      ElementCount NumElements = VectorArgTy->getElementCount();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">124</td>
+    <td class="codeline">      if (NumElements.isScalable()) {</td>
+    <td class="lineNumber">124</td>
+    <td class="codeline">      if (NumElements.isScalable()) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">125</td>
+    <td class="codeline">        // The current implementation does not support</td>
+    <td class="lineNumber">125</td>
+    <td class="codeline">        // The current implementation does not support</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">126</td>
+    <td class="codeline">        // scalable vectors.</td>
+    <td class="lineNumber">126</td>
+    <td class="codeline">        // scalable vectors.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">127</td>
+    <td class="codeline">        return false;</td>
+    <td class="lineNumber">127</td>
+    <td class="codeline">        return false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">128</td>
+    <td class="codeline">      }</td>
+    <td class="lineNumber">128</td>
+    <td class="codeline">      }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">129</td>
+    <td class="codeline">      if (VF.isNonZero() && VF != NumElements) {</td>
+    <td class="lineNumber">129</td>
+    <td class="codeline">      if (VF.isNonZero() && VF != NumElements) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">130</td>
+    <td class="codeline">        // The different arguments differ in vector size.</td>
+    <td class="lineNumber">130</td>
+    <td class="codeline">        // The different arguments differ in vector size.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">131</td>
+    <td class="codeline">        return false;</td>
+    <td class="lineNumber">131</td>
+    <td class="codeline">        return false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">132</td>
+    <td class="codeline">      } else {</td>
+    <td class="lineNumber">132</td>
+    <td class="codeline">      } else {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">133</td>
+    <td class="codeline">        VF = NumElements;</td>
+    <td class="lineNumber">133</td>
+    <td class="codeline">        VF = NumElements;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">134</td>
+    <td class="codeline">      }</td>
+    <td class="lineNumber">134</td>
+    <td class="codeline">      }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">135</td>
+    <td class="codeline">      ScalarTypes.push_back(VectorArgTy->getElementType());</td>
+    <td class="lineNumber">135</td>
+    <td class="codeline">      ScalarTypes.push_back(VectorArgTy->getElementType());</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">136</td>
+    <td class="codeline">    }</td>
+    <td class="lineNumber">136</td>
+    <td class="codeline">    }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">137</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">137</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">138</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">138</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">139</td>
+    <td class="codeline">  // Try to reconstruct the name for the scalar version of this</td>
+    <td class="lineNumber">139</td>
+    <td class="codeline">  // Try to reconstruct the name for the scalar version of this</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">140</td>
+    <td class="codeline">  // intrinsic using the intrinsic ID and the argument types</td>
+    <td class="lineNumber">140</td>
+    <td class="codeline">  // intrinsic using the intrinsic ID and the argument types</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">141</td>
+    <td class="codeline">  // converted to scalar above.</td>
+    <td class="lineNumber">141</td>
+    <td class="codeline">  // converted to scalar above.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">142</td>
+    <td class="codeline">  std::string ScalarName;</td>
+    <td class="lineNumber">142</td>
+    <td class="codeline">  std::string ScalarName;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">143</td>
+    <td class="codeline">  if (Intrinsic::isOverloaded(IntrinsicID)) {</td>
+    <td class="lineNumber">143</td>
+    <td class="codeline">  if (Intrinsic::isOverloaded(IntrinsicID)) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">144</td>
+    <td class="codeline">    ScalarName = Intrinsic::getName(IntrinsicID, ScalarTypes, CI.getModule());</td>
+    <td class="lineNumber">144</td>
+    <td class="codeline">    ScalarName = Intrinsic::getName(IntrinsicID, ScalarTypes, CI.getModule());</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">145</td>
+    <td class="codeline">  } else {</td>
+    <td class="lineNumber">145</td>
+    <td class="codeline">  } else {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">146</td>
+    <td class="codeline">    ScalarName = Intrinsic::getName(IntrinsicID).str();</td>
+    <td class="lineNumber">146</td>
+    <td class="codeline">    ScalarName = Intrinsic::getName(IntrinsicID).str();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">147</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">147</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">148</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">148</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">149</td>
+    <td class="codeline">  if (!TLI.isFunctionVectorizable(ScalarName)) {</td>
+    <td class="lineNumber">149</td>
+    <td class="codeline">  if (!TLI.isFunctionVectorizable(ScalarName)) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">150</td>
+    <td class="codeline">    // The TargetLibraryInfo does not contain a vectorized version of</td>
+    <td class="lineNumber">150</td>
+    <td class="codeline">    // The TargetLibraryInfo does not contain a vectorized version of</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">151</td>
+    <td class="codeline">    // the scalar function.</td>
+    <td class="lineNumber">151</td>
+    <td class="codeline">    // the scalar function.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">152</td>
+    <td class="codeline">    return false;</td>
+    <td class="lineNumber">152</td>
+    <td class="codeline">    return false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">153</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">153</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">154</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">154</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">155</td>
+    <td class="codeline">  // Try to find the mapping for the scalar version of this intrinsic</td>
+    <td class="lineNumber">155</td>
+    <td class="codeline">  // Try to find the mapping for the scalar version of this intrinsic</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">156</td>
+    <td class="codeline">  // and the exact vector width of the call operands in the</td>
+    <td class="lineNumber">156</td>
+    <td class="codeline">  // and the exact vector width of the call operands in the</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">157</td>
+    <td class="codeline">  // TargetLibraryInfo.</td>
+    <td class="lineNumber">157</td>
+    <td class="codeline">  // TargetLibraryInfo.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">158</td>
+    <td class="codeline">  const std::string TLIName =</td>
+    <td class="lineNumber">158</td>
+    <td class="codeline">  const std::string TLIName =</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">159</td>
+    <td class="codeline">      std::string(TLI.getVectorizedFunction(ScalarName, VF));</td>
+    <td class="lineNumber">159</td>
+    <td class="codeline">      std::string(TLI.getVectorizedFunction(ScalarName, VF));</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">160</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">160</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">161</td>
+    <td class="codeline">  LLVM_DEBUG(dbgs() << DEBUG_TYPE << ": Looking up TLI mapping for `"</td>
+    <td class="lineNumber">161</td>
+    <td class="codeline">  LLVM_DEBUG(dbgs() << DEBUG_TYPE << ": Looking up TLI mapping for `"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">162</td>
+    <td class="codeline">                    << ScalarName << "` and vector width " << VF << ".\n");</td>
+    <td class="lineNumber">162</td>
+    <td class="codeline">                    << ScalarName << "` and vector width " << VF << ".\n");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">163</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">163</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">164</td>
+    <td class="codeline">  if (!TLIName.empty()) {</td>
+    <td class="lineNumber">164</td>
+    <td class="codeline">  if (!TLIName.empty()) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">165</td>
+    <td class="codeline">    // Found the correct mapping in the TargetLibraryInfo,</td>
+    <td class="lineNumber">165</td>
+    <td class="codeline">    // Found the correct mapping in the TargetLibraryInfo,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">166</td>
+    <td class="codeline">    // replace the call to the intrinsic with a call to</td>
+    <td class="lineNumber">166</td>
+    <td class="codeline">    // replace the call to the intrinsic with a call to</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">167</td>
+    <td class="codeline">    // the vector library function.</td>
+    <td class="lineNumber">167</td>
+    <td class="codeline">    // the vector library function.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">168</td>
+    <td class="codeline">    LLVM_DEBUG(dbgs() << DEBUG_TYPE << ": Found TLI function `" << TLIName</td>
+    <td class="lineNumber">168</td>
+    <td class="codeline">    LLVM_DEBUG(dbgs() << DEBUG_TYPE << ": Found TLI function `" << TLIName</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">169</td>
+    <td class="codeline">                      << "`.\n");</td>
+    <td class="lineNumber">169</td>
+    <td class="codeline">                      << "`.\n");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">170</td>
+    <td class="codeline">    return replaceWithTLIFunction(CI, TLIName);</td>
+    <td class="lineNumber">170</td>
+    <td class="codeline">    return replaceWithTLIFunction(CI, TLIName);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">171</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">171</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">172</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">172</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">173</td>
+    <td class="codeline">  return false;</td>
+    <td class="lineNumber">173</td>
+    <td class="codeline">  return false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">174</td>
+    <td class="codeLine diffFirst">}</td>
+    <td class="lineNumber">174</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">175</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">175</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">176</td>
+    <td class="codeline">static bool runImpl(const TargetLibraryInfo &TLI, Function &F) {</td>
+    <td class="lineNumber">176</td>
+    <td class="codeline">static bool runImpl(const TargetLibraryInfo &TLI, Function &F) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">177</td>
+    <td class="codeline">  bool Changed = false;</td>
+    <td class="lineNumber">177</td>
+    <td class="codeline">  bool Changed = false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">178</td>
+    <td class="codeline">  SmallVector<CallInst *> ReplacedCalls;</td>
+    <td class="lineNumber">178</td>
+    <td class="codeline">  SmallVector<CallInst *> ReplacedCalls;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">179</td>
+    <td class="codeline">  for (auto &I : instructions(F)) {</td>
+    <td class="lineNumber">179</td>
+    <td class="codeline">  for (auto &I : instructions(F)) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">180</td>
+    <td class="codeline">    if (auto *CI = dyn_cast<CallInst>(&I)) {</td>
+    <td class="lineNumber">180</td>
+    <td class="codeline">    if (auto *CI = dyn_cast<CallInst>(&I)) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">181</td>
+    <td class="codeLine diffFirst">      if (replaceWithCallToVeclib(TLI, *CI)) {</td>
+    <td class="lineNumber">181</td>
+    <td class="codeline">      if (replaceWithCallToVeclib(TLI, *CI)) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">182</td>
+    <td class="codeline">        ReplacedCalls.push_back(CI);</td>
+    <td class="lineNumber">182</td>
+    <td class="codeline">        ReplacedCalls.push_back(CI);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">183</td>
+    <td class="codeline">        Changed = true;</td>
+    <td class="lineNumber">183</td>
+    <td class="codeline">        Changed = true;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">184</td>
+    <td class="codeline">      }</td>
+    <td class="lineNumber">184</td>
+    <td class="codeline">      }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">185</td>
+    <td class="codeline">    }</td>
+    <td class="lineNumber">185</td>
+    <td class="codeline">    }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">186</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">186</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">187</td>
+    <td class="codeline">  // Erase the calls to the intrinsics that have been replaced</td>
+    <td class="lineNumber">187</td>
+    <td class="codeline">  // Erase the calls to the intrinsics that have been replaced</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">188</td>
+    <td class="codeline">  // with calls to the vector library.</td>
+    <td class="lineNumber">188</td>
+    <td class="codeline">  // with calls to the vector library.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">189</td>
+    <td class="codeline">  for (auto *CI : ReplacedCalls) {</td>
+    <td class="lineNumber">189</td>
+    <td class="codeline">  for (auto *CI : ReplacedCalls) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">190</td>
+    <td class="codeline">    CI->eraseFromParent();</td>
+    <td class="lineNumber">190</td>
+    <td class="codeline">    CI->eraseFromParent();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">191</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">191</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">192</td>
+    <td class="codeline">  return Changed;</td>
+    <td class="lineNumber">192</td>
+    <td class="codeline">  return Changed;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">193</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">193</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">194</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">194</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">195</td>
+    <td class="codeline">////////////////////////////////////////////////////////////////////////////////</td>
+    <td class="lineNumber">195</td>
+    <td class="codeline">////////////////////////////////////////////////////////////////////////////////</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">196</td>
+    <td class="codeline">// New pass manager implementation.</td>
+    <td class="lineNumber">196</td>
+    <td class="codeline">// New pass manager implementation.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">197</td>
+    <td class="codeline">////////////////////////////////////////////////////////////////////////////////</td>
+    <td class="lineNumber">197</td>
+    <td class="codeline">////////////////////////////////////////////////////////////////////////////////</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">198</td>
+    <td class="codeline">PreservedAnalyses ReplaceWithVeclib::run(Function &F,</td>
+    <td class="lineNumber">198</td>
+    <td class="codeline">PreservedAnalyses ReplaceWithVeclib::run(Function &F,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">199</td>
+    <td class="codeline">                                         FunctionAnalysisManager &AM) {</td>
+    <td class="lineNumber">199</td>
+    <td class="codeline">                                         FunctionAnalysisManager &AM) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">200</td>
+    <td class="codeline">  const TargetLibraryInfo &TLI = AM.getResult<TargetLibraryAnalysis>(F);</td>
+    <td class="lineNumber">200</td>
+    <td class="codeline">  const TargetLibraryInfo &TLI = AM.getResult<TargetLibraryAnalysis>(F);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">201</td>
+    <td class="codeline">  auto Changed = runImpl(TLI, F);</td>
+    <td class="lineNumber">201</td>
+    <td class="codeline">  auto Changed = runImpl(TLI, F);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">202</td>
+    <td class="codeline">  if (Changed) {</td>
+    <td class="lineNumber">202</td>
+    <td class="codeline">  if (Changed) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">203</td>
+    <td class="codeline">    PreservedAnalyses PA;</td>
+    <td class="lineNumber">203</td>
+    <td class="codeline">    PreservedAnalyses PA;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">204</td>
+    <td class="codeline">    PA.preserveSet<CFGAnalyses>();</td>
+    <td class="lineNumber">204</td>
+    <td class="codeline">    PA.preserveSet<CFGAnalyses>();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">205</td>
+    <td class="codeline">    PA.preserve<TargetLibraryAnalysis>();</td>
+    <td class="lineNumber">205</td>
+    <td class="codeline">    PA.preserve<TargetLibraryAnalysis>();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">206</td>
+    <td class="codeline">    PA.preserve<ScalarEvolutionAnalysis>();</td>
+    <td class="lineNumber">206</td>
+    <td class="codeline">    PA.preserve<ScalarEvolutionAnalysis>();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">207</td>
+    <td class="codeline">    PA.preserve<LoopAccessAnalysis>();</td>
+    <td class="lineNumber">207</td>
+    <td class="codeline">    PA.preserve<LoopAccessAnalysis>();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">208</td>
+    <td class="codeline">    PA.preserve<DemandedBitsAnalysis>();</td>
+    <td class="lineNumber">208</td>
+    <td class="codeline">    PA.preserve<DemandedBitsAnalysis>();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">209</td>
+    <td class="codeline">    PA.preserve<OptimizationRemarkEmitterAnalysis>();</td>
+    <td class="lineNumber">209</td>
+    <td class="codeline">    PA.preserve<OptimizationRemarkEmitterAnalysis>();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">210</td>
+    <td class="codeline">    return PA;</td>
+    <td class="lineNumber">210</td>
+    <td class="codeline">    return PA;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">211</td>
+    <td class="codeline">  } else {</td>
+    <td class="lineNumber">211</td>
+    <td class="codeline">  } else {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">212</td>
+    <td class="codeline">    // The pass did not replace any calls, hence it preserves all analyses.</td>
+    <td class="lineNumber">212</td>
+    <td class="codeline">    // The pass did not replace any calls, hence it preserves all analyses.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">213</td>
+    <td class="codeline">    return PreservedAnalyses::all();</td>
+    <td class="lineNumber">213</td>
+    <td class="codeline">    return PreservedAnalyses::all();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">214</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">214</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">215</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">215</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">216</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">216</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">217</td>
+    <td class="codeline">////////////////////////////////////////////////////////////////////////////////</td>
+    <td class="lineNumber">217</td>
+    <td class="codeline">////////////////////////////////////////////////////////////////////////////////</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">218</td>
+    <td class="codeline">// Legacy PM Implementation.</td>
+    <td class="lineNumber">218</td>
+    <td class="codeline">// Legacy PM Implementation.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">219</td>
+    <td class="codeline">////////////////////////////////////////////////////////////////////////////////</td>
+    <td class="lineNumber">219</td>
+    <td class="codeline">////////////////////////////////////////////////////////////////////////////////</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">220</td>
+    <td class="codeline">bool ReplaceWithVeclibLegacy::runOnFunction(Function &F) {</td>
+    <td class="lineNumber">220</td>
+    <td class="codeline">bool ReplaceWithVeclibLegacy::runOnFunction(Function &F) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">221</td>
+    <td class="codeline">  const TargetLibraryInfo &TLI =</td>
+    <td class="lineNumber">221</td>
+    <td class="codeline">  const TargetLibraryInfo &TLI =</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">222</td>
+    <td class="codeline">      getAnalysis<TargetLibraryInfoWrapperPass>().getTLI(F);</td>
+    <td class="lineNumber">222</td>
+    <td class="codeline">      getAnalysis<TargetLibraryInfoWrapperPass>().getTLI(F);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">223</td>
+    <td class="codeline">  return runImpl(TLI, F);</td>
+    <td class="lineNumber">223</td>
+    <td class="codeline">  return runImpl(TLI, F);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">224</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">224</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">225</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">225</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">226</td>
+    <td class="codeline">void ReplaceWithVeclibLegacy::getAnalysisUsage(AnalysisUsage &AU) const {</td>
+    <td class="lineNumber">226</td>
+    <td class="codeline">void ReplaceWithVeclibLegacy::getAnalysisUsage(AnalysisUsage &AU) const {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">227</td>
+    <td class="codeline">  AU.setPreservesCFG();</td>
+    <td class="lineNumber">227</td>
+    <td class="codeline">  AU.setPreservesCFG();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">228</td>
+    <td class="codeline">  AU.addRequired<TargetLibraryInfoWrapperPass>();</td>
+    <td class="lineNumber">228</td>
+    <td class="codeline">  AU.addRequired<TargetLibraryInfoWrapperPass>();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">229</td>
+    <td class="codeline">  AU.addPreserved<TargetLibraryInfoWrapperPass>();</td>
+    <td class="lineNumber">229</td>
+    <td class="codeline">  AU.addPreserved<TargetLibraryInfoWrapperPass>();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">230</td>
+    <td class="codeline">  AU.addPreserved<ScalarEvolutionWrapperPass>();</td>
+    <td class="lineNumber">230</td>
+    <td class="codeline">  AU.addPreserved<ScalarEvolutionWrapperPass>();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">231</td>
+    <td class="codeline">  AU.addPreserved<AAResultsWrapperPass>();</td>
+    <td class="lineNumber">231</td>
+    <td class="codeline">  AU.addPreserved<AAResultsWrapperPass>();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">232</td>
+    <td class="codeline">  AU.addPreserved<OptimizationRemarkEmitterWrapperPass>();</td>
+    <td class="lineNumber">232</td>
+    <td class="codeline">  AU.addPreserved<OptimizationRemarkEmitterWrapperPass>();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">233</td>
+    <td class="codeline">  AU.addPreserved<GlobalsAAWrapperPass>();</td>
+    <td class="lineNumber">233</td>
+    <td class="codeline">  AU.addPreserved<GlobalsAAWrapperPass>();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">234</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">234</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">235</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">235</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">236</td>
+    <td class="codeline">////////////////////////////////////////////////////////////////////////////////</td>
+    <td class="lineNumber">236</td>
+    <td class="codeline">////////////////////////////////////////////////////////////////////////////////</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">237</td>
+    <td class="codeline">// Legacy Pass manager initialization</td>
+    <td class="lineNumber">237</td>
+    <td class="codeline">// Legacy Pass manager initialization</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">238</td>
+    <td class="codeline">////////////////////////////////////////////////////////////////////////////////</td>
+    <td class="lineNumber">238</td>
+    <td class="codeline">////////////////////////////////////////////////////////////////////////////////</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">239</td>
+    <td class="codeline">char ReplaceWithVeclibLegacy::ID = 0;</td>
+    <td class="lineNumber">239</td>
+    <td class="codeline">char ReplaceWithVeclibLegacy::ID = 0;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">240</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">240</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">241</td>
+    <td class="codeline">INITIALIZE_PASS_BEGIN(ReplaceWithVeclibLegacy, DEBUG_TYPE,</td>
+    <td class="lineNumber">241</td>
+    <td class="codeline">INITIALIZE_PASS_BEGIN(ReplaceWithVeclibLegacy, DEBUG_TYPE,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">242</td>
+    <td class="codeline">                      "Replace intrinsics with calls to vector library", false,</td>
+    <td class="lineNumber">242</td>
+    <td class="codeline">                      "Replace intrinsics with calls to vector library", false,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">243</td>
+    <td class="codeline">                      false)</td>
+    <td class="lineNumber">243</td>
+    <td class="codeline">                      false)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">244</td>
+    <td class="codeline">INITIALIZE_PASS_DEPENDENCY(TargetLibraryInfoWrapperPass)</td>
+    <td class="lineNumber">244</td>
+    <td class="codeline">INITIALIZE_PASS_DEPENDENCY(TargetLibraryInfoWrapperPass)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">245</td>
+    <td class="codeline">INITIALIZE_PASS_END(ReplaceWithVeclibLegacy, DEBUG_TYPE,</td>
+    <td class="lineNumber">245</td>
+    <td class="codeline">INITIALIZE_PASS_END(ReplaceWithVeclibLegacy, DEBUG_TYPE,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">246</td>
+    <td class="codeline">                    "Replace intrinsics with calls to vector library", false,</td>
+    <td class="lineNumber">246</td>
+    <td class="codeline">                    "Replace intrinsics with calls to vector library", false,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">247</td>
+    <td class="codeline">                    false)</td>
+    <td class="lineNumber">247</td>
+    <td class="codeline">                    false)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">248</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">248</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">249</td>
+    <td class="codeline">FunctionPass *llvm::createReplaceWithVeclibLegacyPass() {</td>
+    <td class="lineNumber">249</td>
+    <td class="codeline">FunctionPass *llvm::createReplaceWithVeclibLegacyPass() {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">250</td>
+    <td class="codeline">  return new ReplaceWithVeclibLegacy();</td>
+    <td class="lineNumber">250</td>
+    <td class="codeline">  return new ReplaceWithVeclibLegacy();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">251</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">251</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">252</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">252</td>
+    <td class="codeline"></td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Side By Side Comparison</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Side By Side Comparison</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+    </th>
+    <th class="mainTh">Hit count</th>
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </th>
+    <th class="mainTh">Hit count</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="codeLine">//=== ReplaceWithVeclib.cpp - Replace vector intrinsics with veclib calls -===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">1</td>
+    <td class="codeLine">//=== ReplaceWithVeclib.cpp - Replace vector intrinsics with veclib calls -===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">2</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="codeLine">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">3</td>
+    <td class="codeLine">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="codeLine">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">4</td>
+    <td class="codeLine">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="codeLine">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">5</td>
+    <td class="codeLine">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">6</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">7</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">8</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="codeLine">// Replaces calls to LLVM vector intrinsics (i.e., calls to LLVM intrinsics</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">9</td>
+    <td class="codeLine">// Replaces calls to LLVM vector intrinsics (i.e., calls to LLVM intrinsics</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="codeLine">// with vector operands) with matching calls to functions from a vector</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">10</td>
+    <td class="codeLine">// with vector operands) with matching calls to functions from a vector</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="codeLine">// library (e.g., libmvec, SVML) according to TargetLibraryInfo.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">11</td>
+    <td class="codeLine">// library (e.g., libmvec, SVML) according to TargetLibraryInfo.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">12</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">13</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">14</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class="codeLine">#include "llvm/CodeGen/ReplaceWithVeclib.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">15</td>
+    <td class="codeLine">#include "llvm/CodeGen/ReplaceWithVeclib.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class="codeLine">#include "llvm/ADT/STLExtras.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">16</td>
+    <td class="codeLine">#include "llvm/ADT/STLExtras.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class="codeLine">#include "llvm/ADT/Statistic.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">17</td>
+    <td class="codeLine">#include "llvm/ADT/Statistic.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class="codeLine">#include "llvm/Analysis/DemandedBits.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">18</td>
+    <td class="codeLine">#include "llvm/Analysis/DemandedBits.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class="codeLine">#include "llvm/Analysis/GlobalsModRef.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">19</td>
+    <td class="codeLine">#include "llvm/Analysis/GlobalsModRef.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class="codeLine">#include "llvm/Analysis/OptimizationRemarkEmitter.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">20</td>
+    <td class="codeLine">#include "llvm/Analysis/OptimizationRemarkEmitter.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class="codeLine">#include "llvm/Analysis/TargetLibraryInfo.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">21</td>
+    <td class="codeLine">#include "llvm/Analysis/TargetLibraryInfo.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class="codeLine">#include "llvm/Analysis/VectorUtils.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">22</td>
+    <td class="codeLine">#include "llvm/Analysis/VectorUtils.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class="codeLine">#include "llvm/CodeGen/Passes.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">23</td>
+    <td class="codeLine">#include "llvm/CodeGen/Passes.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class="codeLine">#include "llvm/IR/IRBuilder.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">24</td>
+    <td class="codeLine">#include "llvm/IR/IRBuilder.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class="codeLine">#include "llvm/IR/InstIterator.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">25</td>
+    <td class="codeLine">#include "llvm/IR/InstIterator.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class="codeLine">#include "llvm/Transforms/Utils/ModuleUtils.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">26</td>
+    <td class="codeLine">#include "llvm/Transforms/Utils/ModuleUtils.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">27</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class="codeLine">using namespace llvm;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">28</td>
+    <td class="codeLine">using namespace llvm;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">29</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class="codeLine">#define DEBUG_TYPE "replace-with-veclib"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">30</td>
+    <td class="codeLine">#define DEBUG_TYPE "replace-with-veclib"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">31</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class="codeLine">STATISTIC(NumCallsReplaced,</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">32</td>
+    <td class="codeLine">STATISTIC(NumCallsReplaced,</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class="codeLine">          "Number of calls to intrinsics that have been replaced.");</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">33</td>
+    <td class="codeLine">          "Number of calls to intrinsics that have been replaced.");</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">34</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class="codeLine">STATISTIC(NumTLIFuncDeclAdded,</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">35</td>
+    <td class="codeLine">STATISTIC(NumTLIFuncDeclAdded,</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class="codeLine">          "Number of vector library function declarations added.");</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">36</td>
+    <td class="codeLine">          "Number of vector library function declarations added.");</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">37</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class="codeLine">STATISTIC(NumFuncUsedAdded,</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">38</td>
+    <td class="codeLine">STATISTIC(NumFuncUsedAdded,</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class="codeLine">          "Number of functions added to `llvm.compiler.used`");</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">39</td>
+    <td class="codeLine">          "Number of functions added to `llvm.compiler.used`");</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">40</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class="codeLine">static bool replaceWithTLIFunction(CallInst &CI, const StringRef TLIName) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">41</td>
+    <td class="codeLine">static bool replaceWithTLIFunction(CallInst &CI, const StringRef TLIName) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class="codeLine">  Module *M = CI.getModule();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">42</td>
+    <td class="codeLine">  Module *M = CI.getModule();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">43</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class="codeLine">  Function *OldFunc = CI.getCalledFunction();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">44</td>
+    <td class="codeLine">  Function *OldFunc = CI.getCalledFunction();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">45</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class="codeLine">  // Check if the vector library function is already declared in this module,</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">46</td>
+    <td class="codeLine">  // Check if the vector library function is already declared in this module,</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class="codeLine">  // otherwise insert it.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">47</td>
+    <td class="codeLine">  // otherwise insert it.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class="codeLine">  Function *TLIFunc = M->getFunction(TLIName);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">48</td>
+    <td class="codeLine">  Function *TLIFunc = M->getFunction(TLIName);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class="codeLine">  if (!TLIFunc) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">49</td>
+    <td class="codeLine">  if (!TLIFunc) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class="codeLine">    TLIFunc = Function::Create(OldFunc->getFunctionType(),</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">50</td>
+    <td class="codeLine">    TLIFunc = Function::Create(OldFunc->getFunctionType(),</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class="codeLine">                               Function::ExternalLinkage, TLIName, *M);</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">51</td>
+    <td class="codeLine">                               Function::ExternalLinkage, TLIName, *M);</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class="codeLine">    TLIFunc->copyAttributesFrom(OldFunc);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">52</td>
+    <td class="codeLine">    TLIFunc->copyAttributesFrom(OldFunc);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">53</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class="codeLine">    LLVM_DEBUG(dbgs() << DEBUG_TYPE << ": Added vector library function `"</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">54</td>
+    <td class="codeLine">    LLVM_DEBUG(dbgs() << DEBUG_TYPE << ": Added vector library function `"</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class="codeLine">                      << TLIName << "` of type `" << *(TLIFunc->getType())</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">55</td>
+    <td class="codeLine">                      << TLIName << "` of type `" << *(TLIFunc->getType())</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class="codeLine">                      << "` to module.\n");</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">56</td>
+    <td class="codeLine">                      << "` to module.\n");</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">57</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class="codeLine">    ++NumTLIFuncDeclAdded;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">58</td>
+    <td class="codeLine">    ++NumTLIFuncDeclAdded;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">59</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class="codeLine">    // Add the freshly created function to llvm.compiler.used,</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">60</td>
+    <td class="codeLine">    // Add the freshly created function to llvm.compiler.used,</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class="codeLine">    // similar to as it is done in InjectTLIMappings</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">61</td>
+    <td class="codeLine">    // similar to as it is done in InjectTLIMappings</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class="codeLine">    appendToCompilerUsed(*M, {TLIFunc});</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">62</td>
+    <td class="codeLine">    appendToCompilerUsed(*M, {TLIFunc});</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">63</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class="codeLine">    LLVM_DEBUG(dbgs() << DEBUG_TYPE << ": Adding `" << TLIName</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">64</td>
+    <td class="codeLine">    LLVM_DEBUG(dbgs() << DEBUG_TYPE << ": Adding `" << TLIName</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class="codeLine">                      << "` to `@llvm.compiler.used`.\n");</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">65</td>
+    <td class="codeLine">                      << "` to `@llvm.compiler.used`.\n");</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class="codeLine">    ++NumFuncUsedAdded;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">66</td>
+    <td class="codeLine">    ++NumFuncUsedAdded;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">67</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">68</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class="codeLine">  // Replace the call to the vector intrinsic with a call</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">69</td>
+    <td class="codeLine">  // Replace the call to the vector intrinsic with a call</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class="codeLine">  // to the corresponding function from the vector library.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">70</td>
+    <td class="codeLine">  // to the corresponding function from the vector library.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class="codeLine">  IRBuilder<> IRBuilder(&CI);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">71</td>
+    <td class="codeLine">  IRBuilder<> IRBuilder(&CI);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class="codeLine">  SmallVector<Value *> Args(CI.args());</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">72</td>
+    <td class="codeLine">  SmallVector<Value *> Args(CI.args());</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class="codeLine">  // Preserve the operand bundles.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">73</td>
+    <td class="codeLine">  // Preserve the operand bundles.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class="codeLine">  SmallVector<OperandBundleDef, 1> OpBundles;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">74</td>
+    <td class="codeLine">  SmallVector<OperandBundleDef, 1> OpBundles;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class="codeLine">  CI.getOperandBundlesAsDefs(OpBundles);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">75</td>
+    <td class="codeLine">  CI.getOperandBundlesAsDefs(OpBundles);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class="codeLine">  CallInst *Replacement = IRBuilder.CreateCall(TLIFunc, Args, OpBundles);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">76</td>
+    <td class="codeLine">  CallInst *Replacement = IRBuilder.CreateCall(TLIFunc, Args, OpBundles);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class="codeLine">  assert(OldFunc->getFunctionType() == TLIFunc->getFunctionType() &&</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">77</td>
+    <td class="codeLine">  assert(OldFunc->getFunctionType() == TLIFunc->getFunctionType() &&</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class="codeLine">         "Expecting function types to be identical");</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">78</td>
+    <td class="codeLine">         "Expecting function types to be identical");</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class="codeLine">  CI.replaceAllUsesWith(Replacement);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">79</td>
+    <td class="codeLine">  CI.replaceAllUsesWith(Replacement);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class="codeLine">  if (isa<FPMathOperator>(Replacement)) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">80</td>
+    <td class="codeLine">  if (isa<FPMathOperator>(Replacement)) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class="codeLine">    // Preserve fast math flags for FP math.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">81</td>
+    <td class="codeLine">    // Preserve fast math flags for FP math.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class="codeLine">    Replacement->copyFastMathFlags(&CI);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">82</td>
+    <td class="codeLine">    Replacement->copyFastMathFlags(&CI);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">83</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">84</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class="codeLine">  LLVM_DEBUG(dbgs() << DEBUG_TYPE << ": Replaced call to `"</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">85</td>
+    <td class="codeLine">  LLVM_DEBUG(dbgs() << DEBUG_TYPE << ": Replaced call to `"</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class="codeLine">                    << OldFunc->getName() << "` with call to `" << TLIName</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">86</td>
+    <td class="codeLine">                    << OldFunc->getName() << "` with call to `" << TLIName</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class="codeLine">                    << "`.\n");</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">87</td>
+    <td class="codeLine">                    << "`.\n");</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class="codeLine">  ++NumCallsReplaced;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">88</td>
+    <td class="codeLine">  ++NumCallsReplaced;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class="codeLine">  return true;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">89</td>
+    <td class="codeLine">  return true;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">90</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">90</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">91</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">91</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">92</td>
+    <td class="codeLine coveredLine">static bool replaceWithCallToVeclib(const TargetLibraryInfo &TLI,</td>
+    <td class="lineNumber">3</td>
+    <td class="lineNumber">92</td>
+    <td class="codeLine">static bool replaceWithCallToVeclib(const TargetLibraryInfo &TLI,</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">93</td>
+    <td class="codeLine">                                    CallInst &CI) {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">93</td>
+    <td class="codeLine">                                    CallInst &CI) {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">94</td>
+    <td class="codeLine coveredLine">  if (!CI.getCalledFunction()) {</td>
+    <td class="lineNumber">3</td>
+    <td class="lineNumber">94</td>
+    <td class="codeLine">  if (!CI.getCalledFunction()) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">95</td>
+    <td class="codeLine">    return false;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">95</td>
+    <td class="codeLine">    return false;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">96</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">96</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">97</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">97</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">98</td>
+    <td class="codeLine coveredLine">  auto IntrinsicID = CI.getCalledFunction()->getIntrinsicID();</td>
+    <td class="lineNumber">3</td>
+    <td class="lineNumber">98</td>
+    <td class="codeLine">  auto IntrinsicID = CI.getCalledFunction()->getIntrinsicID();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">99</td>
+    <td class="codeLine coveredLine">  if (IntrinsicID == Intrinsic::not_intrinsic) {</td>
+    <td class="lineNumber">3</td>
+    <td class="lineNumber">99</td>
+    <td class="codeLine">  if (IntrinsicID == Intrinsic::not_intrinsic) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">100</td>
+    <td class="codeLine">    // Replacement is only performed for intrinsic functions</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">100</td>
+    <td class="codeLine">    // Replacement is only performed for intrinsic functions</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">101</td>
+    <td class="codeLine">    return false;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">101</td>
+    <td class="codeLine">    return false;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">102</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">102</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">103</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">103</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">104</td>
+    <td class="codeLine">  // Convert vector arguments to scalar type and check that</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">104</td>
+    <td class="codeLine">  // Convert vector arguments to scalar type and check that</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">105</td>
+    <td class="codeLine">  // all vector operands have identical vector width.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">105</td>
+    <td class="codeLine">  // all vector operands have identical vector width.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">106</td>
+    <td class="codeLine coveredLine">  ElementCount VF = ElementCount::getFixed(0);</td>
+    <td class="lineNumber">3</td>
+    <td class="lineNumber">106</td>
+    <td class="codeLine">  ElementCount VF = ElementCount::getFixed(0);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">107</td>
+    <td class="codeLine coveredLine">  SmallVector<Type *> ScalarTypes;</td>
+    <td class="lineNumber">3</td>
+    <td class="lineNumber">107</td>
+    <td class="codeLine">  SmallVector<Type *> ScalarTypes;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">108</td>
+    <td class="codeLine coveredLine">  for (auto Arg : enumerate(CI.args())) {</td>
+    <td class="lineNumber">3</td>
+    <td class="lineNumber">108</td>
+    <td class="codeLine">  for (auto Arg : enumerate(CI.args())) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">109</td>
+    <td class="codeLine coveredLine">    auto *ArgType = Arg.value()->getType();</td>
+    <td class="lineNumber">3</td>
+    <td class="lineNumber">109</td>
+    <td class="codeLine">    auto *ArgType = Arg.value()->getType();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">110</td>
+    <td class="codeLine">    // Vector calls to intrinsics can still have</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">110</td>
+    <td class="codeLine">    // Vector calls to intrinsics can still have</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">111</td>
+    <td class="codeLine">    // scalar operands for specific arguments.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">111</td>
+    <td class="codeLine">    // scalar operands for specific arguments.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">112</td>
+    <td class="codeLine coveredLine">    if (isVectorIntrinsicWithScalarOpAtArg(IntrinsicID, Arg.index())) {</td>
+    <td class="lineNumber">3</td>
+    <td class="lineNumber">112</td>
+    <td class="codeLine">    if (isVectorIntrinsicWithScalarOpAtArg(IntrinsicID, Arg.index())) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">113</td>
+    <td class="codeLine">      ScalarTypes.push_back(ArgType);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">113</td>
+    <td class="codeLine">      ScalarTypes.push_back(ArgType);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">114</td>
+    <td class="codeLine">    } else {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">114</td>
+    <td class="codeLine">    } else {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">115</td>
+    <td class="codeLine">      // The argument in this place should be a vector if</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">115</td>
+    <td class="codeLine">      // The argument in this place should be a vector if</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">116</td>
+    <td class="codeLine">      // this is a call to a vector intrinsic.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">116</td>
+    <td class="codeLine">      // this is a call to a vector intrinsic.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">117</td>
+    <td class="codeLine coveredLine">      auto *VectorArgTy = dyn_cast<VectorType>(ArgType);</td>
+    <td class="lineNumber">3</td>
+    <td class="lineNumber">117</td>
+    <td class="codeLine">      auto *VectorArgTy = dyn_cast<VectorType>(ArgType);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">118</td>
+    <td class="codeLine coveredLine">      if (!VectorArgTy) {</td>
+    <td class="lineNumber">3</td>
+    <td class="lineNumber">118</td>
+    <td class="codeLine">      if (!VectorArgTy) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">119</td>
+    <td class="codeLine">        // The argument is not a vector, do not perform</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">119</td>
+    <td class="codeLine">        // The argument is not a vector, do not perform</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">120</td>
+    <td class="codeLine">        // the replacement.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">120</td>
+    <td class="codeLine">        // the replacement.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">121</td>
+    <td class="codeLine coveredLine">        return false;</td>
+    <td class="lineNumber">3</td>
+    <td class="lineNumber">121</td>
+    <td class="codeLine">        return false;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">122</td>
+    <td class="codeLine">      }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">122</td>
+    <td class="codeLine">      }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">123</td>
+    <td class="codeLine">      ElementCount NumElements = VectorArgTy->getElementCount();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">123</td>
+    <td class="codeLine">      ElementCount NumElements = VectorArgTy->getElementCount();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">124</td>
+    <td class="codeLine">      if (NumElements.isScalable()) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">124</td>
+    <td class="codeLine">      if (NumElements.isScalable()) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">125</td>
+    <td class="codeLine">        // The current implementation does not support</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">125</td>
+    <td class="codeLine">        // The current implementation does not support</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">126</td>
+    <td class="codeLine">        // scalable vectors.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">126</td>
+    <td class="codeLine">        // scalable vectors.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">127</td>
+    <td class="codeLine">        return false;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">127</td>
+    <td class="codeLine">        return false;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">128</td>
+    <td class="codeLine">      }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">128</td>
+    <td class="codeLine">      }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">129</td>
+    <td class="codeLine">      if (VF.isNonZero() && VF != NumElements) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">129</td>
+    <td class="codeLine">      if (VF.isNonZero() && VF != NumElements) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">130</td>
+    <td class="codeLine">        // The different arguments differ in vector size.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">130</td>
+    <td class="codeLine">        // The different arguments differ in vector size.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">131</td>
+    <td class="codeLine">        return false;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">131</td>
+    <td class="codeLine">        return false;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">132</td>
+    <td class="codeLine">      } else {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">132</td>
+    <td class="codeLine">      } else {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">133</td>
+    <td class="codeLine">        VF = NumElements;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">133</td>
+    <td class="codeLine">        VF = NumElements;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">134</td>
+    <td class="codeLine">      }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">134</td>
+    <td class="codeLine">      }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">135</td>
+    <td class="codeLine">      ScalarTypes.push_back(VectorArgTy->getElementType());</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">135</td>
+    <td class="codeLine">      ScalarTypes.push_back(VectorArgTy->getElementType());</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">136</td>
+    <td class="codeLine">    }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">136</td>
+    <td class="codeLine">    }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">137</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">137</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">138</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">138</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">139</td>
+    <td class="codeLine">  // Try to reconstruct the name for the scalar version of this</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">139</td>
+    <td class="codeLine">  // Try to reconstruct the name for the scalar version of this</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">140</td>
+    <td class="codeLine">  // intrinsic using the intrinsic ID and the argument types</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">140</td>
+    <td class="codeLine">  // intrinsic using the intrinsic ID and the argument types</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">141</td>
+    <td class="codeLine">  // converted to scalar above.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">141</td>
+    <td class="codeLine">  // converted to scalar above.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">142</td>
+    <td class="codeLine">  std::string ScalarName;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">142</td>
+    <td class="codeLine">  std::string ScalarName;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">143</td>
+    <td class="codeLine">  if (Intrinsic::isOverloaded(IntrinsicID)) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">143</td>
+    <td class="codeLine">  if (Intrinsic::isOverloaded(IntrinsicID)) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">144</td>
+    <td class="codeLine">    ScalarName = Intrinsic::getName(IntrinsicID, ScalarTypes, CI.getModule());</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">144</td>
+    <td class="codeLine">    ScalarName = Intrinsic::getName(IntrinsicID, ScalarTypes, CI.getModule());</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">145</td>
+    <td class="codeLine">  } else {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">145</td>
+    <td class="codeLine">  } else {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">146</td>
+    <td class="codeLine">    ScalarName = Intrinsic::getName(IntrinsicID).str();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">146</td>
+    <td class="codeLine">    ScalarName = Intrinsic::getName(IntrinsicID).str();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">147</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">147</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">148</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">148</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">149</td>
+    <td class="codeLine">  if (!TLI.isFunctionVectorizable(ScalarName)) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">149</td>
+    <td class="codeLine">  if (!TLI.isFunctionVectorizable(ScalarName)) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">150</td>
+    <td class="codeLine">    // The TargetLibraryInfo does not contain a vectorized version of</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">150</td>
+    <td class="codeLine">    // The TargetLibraryInfo does not contain a vectorized version of</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">151</td>
+    <td class="codeLine">    // the scalar function.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">151</td>
+    <td class="codeLine">    // the scalar function.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">152</td>
+    <td class="codeLine">    return false;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">152</td>
+    <td class="codeLine">    return false;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">153</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">153</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">154</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">154</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">155</td>
+    <td class="codeLine">  // Try to find the mapping for the scalar version of this intrinsic</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">155</td>
+    <td class="codeLine">  // Try to find the mapping for the scalar version of this intrinsic</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">156</td>
+    <td class="codeLine">  // and the exact vector width of the call operands in the</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">156</td>
+    <td class="codeLine">  // and the exact vector width of the call operands in the</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">157</td>
+    <td class="codeLine">  // TargetLibraryInfo.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">157</td>
+    <td class="codeLine">  // TargetLibraryInfo.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">158</td>
+    <td class="codeLine">  const std::string TLIName =</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">158</td>
+    <td class="codeLine">  const std::string TLIName =</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">159</td>
+    <td class="codeLine">      std::string(TLI.getVectorizedFunction(ScalarName, VF));</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">159</td>
+    <td class="codeLine">      std::string(TLI.getVectorizedFunction(ScalarName, VF));</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">160</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">160</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">161</td>
+    <td class="codeLine">  LLVM_DEBUG(dbgs() << DEBUG_TYPE << ": Looking up TLI mapping for `"</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">161</td>
+    <td class="codeLine">  LLVM_DEBUG(dbgs() << DEBUG_TYPE << ": Looking up TLI mapping for `"</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">162</td>
+    <td class="codeLine">                    << ScalarName << "` and vector width " << VF << ".\n");</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">162</td>
+    <td class="codeLine">                    << ScalarName << "` and vector width " << VF << ".\n");</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">163</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">163</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">164</td>
+    <td class="codeLine">  if (!TLIName.empty()) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">164</td>
+    <td class="codeLine">  if (!TLIName.empty()) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">165</td>
+    <td class="codeLine">    // Found the correct mapping in the TargetLibraryInfo,</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">165</td>
+    <td class="codeLine">    // Found the correct mapping in the TargetLibraryInfo,</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">166</td>
+    <td class="codeLine">    // replace the call to the intrinsic with a call to</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">166</td>
+    <td class="codeLine">    // replace the call to the intrinsic with a call to</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">167</td>
+    <td class="codeLine">    // the vector library function.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">167</td>
+    <td class="codeLine">    // the vector library function.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">168</td>
+    <td class="codeLine">    LLVM_DEBUG(dbgs() << DEBUG_TYPE << ": Found TLI function `" << TLIName</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">168</td>
+    <td class="codeLine">    LLVM_DEBUG(dbgs() << DEBUG_TYPE << ": Found TLI function `" << TLIName</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">169</td>
+    <td class="codeLine">                      << "`.\n");</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">169</td>
+    <td class="codeLine">                      << "`.\n");</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">170</td>
+    <td class="codeLine">    return replaceWithTLIFunction(CI, TLIName);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">170</td>
+    <td class="codeLine">    return replaceWithTLIFunction(CI, TLIName);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">171</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">171</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">172</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">172</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">173</td>
+    <td class="codeLine">  return false;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">173</td>
+    <td class="codeLine">  return false;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">174</td>
+    <td class="codeLine coveredLine">}</td>
+    <td class="lineNumber">3</td>
+    <td class="lineNumber">174</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">175</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">175</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">176</td>
+    <td class="codeLine coveredLine">static bool runImpl(const TargetLibraryInfo &TLI, Function &F) {</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">176</td>
+    <td class="codeLine coveredLine">static bool runImpl(const TargetLibraryInfo &TLI, Function &F) {</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">177</td>
+    <td class="codeLine coveredLine">  bool Changed = false;</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">177</td>
+    <td class="codeLine coveredLine">  bool Changed = false;</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">178</td>
+    <td class="codeLine coveredLine">  SmallVector<CallInst *> ReplacedCalls;</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">178</td>
+    <td class="codeLine coveredLine">  SmallVector<CallInst *> ReplacedCalls;</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">179</td>
+    <td class="codeLine coveredLine">  for (auto &I : instructions(F)) {</td>
+    <td class="lineNumber">21</td>
+    <td class="lineNumber">179</td>
+    <td class="codeLine coveredLine">  for (auto &I : instructions(F)) {</td>
+    <td class="lineNumber">18</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">180</td>
+    <td class="codeLine coveredLine">    if (auto *CI = dyn_cast<CallInst>(&I)) {</td>
+    <td class="lineNumber">20</td>
+    <td class="lineNumber">180</td>
+    <td class="codeLine coveredLine">    if (auto *CI = dyn_cast<CallInst>(&I)) {</td>
+    <td class="lineNumber">17</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">181</td>
+    <td class="codeLine coveredLine">      if (replaceWithCallToVeclib(TLI, *CI)) {</td>
+    <td class="lineNumber">3</td>
+    <td class="lineNumber">181</td>
+    <td class="codeLine">      if (replaceWithCallToVeclib(TLI, *CI)) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">182</td>
+    <td class="codeLine">        ReplacedCalls.push_back(CI);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">182</td>
+    <td class="codeLine">        ReplacedCalls.push_back(CI);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">183</td>
+    <td class="codeLine">        Changed = true;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">183</td>
+    <td class="codeLine">        Changed = true;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">184</td>
+    <td class="codeLine">      }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">184</td>
+    <td class="codeLine">      }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">185</td>
+    <td class="codeLine">    }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">185</td>
+    <td class="codeLine">    }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">186</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">186</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">187</td>
+    <td class="codeLine">  // Erase the calls to the intrinsics that have been replaced</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">187</td>
+    <td class="codeLine">  // Erase the calls to the intrinsics that have been replaced</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">188</td>
+    <td class="codeLine">  // with calls to the vector library.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">188</td>
+    <td class="codeLine">  // with calls to the vector library.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">189</td>
+    <td class="codeLine coveredLine">  for (auto *CI : ReplacedCalls) {</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">189</td>
+    <td class="codeLine coveredLine">  for (auto *CI : ReplacedCalls) {</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">190</td>
+    <td class="codeLine">    CI->eraseFromParent();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">190</td>
+    <td class="codeLine">    CI->eraseFromParent();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">191</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">191</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">192</td>
+    <td class="codeLine coveredLine">  return Changed;</td>
+    <td class="lineNumber">2</td>
+    <td class="lineNumber">192</td>
+    <td class="codeLine coveredLine">  return Changed;</td>
+    <td class="lineNumber">2</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">193</td>
+    <td class="codeLine coveredLine">}</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">193</td>
+    <td class="codeLine coveredLine">}</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">194</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">194</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">195</td>
+    <td class="codeLine">////////////////////////////////////////////////////////////////////////////////</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">195</td>
+    <td class="codeLine">////////////////////////////////////////////////////////////////////////////////</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">196</td>
+    <td class="codeLine">// New pass manager implementation.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">196</td>
+    <td class="codeLine">// New pass manager implementation.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">197</td>
+    <td class="codeLine">////////////////////////////////////////////////////////////////////////////////</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">197</td>
+    <td class="codeLine">////////////////////////////////////////////////////////////////////////////////</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">198</td>
+    <td class="codeLine">PreservedAnalyses ReplaceWithVeclib::run(Function &F,</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">198</td>
+    <td class="codeLine">PreservedAnalyses ReplaceWithVeclib::run(Function &F,</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">199</td>
+    <td class="codeLine">                                         FunctionAnalysisManager &AM) {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">199</td>
+    <td class="codeLine">                                         FunctionAnalysisManager &AM) {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">200</td>
+    <td class="codeLine">  const TargetLibraryInfo &TLI = AM.getResult<TargetLibraryAnalysis>(F);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">200</td>
+    <td class="codeLine">  const TargetLibraryInfo &TLI = AM.getResult<TargetLibraryAnalysis>(F);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">201</td>
+    <td class="codeLine">  auto Changed = runImpl(TLI, F);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">201</td>
+    <td class="codeLine">  auto Changed = runImpl(TLI, F);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">202</td>
+    <td class="codeLine">  if (Changed) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">202</td>
+    <td class="codeLine">  if (Changed) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">203</td>
+    <td class="codeLine">    PreservedAnalyses PA;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">203</td>
+    <td class="codeLine">    PreservedAnalyses PA;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">204</td>
+    <td class="codeLine">    PA.preserveSet<CFGAnalyses>();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">204</td>
+    <td class="codeLine">    PA.preserveSet<CFGAnalyses>();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">205</td>
+    <td class="codeLine">    PA.preserve<TargetLibraryAnalysis>();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">205</td>
+    <td class="codeLine">    PA.preserve<TargetLibraryAnalysis>();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">206</td>
+    <td class="codeLine">    PA.preserve<ScalarEvolutionAnalysis>();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">206</td>
+    <td class="codeLine">    PA.preserve<ScalarEvolutionAnalysis>();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">207</td>
+    <td class="codeLine">    PA.preserve<LoopAccessAnalysis>();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">207</td>
+    <td class="codeLine">    PA.preserve<LoopAccessAnalysis>();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">208</td>
+    <td class="codeLine">    PA.preserve<DemandedBitsAnalysis>();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">208</td>
+    <td class="codeLine">    PA.preserve<DemandedBitsAnalysis>();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">209</td>
+    <td class="codeLine">    PA.preserve<OptimizationRemarkEmitterAnalysis>();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">209</td>
+    <td class="codeLine">    PA.preserve<OptimizationRemarkEmitterAnalysis>();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">210</td>
+    <td class="codeLine">    return PA;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">210</td>
+    <td class="codeLine">    return PA;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">211</td>
+    <td class="codeLine">  } else {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">211</td>
+    <td class="codeLine">  } else {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">212</td>
+    <td class="codeLine">    // The pass did not replace any calls, hence it preserves all analyses.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">212</td>
+    <td class="codeLine">    // The pass did not replace any calls, hence it preserves all analyses.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">213</td>
+    <td class="codeLine">    return PreservedAnalyses::all();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">213</td>
+    <td class="codeLine">    return PreservedAnalyses::all();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">214</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">214</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">215</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">215</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">216</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">216</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">217</td>
+    <td class="codeLine">////////////////////////////////////////////////////////////////////////////////</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">217</td>
+    <td class="codeLine">////////////////////////////////////////////////////////////////////////////////</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">218</td>
+    <td class="codeLine">// Legacy PM Implementation.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">218</td>
+    <td class="codeLine">// Legacy PM Implementation.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">219</td>
+    <td class="codeLine">////////////////////////////////////////////////////////////////////////////////</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">219</td>
+    <td class="codeLine">////////////////////////////////////////////////////////////////////////////////</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">220</td>
+    <td class="codeLine coveredLine">bool ReplaceWithVeclibLegacy::runOnFunction(Function &F) {</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">220</td>
+    <td class="codeLine coveredLine">bool ReplaceWithVeclibLegacy::runOnFunction(Function &F) {</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">221</td>
+    <td class="codeLine">  const TargetLibraryInfo &TLI =</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">221</td>
+    <td class="codeLine">  const TargetLibraryInfo &TLI =</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">222</td>
+    <td class="codeLine coveredLine">      getAnalysis<TargetLibraryInfoWrapperPass>().getTLI(F);</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">222</td>
+    <td class="codeLine coveredLine">      getAnalysis<TargetLibraryInfoWrapperPass>().getTLI(F);</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">223</td>
+    <td class="codeLine coveredLine">  return runImpl(TLI, F);</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">223</td>
+    <td class="codeLine coveredLine">  return runImpl(TLI, F);</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">224</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">224</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">225</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">225</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">226</td>
+    <td class="codeLine coveredLine">void ReplaceWithVeclibLegacy::getAnalysisUsage(AnalysisUsage &AU) const {</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">226</td>
+    <td class="codeLine coveredLine">void ReplaceWithVeclibLegacy::getAnalysisUsage(AnalysisUsage &AU) const {</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">227</td>
+    <td class="codeLine coveredLine">  AU.setPreservesCFG();</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">227</td>
+    <td class="codeLine coveredLine">  AU.setPreservesCFG();</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">228</td>
+    <td class="codeLine coveredLine">  AU.addRequired<TargetLibraryInfoWrapperPass>();</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">228</td>
+    <td class="codeLine coveredLine">  AU.addRequired<TargetLibraryInfoWrapperPass>();</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">229</td>
+    <td class="codeLine coveredLine">  AU.addPreserved<TargetLibraryInfoWrapperPass>();</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">229</td>
+    <td class="codeLine coveredLine">  AU.addPreserved<TargetLibraryInfoWrapperPass>();</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">230</td>
+    <td class="codeLine coveredLine">  AU.addPreserved<ScalarEvolutionWrapperPass>();</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">230</td>
+    <td class="codeLine coveredLine">  AU.addPreserved<ScalarEvolutionWrapperPass>();</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">231</td>
+    <td class="codeLine coveredLine">  AU.addPreserved<AAResultsWrapperPass>();</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">231</td>
+    <td class="codeLine coveredLine">  AU.addPreserved<AAResultsWrapperPass>();</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">232</td>
+    <td class="codeLine coveredLine">  AU.addPreserved<OptimizationRemarkEmitterWrapperPass>();</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">232</td>
+    <td class="codeLine coveredLine">  AU.addPreserved<OptimizationRemarkEmitterWrapperPass>();</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">233</td>
+    <td class="codeLine coveredLine">  AU.addPreserved<GlobalsAAWrapperPass>();</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">233</td>
+    <td class="codeLine coveredLine">  AU.addPreserved<GlobalsAAWrapperPass>();</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">234</td>
+    <td class="codeLine coveredLine">}</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">234</td>
+    <td class="codeLine coveredLine">}</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">235</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">235</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">236</td>
+    <td class="codeLine">////////////////////////////////////////////////////////////////////////////////</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">236</td>
+    <td class="codeLine">////////////////////////////////////////////////////////////////////////////////</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">237</td>
+    <td class="codeLine">// Legacy Pass manager initialization</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">237</td>
+    <td class="codeLine">// Legacy Pass manager initialization</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">238</td>
+    <td class="codeLine">////////////////////////////////////////////////////////////////////////////////</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">238</td>
+    <td class="codeLine">////////////////////////////////////////////////////////////////////////////////</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">239</td>
+    <td class="codeLine">char ReplaceWithVeclibLegacy::ID = 0;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">239</td>
+    <td class="codeLine">char ReplaceWithVeclibLegacy::ID = 0;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">240</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">240</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">241</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_BEGIN(ReplaceWithVeclibLegacy, DEBUG_TYPE,</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">241</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_BEGIN(ReplaceWithVeclibLegacy, DEBUG_TYPE,</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">242</td>
+    <td class="codeLine">                      "Replace intrinsics with calls to vector library", false,</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">242</td>
+    <td class="codeLine">                      "Replace intrinsics with calls to vector library", false,</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">243</td>
+    <td class="codeLine">                      false)</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">243</td>
+    <td class="codeLine">                      false)</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">244</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_DEPENDENCY(TargetLibraryInfoWrapperPass)</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">244</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_DEPENDENCY(TargetLibraryInfoWrapperPass)</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">245</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_END(ReplaceWithVeclibLegacy, DEBUG_TYPE,</td>
+    <td class="lineNumber">3</td>
+    <td class="lineNumber">245</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_END(ReplaceWithVeclibLegacy, DEBUG_TYPE,</td>
+    <td class="lineNumber">3</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">246</td>
+    <td class="codeLine">                    "Replace intrinsics with calls to vector library", false,</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">246</td>
+    <td class="codeLine">                    "Replace intrinsics with calls to vector library", false,</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">247</td>
+    <td class="codeLine">                    false)</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">247</td>
+    <td class="codeLine">                    false)</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">248</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">248</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">249</td>
+    <td class="codeLine coveredLine">FunctionPass *llvm::createReplaceWithVeclibLegacyPass() {</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">249</td>
+    <td class="codeLine coveredLine">FunctionPass *llvm::createReplaceWithVeclibLegacyPass() {</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">250</td>
+    <td class="codeLine coveredLine">  return new ReplaceWithVeclibLegacy();</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">250</td>
+    <td class="codeLine coveredLine">  return new ReplaceWithVeclibLegacy();</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">251</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">251</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">252</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">252</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+</table>
+    </div>
+    <button id="myBtn" onclick="topFunction()" title="Go to top" type="button">Top</button>
+    <script src="../Javascript/drop_down.js"></script>
+    <script src="../Javascript/top_button.js"></script>
+  </body>
+</html>

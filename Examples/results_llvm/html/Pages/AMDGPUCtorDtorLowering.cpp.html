@@ -1,0 +1,3579 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>AMDGPUCtorDtorLowering.cpp</title>
+    <link rel="stylesheet" href="../Style/style.css" />
+  </head>
+  <body>
+    <div class="headerDiv">
+      <h1>
+        Code Coverage
+      </h1>
+      <p>
+        Source file: /home/nikola/Desktop/llvm-project/llvm/lib/Target/AMDGPU/AMDGPUCtorDtorLowering.cpp
+      </p>
+    </div>
+    <button class="collapsible" type="button">Open Summary Report</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Summary Report</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line number</th>
+    <th class="mainTh">Line</th>
+    <th class="mainTh">Number of hits</th>
+    <th class="mainTh">Tests that cover line</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="">//===-- AMDGPUCtorDtorLowering.cpp - Handle global ctors and dtors --------===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="">//===----------------------------------------------------------------------===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="">///</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="">/// \file</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="">/// This pass creates a unified init and fini kernel with the required metadata</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="">//===----------------------------------------------------------------------===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class="">#include "AMDGPUCtorDtorLowering.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class="">#include "AMDGPU.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class="">#include "llvm/IR/Constants.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class="">#include "llvm/IR/Function.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class="">#include "llvm/IR/GlobalVariable.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class="">#include "llvm/IR/IRBuilder.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class="">#include "llvm/IR/Module.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class="">#include "llvm/IR/Value.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class="">#include "llvm/Pass.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class="">#include "llvm/Transforms/Utils/ModuleUtils.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class="">using namespace llvm;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class="">#define DEBUG_TYPE "amdgpu-lower-ctor-dtor"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class="">namespace {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class="uncoveredLine">static Function *createInitOrFiniKernelFunction(Module &M, bool IsCtor) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class="uncoveredLine">  StringRef InitOrFiniKernelName = "amdgcn.device.init";</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class="uncoveredLine">  if (!IsCtor)</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class="uncoveredLine">    InitOrFiniKernelName = "amdgcn.device.fini";</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class="uncoveredLine">  if (M.getFunction(InitOrFiniKernelName))</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class="uncoveredLine">    return nullptr;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class="uncoveredLine">  Function *InitOrFiniKernel = Function::createWithDefaultAttr(</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class="">      FunctionType::get(Type::getVoidTy(M.getContext()), false),</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class="">      GlobalValue::WeakODRLinkage, 0, InitOrFiniKernelName, &M);</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class="uncoveredLine">  InitOrFiniKernel->setCallingConv(CallingConv::AMDGPU_KERNEL);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class="uncoveredLine">  InitOrFiniKernel->addFnAttr("amdgpu-flat-work-group-size", "1,1");</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class="uncoveredLine">  if (IsCtor)</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class="uncoveredLine">    InitOrFiniKernel->addFnAttr("device-init");</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class="">  else</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class="uncoveredLine">    InitOrFiniKernel->addFnAttr("device-fini");</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class="uncoveredLine">  return InitOrFiniKernel;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class="">}</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class="">// The linker will provide the associated symbols to allow us to traverse the</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class="">// global constructors / destructors in priority order. We create the IR</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class="">// required to call each callback in this section. This is equivalent to the</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class="">// following code.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class="">// extern "C" void * __init_array_start[];</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class="">// extern "C" void * __init_array_end[];</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class="">// using InitCallback = void();</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class="">// void call_init_array_callbacks() {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class="">//   for (auto start = __init_array_start; start != __init_array_end; ++start)</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class="">//     reinterpret_cast<InitCallback *>(*start)();</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class="">// }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class="uncoveredLine">static void createInitOrFiniCalls(Function &F, bool IsCtor) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class="uncoveredLine">  Module &M = *F.getParent();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class="uncoveredLine">  LLVMContext &C = M.getContext();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class="uncoveredLine">  IRBuilder<> IRB(BasicBlock::Create(C, "entry", &F));</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class="uncoveredLine">  auto *LoopBB = BasicBlock::Create(C, "while.entry", &F);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class="uncoveredLine">  auto *ExitBB = BasicBlock::Create(C, "while.end", &F);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class="uncoveredLine">  Type *PtrTy = IRB.getPtrTy(AMDGPUAS::GLOBAL_ADDRESS);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class="uncoveredLine">  auto *Begin = M.getOrInsertGlobal(</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class="">      IsCtor ? "__init_array_start" : "__fini_array_start",</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class="uncoveredLine">      ArrayType::get(PtrTy, 0), [&]() {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class="">        return new GlobalVariable(</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class="uncoveredLine">            M, ArrayType::get(PtrTy, 0),</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class="">            /*isConstant=*/true, GlobalValue::ExternalLinkage,</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class="">            /*Initializer=*/nullptr,</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class="uncoveredLine">            IsCtor ? "__init_array_start" : "__fini_array_start",</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class="">            /*InsertBefore=*/nullptr, GlobalVariable::NotThreadLocal,</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class="uncoveredLine">            /*AddressSpace=*/1);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class="">      });</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class="uncoveredLine">  auto *End = M.getOrInsertGlobal(</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class="">      IsCtor ? "__init_array_end" : "__fini_array_end",</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class="uncoveredLine">      ArrayType::get(PtrTy, 0), [&]() {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class="">        return new GlobalVariable(</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class="uncoveredLine">            M, ArrayType::get(PtrTy, 0),</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class="">            /*isConstant=*/true, GlobalValue::ExternalLinkage,</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class="">            /*Initializer=*/nullptr,</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">90</td>
+    <td class="uncoveredLine">            IsCtor ? "__init_array_end" : "__fini_array_end",</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">91</td>
+    <td class="">            /*InsertBefore=*/nullptr, GlobalVariable::NotThreadLocal,</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">92</td>
+    <td class="uncoveredLine">            /*AddressSpace=*/1);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">93</td>
+    <td class="">      });</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">94</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">95</td>
+    <td class="">  // The constructor type is suppoed to allow using the argument vectors, but</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">96</td>
+    <td class="">  // for now we just call them with no arguments.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">97</td>
+    <td class="uncoveredLine">  auto *CallBackTy = FunctionType::get(IRB.getVoidTy(), {});</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">98</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">99</td>
+    <td class="uncoveredLine">  IRB.CreateCondBr(IRB.CreateICmpNE(Begin, End), LoopBB, ExitBB);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">100</td>
+    <td class="uncoveredLine">  IRB.SetInsertPoint(LoopBB);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">101</td>
+    <td class="uncoveredLine">  auto *CallBackPHI = IRB.CreatePHI(PtrTy, 2, "ptr");</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">102</td>
+    <td class="uncoveredLine">  auto *CallBack = IRB.CreateLoad(CallBackTy->getPointerTo(F.getAddressSpace()),</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">103</td>
+    <td class="">                                  CallBackPHI, "callback");</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">104</td>
+    <td class="uncoveredLine">  IRB.CreateCall(CallBackTy, CallBack);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">105</td>
+    <td class="uncoveredLine">  auto *NewCallBack = IRB.CreateConstGEP1_64(PtrTy, CallBackPHI, 1, "next");</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">106</td>
+    <td class="uncoveredLine">  auto *EndCmp = IRB.CreateICmpEQ(NewCallBack, End, "end");</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">107</td>
+    <td class="uncoveredLine">  CallBackPHI->addIncoming(Begin, &F.getEntryBlock());</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">108</td>
+    <td class="uncoveredLine">  CallBackPHI->addIncoming(NewCallBack, LoopBB);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">109</td>
+    <td class="uncoveredLine">  IRB.CreateCondBr(EndCmp, ExitBB, LoopBB);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">110</td>
+    <td class="uncoveredLine">  IRB.SetInsertPoint(ExitBB);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">111</td>
+    <td class="uncoveredLine">  IRB.CreateRetVoid();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">112</td>
+    <td class="uncoveredLine">}</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">113</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">114</td>
+    <td class="uncoveredLine">static bool createInitOrFiniKernel(Module &M, StringRef GlobalName,</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">115</td>
+    <td class="">                                   bool IsCtor) {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">116</td>
+    <td class="uncoveredLine">  GlobalVariable *GV = M.getGlobalVariable(GlobalName);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">117</td>
+    <td class="uncoveredLine">  if (!GV || !GV->hasInitializer())</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">118</td>
+    <td class="uncoveredLine">    return false;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">119</td>
+    <td class="uncoveredLine">  ConstantArray *GA = dyn_cast<ConstantArray>(GV->getInitializer());</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">120</td>
+    <td class="uncoveredLine">  if (!GA || GA->getNumOperands() == 0)</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">121</td>
+    <td class="uncoveredLine">    return false;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">122</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">123</td>
+    <td class="uncoveredLine">  Function *InitOrFiniKernel = createInitOrFiniKernelFunction(M, IsCtor);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">124</td>
+    <td class="uncoveredLine">  if (!InitOrFiniKernel)</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">125</td>
+    <td class="uncoveredLine">    return false;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">126</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">127</td>
+    <td class="uncoveredLine">  createInitOrFiniCalls(*InitOrFiniKernel, IsCtor);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">128</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">129</td>
+    <td class="uncoveredLine">  appendToUsed(M, {InitOrFiniKernel});</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">130</td>
+    <td class="uncoveredLine">  return true;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">131</td>
+    <td class="">}</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">132</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">133</td>
+    <td class="uncoveredLine">static bool lowerCtorsAndDtors(Module &M) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">134</td>
+    <td class="uncoveredLine">  bool Modified = false;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">135</td>
+    <td class="uncoveredLine">  Modified |= createInitOrFiniKernel(M, "llvm.global_ctors", /*IsCtor =*/true);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">136</td>
+    <td class="uncoveredLine">  Modified |= createInitOrFiniKernel(M, "llvm.global_dtors", /*IsCtor =*/false);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">137</td>
+    <td class="uncoveredLine">  return Modified;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">138</td>
+    <td class="">}</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">139</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">140</td>
+    <td class="">class AMDGPUCtorDtorLoweringLegacy final : public ModulePass {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">141</td>
+    <td class="">public:</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">142</td>
+    <td class="">  static char ID;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">143</td>
+    <td class="uncoveredLine">  AMDGPUCtorDtorLoweringLegacy() : ModulePass(ID) {}</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">144</td>
+    <td class="uncoveredLine">  bool runOnModule(Module &M) override { return lowerCtorsAndDtors(M); }</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">145</td>
+    <td class="">};</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">146</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">147</td>
+    <td class="">} // End anonymous namespace</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">148</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">149</td>
+    <td class="uncoveredLine">PreservedAnalyses AMDGPUCtorDtorLoweringPass::run(Module &M,</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">150</td>
+    <td class="">                                                  ModuleAnalysisManager &AM) {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">151</td>
+    <td class="uncoveredLine">  return lowerCtorsAndDtors(M) ? PreservedAnalyses::none()</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">152</td>
+    <td class="uncoveredLine">                               : PreservedAnalyses::all();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">153</td>
+    <td class="">}</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">154</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">155</td>
+    <td class="">char AMDGPUCtorDtorLoweringLegacy::ID = 0;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">156</td>
+    <td class="">char &llvm::AMDGPUCtorDtorLoweringLegacyPassID =</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">157</td>
+    <td class="">    AMDGPUCtorDtorLoweringLegacy::ID;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">158</td>
+    <td class="coveredLine">INITIALIZE_PASS(AMDGPUCtorDtorLoweringLegacy, DEBUG_TYPE,</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">159</td>
+    <td class="">                "Lower ctors and dtors for AMDGPU", false, false)</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">160</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">161</td>
+    <td class="uncoveredLine">ModulePass *llvm::createAMDGPUCtorDtorLoweringLegacyPass() {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">162</td>
+    <td class="uncoveredLine">  return new AMDGPUCtorDtorLoweringLegacy();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">163</td>
+    <td class="">}</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">164</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Functions Report</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Functions Report</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Function name</th>
+    <th class="mainTh">Number of hits</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_1L30createInitOrFiniKernelFunctionERN4llvm6ModuleEb</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_1L21createInitOrFiniCallsERN4llvm8FunctionEb</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZZN12_GLOBAL__N_1L21createInitOrFiniCallsERN4llvm8FunctionEbENKUlvE_clEv</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZZN12_GLOBAL__N_1L21createInitOrFiniCallsERN4llvm8FunctionEbENKUlvE0_clEv</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_1L22createInitOrFiniKernelERN4llvm6ModuleENS0_9StringRefEb</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_1L18lowerCtorsAndDtorsERN4llvm6ModuleE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_128AMDGPUCtorDtorLoweringLegacyC2Ev</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_128AMDGPUCtorDtorLoweringLegacy11runOnModuleERN4llvm6ModuleE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN4llvm26AMDGPUCtorDtorLoweringPass3runERNS_6ModuleERNS_15AnalysisManagerIS1_JEEE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN4llvm42initializeAMDGPUCtorDtorLoweringLegacyPassERNS_12PassRegistryE</td>
+    <td class="numberOfCalls">2</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZL46initializeAMDGPUCtorDtorLoweringLegacyPassOnceRN4llvm12PassRegistryE</td>
+    <td class="numberOfCalls">2</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN4llvm38createAMDGPUCtorDtorLoweringLegacyPassEv</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Coverage Diff</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Coverage Diff</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span> BUT NOT </span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </th>
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+      <span> BUT NOT </span>
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+    </th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="codeline">//===-- AMDGPUCtorDtorLowering.cpp - Handle global ctors and dtors --------===//</td>
+    <td class="lineNumber">1</td>
+    <td class="codeline">//===-- AMDGPUCtorDtorLowering.cpp - Handle global ctors and dtors --------===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">2</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="codeline">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">3</td>
+    <td class="codeline">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="codeline">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">4</td>
+    <td class="codeline">// See https://llvm.org/LICENSE.txt for license information.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="codeline">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">5</td>
+    <td class="codeline">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">6</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">7</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="codeline">///</td>
+    <td class="lineNumber">8</td>
+    <td class="codeline">///</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="codeline">/// \file</td>
+    <td class="lineNumber">9</td>
+    <td class="codeline">/// \file</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="codeline">/// This pass creates a unified init and fini kernel with the required metadata</td>
+    <td class="lineNumber">10</td>
+    <td class="codeline">/// This pass creates a unified init and fini kernel with the required metadata</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">11</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">12</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class="codeline">#include "AMDGPUCtorDtorLowering.h"</td>
+    <td class="lineNumber">13</td>
+    <td class="codeline">#include "AMDGPUCtorDtorLowering.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class="codeline">#include "AMDGPU.h"</td>
+    <td class="lineNumber">14</td>
+    <td class="codeline">#include "AMDGPU.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class="codeline">#include "llvm/IR/Constants.h"</td>
+    <td class="lineNumber">15</td>
+    <td class="codeline">#include "llvm/IR/Constants.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class="codeline">#include "llvm/IR/Function.h"</td>
+    <td class="lineNumber">16</td>
+    <td class="codeline">#include "llvm/IR/Function.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class="codeline">#include "llvm/IR/GlobalVariable.h"</td>
+    <td class="lineNumber">17</td>
+    <td class="codeline">#include "llvm/IR/GlobalVariable.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class="codeline">#include "llvm/IR/IRBuilder.h"</td>
+    <td class="lineNumber">18</td>
+    <td class="codeline">#include "llvm/IR/IRBuilder.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class="codeline">#include "llvm/IR/Module.h"</td>
+    <td class="lineNumber">19</td>
+    <td class="codeline">#include "llvm/IR/Module.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class="codeline">#include "llvm/IR/Value.h"</td>
+    <td class="lineNumber">20</td>
+    <td class="codeline">#include "llvm/IR/Value.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class="codeline">#include "llvm/Pass.h"</td>
+    <td class="lineNumber">21</td>
+    <td class="codeline">#include "llvm/Pass.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class="codeline">#include "llvm/Transforms/Utils/ModuleUtils.h"</td>
+    <td class="lineNumber">22</td>
+    <td class="codeline">#include "llvm/Transforms/Utils/ModuleUtils.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">23</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class="codeline">using namespace llvm;</td>
+    <td class="lineNumber">24</td>
+    <td class="codeline">using namespace llvm;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">25</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class="codeline">#define DEBUG_TYPE "amdgpu-lower-ctor-dtor"</td>
+    <td class="lineNumber">26</td>
+    <td class="codeline">#define DEBUG_TYPE "amdgpu-lower-ctor-dtor"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">27</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class="codeline">namespace {</td>
+    <td class="lineNumber">28</td>
+    <td class="codeline">namespace {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">29</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class="codeline">static Function *createInitOrFiniKernelFunction(Module &M, bool IsCtor) {</td>
+    <td class="lineNumber">30</td>
+    <td class="codeline">static Function *createInitOrFiniKernelFunction(Module &M, bool IsCtor) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class="codeline">  StringRef InitOrFiniKernelName = "amdgcn.device.init";</td>
+    <td class="lineNumber">31</td>
+    <td class="codeline">  StringRef InitOrFiniKernelName = "amdgcn.device.init";</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class="codeline">  if (!IsCtor)</td>
+    <td class="lineNumber">32</td>
+    <td class="codeline">  if (!IsCtor)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class="codeline">    InitOrFiniKernelName = "amdgcn.device.fini";</td>
+    <td class="lineNumber">33</td>
+    <td class="codeline">    InitOrFiniKernelName = "amdgcn.device.fini";</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class="codeline">  if (M.getFunction(InitOrFiniKernelName))</td>
+    <td class="lineNumber">34</td>
+    <td class="codeline">  if (M.getFunction(InitOrFiniKernelName))</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class="codeline">    return nullptr;</td>
+    <td class="lineNumber">35</td>
+    <td class="codeline">    return nullptr;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">36</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class="codeline">  Function *InitOrFiniKernel = Function::createWithDefaultAttr(</td>
+    <td class="lineNumber">37</td>
+    <td class="codeline">  Function *InitOrFiniKernel = Function::createWithDefaultAttr(</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class="codeline">      FunctionType::get(Type::getVoidTy(M.getContext()), false),</td>
+    <td class="lineNumber">38</td>
+    <td class="codeline">      FunctionType::get(Type::getVoidTy(M.getContext()), false),</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class="codeline">      GlobalValue::WeakODRLinkage, 0, InitOrFiniKernelName, &M);</td>
+    <td class="lineNumber">39</td>
+    <td class="codeline">      GlobalValue::WeakODRLinkage, 0, InitOrFiniKernelName, &M);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class="codeline">  InitOrFiniKernel->setCallingConv(CallingConv::AMDGPU_KERNEL);</td>
+    <td class="lineNumber">40</td>
+    <td class="codeline">  InitOrFiniKernel->setCallingConv(CallingConv::AMDGPU_KERNEL);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class="codeline">  InitOrFiniKernel->addFnAttr("amdgpu-flat-work-group-size", "1,1");</td>
+    <td class="lineNumber">41</td>
+    <td class="codeline">  InitOrFiniKernel->addFnAttr("amdgpu-flat-work-group-size", "1,1");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class="codeline">  if (IsCtor)</td>
+    <td class="lineNumber">42</td>
+    <td class="codeline">  if (IsCtor)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class="codeline">    InitOrFiniKernel->addFnAttr("device-init");</td>
+    <td class="lineNumber">43</td>
+    <td class="codeline">    InitOrFiniKernel->addFnAttr("device-init");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class="codeline">  else</td>
+    <td class="lineNumber">44</td>
+    <td class="codeline">  else</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class="codeline">    InitOrFiniKernel->addFnAttr("device-fini");</td>
+    <td class="lineNumber">45</td>
+    <td class="codeline">    InitOrFiniKernel->addFnAttr("device-fini");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class="codeline">  return InitOrFiniKernel;</td>
+    <td class="lineNumber">46</td>
+    <td class="codeline">  return InitOrFiniKernel;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">47</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">48</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class="codeline">// The linker will provide the associated symbols to allow us to traverse the</td>
+    <td class="lineNumber">49</td>
+    <td class="codeline">// The linker will provide the associated symbols to allow us to traverse the</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class="codeline">// global constructors / destructors in priority order. We create the IR</td>
+    <td class="lineNumber">50</td>
+    <td class="codeline">// global constructors / destructors in priority order. We create the IR</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class="codeline">// required to call each callback in this section. This is equivalent to the</td>
+    <td class="lineNumber">51</td>
+    <td class="codeline">// required to call each callback in this section. This is equivalent to the</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class="codeline">// following code.</td>
+    <td class="lineNumber">52</td>
+    <td class="codeline">// following code.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">53</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class="codeline">// extern "C" void * __init_array_start[];</td>
+    <td class="lineNumber">54</td>
+    <td class="codeline">// extern "C" void * __init_array_start[];</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class="codeline">// extern "C" void * __init_array_end[];</td>
+    <td class="lineNumber">55</td>
+    <td class="codeline">// extern "C" void * __init_array_end[];</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">56</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class="codeline">// using InitCallback = void();</td>
+    <td class="lineNumber">57</td>
+    <td class="codeline">// using InitCallback = void();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">58</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class="codeline">// void call_init_array_callbacks() {</td>
+    <td class="lineNumber">59</td>
+    <td class="codeline">// void call_init_array_callbacks() {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class="codeline">//   for (auto start = __init_array_start; start != __init_array_end; ++start)</td>
+    <td class="lineNumber">60</td>
+    <td class="codeline">//   for (auto start = __init_array_start; start != __init_array_end; ++start)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class="codeline">//     reinterpret_cast<InitCallback *>(*start)();</td>
+    <td class="lineNumber">61</td>
+    <td class="codeline">//     reinterpret_cast<InitCallback *>(*start)();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class="codeline">// }</td>
+    <td class="lineNumber">62</td>
+    <td class="codeline">// }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class="codeline">static void createInitOrFiniCalls(Function &F, bool IsCtor) {</td>
+    <td class="lineNumber">63</td>
+    <td class="codeline">static void createInitOrFiniCalls(Function &F, bool IsCtor) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class="codeline">  Module &M = *F.getParent();</td>
+    <td class="lineNumber">64</td>
+    <td class="codeline">  Module &M = *F.getParent();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class="codeline">  LLVMContext &C = M.getContext();</td>
+    <td class="lineNumber">65</td>
+    <td class="codeline">  LLVMContext &C = M.getContext();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">66</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class="codeline">  IRBuilder<> IRB(BasicBlock::Create(C, "entry", &F));</td>
+    <td class="lineNumber">67</td>
+    <td class="codeline">  IRBuilder<> IRB(BasicBlock::Create(C, "entry", &F));</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class="codeline">  auto *LoopBB = BasicBlock::Create(C, "while.entry", &F);</td>
+    <td class="lineNumber">68</td>
+    <td class="codeline">  auto *LoopBB = BasicBlock::Create(C, "while.entry", &F);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class="codeline">  auto *ExitBB = BasicBlock::Create(C, "while.end", &F);</td>
+    <td class="lineNumber">69</td>
+    <td class="codeline">  auto *ExitBB = BasicBlock::Create(C, "while.end", &F);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class="codeline">  Type *PtrTy = IRB.getPtrTy(AMDGPUAS::GLOBAL_ADDRESS);</td>
+    <td class="lineNumber">70</td>
+    <td class="codeline">  Type *PtrTy = IRB.getPtrTy(AMDGPUAS::GLOBAL_ADDRESS);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">71</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class="codeline">  auto *Begin = M.getOrInsertGlobal(</td>
+    <td class="lineNumber">72</td>
+    <td class="codeline">  auto *Begin = M.getOrInsertGlobal(</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class="codeline">      IsCtor ? "__init_array_start" : "__fini_array_start",</td>
+    <td class="lineNumber">73</td>
+    <td class="codeline">      IsCtor ? "__init_array_start" : "__fini_array_start",</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class="codeline">      ArrayType::get(PtrTy, 0), [&]() {</td>
+    <td class="lineNumber">74</td>
+    <td class="codeline">      ArrayType::get(PtrTy, 0), [&]() {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class="codeline">        return new GlobalVariable(</td>
+    <td class="lineNumber">75</td>
+    <td class="codeline">        return new GlobalVariable(</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class="codeline">            M, ArrayType::get(PtrTy, 0),</td>
+    <td class="lineNumber">76</td>
+    <td class="codeline">            M, ArrayType::get(PtrTy, 0),</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class="codeline">            /*isConstant=*/true, GlobalValue::ExternalLinkage,</td>
+    <td class="lineNumber">77</td>
+    <td class="codeline">            /*isConstant=*/true, GlobalValue::ExternalLinkage,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class="codeline">            /*Initializer=*/nullptr,</td>
+    <td class="lineNumber">78</td>
+    <td class="codeline">            /*Initializer=*/nullptr,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class="codeline">            IsCtor ? "__init_array_start" : "__fini_array_start",</td>
+    <td class="lineNumber">79</td>
+    <td class="codeline">            IsCtor ? "__init_array_start" : "__fini_array_start",</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class="codeline">            /*InsertBefore=*/nullptr, GlobalVariable::NotThreadLocal,</td>
+    <td class="lineNumber">80</td>
+    <td class="codeline">            /*InsertBefore=*/nullptr, GlobalVariable::NotThreadLocal,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class="codeline">            /*AddressSpace=*/1);</td>
+    <td class="lineNumber">81</td>
+    <td class="codeline">            /*AddressSpace=*/1);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class="codeline">      });</td>
+    <td class="lineNumber">82</td>
+    <td class="codeline">      });</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class="codeline">  auto *End = M.getOrInsertGlobal(</td>
+    <td class="lineNumber">83</td>
+    <td class="codeline">  auto *End = M.getOrInsertGlobal(</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class="codeline">      IsCtor ? "__init_array_end" : "__fini_array_end",</td>
+    <td class="lineNumber">84</td>
+    <td class="codeline">      IsCtor ? "__init_array_end" : "__fini_array_end",</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class="codeline">      ArrayType::get(PtrTy, 0), [&]() {</td>
+    <td class="lineNumber">85</td>
+    <td class="codeline">      ArrayType::get(PtrTy, 0), [&]() {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class="codeline">        return new GlobalVariable(</td>
+    <td class="lineNumber">86</td>
+    <td class="codeline">        return new GlobalVariable(</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class="codeline">            M, ArrayType::get(PtrTy, 0),</td>
+    <td class="lineNumber">87</td>
+    <td class="codeline">            M, ArrayType::get(PtrTy, 0),</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class="codeline">            /*isConstant=*/true, GlobalValue::ExternalLinkage,</td>
+    <td class="lineNumber">88</td>
+    <td class="codeline">            /*isConstant=*/true, GlobalValue::ExternalLinkage,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class="codeline">            /*Initializer=*/nullptr,</td>
+    <td class="lineNumber">89</td>
+    <td class="codeline">            /*Initializer=*/nullptr,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">90</td>
+    <td class="codeline">            IsCtor ? "__init_array_end" : "__fini_array_end",</td>
+    <td class="lineNumber">90</td>
+    <td class="codeline">            IsCtor ? "__init_array_end" : "__fini_array_end",</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">91</td>
+    <td class="codeline">            /*InsertBefore=*/nullptr, GlobalVariable::NotThreadLocal,</td>
+    <td class="lineNumber">91</td>
+    <td class="codeline">            /*InsertBefore=*/nullptr, GlobalVariable::NotThreadLocal,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">92</td>
+    <td class="codeline">            /*AddressSpace=*/1);</td>
+    <td class="lineNumber">92</td>
+    <td class="codeline">            /*AddressSpace=*/1);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">93</td>
+    <td class="codeline">      });</td>
+    <td class="lineNumber">93</td>
+    <td class="codeline">      });</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">94</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">94</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">95</td>
+    <td class="codeline">  // The constructor type is suppoed to allow using the argument vectors, but</td>
+    <td class="lineNumber">95</td>
+    <td class="codeline">  // The constructor type is suppoed to allow using the argument vectors, but</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">96</td>
+    <td class="codeline">  // for now we just call them with no arguments.</td>
+    <td class="lineNumber">96</td>
+    <td class="codeline">  // for now we just call them with no arguments.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">97</td>
+    <td class="codeline">  auto *CallBackTy = FunctionType::get(IRB.getVoidTy(), {});</td>
+    <td class="lineNumber">97</td>
+    <td class="codeline">  auto *CallBackTy = FunctionType::get(IRB.getVoidTy(), {});</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">98</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">98</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">99</td>
+    <td class="codeline">  IRB.CreateCondBr(IRB.CreateICmpNE(Begin, End), LoopBB, ExitBB);</td>
+    <td class="lineNumber">99</td>
+    <td class="codeline">  IRB.CreateCondBr(IRB.CreateICmpNE(Begin, End), LoopBB, ExitBB);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">100</td>
+    <td class="codeline">  IRB.SetInsertPoint(LoopBB);</td>
+    <td class="lineNumber">100</td>
+    <td class="codeline">  IRB.SetInsertPoint(LoopBB);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">101</td>
+    <td class="codeline">  auto *CallBackPHI = IRB.CreatePHI(PtrTy, 2, "ptr");</td>
+    <td class="lineNumber">101</td>
+    <td class="codeline">  auto *CallBackPHI = IRB.CreatePHI(PtrTy, 2, "ptr");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">102</td>
+    <td class="codeline">  auto *CallBack = IRB.CreateLoad(CallBackTy->getPointerTo(F.getAddressSpace()),</td>
+    <td class="lineNumber">102</td>
+    <td class="codeline">  auto *CallBack = IRB.CreateLoad(CallBackTy->getPointerTo(F.getAddressSpace()),</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">103</td>
+    <td class="codeline">                                  CallBackPHI, "callback");</td>
+    <td class="lineNumber">103</td>
+    <td class="codeline">                                  CallBackPHI, "callback");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">104</td>
+    <td class="codeline">  IRB.CreateCall(CallBackTy, CallBack);</td>
+    <td class="lineNumber">104</td>
+    <td class="codeline">  IRB.CreateCall(CallBackTy, CallBack);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">105</td>
+    <td class="codeline">  auto *NewCallBack = IRB.CreateConstGEP1_64(PtrTy, CallBackPHI, 1, "next");</td>
+    <td class="lineNumber">105</td>
+    <td class="codeline">  auto *NewCallBack = IRB.CreateConstGEP1_64(PtrTy, CallBackPHI, 1, "next");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">106</td>
+    <td class="codeline">  auto *EndCmp = IRB.CreateICmpEQ(NewCallBack, End, "end");</td>
+    <td class="lineNumber">106</td>
+    <td class="codeline">  auto *EndCmp = IRB.CreateICmpEQ(NewCallBack, End, "end");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">107</td>
+    <td class="codeline">  CallBackPHI->addIncoming(Begin, &F.getEntryBlock());</td>
+    <td class="lineNumber">107</td>
+    <td class="codeline">  CallBackPHI->addIncoming(Begin, &F.getEntryBlock());</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">108</td>
+    <td class="codeline">  CallBackPHI->addIncoming(NewCallBack, LoopBB);</td>
+    <td class="lineNumber">108</td>
+    <td class="codeline">  CallBackPHI->addIncoming(NewCallBack, LoopBB);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">109</td>
+    <td class="codeline">  IRB.CreateCondBr(EndCmp, ExitBB, LoopBB);</td>
+    <td class="lineNumber">109</td>
+    <td class="codeline">  IRB.CreateCondBr(EndCmp, ExitBB, LoopBB);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">110</td>
+    <td class="codeline">  IRB.SetInsertPoint(ExitBB);</td>
+    <td class="lineNumber">110</td>
+    <td class="codeline">  IRB.SetInsertPoint(ExitBB);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">111</td>
+    <td class="codeline">  IRB.CreateRetVoid();</td>
+    <td class="lineNumber">111</td>
+    <td class="codeline">  IRB.CreateRetVoid();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">112</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">112</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">113</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">113</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">114</td>
+    <td class="codeline">static bool createInitOrFiniKernel(Module &M, StringRef GlobalName,</td>
+    <td class="lineNumber">114</td>
+    <td class="codeline">static bool createInitOrFiniKernel(Module &M, StringRef GlobalName,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">115</td>
+    <td class="codeline">                                   bool IsCtor) {</td>
+    <td class="lineNumber">115</td>
+    <td class="codeline">                                   bool IsCtor) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">116</td>
+    <td class="codeline">  GlobalVariable *GV = M.getGlobalVariable(GlobalName);</td>
+    <td class="lineNumber">116</td>
+    <td class="codeline">  GlobalVariable *GV = M.getGlobalVariable(GlobalName);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">117</td>
+    <td class="codeline">  if (!GV || !GV->hasInitializer())</td>
+    <td class="lineNumber">117</td>
+    <td class="codeline">  if (!GV || !GV->hasInitializer())</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">118</td>
+    <td class="codeline">    return false;</td>
+    <td class="lineNumber">118</td>
+    <td class="codeline">    return false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">119</td>
+    <td class="codeline">  ConstantArray *GA = dyn_cast<ConstantArray>(GV->getInitializer());</td>
+    <td class="lineNumber">119</td>
+    <td class="codeline">  ConstantArray *GA = dyn_cast<ConstantArray>(GV->getInitializer());</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">120</td>
+    <td class="codeline">  if (!GA || GA->getNumOperands() == 0)</td>
+    <td class="lineNumber">120</td>
+    <td class="codeline">  if (!GA || GA->getNumOperands() == 0)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">121</td>
+    <td class="codeline">    return false;</td>
+    <td class="lineNumber">121</td>
+    <td class="codeline">    return false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">122</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">122</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">123</td>
+    <td class="codeline">  Function *InitOrFiniKernel = createInitOrFiniKernelFunction(M, IsCtor);</td>
+    <td class="lineNumber">123</td>
+    <td class="codeline">  Function *InitOrFiniKernel = createInitOrFiniKernelFunction(M, IsCtor);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">124</td>
+    <td class="codeline">  if (!InitOrFiniKernel)</td>
+    <td class="lineNumber">124</td>
+    <td class="codeline">  if (!InitOrFiniKernel)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">125</td>
+    <td class="codeline">    return false;</td>
+    <td class="lineNumber">125</td>
+    <td class="codeline">    return false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">126</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">126</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">127</td>
+    <td class="codeline">  createInitOrFiniCalls(*InitOrFiniKernel, IsCtor);</td>
+    <td class="lineNumber">127</td>
+    <td class="codeline">  createInitOrFiniCalls(*InitOrFiniKernel, IsCtor);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">128</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">128</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">129</td>
+    <td class="codeline">  appendToUsed(M, {InitOrFiniKernel});</td>
+    <td class="lineNumber">129</td>
+    <td class="codeline">  appendToUsed(M, {InitOrFiniKernel});</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">130</td>
+    <td class="codeline">  return true;</td>
+    <td class="lineNumber">130</td>
+    <td class="codeline">  return true;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">131</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">131</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">132</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">132</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">133</td>
+    <td class="codeline">static bool lowerCtorsAndDtors(Module &M) {</td>
+    <td class="lineNumber">133</td>
+    <td class="codeline">static bool lowerCtorsAndDtors(Module &M) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">134</td>
+    <td class="codeline">  bool Modified = false;</td>
+    <td class="lineNumber">134</td>
+    <td class="codeline">  bool Modified = false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">135</td>
+    <td class="codeline">  Modified |= createInitOrFiniKernel(M, "llvm.global_ctors", /*IsCtor =*/true);</td>
+    <td class="lineNumber">135</td>
+    <td class="codeline">  Modified |= createInitOrFiniKernel(M, "llvm.global_ctors", /*IsCtor =*/true);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">136</td>
+    <td class="codeline">  Modified |= createInitOrFiniKernel(M, "llvm.global_dtors", /*IsCtor =*/false);</td>
+    <td class="lineNumber">136</td>
+    <td class="codeline">  Modified |= createInitOrFiniKernel(M, "llvm.global_dtors", /*IsCtor =*/false);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">137</td>
+    <td class="codeline">  return Modified;</td>
+    <td class="lineNumber">137</td>
+    <td class="codeline">  return Modified;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">138</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">138</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">139</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">139</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">140</td>
+    <td class="codeline">class AMDGPUCtorDtorLoweringLegacy final : public ModulePass {</td>
+    <td class="lineNumber">140</td>
+    <td class="codeline">class AMDGPUCtorDtorLoweringLegacy final : public ModulePass {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">141</td>
+    <td class="codeline">public:</td>
+    <td class="lineNumber">141</td>
+    <td class="codeline">public:</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">142</td>
+    <td class="codeline">  static char ID;</td>
+    <td class="lineNumber">142</td>
+    <td class="codeline">  static char ID;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">143</td>
+    <td class="codeline">  AMDGPUCtorDtorLoweringLegacy() : ModulePass(ID) {}</td>
+    <td class="lineNumber">143</td>
+    <td class="codeline">  AMDGPUCtorDtorLoweringLegacy() : ModulePass(ID) {}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">144</td>
+    <td class="codeline">  bool runOnModule(Module &M) override { return lowerCtorsAndDtors(M); }</td>
+    <td class="lineNumber">144</td>
+    <td class="codeline">  bool runOnModule(Module &M) override { return lowerCtorsAndDtors(M); }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">145</td>
+    <td class="codeline">};</td>
+    <td class="lineNumber">145</td>
+    <td class="codeline">};</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">146</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">146</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">147</td>
+    <td class="codeline">} // End anonymous namespace</td>
+    <td class="lineNumber">147</td>
+    <td class="codeline">} // End anonymous namespace</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">148</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">148</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">149</td>
+    <td class="codeline">PreservedAnalyses AMDGPUCtorDtorLoweringPass::run(Module &M,</td>
+    <td class="lineNumber">149</td>
+    <td class="codeline">PreservedAnalyses AMDGPUCtorDtorLoweringPass::run(Module &M,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">150</td>
+    <td class="codeline">                                                  ModuleAnalysisManager &AM) {</td>
+    <td class="lineNumber">150</td>
+    <td class="codeline">                                                  ModuleAnalysisManager &AM) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">151</td>
+    <td class="codeline">  return lowerCtorsAndDtors(M) ? PreservedAnalyses::none()</td>
+    <td class="lineNumber">151</td>
+    <td class="codeline">  return lowerCtorsAndDtors(M) ? PreservedAnalyses::none()</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">152</td>
+    <td class="codeline">                               : PreservedAnalyses::all();</td>
+    <td class="lineNumber">152</td>
+    <td class="codeline">                               : PreservedAnalyses::all();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">153</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">153</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">154</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">154</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">155</td>
+    <td class="codeline">char AMDGPUCtorDtorLoweringLegacy::ID = 0;</td>
+    <td class="lineNumber">155</td>
+    <td class="codeline">char AMDGPUCtorDtorLoweringLegacy::ID = 0;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">156</td>
+    <td class="codeline">char &llvm::AMDGPUCtorDtorLoweringLegacyPassID =</td>
+    <td class="lineNumber">156</td>
+    <td class="codeline">char &llvm::AMDGPUCtorDtorLoweringLegacyPassID =</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">157</td>
+    <td class="codeline">    AMDGPUCtorDtorLoweringLegacy::ID;</td>
+    <td class="lineNumber">157</td>
+    <td class="codeline">    AMDGPUCtorDtorLoweringLegacy::ID;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">158</td>
+    <td class="codeline">INITIALIZE_PASS(AMDGPUCtorDtorLoweringLegacy, DEBUG_TYPE,</td>
+    <td class="lineNumber">158</td>
+    <td class="codeline">INITIALIZE_PASS(AMDGPUCtorDtorLoweringLegacy, DEBUG_TYPE,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">159</td>
+    <td class="codeline">                "Lower ctors and dtors for AMDGPU", false, false)</td>
+    <td class="lineNumber">159</td>
+    <td class="codeline">                "Lower ctors and dtors for AMDGPU", false, false)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">160</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">160</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">161</td>
+    <td class="codeline">ModulePass *llvm::createAMDGPUCtorDtorLoweringLegacyPass() {</td>
+    <td class="lineNumber">161</td>
+    <td class="codeline">ModulePass *llvm::createAMDGPUCtorDtorLoweringLegacyPass() {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">162</td>
+    <td class="codeline">  return new AMDGPUCtorDtorLoweringLegacy();</td>
+    <td class="lineNumber">162</td>
+    <td class="codeline">  return new AMDGPUCtorDtorLoweringLegacy();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">163</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">163</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">164</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">164</td>
+    <td class="codeline"></td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Side By Side Comparison</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Side By Side Comparison</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+    </th>
+    <th class="mainTh">Hit count</th>
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </th>
+    <th class="mainTh">Hit count</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="codeLine">//===-- AMDGPUCtorDtorLowering.cpp - Handle global ctors and dtors --------===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">1</td>
+    <td class="codeLine">//===-- AMDGPUCtorDtorLowering.cpp - Handle global ctors and dtors --------===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">2</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="codeLine">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">3</td>
+    <td class="codeLine">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="codeLine">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">4</td>
+    <td class="codeLine">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="codeLine">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">5</td>
+    <td class="codeLine">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">6</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">7</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="codeLine">///</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">8</td>
+    <td class="codeLine">///</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="codeLine">/// \file</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">9</td>
+    <td class="codeLine">/// \file</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="codeLine">/// This pass creates a unified init and fini kernel with the required metadata</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">10</td>
+    <td class="codeLine">/// This pass creates a unified init and fini kernel with the required metadata</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">11</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">12</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class="codeLine">#include "AMDGPUCtorDtorLowering.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">13</td>
+    <td class="codeLine">#include "AMDGPUCtorDtorLowering.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class="codeLine">#include "AMDGPU.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">14</td>
+    <td class="codeLine">#include "AMDGPU.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class="codeLine">#include "llvm/IR/Constants.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">15</td>
+    <td class="codeLine">#include "llvm/IR/Constants.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class="codeLine">#include "llvm/IR/Function.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">16</td>
+    <td class="codeLine">#include "llvm/IR/Function.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class="codeLine">#include "llvm/IR/GlobalVariable.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">17</td>
+    <td class="codeLine">#include "llvm/IR/GlobalVariable.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class="codeLine">#include "llvm/IR/IRBuilder.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">18</td>
+    <td class="codeLine">#include "llvm/IR/IRBuilder.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class="codeLine">#include "llvm/IR/Module.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">19</td>
+    <td class="codeLine">#include "llvm/IR/Module.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class="codeLine">#include "llvm/IR/Value.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">20</td>
+    <td class="codeLine">#include "llvm/IR/Value.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class="codeLine">#include "llvm/Pass.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">21</td>
+    <td class="codeLine">#include "llvm/Pass.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class="codeLine">#include "llvm/Transforms/Utils/ModuleUtils.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">22</td>
+    <td class="codeLine">#include "llvm/Transforms/Utils/ModuleUtils.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">23</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class="codeLine">using namespace llvm;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">24</td>
+    <td class="codeLine">using namespace llvm;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">25</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class="codeLine">#define DEBUG_TYPE "amdgpu-lower-ctor-dtor"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">26</td>
+    <td class="codeLine">#define DEBUG_TYPE "amdgpu-lower-ctor-dtor"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">27</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class="codeLine">namespace {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">28</td>
+    <td class="codeLine">namespace {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">29</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class="codeLine">static Function *createInitOrFiniKernelFunction(Module &M, bool IsCtor) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">30</td>
+    <td class="codeLine">static Function *createInitOrFiniKernelFunction(Module &M, bool IsCtor) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class="codeLine">  StringRef InitOrFiniKernelName = "amdgcn.device.init";</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">31</td>
+    <td class="codeLine">  StringRef InitOrFiniKernelName = "amdgcn.device.init";</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class="codeLine">  if (!IsCtor)</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">32</td>
+    <td class="codeLine">  if (!IsCtor)</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class="codeLine">    InitOrFiniKernelName = "amdgcn.device.fini";</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">33</td>
+    <td class="codeLine">    InitOrFiniKernelName = "amdgcn.device.fini";</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class="codeLine">  if (M.getFunction(InitOrFiniKernelName))</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">34</td>
+    <td class="codeLine">  if (M.getFunction(InitOrFiniKernelName))</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class="codeLine">    return nullptr;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">35</td>
+    <td class="codeLine">    return nullptr;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">36</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class="codeLine">  Function *InitOrFiniKernel = Function::createWithDefaultAttr(</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">37</td>
+    <td class="codeLine">  Function *InitOrFiniKernel = Function::createWithDefaultAttr(</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class="codeLine">      FunctionType::get(Type::getVoidTy(M.getContext()), false),</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">38</td>
+    <td class="codeLine">      FunctionType::get(Type::getVoidTy(M.getContext()), false),</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class="codeLine">      GlobalValue::WeakODRLinkage, 0, InitOrFiniKernelName, &M);</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">39</td>
+    <td class="codeLine">      GlobalValue::WeakODRLinkage, 0, InitOrFiniKernelName, &M);</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class="codeLine">  InitOrFiniKernel->setCallingConv(CallingConv::AMDGPU_KERNEL);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">40</td>
+    <td class="codeLine">  InitOrFiniKernel->setCallingConv(CallingConv::AMDGPU_KERNEL);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class="codeLine">  InitOrFiniKernel->addFnAttr("amdgpu-flat-work-group-size", "1,1");</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">41</td>
+    <td class="codeLine">  InitOrFiniKernel->addFnAttr("amdgpu-flat-work-group-size", "1,1");</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class="codeLine">  if (IsCtor)</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">42</td>
+    <td class="codeLine">  if (IsCtor)</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class="codeLine">    InitOrFiniKernel->addFnAttr("device-init");</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">43</td>
+    <td class="codeLine">    InitOrFiniKernel->addFnAttr("device-init");</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class="codeLine">  else</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">44</td>
+    <td class="codeLine">  else</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class="codeLine">    InitOrFiniKernel->addFnAttr("device-fini");</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">45</td>
+    <td class="codeLine">    InitOrFiniKernel->addFnAttr("device-fini");</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class="codeLine">  return InitOrFiniKernel;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">46</td>
+    <td class="codeLine">  return InitOrFiniKernel;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">47</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">48</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class="codeLine">// The linker will provide the associated symbols to allow us to traverse the</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">49</td>
+    <td class="codeLine">// The linker will provide the associated symbols to allow us to traverse the</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class="codeLine">// global constructors / destructors in priority order. We create the IR</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">50</td>
+    <td class="codeLine">// global constructors / destructors in priority order. We create the IR</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class="codeLine">// required to call each callback in this section. This is equivalent to the</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">51</td>
+    <td class="codeLine">// required to call each callback in this section. This is equivalent to the</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class="codeLine">// following code.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">52</td>
+    <td class="codeLine">// following code.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">53</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class="codeLine">// extern "C" void * __init_array_start[];</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">54</td>
+    <td class="codeLine">// extern "C" void * __init_array_start[];</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class="codeLine">// extern "C" void * __init_array_end[];</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">55</td>
+    <td class="codeLine">// extern "C" void * __init_array_end[];</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">56</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class="codeLine">// using InitCallback = void();</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">57</td>
+    <td class="codeLine">// using InitCallback = void();</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">58</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class="codeLine">// void call_init_array_callbacks() {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">59</td>
+    <td class="codeLine">// void call_init_array_callbacks() {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class="codeLine">//   for (auto start = __init_array_start; start != __init_array_end; ++start)</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">60</td>
+    <td class="codeLine">//   for (auto start = __init_array_start; start != __init_array_end; ++start)</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class="codeLine">//     reinterpret_cast<InitCallback *>(*start)();</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">61</td>
+    <td class="codeLine">//     reinterpret_cast<InitCallback *>(*start)();</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class="codeLine">// }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">62</td>
+    <td class="codeLine">// }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class="codeLine">static void createInitOrFiniCalls(Function &F, bool IsCtor) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">63</td>
+    <td class="codeLine">static void createInitOrFiniCalls(Function &F, bool IsCtor) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class="codeLine">  Module &M = *F.getParent();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">64</td>
+    <td class="codeLine">  Module &M = *F.getParent();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class="codeLine">  LLVMContext &C = M.getContext();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">65</td>
+    <td class="codeLine">  LLVMContext &C = M.getContext();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">66</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class="codeLine">  IRBuilder<> IRB(BasicBlock::Create(C, "entry", &F));</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">67</td>
+    <td class="codeLine">  IRBuilder<> IRB(BasicBlock::Create(C, "entry", &F));</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class="codeLine">  auto *LoopBB = BasicBlock::Create(C, "while.entry", &F);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">68</td>
+    <td class="codeLine">  auto *LoopBB = BasicBlock::Create(C, "while.entry", &F);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class="codeLine">  auto *ExitBB = BasicBlock::Create(C, "while.end", &F);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">69</td>
+    <td class="codeLine">  auto *ExitBB = BasicBlock::Create(C, "while.end", &F);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class="codeLine">  Type *PtrTy = IRB.getPtrTy(AMDGPUAS::GLOBAL_ADDRESS);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">70</td>
+    <td class="codeLine">  Type *PtrTy = IRB.getPtrTy(AMDGPUAS::GLOBAL_ADDRESS);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">71</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class="codeLine">  auto *Begin = M.getOrInsertGlobal(</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">72</td>
+    <td class="codeLine">  auto *Begin = M.getOrInsertGlobal(</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class="codeLine">      IsCtor ? "__init_array_start" : "__fini_array_start",</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">73</td>
+    <td class="codeLine">      IsCtor ? "__init_array_start" : "__fini_array_start",</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class="codeLine">      ArrayType::get(PtrTy, 0), [&]() {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">74</td>
+    <td class="codeLine">      ArrayType::get(PtrTy, 0), [&]() {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class="codeLine">        return new GlobalVariable(</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">75</td>
+    <td class="codeLine">        return new GlobalVariable(</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class="codeLine">            M, ArrayType::get(PtrTy, 0),</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">76</td>
+    <td class="codeLine">            M, ArrayType::get(PtrTy, 0),</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class="codeLine">            /*isConstant=*/true, GlobalValue::ExternalLinkage,</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">77</td>
+    <td class="codeLine">            /*isConstant=*/true, GlobalValue::ExternalLinkage,</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class="codeLine">            /*Initializer=*/nullptr,</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">78</td>
+    <td class="codeLine">            /*Initializer=*/nullptr,</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class="codeLine">            IsCtor ? "__init_array_start" : "__fini_array_start",</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">79</td>
+    <td class="codeLine">            IsCtor ? "__init_array_start" : "__fini_array_start",</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class="codeLine">            /*InsertBefore=*/nullptr, GlobalVariable::NotThreadLocal,</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">80</td>
+    <td class="codeLine">            /*InsertBefore=*/nullptr, GlobalVariable::NotThreadLocal,</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class="codeLine">            /*AddressSpace=*/1);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">81</td>
+    <td class="codeLine">            /*AddressSpace=*/1);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class="codeLine">      });</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">82</td>
+    <td class="codeLine">      });</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class="codeLine">  auto *End = M.getOrInsertGlobal(</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">83</td>
+    <td class="codeLine">  auto *End = M.getOrInsertGlobal(</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class="codeLine">      IsCtor ? "__init_array_end" : "__fini_array_end",</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">84</td>
+    <td class="codeLine">      IsCtor ? "__init_array_end" : "__fini_array_end",</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class="codeLine">      ArrayType::get(PtrTy, 0), [&]() {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">85</td>
+    <td class="codeLine">      ArrayType::get(PtrTy, 0), [&]() {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class="codeLine">        return new GlobalVariable(</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">86</td>
+    <td class="codeLine">        return new GlobalVariable(</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class="codeLine">            M, ArrayType::get(PtrTy, 0),</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">87</td>
+    <td class="codeLine">            M, ArrayType::get(PtrTy, 0),</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class="codeLine">            /*isConstant=*/true, GlobalValue::ExternalLinkage,</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">88</td>
+    <td class="codeLine">            /*isConstant=*/true, GlobalValue::ExternalLinkage,</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class="codeLine">            /*Initializer=*/nullptr,</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">89</td>
+    <td class="codeLine">            /*Initializer=*/nullptr,</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">90</td>
+    <td class="codeLine">            IsCtor ? "__init_array_end" : "__fini_array_end",</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">90</td>
+    <td class="codeLine">            IsCtor ? "__init_array_end" : "__fini_array_end",</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">91</td>
+    <td class="codeLine">            /*InsertBefore=*/nullptr, GlobalVariable::NotThreadLocal,</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">91</td>
+    <td class="codeLine">            /*InsertBefore=*/nullptr, GlobalVariable::NotThreadLocal,</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">92</td>
+    <td class="codeLine">            /*AddressSpace=*/1);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">92</td>
+    <td class="codeLine">            /*AddressSpace=*/1);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">93</td>
+    <td class="codeLine">      });</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">93</td>
+    <td class="codeLine">      });</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">94</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">94</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">95</td>
+    <td class="codeLine">  // The constructor type is suppoed to allow using the argument vectors, but</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">95</td>
+    <td class="codeLine">  // The constructor type is suppoed to allow using the argument vectors, but</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">96</td>
+    <td class="codeLine">  // for now we just call them with no arguments.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">96</td>
+    <td class="codeLine">  // for now we just call them with no arguments.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">97</td>
+    <td class="codeLine">  auto *CallBackTy = FunctionType::get(IRB.getVoidTy(), {});</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">97</td>
+    <td class="codeLine">  auto *CallBackTy = FunctionType::get(IRB.getVoidTy(), {});</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">98</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">98</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">99</td>
+    <td class="codeLine">  IRB.CreateCondBr(IRB.CreateICmpNE(Begin, End), LoopBB, ExitBB);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">99</td>
+    <td class="codeLine">  IRB.CreateCondBr(IRB.CreateICmpNE(Begin, End), LoopBB, ExitBB);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">100</td>
+    <td class="codeLine">  IRB.SetInsertPoint(LoopBB);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">100</td>
+    <td class="codeLine">  IRB.SetInsertPoint(LoopBB);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">101</td>
+    <td class="codeLine">  auto *CallBackPHI = IRB.CreatePHI(PtrTy, 2, "ptr");</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">101</td>
+    <td class="codeLine">  auto *CallBackPHI = IRB.CreatePHI(PtrTy, 2, "ptr");</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">102</td>
+    <td class="codeLine">  auto *CallBack = IRB.CreateLoad(CallBackTy->getPointerTo(F.getAddressSpace()),</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">102</td>
+    <td class="codeLine">  auto *CallBack = IRB.CreateLoad(CallBackTy->getPointerTo(F.getAddressSpace()),</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">103</td>
+    <td class="codeLine">                                  CallBackPHI, "callback");</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">103</td>
+    <td class="codeLine">                                  CallBackPHI, "callback");</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">104</td>
+    <td class="codeLine">  IRB.CreateCall(CallBackTy, CallBack);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">104</td>
+    <td class="codeLine">  IRB.CreateCall(CallBackTy, CallBack);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">105</td>
+    <td class="codeLine">  auto *NewCallBack = IRB.CreateConstGEP1_64(PtrTy, CallBackPHI, 1, "next");</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">105</td>
+    <td class="codeLine">  auto *NewCallBack = IRB.CreateConstGEP1_64(PtrTy, CallBackPHI, 1, "next");</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">106</td>
+    <td class="codeLine">  auto *EndCmp = IRB.CreateICmpEQ(NewCallBack, End, "end");</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">106</td>
+    <td class="codeLine">  auto *EndCmp = IRB.CreateICmpEQ(NewCallBack, End, "end");</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">107</td>
+    <td class="codeLine">  CallBackPHI->addIncoming(Begin, &F.getEntryBlock());</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">107</td>
+    <td class="codeLine">  CallBackPHI->addIncoming(Begin, &F.getEntryBlock());</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">108</td>
+    <td class="codeLine">  CallBackPHI->addIncoming(NewCallBack, LoopBB);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">108</td>
+    <td class="codeLine">  CallBackPHI->addIncoming(NewCallBack, LoopBB);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">109</td>
+    <td class="codeLine">  IRB.CreateCondBr(EndCmp, ExitBB, LoopBB);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">109</td>
+    <td class="codeLine">  IRB.CreateCondBr(EndCmp, ExitBB, LoopBB);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">110</td>
+    <td class="codeLine">  IRB.SetInsertPoint(ExitBB);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">110</td>
+    <td class="codeLine">  IRB.SetInsertPoint(ExitBB);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">111</td>
+    <td class="codeLine">  IRB.CreateRetVoid();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">111</td>
+    <td class="codeLine">  IRB.CreateRetVoid();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">112</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">112</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">113</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">113</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">114</td>
+    <td class="codeLine">static bool createInitOrFiniKernel(Module &M, StringRef GlobalName,</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">114</td>
+    <td class="codeLine">static bool createInitOrFiniKernel(Module &M, StringRef GlobalName,</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">115</td>
+    <td class="codeLine">                                   bool IsCtor) {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">115</td>
+    <td class="codeLine">                                   bool IsCtor) {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">116</td>
+    <td class="codeLine">  GlobalVariable *GV = M.getGlobalVariable(GlobalName);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">116</td>
+    <td class="codeLine">  GlobalVariable *GV = M.getGlobalVariable(GlobalName);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">117</td>
+    <td class="codeLine">  if (!GV || !GV->hasInitializer())</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">117</td>
+    <td class="codeLine">  if (!GV || !GV->hasInitializer())</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">118</td>
+    <td class="codeLine">    return false;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">118</td>
+    <td class="codeLine">    return false;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">119</td>
+    <td class="codeLine">  ConstantArray *GA = dyn_cast<ConstantArray>(GV->getInitializer());</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">119</td>
+    <td class="codeLine">  ConstantArray *GA = dyn_cast<ConstantArray>(GV->getInitializer());</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">120</td>
+    <td class="codeLine">  if (!GA || GA->getNumOperands() == 0)</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">120</td>
+    <td class="codeLine">  if (!GA || GA->getNumOperands() == 0)</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">121</td>
+    <td class="codeLine">    return false;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">121</td>
+    <td class="codeLine">    return false;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">122</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">122</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">123</td>
+    <td class="codeLine">  Function *InitOrFiniKernel = createInitOrFiniKernelFunction(M, IsCtor);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">123</td>
+    <td class="codeLine">  Function *InitOrFiniKernel = createInitOrFiniKernelFunction(M, IsCtor);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">124</td>
+    <td class="codeLine">  if (!InitOrFiniKernel)</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">124</td>
+    <td class="codeLine">  if (!InitOrFiniKernel)</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">125</td>
+    <td class="codeLine">    return false;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">125</td>
+    <td class="codeLine">    return false;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">126</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">126</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">127</td>
+    <td class="codeLine">  createInitOrFiniCalls(*InitOrFiniKernel, IsCtor);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">127</td>
+    <td class="codeLine">  createInitOrFiniCalls(*InitOrFiniKernel, IsCtor);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">128</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">128</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">129</td>
+    <td class="codeLine">  appendToUsed(M, {InitOrFiniKernel});</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">129</td>
+    <td class="codeLine">  appendToUsed(M, {InitOrFiniKernel});</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">130</td>
+    <td class="codeLine">  return true;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">130</td>
+    <td class="codeLine">  return true;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">131</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">131</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">132</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">132</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">133</td>
+    <td class="codeLine">static bool lowerCtorsAndDtors(Module &M) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">133</td>
+    <td class="codeLine">static bool lowerCtorsAndDtors(Module &M) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">134</td>
+    <td class="codeLine">  bool Modified = false;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">134</td>
+    <td class="codeLine">  bool Modified = false;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">135</td>
+    <td class="codeLine">  Modified |= createInitOrFiniKernel(M, "llvm.global_ctors", /*IsCtor =*/true);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">135</td>
+    <td class="codeLine">  Modified |= createInitOrFiniKernel(M, "llvm.global_ctors", /*IsCtor =*/true);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">136</td>
+    <td class="codeLine">  Modified |= createInitOrFiniKernel(M, "llvm.global_dtors", /*IsCtor =*/false);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">136</td>
+    <td class="codeLine">  Modified |= createInitOrFiniKernel(M, "llvm.global_dtors", /*IsCtor =*/false);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">137</td>
+    <td class="codeLine">  return Modified;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">137</td>
+    <td class="codeLine">  return Modified;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">138</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">138</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">139</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">139</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">140</td>
+    <td class="codeLine">class AMDGPUCtorDtorLoweringLegacy final : public ModulePass {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">140</td>
+    <td class="codeLine">class AMDGPUCtorDtorLoweringLegacy final : public ModulePass {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">141</td>
+    <td class="codeLine">public:</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">141</td>
+    <td class="codeLine">public:</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">142</td>
+    <td class="codeLine">  static char ID;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">142</td>
+    <td class="codeLine">  static char ID;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">143</td>
+    <td class="codeLine">  AMDGPUCtorDtorLoweringLegacy() : ModulePass(ID) {}</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">143</td>
+    <td class="codeLine">  AMDGPUCtorDtorLoweringLegacy() : ModulePass(ID) {}</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">144</td>
+    <td class="codeLine">  bool runOnModule(Module &M) override { return lowerCtorsAndDtors(M); }</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">144</td>
+    <td class="codeLine">  bool runOnModule(Module &M) override { return lowerCtorsAndDtors(M); }</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">145</td>
+    <td class="codeLine">};</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">145</td>
+    <td class="codeLine">};</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">146</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">146</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">147</td>
+    <td class="codeLine">} // End anonymous namespace</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">147</td>
+    <td class="codeLine">} // End anonymous namespace</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">148</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">148</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">149</td>
+    <td class="codeLine">PreservedAnalyses AMDGPUCtorDtorLoweringPass::run(Module &M,</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">149</td>
+    <td class="codeLine">PreservedAnalyses AMDGPUCtorDtorLoweringPass::run(Module &M,</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">150</td>
+    <td class="codeLine">                                                  ModuleAnalysisManager &AM) {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">150</td>
+    <td class="codeLine">                                                  ModuleAnalysisManager &AM) {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">151</td>
+    <td class="codeLine">  return lowerCtorsAndDtors(M) ? PreservedAnalyses::none()</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">151</td>
+    <td class="codeLine">  return lowerCtorsAndDtors(M) ? PreservedAnalyses::none()</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">152</td>
+    <td class="codeLine">                               : PreservedAnalyses::all();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">152</td>
+    <td class="codeLine">                               : PreservedAnalyses::all();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">153</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">153</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">154</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">154</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">155</td>
+    <td class="codeLine">char AMDGPUCtorDtorLoweringLegacy::ID = 0;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">155</td>
+    <td class="codeLine">char AMDGPUCtorDtorLoweringLegacy::ID = 0;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">156</td>
+    <td class="codeLine">char &llvm::AMDGPUCtorDtorLoweringLegacyPassID =</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">156</td>
+    <td class="codeLine">char &llvm::AMDGPUCtorDtorLoweringLegacyPassID =</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">157</td>
+    <td class="codeLine">    AMDGPUCtorDtorLoweringLegacy::ID;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">157</td>
+    <td class="codeLine">    AMDGPUCtorDtorLoweringLegacy::ID;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">158</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS(AMDGPUCtorDtorLoweringLegacy, DEBUG_TYPE,</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">158</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS(AMDGPUCtorDtorLoweringLegacy, DEBUG_TYPE,</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">159</td>
+    <td class="codeLine">                "Lower ctors and dtors for AMDGPU", false, false)</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">159</td>
+    <td class="codeLine">                "Lower ctors and dtors for AMDGPU", false, false)</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">160</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">160</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">161</td>
+    <td class="codeLine">ModulePass *llvm::createAMDGPUCtorDtorLoweringLegacyPass() {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">161</td>
+    <td class="codeLine">ModulePass *llvm::createAMDGPUCtorDtorLoweringLegacyPass() {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">162</td>
+    <td class="codeLine">  return new AMDGPUCtorDtorLoweringLegacy();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">162</td>
+    <td class="codeLine">  return new AMDGPUCtorDtorLoweringLegacy();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">163</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">163</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">164</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">164</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+</table>
+    </div>
+    <button id="myBtn" onclick="topFunction()" title="Go to top" type="button">Top</button>
+    <script src="../Javascript/drop_down.js"></script>
+    <script src="../Javascript/top_button.js"></script>
+  </body>
+</html>

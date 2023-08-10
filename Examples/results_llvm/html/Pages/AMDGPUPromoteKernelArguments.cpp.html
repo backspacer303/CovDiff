@@ -1,0 +1,4765 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>AMDGPUPromoteKernelArguments.cpp</title>
+    <link rel="stylesheet" href="../Style/style.css" />
+  </head>
+  <body>
+    <div class="headerDiv">
+      <h1>
+        Code Coverage
+      </h1>
+      <p>
+        Source file: /home/nikola/Desktop/llvm-project/llvm/lib/Target/AMDGPU/AMDGPUPromoteKernelArguments.cpp
+      </p>
+    </div>
+    <button class="collapsible" type="button">Open Summary Report</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Summary Report</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line number</th>
+    <th class="mainTh">Line</th>
+    <th class="mainTh">Number of hits</th>
+    <th class="mainTh">Tests that cover line</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="">//===-- AMDGPUPromoteKernelArguments.cpp ----------------------------------===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="">//===----------------------------------------------------------------------===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="">/// \file This pass recursively promotes generic pointer arguments of a kernel</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="">/// into the global address space.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="">///</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class="">/// The pass walks kernel's pointer arguments, then loads from them. If a loaded</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class="">/// value is a pointer and loaded pointer is unmodified in the kernel before the</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class="">/// load, then promote loaded pointer to global. Then recursively continue.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class="">//===----------------------------------------------------------------------===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class="">#include "AMDGPU.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class="">#include "Utils/AMDGPUMemoryUtils.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class="">#include "llvm/ADT/SmallVector.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class="">#include "llvm/Analysis/AliasAnalysis.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class="">#include "llvm/Analysis/MemorySSA.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class="">#include "llvm/IR/IRBuilder.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class="">#include "llvm/InitializePasses.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class="">#define DEBUG_TYPE "amdgpu-promote-kernel-arguments"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class="">using namespace llvm;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class="">namespace {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class="">class AMDGPUPromoteKernelArguments : public FunctionPass {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class="">  MemorySSA *MSSA;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class="">  AliasAnalysis *AA;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class="">  Instruction *ArgCastInsertPt;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class="">  SmallVector<Value *> Ptrs;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class="">  void enqueueUsers(Value *Ptr);</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class="">  bool promotePointer(Value *Ptr);</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class="">  bool promoteLoad(LoadInst *LI);</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class="">public:</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class="">  static char ID;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class="uncoveredLine">  AMDGPUPromoteKernelArguments() : FunctionPass(ID) {}</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class="">  bool run(Function &F, MemorySSA &MSSA, AliasAnalysis &AA);</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class="">  bool runOnFunction(Function &F) override;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class="uncoveredLine">  void getAnalysisUsage(AnalysisUsage &AU) const override {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class="uncoveredLine">    AU.addRequired<AAResultsWrapperPass>();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class="uncoveredLine">    AU.addRequired<MemorySSAWrapperPass>();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class="uncoveredLine">    AU.setPreservesAll();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class="uncoveredLine">  }</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class="">};</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class="">} // end anonymous namespace</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class="uncoveredLine">void AMDGPUPromoteKernelArguments::enqueueUsers(Value *Ptr) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class="uncoveredLine">  SmallVector<User *> PtrUsers(Ptr->users());</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class="uncoveredLine">  while (!PtrUsers.empty()) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class="uncoveredLine">    Instruction *U = dyn_cast<Instruction>(PtrUsers.pop_back_val());</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class="uncoveredLine">    if (!U)</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class="uncoveredLine">      continue;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class="uncoveredLine">    switch (U->getOpcode()) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class="uncoveredLine">    default:</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class="uncoveredLine">      break;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class="uncoveredLine">    case Instruction::Load: {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class="uncoveredLine">      LoadInst *LD = cast<LoadInst>(U);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class="uncoveredLine">      if (LD->getPointerOperand()->stripInBoundsOffsets() == Ptr &&</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class="uncoveredLine">          !AMDGPU::isClobberedInFunction(LD, MSSA, AA))</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class="uncoveredLine">        Ptrs.push_back(LD);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class="uncoveredLine">      break;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class="">    }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class="uncoveredLine">    case Instruction::GetElementPtr:</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class="">    case Instruction::AddrSpaceCast:</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class="">    case Instruction::BitCast:</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class="uncoveredLine">      if (U->getOperand(0)->stripInBoundsOffsets() == Ptr)</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class="uncoveredLine">        PtrUsers.append(U->user_begin(), U->user_end());</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class="uncoveredLine">      break;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">90</td>
+    <td class="">    }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">91</td>
+    <td class="">  }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">92</td>
+    <td class="uncoveredLine">}</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">93</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">94</td>
+    <td class="uncoveredLine">bool AMDGPUPromoteKernelArguments::promotePointer(Value *Ptr) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">95</td>
+    <td class="uncoveredLine">  bool Changed = false;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">96</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">97</td>
+    <td class="uncoveredLine">  LoadInst *LI = dyn_cast<LoadInst>(Ptr);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">98</td>
+    <td class="uncoveredLine">  if (LI)</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">99</td>
+    <td class="uncoveredLine">    Changed |= promoteLoad(LI);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">100</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">101</td>
+    <td class="uncoveredLine">  PointerType *PT = dyn_cast<PointerType>(Ptr->getType());</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">102</td>
+    <td class="uncoveredLine">  if (!PT)</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">103</td>
+    <td class="uncoveredLine">    return Changed;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">104</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">105</td>
+    <td class="uncoveredLine">  if (PT->getAddressSpace() == AMDGPUAS::FLAT_ADDRESS ||</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">106</td>
+    <td class="uncoveredLine">      PT->getAddressSpace() == AMDGPUAS::GLOBAL_ADDRESS ||</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">107</td>
+    <td class="uncoveredLine">      PT->getAddressSpace() == AMDGPUAS::CONSTANT_ADDRESS)</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">108</td>
+    <td class="uncoveredLine">    enqueueUsers(Ptr);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">109</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">110</td>
+    <td class="uncoveredLine">  if (PT->getAddressSpace() != AMDGPUAS::FLAT_ADDRESS)</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">111</td>
+    <td class="uncoveredLine">    return Changed;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">112</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">113</td>
+    <td class="uncoveredLine">  IRBuilder<> B(LI ? &*std::next(cast<Instruction>(Ptr)->getIterator())</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">114</td>
+    <td class="uncoveredLine">                   : ArgCastInsertPt);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">115</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">116</td>
+    <td class="">  // Cast pointer to global address space and back to flat and let</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">117</td>
+    <td class="">  // Infer Address Spaces pass to do all necessary rewriting.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">118</td>
+    <td class="">  PointerType *NewPT =</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">119</td>
+    <td class="uncoveredLine">      PointerType::get(PT->getContext(), AMDGPUAS::GLOBAL_ADDRESS);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">120</td>
+    <td class="">  Value *Cast =</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">121</td>
+    <td class="uncoveredLine">      B.CreateAddrSpaceCast(Ptr, NewPT, Twine(Ptr->getName(), ".global"));</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">122</td>
+    <td class="">  Value *CastBack =</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">123</td>
+    <td class="uncoveredLine">      B.CreateAddrSpaceCast(Cast, PT, Twine(Ptr->getName(), ".flat"));</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">124</td>
+    <td class="uncoveredLine">  Ptr->replaceUsesWithIf(CastBack,</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">125</td>
+    <td class="uncoveredLine">                         [Cast](Use &U) { return U.getUser() != Cast; });</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">126</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">127</td>
+    <td class="uncoveredLine">  return true;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">128</td>
+    <td class="uncoveredLine">}</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">129</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">130</td>
+    <td class="uncoveredLine">bool AMDGPUPromoteKernelArguments::promoteLoad(LoadInst *LI) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">131</td>
+    <td class="uncoveredLine">  if (!LI->isSimple())</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">132</td>
+    <td class="uncoveredLine">    return false;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">133</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">134</td>
+    <td class="uncoveredLine">  LI->setMetadata("amdgpu.noclobber", MDNode::get(LI->getContext(), {}));</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">135</td>
+    <td class="uncoveredLine">  return true;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">136</td>
+    <td class="">}</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">137</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">138</td>
+    <td class="">// skip allocas</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">139</td>
+    <td class="uncoveredLine">static BasicBlock::iterator getInsertPt(BasicBlock &BB) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">140</td>
+    <td class="uncoveredLine">  BasicBlock::iterator InsPt = BB.getFirstInsertionPt();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">141</td>
+    <td class="uncoveredLine">  for (BasicBlock::iterator E = BB.end(); InsPt != E; ++InsPt) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">142</td>
+    <td class="uncoveredLine">    AllocaInst *AI = dyn_cast<AllocaInst>(&*InsPt);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">143</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">144</td>
+    <td class="">    // If this is a dynamic alloca, the value may depend on the loaded kernargs,</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">145</td>
+    <td class="">    // so loads will need to be inserted before it.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">146</td>
+    <td class="uncoveredLine">    if (!AI || !AI->isStaticAlloca())</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">147</td>
+    <td class="uncoveredLine">      break;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">148</td>
+    <td class="">  }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">149</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">150</td>
+    <td class="uncoveredLine">  return InsPt;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">151</td>
+    <td class="">}</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">152</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">153</td>
+    <td class="uncoveredLine">bool AMDGPUPromoteKernelArguments::run(Function &F, MemorySSA &MSSA,</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">154</td>
+    <td class="">                                       AliasAnalysis &AA) {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">155</td>
+    <td class="uncoveredLine">  if (skipFunction(F))</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">156</td>
+    <td class="uncoveredLine">    return false;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">157</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">158</td>
+    <td class="uncoveredLine">  CallingConv::ID CC = F.getCallingConv();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">159</td>
+    <td class="uncoveredLine">  if (CC != CallingConv::AMDGPU_KERNEL || F.arg_empty())</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">160</td>
+    <td class="uncoveredLine">    return false;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">161</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">162</td>
+    <td class="uncoveredLine">  ArgCastInsertPt = &*getInsertPt(*F.begin());</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">163</td>
+    <td class="uncoveredLine">  this->MSSA = &MSSA;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">164</td>
+    <td class="uncoveredLine">  this->AA = &AA;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">165</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">166</td>
+    <td class="uncoveredLine">  for (Argument &Arg : F.args()) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">167</td>
+    <td class="uncoveredLine">    if (Arg.use_empty())</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">168</td>
+    <td class="uncoveredLine">      continue;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">169</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">170</td>
+    <td class="uncoveredLine">    PointerType *PT = dyn_cast<PointerType>(Arg.getType());</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">171</td>
+    <td class="uncoveredLine">    if (!PT || (PT->getAddressSpace() != AMDGPUAS::FLAT_ADDRESS &&</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">172</td>
+    <td class="uncoveredLine">                PT->getAddressSpace() != AMDGPUAS::GLOBAL_ADDRESS &&</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">173</td>
+    <td class="uncoveredLine">                PT->getAddressSpace() != AMDGPUAS::CONSTANT_ADDRESS))</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">174</td>
+    <td class="uncoveredLine">      continue;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">175</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">176</td>
+    <td class="uncoveredLine">    Ptrs.push_back(&Arg);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">177</td>
+    <td class="">  }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">178</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">179</td>
+    <td class="uncoveredLine">  bool Changed = false;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">180</td>
+    <td class="uncoveredLine">  while (!Ptrs.empty()) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">181</td>
+    <td class="uncoveredLine">    Value *Ptr = Ptrs.pop_back_val();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">182</td>
+    <td class="uncoveredLine">    Changed |= promotePointer(Ptr);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">183</td>
+    <td class="">  }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">184</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">185</td>
+    <td class="uncoveredLine">  return Changed;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">186</td>
+    <td class="">}</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">187</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">188</td>
+    <td class="uncoveredLine">bool AMDGPUPromoteKernelArguments::runOnFunction(Function &F) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">189</td>
+    <td class="uncoveredLine">  MemorySSA &MSSA = getAnalysis<MemorySSAWrapperPass>().getMSSA();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">190</td>
+    <td class="uncoveredLine">  AliasAnalysis &AA = getAnalysis<AAResultsWrapperPass>().getAAResults();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">191</td>
+    <td class="uncoveredLine">  return run(F, MSSA, AA);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">192</td>
+    <td class="">}</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">193</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">194</td>
+    <td class="coveredLine">INITIALIZE_PASS_BEGIN(AMDGPUPromoteKernelArguments, DEBUG_TYPE,</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">195</td>
+    <td class="">                      "AMDGPU Promote Kernel Arguments", false, false)</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">196</td>
+    <td class="coveredLine">INITIALIZE_PASS_DEPENDENCY(AAResultsWrapperPass)</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">197</td>
+    <td class="coveredLine">INITIALIZE_PASS_DEPENDENCY(MemorySSAWrapperPass)</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">198</td>
+    <td class="coveredLine">INITIALIZE_PASS_END(AMDGPUPromoteKernelArguments, DEBUG_TYPE,</td>
+    <td>4</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">199</td>
+    <td class="">                    "AMDGPU Promote Kernel Arguments", false, false)</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">200</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">201</td>
+    <td class="">char AMDGPUPromoteKernelArguments::ID = 0;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">202</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">203</td>
+    <td class="uncoveredLine">FunctionPass *llvm::createAMDGPUPromoteKernelArgumentsPass() {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">204</td>
+    <td class="uncoveredLine">  return new AMDGPUPromoteKernelArguments();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">205</td>
+    <td class="">}</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">206</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">207</td>
+    <td class="">PreservedAnalyses</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">208</td>
+    <td class="uncoveredLine">AMDGPUPromoteKernelArgumentsPass::run(Function &F,</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">209</td>
+    <td class="">                                      FunctionAnalysisManager &AM) {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">210</td>
+    <td class="uncoveredLine">  MemorySSA &MSSA = AM.getResult<MemorySSAAnalysis>(F).getMSSA();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">211</td>
+    <td class="uncoveredLine">  AliasAnalysis &AA = AM.getResult<AAManager>(F);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">212</td>
+    <td class="uncoveredLine">  if (AMDGPUPromoteKernelArguments().run(F, MSSA, AA)) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">213</td>
+    <td class="uncoveredLine">    PreservedAnalyses PA;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">214</td>
+    <td class="uncoveredLine">    PA.preserveSet<CFGAnalyses>();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">215</td>
+    <td class="uncoveredLine">    PA.preserve<MemorySSAAnalysis>();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">216</td>
+    <td class="uncoveredLine">    return PA;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">217</td>
+    <td class="uncoveredLine">  }</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">218</td>
+    <td class="uncoveredLine">  return PreservedAnalyses::all();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">219</td>
+    <td class="">}</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">220</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Functions Report</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Functions Report</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Function name</th>
+    <th class="mainTh">Number of hits</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_128AMDGPUPromoteKernelArgumentsC2Ev</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZNK12_GLOBAL__N_128AMDGPUPromoteKernelArguments16getAnalysisUsageERN4llvm13AnalysisUsageE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_128AMDGPUPromoteKernelArguments12enqueueUsersEPN4llvm5ValueE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_128AMDGPUPromoteKernelArguments14promotePointerEPN4llvm5ValueE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZZN12_GLOBAL__N_128AMDGPUPromoteKernelArguments14promotePointerEPN4llvm5ValueEENKUlRNS1_3UseEE_clES5_</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_128AMDGPUPromoteKernelArguments11promoteLoadEPN4llvm8LoadInstE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZL11getInsertPtRN4llvm10BasicBlockE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_128AMDGPUPromoteKernelArguments3runERN4llvm8FunctionERNS1_9MemorySSAERNS1_9AAResultsE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_128AMDGPUPromoteKernelArguments13runOnFunctionERN4llvm8FunctionE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZL46initializeAMDGPUPromoteKernelArgumentsPassOnceRN4llvm12PassRegistryE</td>
+    <td class="numberOfCalls">2</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN4llvm42initializeAMDGPUPromoteKernelArgumentsPassERNS_12PassRegistryE</td>
+    <td class="numberOfCalls">2</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN4llvm38createAMDGPUPromoteKernelArgumentsPassEv</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN4llvm32AMDGPUPromoteKernelArgumentsPass3runERNS_8FunctionERNS_15AnalysisManagerIS1_JEEE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Coverage Diff</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Coverage Diff</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span> BUT NOT </span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </th>
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+      <span> BUT NOT </span>
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+    </th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="codeline">//===-- AMDGPUPromoteKernelArguments.cpp ----------------------------------===//</td>
+    <td class="lineNumber">1</td>
+    <td class="codeline">//===-- AMDGPUPromoteKernelArguments.cpp ----------------------------------===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">2</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="codeline">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">3</td>
+    <td class="codeline">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="codeline">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">4</td>
+    <td class="codeline">// See https://llvm.org/LICENSE.txt for license information.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="codeline">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">5</td>
+    <td class="codeline">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">6</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">7</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">8</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="codeline">/// \file This pass recursively promotes generic pointer arguments of a kernel</td>
+    <td class="lineNumber">9</td>
+    <td class="codeline">/// \file This pass recursively promotes generic pointer arguments of a kernel</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="codeline">/// into the global address space.</td>
+    <td class="lineNumber">10</td>
+    <td class="codeline">/// into the global address space.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="codeline">///</td>
+    <td class="lineNumber">11</td>
+    <td class="codeline">///</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class="codeline">/// The pass walks kernel's pointer arguments, then loads from them. If a loaded</td>
+    <td class="lineNumber">12</td>
+    <td class="codeline">/// The pass walks kernel's pointer arguments, then loads from them. If a loaded</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class="codeline">/// value is a pointer and loaded pointer is unmodified in the kernel before the</td>
+    <td class="lineNumber">13</td>
+    <td class="codeline">/// value is a pointer and loaded pointer is unmodified in the kernel before the</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class="codeline">/// load, then promote loaded pointer to global. Then recursively continue.</td>
+    <td class="lineNumber">14</td>
+    <td class="codeline">/// load, then promote loaded pointer to global. Then recursively continue.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">15</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">16</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">17</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class="codeline">#include "AMDGPU.h"</td>
+    <td class="lineNumber">18</td>
+    <td class="codeline">#include "AMDGPU.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class="codeline">#include "Utils/AMDGPUMemoryUtils.h"</td>
+    <td class="lineNumber">19</td>
+    <td class="codeline">#include "Utils/AMDGPUMemoryUtils.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class="codeline">#include "llvm/ADT/SmallVector.h"</td>
+    <td class="lineNumber">20</td>
+    <td class="codeline">#include "llvm/ADT/SmallVector.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class="codeline">#include "llvm/Analysis/AliasAnalysis.h"</td>
+    <td class="lineNumber">21</td>
+    <td class="codeline">#include "llvm/Analysis/AliasAnalysis.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class="codeline">#include "llvm/Analysis/MemorySSA.h"</td>
+    <td class="lineNumber">22</td>
+    <td class="codeline">#include "llvm/Analysis/MemorySSA.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class="codeline">#include "llvm/IR/IRBuilder.h"</td>
+    <td class="lineNumber">23</td>
+    <td class="codeline">#include "llvm/IR/IRBuilder.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class="codeline">#include "llvm/InitializePasses.h"</td>
+    <td class="lineNumber">24</td>
+    <td class="codeline">#include "llvm/InitializePasses.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">25</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class="codeline">#define DEBUG_TYPE "amdgpu-promote-kernel-arguments"</td>
+    <td class="lineNumber">26</td>
+    <td class="codeline">#define DEBUG_TYPE "amdgpu-promote-kernel-arguments"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">27</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class="codeline">using namespace llvm;</td>
+    <td class="lineNumber">28</td>
+    <td class="codeline">using namespace llvm;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">29</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class="codeline">namespace {</td>
+    <td class="lineNumber">30</td>
+    <td class="codeline">namespace {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">31</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class="codeline">class AMDGPUPromoteKernelArguments : public FunctionPass {</td>
+    <td class="lineNumber">32</td>
+    <td class="codeline">class AMDGPUPromoteKernelArguments : public FunctionPass {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class="codeline">  MemorySSA *MSSA;</td>
+    <td class="lineNumber">33</td>
+    <td class="codeline">  MemorySSA *MSSA;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">34</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class="codeline">  AliasAnalysis *AA;</td>
+    <td class="lineNumber">35</td>
+    <td class="codeline">  AliasAnalysis *AA;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">36</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class="codeline">  Instruction *ArgCastInsertPt;</td>
+    <td class="lineNumber">37</td>
+    <td class="codeline">  Instruction *ArgCastInsertPt;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">38</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class="codeline">  SmallVector<Value *> Ptrs;</td>
+    <td class="lineNumber">39</td>
+    <td class="codeline">  SmallVector<Value *> Ptrs;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">40</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class="codeline">  void enqueueUsers(Value *Ptr);</td>
+    <td class="lineNumber">41</td>
+    <td class="codeline">  void enqueueUsers(Value *Ptr);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">42</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class="codeline">  bool promotePointer(Value *Ptr);</td>
+    <td class="lineNumber">43</td>
+    <td class="codeline">  bool promotePointer(Value *Ptr);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">44</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class="codeline">  bool promoteLoad(LoadInst *LI);</td>
+    <td class="lineNumber">45</td>
+    <td class="codeline">  bool promoteLoad(LoadInst *LI);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">46</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class="codeline">public:</td>
+    <td class="lineNumber">47</td>
+    <td class="codeline">public:</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class="codeline">  static char ID;</td>
+    <td class="lineNumber">48</td>
+    <td class="codeline">  static char ID;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">49</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class="codeline">  AMDGPUPromoteKernelArguments() : FunctionPass(ID) {}</td>
+    <td class="lineNumber">50</td>
+    <td class="codeline">  AMDGPUPromoteKernelArguments() : FunctionPass(ID) {}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">51</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class="codeline">  bool run(Function &F, MemorySSA &MSSA, AliasAnalysis &AA);</td>
+    <td class="lineNumber">52</td>
+    <td class="codeline">  bool run(Function &F, MemorySSA &MSSA, AliasAnalysis &AA);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">53</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class="codeline">  bool runOnFunction(Function &F) override;</td>
+    <td class="lineNumber">54</td>
+    <td class="codeline">  bool runOnFunction(Function &F) override;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">55</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class="codeline">  void getAnalysisUsage(AnalysisUsage &AU) const override {</td>
+    <td class="lineNumber">56</td>
+    <td class="codeline">  void getAnalysisUsage(AnalysisUsage &AU) const override {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class="codeline">    AU.addRequired<AAResultsWrapperPass>();</td>
+    <td class="lineNumber">57</td>
+    <td class="codeline">    AU.addRequired<AAResultsWrapperPass>();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class="codeline">    AU.addRequired<MemorySSAWrapperPass>();</td>
+    <td class="lineNumber">58</td>
+    <td class="codeline">    AU.addRequired<MemorySSAWrapperPass>();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class="codeline">    AU.setPreservesAll();</td>
+    <td class="lineNumber">59</td>
+    <td class="codeline">    AU.setPreservesAll();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">60</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class="codeline">};</td>
+    <td class="lineNumber">61</td>
+    <td class="codeline">};</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">62</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class="codeline">} // end anonymous namespace</td>
+    <td class="lineNumber">63</td>
+    <td class="codeline">} // end anonymous namespace</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">64</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class="codeline">void AMDGPUPromoteKernelArguments::enqueueUsers(Value *Ptr) {</td>
+    <td class="lineNumber">65</td>
+    <td class="codeline">void AMDGPUPromoteKernelArguments::enqueueUsers(Value *Ptr) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class="codeline">  SmallVector<User *> PtrUsers(Ptr->users());</td>
+    <td class="lineNumber">66</td>
+    <td class="codeline">  SmallVector<User *> PtrUsers(Ptr->users());</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">67</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class="codeline">  while (!PtrUsers.empty()) {</td>
+    <td class="lineNumber">68</td>
+    <td class="codeline">  while (!PtrUsers.empty()) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class="codeline">    Instruction *U = dyn_cast<Instruction>(PtrUsers.pop_back_val());</td>
+    <td class="lineNumber">69</td>
+    <td class="codeline">    Instruction *U = dyn_cast<Instruction>(PtrUsers.pop_back_val());</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class="codeline">    if (!U)</td>
+    <td class="lineNumber">70</td>
+    <td class="codeline">    if (!U)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class="codeline">      continue;</td>
+    <td class="lineNumber">71</td>
+    <td class="codeline">      continue;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">72</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class="codeline">    switch (U->getOpcode()) {</td>
+    <td class="lineNumber">73</td>
+    <td class="codeline">    switch (U->getOpcode()) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class="codeline">    default:</td>
+    <td class="lineNumber">74</td>
+    <td class="codeline">    default:</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class="codeline">      break;</td>
+    <td class="lineNumber">75</td>
+    <td class="codeline">      break;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class="codeline">    case Instruction::Load: {</td>
+    <td class="lineNumber">76</td>
+    <td class="codeline">    case Instruction::Load: {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class="codeline">      LoadInst *LD = cast<LoadInst>(U);</td>
+    <td class="lineNumber">77</td>
+    <td class="codeline">      LoadInst *LD = cast<LoadInst>(U);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class="codeline">      if (LD->getPointerOperand()->stripInBoundsOffsets() == Ptr &&</td>
+    <td class="lineNumber">78</td>
+    <td class="codeline">      if (LD->getPointerOperand()->stripInBoundsOffsets() == Ptr &&</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class="codeline">          !AMDGPU::isClobberedInFunction(LD, MSSA, AA))</td>
+    <td class="lineNumber">79</td>
+    <td class="codeline">          !AMDGPU::isClobberedInFunction(LD, MSSA, AA))</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class="codeline">        Ptrs.push_back(LD);</td>
+    <td class="lineNumber">80</td>
+    <td class="codeline">        Ptrs.push_back(LD);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">81</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class="codeline">      break;</td>
+    <td class="lineNumber">82</td>
+    <td class="codeline">      break;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class="codeline">    }</td>
+    <td class="lineNumber">83</td>
+    <td class="codeline">    }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class="codeline">    case Instruction::GetElementPtr:</td>
+    <td class="lineNumber">84</td>
+    <td class="codeline">    case Instruction::GetElementPtr:</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class="codeline">    case Instruction::AddrSpaceCast:</td>
+    <td class="lineNumber">85</td>
+    <td class="codeline">    case Instruction::AddrSpaceCast:</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class="codeline">    case Instruction::BitCast:</td>
+    <td class="lineNumber">86</td>
+    <td class="codeline">    case Instruction::BitCast:</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class="codeline">      if (U->getOperand(0)->stripInBoundsOffsets() == Ptr)</td>
+    <td class="lineNumber">87</td>
+    <td class="codeline">      if (U->getOperand(0)->stripInBoundsOffsets() == Ptr)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class="codeline">        PtrUsers.append(U->user_begin(), U->user_end());</td>
+    <td class="lineNumber">88</td>
+    <td class="codeline">        PtrUsers.append(U->user_begin(), U->user_end());</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class="codeline">      break;</td>
+    <td class="lineNumber">89</td>
+    <td class="codeline">      break;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">90</td>
+    <td class="codeline">    }</td>
+    <td class="lineNumber">90</td>
+    <td class="codeline">    }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">91</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">91</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">92</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">92</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">93</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">93</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">94</td>
+    <td class="codeline">bool AMDGPUPromoteKernelArguments::promotePointer(Value *Ptr) {</td>
+    <td class="lineNumber">94</td>
+    <td class="codeline">bool AMDGPUPromoteKernelArguments::promotePointer(Value *Ptr) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">95</td>
+    <td class="codeline">  bool Changed = false;</td>
+    <td class="lineNumber">95</td>
+    <td class="codeline">  bool Changed = false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">96</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">96</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">97</td>
+    <td class="codeline">  LoadInst *LI = dyn_cast<LoadInst>(Ptr);</td>
+    <td class="lineNumber">97</td>
+    <td class="codeline">  LoadInst *LI = dyn_cast<LoadInst>(Ptr);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">98</td>
+    <td class="codeline">  if (LI)</td>
+    <td class="lineNumber">98</td>
+    <td class="codeline">  if (LI)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">99</td>
+    <td class="codeline">    Changed |= promoteLoad(LI);</td>
+    <td class="lineNumber">99</td>
+    <td class="codeline">    Changed |= promoteLoad(LI);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">100</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">100</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">101</td>
+    <td class="codeline">  PointerType *PT = dyn_cast<PointerType>(Ptr->getType());</td>
+    <td class="lineNumber">101</td>
+    <td class="codeline">  PointerType *PT = dyn_cast<PointerType>(Ptr->getType());</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">102</td>
+    <td class="codeline">  if (!PT)</td>
+    <td class="lineNumber">102</td>
+    <td class="codeline">  if (!PT)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">103</td>
+    <td class="codeline">    return Changed;</td>
+    <td class="lineNumber">103</td>
+    <td class="codeline">    return Changed;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">104</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">104</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">105</td>
+    <td class="codeline">  if (PT->getAddressSpace() == AMDGPUAS::FLAT_ADDRESS ||</td>
+    <td class="lineNumber">105</td>
+    <td class="codeline">  if (PT->getAddressSpace() == AMDGPUAS::FLAT_ADDRESS ||</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">106</td>
+    <td class="codeline">      PT->getAddressSpace() == AMDGPUAS::GLOBAL_ADDRESS ||</td>
+    <td class="lineNumber">106</td>
+    <td class="codeline">      PT->getAddressSpace() == AMDGPUAS::GLOBAL_ADDRESS ||</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">107</td>
+    <td class="codeline">      PT->getAddressSpace() == AMDGPUAS::CONSTANT_ADDRESS)</td>
+    <td class="lineNumber">107</td>
+    <td class="codeline">      PT->getAddressSpace() == AMDGPUAS::CONSTANT_ADDRESS)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">108</td>
+    <td class="codeline">    enqueueUsers(Ptr);</td>
+    <td class="lineNumber">108</td>
+    <td class="codeline">    enqueueUsers(Ptr);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">109</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">109</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">110</td>
+    <td class="codeline">  if (PT->getAddressSpace() != AMDGPUAS::FLAT_ADDRESS)</td>
+    <td class="lineNumber">110</td>
+    <td class="codeline">  if (PT->getAddressSpace() != AMDGPUAS::FLAT_ADDRESS)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">111</td>
+    <td class="codeline">    return Changed;</td>
+    <td class="lineNumber">111</td>
+    <td class="codeline">    return Changed;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">112</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">112</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">113</td>
+    <td class="codeline">  IRBuilder<> B(LI ? &*std::next(cast<Instruction>(Ptr)->getIterator())</td>
+    <td class="lineNumber">113</td>
+    <td class="codeline">  IRBuilder<> B(LI ? &*std::next(cast<Instruction>(Ptr)->getIterator())</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">114</td>
+    <td class="codeline">                   : ArgCastInsertPt);</td>
+    <td class="lineNumber">114</td>
+    <td class="codeline">                   : ArgCastInsertPt);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">115</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">115</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">116</td>
+    <td class="codeline">  // Cast pointer to global address space and back to flat and let</td>
+    <td class="lineNumber">116</td>
+    <td class="codeline">  // Cast pointer to global address space and back to flat and let</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">117</td>
+    <td class="codeline">  // Infer Address Spaces pass to do all necessary rewriting.</td>
+    <td class="lineNumber">117</td>
+    <td class="codeline">  // Infer Address Spaces pass to do all necessary rewriting.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">118</td>
+    <td class="codeline">  PointerType *NewPT =</td>
+    <td class="lineNumber">118</td>
+    <td class="codeline">  PointerType *NewPT =</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">119</td>
+    <td class="codeline">      PointerType::get(PT->getContext(), AMDGPUAS::GLOBAL_ADDRESS);</td>
+    <td class="lineNumber">119</td>
+    <td class="codeline">      PointerType::get(PT->getContext(), AMDGPUAS::GLOBAL_ADDRESS);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">120</td>
+    <td class="codeline">  Value *Cast =</td>
+    <td class="lineNumber">120</td>
+    <td class="codeline">  Value *Cast =</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">121</td>
+    <td class="codeline">      B.CreateAddrSpaceCast(Ptr, NewPT, Twine(Ptr->getName(), ".global"));</td>
+    <td class="lineNumber">121</td>
+    <td class="codeline">      B.CreateAddrSpaceCast(Ptr, NewPT, Twine(Ptr->getName(), ".global"));</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">122</td>
+    <td class="codeline">  Value *CastBack =</td>
+    <td class="lineNumber">122</td>
+    <td class="codeline">  Value *CastBack =</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">123</td>
+    <td class="codeline">      B.CreateAddrSpaceCast(Cast, PT, Twine(Ptr->getName(), ".flat"));</td>
+    <td class="lineNumber">123</td>
+    <td class="codeline">      B.CreateAddrSpaceCast(Cast, PT, Twine(Ptr->getName(), ".flat"));</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">124</td>
+    <td class="codeline">  Ptr->replaceUsesWithIf(CastBack,</td>
+    <td class="lineNumber">124</td>
+    <td class="codeline">  Ptr->replaceUsesWithIf(CastBack,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">125</td>
+    <td class="codeline">                         [Cast](Use &U) { return U.getUser() != Cast; });</td>
+    <td class="lineNumber">125</td>
+    <td class="codeline">                         [Cast](Use &U) { return U.getUser() != Cast; });</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">126</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">126</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">127</td>
+    <td class="codeline">  return true;</td>
+    <td class="lineNumber">127</td>
+    <td class="codeline">  return true;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">128</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">128</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">129</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">129</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">130</td>
+    <td class="codeline">bool AMDGPUPromoteKernelArguments::promoteLoad(LoadInst *LI) {</td>
+    <td class="lineNumber">130</td>
+    <td class="codeline">bool AMDGPUPromoteKernelArguments::promoteLoad(LoadInst *LI) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">131</td>
+    <td class="codeline">  if (!LI->isSimple())</td>
+    <td class="lineNumber">131</td>
+    <td class="codeline">  if (!LI->isSimple())</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">132</td>
+    <td class="codeline">    return false;</td>
+    <td class="lineNumber">132</td>
+    <td class="codeline">    return false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">133</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">133</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">134</td>
+    <td class="codeline">  LI->setMetadata("amdgpu.noclobber", MDNode::get(LI->getContext(), {}));</td>
+    <td class="lineNumber">134</td>
+    <td class="codeline">  LI->setMetadata("amdgpu.noclobber", MDNode::get(LI->getContext(), {}));</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">135</td>
+    <td class="codeline">  return true;</td>
+    <td class="lineNumber">135</td>
+    <td class="codeline">  return true;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">136</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">136</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">137</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">137</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">138</td>
+    <td class="codeline">// skip allocas</td>
+    <td class="lineNumber">138</td>
+    <td class="codeline">// skip allocas</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">139</td>
+    <td class="codeline">static BasicBlock::iterator getInsertPt(BasicBlock &BB) {</td>
+    <td class="lineNumber">139</td>
+    <td class="codeline">static BasicBlock::iterator getInsertPt(BasicBlock &BB) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">140</td>
+    <td class="codeline">  BasicBlock::iterator InsPt = BB.getFirstInsertionPt();</td>
+    <td class="lineNumber">140</td>
+    <td class="codeline">  BasicBlock::iterator InsPt = BB.getFirstInsertionPt();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">141</td>
+    <td class="codeline">  for (BasicBlock::iterator E = BB.end(); InsPt != E; ++InsPt) {</td>
+    <td class="lineNumber">141</td>
+    <td class="codeline">  for (BasicBlock::iterator E = BB.end(); InsPt != E; ++InsPt) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">142</td>
+    <td class="codeline">    AllocaInst *AI = dyn_cast<AllocaInst>(&*InsPt);</td>
+    <td class="lineNumber">142</td>
+    <td class="codeline">    AllocaInst *AI = dyn_cast<AllocaInst>(&*InsPt);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">143</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">143</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">144</td>
+    <td class="codeline">    // If this is a dynamic alloca, the value may depend on the loaded kernargs,</td>
+    <td class="lineNumber">144</td>
+    <td class="codeline">    // If this is a dynamic alloca, the value may depend on the loaded kernargs,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">145</td>
+    <td class="codeline">    // so loads will need to be inserted before it.</td>
+    <td class="lineNumber">145</td>
+    <td class="codeline">    // so loads will need to be inserted before it.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">146</td>
+    <td class="codeline">    if (!AI || !AI->isStaticAlloca())</td>
+    <td class="lineNumber">146</td>
+    <td class="codeline">    if (!AI || !AI->isStaticAlloca())</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">147</td>
+    <td class="codeline">      break;</td>
+    <td class="lineNumber">147</td>
+    <td class="codeline">      break;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">148</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">148</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">149</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">149</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">150</td>
+    <td class="codeline">  return InsPt;</td>
+    <td class="lineNumber">150</td>
+    <td class="codeline">  return InsPt;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">151</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">151</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">152</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">152</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">153</td>
+    <td class="codeline">bool AMDGPUPromoteKernelArguments::run(Function &F, MemorySSA &MSSA,</td>
+    <td class="lineNumber">153</td>
+    <td class="codeline">bool AMDGPUPromoteKernelArguments::run(Function &F, MemorySSA &MSSA,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">154</td>
+    <td class="codeline">                                       AliasAnalysis &AA) {</td>
+    <td class="lineNumber">154</td>
+    <td class="codeline">                                       AliasAnalysis &AA) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">155</td>
+    <td class="codeline">  if (skipFunction(F))</td>
+    <td class="lineNumber">155</td>
+    <td class="codeline">  if (skipFunction(F))</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">156</td>
+    <td class="codeline">    return false;</td>
+    <td class="lineNumber">156</td>
+    <td class="codeline">    return false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">157</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">157</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">158</td>
+    <td class="codeline">  CallingConv::ID CC = F.getCallingConv();</td>
+    <td class="lineNumber">158</td>
+    <td class="codeline">  CallingConv::ID CC = F.getCallingConv();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">159</td>
+    <td class="codeline">  if (CC != CallingConv::AMDGPU_KERNEL || F.arg_empty())</td>
+    <td class="lineNumber">159</td>
+    <td class="codeline">  if (CC != CallingConv::AMDGPU_KERNEL || F.arg_empty())</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">160</td>
+    <td class="codeline">    return false;</td>
+    <td class="lineNumber">160</td>
+    <td class="codeline">    return false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">161</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">161</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">162</td>
+    <td class="codeline">  ArgCastInsertPt = &*getInsertPt(*F.begin());</td>
+    <td class="lineNumber">162</td>
+    <td class="codeline">  ArgCastInsertPt = &*getInsertPt(*F.begin());</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">163</td>
+    <td class="codeline">  this->MSSA = &MSSA;</td>
+    <td class="lineNumber">163</td>
+    <td class="codeline">  this->MSSA = &MSSA;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">164</td>
+    <td class="codeline">  this->AA = &AA;</td>
+    <td class="lineNumber">164</td>
+    <td class="codeline">  this->AA = &AA;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">165</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">165</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">166</td>
+    <td class="codeline">  for (Argument &Arg : F.args()) {</td>
+    <td class="lineNumber">166</td>
+    <td class="codeline">  for (Argument &Arg : F.args()) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">167</td>
+    <td class="codeline">    if (Arg.use_empty())</td>
+    <td class="lineNumber">167</td>
+    <td class="codeline">    if (Arg.use_empty())</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">168</td>
+    <td class="codeline">      continue;</td>
+    <td class="lineNumber">168</td>
+    <td class="codeline">      continue;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">169</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">169</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">170</td>
+    <td class="codeline">    PointerType *PT = dyn_cast<PointerType>(Arg.getType());</td>
+    <td class="lineNumber">170</td>
+    <td class="codeline">    PointerType *PT = dyn_cast<PointerType>(Arg.getType());</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">171</td>
+    <td class="codeline">    if (!PT || (PT->getAddressSpace() != AMDGPUAS::FLAT_ADDRESS &&</td>
+    <td class="lineNumber">171</td>
+    <td class="codeline">    if (!PT || (PT->getAddressSpace() != AMDGPUAS::FLAT_ADDRESS &&</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">172</td>
+    <td class="codeline">                PT->getAddressSpace() != AMDGPUAS::GLOBAL_ADDRESS &&</td>
+    <td class="lineNumber">172</td>
+    <td class="codeline">                PT->getAddressSpace() != AMDGPUAS::GLOBAL_ADDRESS &&</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">173</td>
+    <td class="codeline">                PT->getAddressSpace() != AMDGPUAS::CONSTANT_ADDRESS))</td>
+    <td class="lineNumber">173</td>
+    <td class="codeline">                PT->getAddressSpace() != AMDGPUAS::CONSTANT_ADDRESS))</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">174</td>
+    <td class="codeline">      continue;</td>
+    <td class="lineNumber">174</td>
+    <td class="codeline">      continue;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">175</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">175</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">176</td>
+    <td class="codeline">    Ptrs.push_back(&Arg);</td>
+    <td class="lineNumber">176</td>
+    <td class="codeline">    Ptrs.push_back(&Arg);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">177</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">177</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">178</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">178</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">179</td>
+    <td class="codeline">  bool Changed = false;</td>
+    <td class="lineNumber">179</td>
+    <td class="codeline">  bool Changed = false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">180</td>
+    <td class="codeline">  while (!Ptrs.empty()) {</td>
+    <td class="lineNumber">180</td>
+    <td class="codeline">  while (!Ptrs.empty()) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">181</td>
+    <td class="codeline">    Value *Ptr = Ptrs.pop_back_val();</td>
+    <td class="lineNumber">181</td>
+    <td class="codeline">    Value *Ptr = Ptrs.pop_back_val();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">182</td>
+    <td class="codeline">    Changed |= promotePointer(Ptr);</td>
+    <td class="lineNumber">182</td>
+    <td class="codeline">    Changed |= promotePointer(Ptr);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">183</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">183</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">184</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">184</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">185</td>
+    <td class="codeline">  return Changed;</td>
+    <td class="lineNumber">185</td>
+    <td class="codeline">  return Changed;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">186</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">186</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">187</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">187</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">188</td>
+    <td class="codeline">bool AMDGPUPromoteKernelArguments::runOnFunction(Function &F) {</td>
+    <td class="lineNumber">188</td>
+    <td class="codeline">bool AMDGPUPromoteKernelArguments::runOnFunction(Function &F) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">189</td>
+    <td class="codeline">  MemorySSA &MSSA = getAnalysis<MemorySSAWrapperPass>().getMSSA();</td>
+    <td class="lineNumber">189</td>
+    <td class="codeline">  MemorySSA &MSSA = getAnalysis<MemorySSAWrapperPass>().getMSSA();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">190</td>
+    <td class="codeline">  AliasAnalysis &AA = getAnalysis<AAResultsWrapperPass>().getAAResults();</td>
+    <td class="lineNumber">190</td>
+    <td class="codeline">  AliasAnalysis &AA = getAnalysis<AAResultsWrapperPass>().getAAResults();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">191</td>
+    <td class="codeline">  return run(F, MSSA, AA);</td>
+    <td class="lineNumber">191</td>
+    <td class="codeline">  return run(F, MSSA, AA);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">192</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">192</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">193</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">193</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">194</td>
+    <td class="codeline">INITIALIZE_PASS_BEGIN(AMDGPUPromoteKernelArguments, DEBUG_TYPE,</td>
+    <td class="lineNumber">194</td>
+    <td class="codeline">INITIALIZE_PASS_BEGIN(AMDGPUPromoteKernelArguments, DEBUG_TYPE,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">195</td>
+    <td class="codeline">                      "AMDGPU Promote Kernel Arguments", false, false)</td>
+    <td class="lineNumber">195</td>
+    <td class="codeline">                      "AMDGPU Promote Kernel Arguments", false, false)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">196</td>
+    <td class="codeline">INITIALIZE_PASS_DEPENDENCY(AAResultsWrapperPass)</td>
+    <td class="lineNumber">196</td>
+    <td class="codeline">INITIALIZE_PASS_DEPENDENCY(AAResultsWrapperPass)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">197</td>
+    <td class="codeline">INITIALIZE_PASS_DEPENDENCY(MemorySSAWrapperPass)</td>
+    <td class="lineNumber">197</td>
+    <td class="codeline">INITIALIZE_PASS_DEPENDENCY(MemorySSAWrapperPass)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">198</td>
+    <td class="codeline">INITIALIZE_PASS_END(AMDGPUPromoteKernelArguments, DEBUG_TYPE,</td>
+    <td class="lineNumber">198</td>
+    <td class="codeline">INITIALIZE_PASS_END(AMDGPUPromoteKernelArguments, DEBUG_TYPE,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">199</td>
+    <td class="codeline">                    "AMDGPU Promote Kernel Arguments", false, false)</td>
+    <td class="lineNumber">199</td>
+    <td class="codeline">                    "AMDGPU Promote Kernel Arguments", false, false)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">200</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">200</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">201</td>
+    <td class="codeline">char AMDGPUPromoteKernelArguments::ID = 0;</td>
+    <td class="lineNumber">201</td>
+    <td class="codeline">char AMDGPUPromoteKernelArguments::ID = 0;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">202</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">202</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">203</td>
+    <td class="codeline">FunctionPass *llvm::createAMDGPUPromoteKernelArgumentsPass() {</td>
+    <td class="lineNumber">203</td>
+    <td class="codeline">FunctionPass *llvm::createAMDGPUPromoteKernelArgumentsPass() {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">204</td>
+    <td class="codeline">  return new AMDGPUPromoteKernelArguments();</td>
+    <td class="lineNumber">204</td>
+    <td class="codeline">  return new AMDGPUPromoteKernelArguments();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">205</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">205</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">206</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">206</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">207</td>
+    <td class="codeline">PreservedAnalyses</td>
+    <td class="lineNumber">207</td>
+    <td class="codeline">PreservedAnalyses</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">208</td>
+    <td class="codeline">AMDGPUPromoteKernelArgumentsPass::run(Function &F,</td>
+    <td class="lineNumber">208</td>
+    <td class="codeline">AMDGPUPromoteKernelArgumentsPass::run(Function &F,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">209</td>
+    <td class="codeline">                                      FunctionAnalysisManager &AM) {</td>
+    <td class="lineNumber">209</td>
+    <td class="codeline">                                      FunctionAnalysisManager &AM) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">210</td>
+    <td class="codeline">  MemorySSA &MSSA = AM.getResult<MemorySSAAnalysis>(F).getMSSA();</td>
+    <td class="lineNumber">210</td>
+    <td class="codeline">  MemorySSA &MSSA = AM.getResult<MemorySSAAnalysis>(F).getMSSA();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">211</td>
+    <td class="codeline">  AliasAnalysis &AA = AM.getResult<AAManager>(F);</td>
+    <td class="lineNumber">211</td>
+    <td class="codeline">  AliasAnalysis &AA = AM.getResult<AAManager>(F);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">212</td>
+    <td class="codeline">  if (AMDGPUPromoteKernelArguments().run(F, MSSA, AA)) {</td>
+    <td class="lineNumber">212</td>
+    <td class="codeline">  if (AMDGPUPromoteKernelArguments().run(F, MSSA, AA)) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">213</td>
+    <td class="codeline">    PreservedAnalyses PA;</td>
+    <td class="lineNumber">213</td>
+    <td class="codeline">    PreservedAnalyses PA;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">214</td>
+    <td class="codeline">    PA.preserveSet<CFGAnalyses>();</td>
+    <td class="lineNumber">214</td>
+    <td class="codeline">    PA.preserveSet<CFGAnalyses>();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">215</td>
+    <td class="codeline">    PA.preserve<MemorySSAAnalysis>();</td>
+    <td class="lineNumber">215</td>
+    <td class="codeline">    PA.preserve<MemorySSAAnalysis>();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">216</td>
+    <td class="codeline">    return PA;</td>
+    <td class="lineNumber">216</td>
+    <td class="codeline">    return PA;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">217</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">217</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">218</td>
+    <td class="codeline">  return PreservedAnalyses::all();</td>
+    <td class="lineNumber">218</td>
+    <td class="codeline">  return PreservedAnalyses::all();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">219</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">219</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">220</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">220</td>
+    <td class="codeline"></td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Side By Side Comparison</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Side By Side Comparison</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+    </th>
+    <th class="mainTh">Hit count</th>
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </th>
+    <th class="mainTh">Hit count</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="codeLine">//===-- AMDGPUPromoteKernelArguments.cpp ----------------------------------===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">1</td>
+    <td class="codeLine">//===-- AMDGPUPromoteKernelArguments.cpp ----------------------------------===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">2</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="codeLine">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">3</td>
+    <td class="codeLine">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="codeLine">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">4</td>
+    <td class="codeLine">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="codeLine">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">5</td>
+    <td class="codeLine">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">6</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">7</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">8</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="codeLine">/// \file This pass recursively promotes generic pointer arguments of a kernel</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">9</td>
+    <td class="codeLine">/// \file This pass recursively promotes generic pointer arguments of a kernel</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="codeLine">/// into the global address space.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">10</td>
+    <td class="codeLine">/// into the global address space.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="codeLine">///</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">11</td>
+    <td class="codeLine">///</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class="codeLine">/// The pass walks kernel's pointer arguments, then loads from them. If a loaded</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">12</td>
+    <td class="codeLine">/// The pass walks kernel's pointer arguments, then loads from them. If a loaded</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class="codeLine">/// value is a pointer and loaded pointer is unmodified in the kernel before the</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">13</td>
+    <td class="codeLine">/// value is a pointer and loaded pointer is unmodified in the kernel before the</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class="codeLine">/// load, then promote loaded pointer to global. Then recursively continue.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">14</td>
+    <td class="codeLine">/// load, then promote loaded pointer to global. Then recursively continue.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">15</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">16</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">17</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class="codeLine">#include "AMDGPU.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">18</td>
+    <td class="codeLine">#include "AMDGPU.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class="codeLine">#include "Utils/AMDGPUMemoryUtils.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">19</td>
+    <td class="codeLine">#include "Utils/AMDGPUMemoryUtils.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class="codeLine">#include "llvm/ADT/SmallVector.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">20</td>
+    <td class="codeLine">#include "llvm/ADT/SmallVector.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class="codeLine">#include "llvm/Analysis/AliasAnalysis.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">21</td>
+    <td class="codeLine">#include "llvm/Analysis/AliasAnalysis.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class="codeLine">#include "llvm/Analysis/MemorySSA.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">22</td>
+    <td class="codeLine">#include "llvm/Analysis/MemorySSA.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class="codeLine">#include "llvm/IR/IRBuilder.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">23</td>
+    <td class="codeLine">#include "llvm/IR/IRBuilder.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class="codeLine">#include "llvm/InitializePasses.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">24</td>
+    <td class="codeLine">#include "llvm/InitializePasses.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">25</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class="codeLine">#define DEBUG_TYPE "amdgpu-promote-kernel-arguments"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">26</td>
+    <td class="codeLine">#define DEBUG_TYPE "amdgpu-promote-kernel-arguments"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">27</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class="codeLine">using namespace llvm;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">28</td>
+    <td class="codeLine">using namespace llvm;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">29</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class="codeLine">namespace {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">30</td>
+    <td class="codeLine">namespace {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">31</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class="codeLine">class AMDGPUPromoteKernelArguments : public FunctionPass {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">32</td>
+    <td class="codeLine">class AMDGPUPromoteKernelArguments : public FunctionPass {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class="codeLine">  MemorySSA *MSSA;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">33</td>
+    <td class="codeLine">  MemorySSA *MSSA;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">34</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class="codeLine">  AliasAnalysis *AA;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">35</td>
+    <td class="codeLine">  AliasAnalysis *AA;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">36</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class="codeLine">  Instruction *ArgCastInsertPt;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">37</td>
+    <td class="codeLine">  Instruction *ArgCastInsertPt;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">38</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class="codeLine">  SmallVector<Value *> Ptrs;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">39</td>
+    <td class="codeLine">  SmallVector<Value *> Ptrs;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">40</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class="codeLine">  void enqueueUsers(Value *Ptr);</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">41</td>
+    <td class="codeLine">  void enqueueUsers(Value *Ptr);</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">42</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class="codeLine">  bool promotePointer(Value *Ptr);</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">43</td>
+    <td class="codeLine">  bool promotePointer(Value *Ptr);</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">44</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class="codeLine">  bool promoteLoad(LoadInst *LI);</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">45</td>
+    <td class="codeLine">  bool promoteLoad(LoadInst *LI);</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">46</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class="codeLine">public:</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">47</td>
+    <td class="codeLine">public:</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class="codeLine">  static char ID;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">48</td>
+    <td class="codeLine">  static char ID;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">49</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class="codeLine">  AMDGPUPromoteKernelArguments() : FunctionPass(ID) {}</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">50</td>
+    <td class="codeLine">  AMDGPUPromoteKernelArguments() : FunctionPass(ID) {}</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">51</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class="codeLine">  bool run(Function &F, MemorySSA &MSSA, AliasAnalysis &AA);</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">52</td>
+    <td class="codeLine">  bool run(Function &F, MemorySSA &MSSA, AliasAnalysis &AA);</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">53</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class="codeLine">  bool runOnFunction(Function &F) override;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">54</td>
+    <td class="codeLine">  bool runOnFunction(Function &F) override;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">55</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class="codeLine">  void getAnalysisUsage(AnalysisUsage &AU) const override {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">56</td>
+    <td class="codeLine">  void getAnalysisUsage(AnalysisUsage &AU) const override {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class="codeLine">    AU.addRequired<AAResultsWrapperPass>();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">57</td>
+    <td class="codeLine">    AU.addRequired<AAResultsWrapperPass>();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class="codeLine">    AU.addRequired<MemorySSAWrapperPass>();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">58</td>
+    <td class="codeLine">    AU.addRequired<MemorySSAWrapperPass>();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class="codeLine">    AU.setPreservesAll();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">59</td>
+    <td class="codeLine">    AU.setPreservesAll();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">60</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class="codeLine">};</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">61</td>
+    <td class="codeLine">};</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">62</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class="codeLine">} // end anonymous namespace</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">63</td>
+    <td class="codeLine">} // end anonymous namespace</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">64</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class="codeLine">void AMDGPUPromoteKernelArguments::enqueueUsers(Value *Ptr) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">65</td>
+    <td class="codeLine">void AMDGPUPromoteKernelArguments::enqueueUsers(Value *Ptr) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class="codeLine">  SmallVector<User *> PtrUsers(Ptr->users());</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">66</td>
+    <td class="codeLine">  SmallVector<User *> PtrUsers(Ptr->users());</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">67</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class="codeLine">  while (!PtrUsers.empty()) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">68</td>
+    <td class="codeLine">  while (!PtrUsers.empty()) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class="codeLine">    Instruction *U = dyn_cast<Instruction>(PtrUsers.pop_back_val());</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">69</td>
+    <td class="codeLine">    Instruction *U = dyn_cast<Instruction>(PtrUsers.pop_back_val());</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class="codeLine">    if (!U)</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">70</td>
+    <td class="codeLine">    if (!U)</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class="codeLine">      continue;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">71</td>
+    <td class="codeLine">      continue;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">72</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class="codeLine">    switch (U->getOpcode()) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">73</td>
+    <td class="codeLine">    switch (U->getOpcode()) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class="codeLine">    default:</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">74</td>
+    <td class="codeLine">    default:</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class="codeLine">      break;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">75</td>
+    <td class="codeLine">      break;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class="codeLine">    case Instruction::Load: {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">76</td>
+    <td class="codeLine">    case Instruction::Load: {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class="codeLine">      LoadInst *LD = cast<LoadInst>(U);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">77</td>
+    <td class="codeLine">      LoadInst *LD = cast<LoadInst>(U);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class="codeLine">      if (LD->getPointerOperand()->stripInBoundsOffsets() == Ptr &&</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">78</td>
+    <td class="codeLine">      if (LD->getPointerOperand()->stripInBoundsOffsets() == Ptr &&</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class="codeLine">          !AMDGPU::isClobberedInFunction(LD, MSSA, AA))</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">79</td>
+    <td class="codeLine">          !AMDGPU::isClobberedInFunction(LD, MSSA, AA))</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class="codeLine">        Ptrs.push_back(LD);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">80</td>
+    <td class="codeLine">        Ptrs.push_back(LD);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">81</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class="codeLine">      break;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">82</td>
+    <td class="codeLine">      break;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class="codeLine">    }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">83</td>
+    <td class="codeLine">    }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class="codeLine">    case Instruction::GetElementPtr:</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">84</td>
+    <td class="codeLine">    case Instruction::GetElementPtr:</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class="codeLine">    case Instruction::AddrSpaceCast:</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">85</td>
+    <td class="codeLine">    case Instruction::AddrSpaceCast:</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class="codeLine">    case Instruction::BitCast:</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">86</td>
+    <td class="codeLine">    case Instruction::BitCast:</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class="codeLine">      if (U->getOperand(0)->stripInBoundsOffsets() == Ptr)</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">87</td>
+    <td class="codeLine">      if (U->getOperand(0)->stripInBoundsOffsets() == Ptr)</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class="codeLine">        PtrUsers.append(U->user_begin(), U->user_end());</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">88</td>
+    <td class="codeLine">        PtrUsers.append(U->user_begin(), U->user_end());</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class="codeLine">      break;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">89</td>
+    <td class="codeLine">      break;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">90</td>
+    <td class="codeLine">    }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">90</td>
+    <td class="codeLine">    }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">91</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">91</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">92</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">92</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">93</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">93</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">94</td>
+    <td class="codeLine">bool AMDGPUPromoteKernelArguments::promotePointer(Value *Ptr) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">94</td>
+    <td class="codeLine">bool AMDGPUPromoteKernelArguments::promotePointer(Value *Ptr) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">95</td>
+    <td class="codeLine">  bool Changed = false;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">95</td>
+    <td class="codeLine">  bool Changed = false;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">96</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">96</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">97</td>
+    <td class="codeLine">  LoadInst *LI = dyn_cast<LoadInst>(Ptr);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">97</td>
+    <td class="codeLine">  LoadInst *LI = dyn_cast<LoadInst>(Ptr);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">98</td>
+    <td class="codeLine">  if (LI)</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">98</td>
+    <td class="codeLine">  if (LI)</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">99</td>
+    <td class="codeLine">    Changed |= promoteLoad(LI);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">99</td>
+    <td class="codeLine">    Changed |= promoteLoad(LI);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">100</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">100</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">101</td>
+    <td class="codeLine">  PointerType *PT = dyn_cast<PointerType>(Ptr->getType());</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">101</td>
+    <td class="codeLine">  PointerType *PT = dyn_cast<PointerType>(Ptr->getType());</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">102</td>
+    <td class="codeLine">  if (!PT)</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">102</td>
+    <td class="codeLine">  if (!PT)</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">103</td>
+    <td class="codeLine">    return Changed;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">103</td>
+    <td class="codeLine">    return Changed;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">104</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">104</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">105</td>
+    <td class="codeLine">  if (PT->getAddressSpace() == AMDGPUAS::FLAT_ADDRESS ||</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">105</td>
+    <td class="codeLine">  if (PT->getAddressSpace() == AMDGPUAS::FLAT_ADDRESS ||</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">106</td>
+    <td class="codeLine">      PT->getAddressSpace() == AMDGPUAS::GLOBAL_ADDRESS ||</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">106</td>
+    <td class="codeLine">      PT->getAddressSpace() == AMDGPUAS::GLOBAL_ADDRESS ||</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">107</td>
+    <td class="codeLine">      PT->getAddressSpace() == AMDGPUAS::CONSTANT_ADDRESS)</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">107</td>
+    <td class="codeLine">      PT->getAddressSpace() == AMDGPUAS::CONSTANT_ADDRESS)</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">108</td>
+    <td class="codeLine">    enqueueUsers(Ptr);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">108</td>
+    <td class="codeLine">    enqueueUsers(Ptr);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">109</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">109</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">110</td>
+    <td class="codeLine">  if (PT->getAddressSpace() != AMDGPUAS::FLAT_ADDRESS)</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">110</td>
+    <td class="codeLine">  if (PT->getAddressSpace() != AMDGPUAS::FLAT_ADDRESS)</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">111</td>
+    <td class="codeLine">    return Changed;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">111</td>
+    <td class="codeLine">    return Changed;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">112</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">112</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">113</td>
+    <td class="codeLine">  IRBuilder<> B(LI ? &*std::next(cast<Instruction>(Ptr)->getIterator())</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">113</td>
+    <td class="codeLine">  IRBuilder<> B(LI ? &*std::next(cast<Instruction>(Ptr)->getIterator())</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">114</td>
+    <td class="codeLine">                   : ArgCastInsertPt);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">114</td>
+    <td class="codeLine">                   : ArgCastInsertPt);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">115</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">115</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">116</td>
+    <td class="codeLine">  // Cast pointer to global address space and back to flat and let</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">116</td>
+    <td class="codeLine">  // Cast pointer to global address space and back to flat and let</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">117</td>
+    <td class="codeLine">  // Infer Address Spaces pass to do all necessary rewriting.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">117</td>
+    <td class="codeLine">  // Infer Address Spaces pass to do all necessary rewriting.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">118</td>
+    <td class="codeLine">  PointerType *NewPT =</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">118</td>
+    <td class="codeLine">  PointerType *NewPT =</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">119</td>
+    <td class="codeLine">      PointerType::get(PT->getContext(), AMDGPUAS::GLOBAL_ADDRESS);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">119</td>
+    <td class="codeLine">      PointerType::get(PT->getContext(), AMDGPUAS::GLOBAL_ADDRESS);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">120</td>
+    <td class="codeLine">  Value *Cast =</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">120</td>
+    <td class="codeLine">  Value *Cast =</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">121</td>
+    <td class="codeLine">      B.CreateAddrSpaceCast(Ptr, NewPT, Twine(Ptr->getName(), ".global"));</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">121</td>
+    <td class="codeLine">      B.CreateAddrSpaceCast(Ptr, NewPT, Twine(Ptr->getName(), ".global"));</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">122</td>
+    <td class="codeLine">  Value *CastBack =</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">122</td>
+    <td class="codeLine">  Value *CastBack =</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">123</td>
+    <td class="codeLine">      B.CreateAddrSpaceCast(Cast, PT, Twine(Ptr->getName(), ".flat"));</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">123</td>
+    <td class="codeLine">      B.CreateAddrSpaceCast(Cast, PT, Twine(Ptr->getName(), ".flat"));</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">124</td>
+    <td class="codeLine">  Ptr->replaceUsesWithIf(CastBack,</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">124</td>
+    <td class="codeLine">  Ptr->replaceUsesWithIf(CastBack,</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">125</td>
+    <td class="codeLine">                         [Cast](Use &U) { return U.getUser() != Cast; });</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">125</td>
+    <td class="codeLine">                         [Cast](Use &U) { return U.getUser() != Cast; });</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">126</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">126</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">127</td>
+    <td class="codeLine">  return true;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">127</td>
+    <td class="codeLine">  return true;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">128</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">128</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">129</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">129</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">130</td>
+    <td class="codeLine">bool AMDGPUPromoteKernelArguments::promoteLoad(LoadInst *LI) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">130</td>
+    <td class="codeLine">bool AMDGPUPromoteKernelArguments::promoteLoad(LoadInst *LI) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">131</td>
+    <td class="codeLine">  if (!LI->isSimple())</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">131</td>
+    <td class="codeLine">  if (!LI->isSimple())</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">132</td>
+    <td class="codeLine">    return false;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">132</td>
+    <td class="codeLine">    return false;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">133</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">133</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">134</td>
+    <td class="codeLine">  LI->setMetadata("amdgpu.noclobber", MDNode::get(LI->getContext(), {}));</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">134</td>
+    <td class="codeLine">  LI->setMetadata("amdgpu.noclobber", MDNode::get(LI->getContext(), {}));</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">135</td>
+    <td class="codeLine">  return true;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">135</td>
+    <td class="codeLine">  return true;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">136</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">136</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">137</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">137</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">138</td>
+    <td class="codeLine">// skip allocas</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">138</td>
+    <td class="codeLine">// skip allocas</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">139</td>
+    <td class="codeLine">static BasicBlock::iterator getInsertPt(BasicBlock &BB) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">139</td>
+    <td class="codeLine">static BasicBlock::iterator getInsertPt(BasicBlock &BB) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">140</td>
+    <td class="codeLine">  BasicBlock::iterator InsPt = BB.getFirstInsertionPt();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">140</td>
+    <td class="codeLine">  BasicBlock::iterator InsPt = BB.getFirstInsertionPt();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">141</td>
+    <td class="codeLine">  for (BasicBlock::iterator E = BB.end(); InsPt != E; ++InsPt) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">141</td>
+    <td class="codeLine">  for (BasicBlock::iterator E = BB.end(); InsPt != E; ++InsPt) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">142</td>
+    <td class="codeLine">    AllocaInst *AI = dyn_cast<AllocaInst>(&*InsPt);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">142</td>
+    <td class="codeLine">    AllocaInst *AI = dyn_cast<AllocaInst>(&*InsPt);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">143</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">143</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">144</td>
+    <td class="codeLine">    // If this is a dynamic alloca, the value may depend on the loaded kernargs,</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">144</td>
+    <td class="codeLine">    // If this is a dynamic alloca, the value may depend on the loaded kernargs,</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">145</td>
+    <td class="codeLine">    // so loads will need to be inserted before it.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">145</td>
+    <td class="codeLine">    // so loads will need to be inserted before it.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">146</td>
+    <td class="codeLine">    if (!AI || !AI->isStaticAlloca())</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">146</td>
+    <td class="codeLine">    if (!AI || !AI->isStaticAlloca())</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">147</td>
+    <td class="codeLine">      break;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">147</td>
+    <td class="codeLine">      break;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">148</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">148</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">149</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">149</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">150</td>
+    <td class="codeLine">  return InsPt;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">150</td>
+    <td class="codeLine">  return InsPt;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">151</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">151</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">152</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">152</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">153</td>
+    <td class="codeLine">bool AMDGPUPromoteKernelArguments::run(Function &F, MemorySSA &MSSA,</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">153</td>
+    <td class="codeLine">bool AMDGPUPromoteKernelArguments::run(Function &F, MemorySSA &MSSA,</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">154</td>
+    <td class="codeLine">                                       AliasAnalysis &AA) {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">154</td>
+    <td class="codeLine">                                       AliasAnalysis &AA) {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">155</td>
+    <td class="codeLine">  if (skipFunction(F))</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">155</td>
+    <td class="codeLine">  if (skipFunction(F))</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">156</td>
+    <td class="codeLine">    return false;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">156</td>
+    <td class="codeLine">    return false;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">157</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">157</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">158</td>
+    <td class="codeLine">  CallingConv::ID CC = F.getCallingConv();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">158</td>
+    <td class="codeLine">  CallingConv::ID CC = F.getCallingConv();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">159</td>
+    <td class="codeLine">  if (CC != CallingConv::AMDGPU_KERNEL || F.arg_empty())</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">159</td>
+    <td class="codeLine">  if (CC != CallingConv::AMDGPU_KERNEL || F.arg_empty())</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">160</td>
+    <td class="codeLine">    return false;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">160</td>
+    <td class="codeLine">    return false;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">161</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">161</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">162</td>
+    <td class="codeLine">  ArgCastInsertPt = &*getInsertPt(*F.begin());</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">162</td>
+    <td class="codeLine">  ArgCastInsertPt = &*getInsertPt(*F.begin());</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">163</td>
+    <td class="codeLine">  this->MSSA = &MSSA;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">163</td>
+    <td class="codeLine">  this->MSSA = &MSSA;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">164</td>
+    <td class="codeLine">  this->AA = &AA;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">164</td>
+    <td class="codeLine">  this->AA = &AA;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">165</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">165</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">166</td>
+    <td class="codeLine">  for (Argument &Arg : F.args()) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">166</td>
+    <td class="codeLine">  for (Argument &Arg : F.args()) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">167</td>
+    <td class="codeLine">    if (Arg.use_empty())</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">167</td>
+    <td class="codeLine">    if (Arg.use_empty())</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">168</td>
+    <td class="codeLine">      continue;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">168</td>
+    <td class="codeLine">      continue;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">169</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">169</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">170</td>
+    <td class="codeLine">    PointerType *PT = dyn_cast<PointerType>(Arg.getType());</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">170</td>
+    <td class="codeLine">    PointerType *PT = dyn_cast<PointerType>(Arg.getType());</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">171</td>
+    <td class="codeLine">    if (!PT || (PT->getAddressSpace() != AMDGPUAS::FLAT_ADDRESS &&</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">171</td>
+    <td class="codeLine">    if (!PT || (PT->getAddressSpace() != AMDGPUAS::FLAT_ADDRESS &&</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">172</td>
+    <td class="codeLine">                PT->getAddressSpace() != AMDGPUAS::GLOBAL_ADDRESS &&</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">172</td>
+    <td class="codeLine">                PT->getAddressSpace() != AMDGPUAS::GLOBAL_ADDRESS &&</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">173</td>
+    <td class="codeLine">                PT->getAddressSpace() != AMDGPUAS::CONSTANT_ADDRESS))</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">173</td>
+    <td class="codeLine">                PT->getAddressSpace() != AMDGPUAS::CONSTANT_ADDRESS))</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">174</td>
+    <td class="codeLine">      continue;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">174</td>
+    <td class="codeLine">      continue;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">175</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">175</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">176</td>
+    <td class="codeLine">    Ptrs.push_back(&Arg);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">176</td>
+    <td class="codeLine">    Ptrs.push_back(&Arg);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">177</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">177</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">178</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">178</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">179</td>
+    <td class="codeLine">  bool Changed = false;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">179</td>
+    <td class="codeLine">  bool Changed = false;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">180</td>
+    <td class="codeLine">  while (!Ptrs.empty()) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">180</td>
+    <td class="codeLine">  while (!Ptrs.empty()) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">181</td>
+    <td class="codeLine">    Value *Ptr = Ptrs.pop_back_val();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">181</td>
+    <td class="codeLine">    Value *Ptr = Ptrs.pop_back_val();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">182</td>
+    <td class="codeLine">    Changed |= promotePointer(Ptr);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">182</td>
+    <td class="codeLine">    Changed |= promotePointer(Ptr);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">183</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">183</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">184</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">184</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">185</td>
+    <td class="codeLine">  return Changed;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">185</td>
+    <td class="codeLine">  return Changed;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">186</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">186</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">187</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">187</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">188</td>
+    <td class="codeLine">bool AMDGPUPromoteKernelArguments::runOnFunction(Function &F) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">188</td>
+    <td class="codeLine">bool AMDGPUPromoteKernelArguments::runOnFunction(Function &F) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">189</td>
+    <td class="codeLine">  MemorySSA &MSSA = getAnalysis<MemorySSAWrapperPass>().getMSSA();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">189</td>
+    <td class="codeLine">  MemorySSA &MSSA = getAnalysis<MemorySSAWrapperPass>().getMSSA();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">190</td>
+    <td class="codeLine">  AliasAnalysis &AA = getAnalysis<AAResultsWrapperPass>().getAAResults();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">190</td>
+    <td class="codeLine">  AliasAnalysis &AA = getAnalysis<AAResultsWrapperPass>().getAAResults();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">191</td>
+    <td class="codeLine">  return run(F, MSSA, AA);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">191</td>
+    <td class="codeLine">  return run(F, MSSA, AA);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">192</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">192</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">193</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">193</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">194</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_BEGIN(AMDGPUPromoteKernelArguments, DEBUG_TYPE,</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">194</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_BEGIN(AMDGPUPromoteKernelArguments, DEBUG_TYPE,</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">195</td>
+    <td class="codeLine">                      "AMDGPU Promote Kernel Arguments", false, false)</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">195</td>
+    <td class="codeLine">                      "AMDGPU Promote Kernel Arguments", false, false)</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">196</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_DEPENDENCY(AAResultsWrapperPass)</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">196</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_DEPENDENCY(AAResultsWrapperPass)</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">197</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_DEPENDENCY(MemorySSAWrapperPass)</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">197</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_DEPENDENCY(MemorySSAWrapperPass)</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">198</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_END(AMDGPUPromoteKernelArguments, DEBUG_TYPE,</td>
+    <td class="lineNumber">2</td>
+    <td class="lineNumber">198</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_END(AMDGPUPromoteKernelArguments, DEBUG_TYPE,</td>
+    <td class="lineNumber">2</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">199</td>
+    <td class="codeLine">                    "AMDGPU Promote Kernel Arguments", false, false)</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">199</td>
+    <td class="codeLine">                    "AMDGPU Promote Kernel Arguments", false, false)</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">200</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">200</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">201</td>
+    <td class="codeLine">char AMDGPUPromoteKernelArguments::ID = 0;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">201</td>
+    <td class="codeLine">char AMDGPUPromoteKernelArguments::ID = 0;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">202</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">202</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">203</td>
+    <td class="codeLine">FunctionPass *llvm::createAMDGPUPromoteKernelArgumentsPass() {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">203</td>
+    <td class="codeLine">FunctionPass *llvm::createAMDGPUPromoteKernelArgumentsPass() {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">204</td>
+    <td class="codeLine">  return new AMDGPUPromoteKernelArguments();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">204</td>
+    <td class="codeLine">  return new AMDGPUPromoteKernelArguments();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">205</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">205</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">206</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">206</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">207</td>
+    <td class="codeLine">PreservedAnalyses</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">207</td>
+    <td class="codeLine">PreservedAnalyses</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">208</td>
+    <td class="codeLine">AMDGPUPromoteKernelArgumentsPass::run(Function &F,</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">208</td>
+    <td class="codeLine">AMDGPUPromoteKernelArgumentsPass::run(Function &F,</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">209</td>
+    <td class="codeLine">                                      FunctionAnalysisManager &AM) {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">209</td>
+    <td class="codeLine">                                      FunctionAnalysisManager &AM) {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">210</td>
+    <td class="codeLine">  MemorySSA &MSSA = AM.getResult<MemorySSAAnalysis>(F).getMSSA();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">210</td>
+    <td class="codeLine">  MemorySSA &MSSA = AM.getResult<MemorySSAAnalysis>(F).getMSSA();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">211</td>
+    <td class="codeLine">  AliasAnalysis &AA = AM.getResult<AAManager>(F);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">211</td>
+    <td class="codeLine">  AliasAnalysis &AA = AM.getResult<AAManager>(F);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">212</td>
+    <td class="codeLine">  if (AMDGPUPromoteKernelArguments().run(F, MSSA, AA)) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">212</td>
+    <td class="codeLine">  if (AMDGPUPromoteKernelArguments().run(F, MSSA, AA)) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">213</td>
+    <td class="codeLine">    PreservedAnalyses PA;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">213</td>
+    <td class="codeLine">    PreservedAnalyses PA;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">214</td>
+    <td class="codeLine">    PA.preserveSet<CFGAnalyses>();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">214</td>
+    <td class="codeLine">    PA.preserveSet<CFGAnalyses>();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">215</td>
+    <td class="codeLine">    PA.preserve<MemorySSAAnalysis>();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">215</td>
+    <td class="codeLine">    PA.preserve<MemorySSAAnalysis>();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">216</td>
+    <td class="codeLine">    return PA;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">216</td>
+    <td class="codeLine">    return PA;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">217</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">217</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">218</td>
+    <td class="codeLine">  return PreservedAnalyses::all();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">218</td>
+    <td class="codeLine">  return PreservedAnalyses::all();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">219</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">219</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">220</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">220</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+</table>
+    </div>
+    <button id="myBtn" onclick="topFunction()" title="Go to top" type="button">Top</button>
+    <script src="../Javascript/drop_down.js"></script>
+    <script src="../Javascript/top_button.js"></script>
+  </body>
+</html>

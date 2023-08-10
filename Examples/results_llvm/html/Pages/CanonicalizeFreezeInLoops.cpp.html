@@ -1,0 +1,5406 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>CanonicalizeFreezeInLoops.cpp</title>
+    <link rel="stylesheet" href="../Style/style.css" />
+  </head>
+  <body>
+    <div class="headerDiv">
+      <h1>
+        Code Coverage
+      </h1>
+      <p>
+        Source file: /home/nikola/Desktop/llvm-project/llvm/lib/Transforms/Utils/CanonicalizeFreezeInLoops.cpp
+      </p>
+    </div>
+    <button class="collapsible" type="button">Open Summary Report</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Summary Report</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line number</th>
+    <th class="mainTh">Line</th>
+    <th class="mainTh">Number of hits</th>
+    <th class="mainTh">Tests that cover line</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="">//==- CanonicalizeFreezeInLoops - Canonicalize freezes in a loop-*- C++ -*-===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="">//===----------------------------------------------------------------------===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="">// This pass canonicalizes freeze instructions in a loop by pushing them out to</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="">// the preheader.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class="">//   loop:</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class="">//     i = phi init, i.next</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class="">//     i.next = add nsw i, 1</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class="">//     i.next.fr = freeze i.next // push this out of this loop</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class="">//     use(i.next.fr)</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class="">//     br i1 (i.next <= N), loop, exit</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class="">//   =></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class="">//     init.fr = freeze init</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class="">//   loop:</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class="">//     i = phi init.fr, i.next</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class="">//     i.next = add i, 1         // nsw is dropped here</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class="">//     use(i.next)</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class="">//     br i1 (i.next <= N), loop, exit</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class="">// Removing freezes from these chains help scalar evolution successfully analyze</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class="">// expressions.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class="">//===----------------------------------------------------------------------===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class="">#include "llvm/Transforms/Utils/CanonicalizeFreezeInLoops.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class="">#include "llvm/ADT/STLExtras.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class="">#include "llvm/ADT/SmallVector.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class="">#include "llvm/Analysis/IVDescriptors.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class="">#include "llvm/Analysis/LoopAnalysisManager.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class="">#include "llvm/Analysis/LoopInfo.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class="">#include "llvm/Analysis/LoopPass.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class="">#include "llvm/Analysis/ScalarEvolution.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class="">#include "llvm/Analysis/ValueTracking.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class="">#include "llvm/IR/Dominators.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class="">#include "llvm/InitializePasses.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class="">#include "llvm/Pass.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class="">#include "llvm/Support/Debug.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class="">#include "llvm/Transforms/Utils.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class="">using namespace llvm;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class="">#define DEBUG_TYPE "canon-freeze"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class="">namespace {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class="">class CanonicalizeFreezeInLoops : public LoopPass {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class="">public:</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class="">  static char ID;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class="">  CanonicalizeFreezeInLoops();</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class="">private:</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class="">  bool runOnLoop(Loop *L, LPPassManager &LPM) override;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class="">  void getAnalysisUsage(AnalysisUsage &AU) const override;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class="">};</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class="">class CanonicalizeFreezeInLoopsImpl {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class="">  Loop *L;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class="">  ScalarEvolution &SE;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class="">  DominatorTree &DT;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class="">  struct FrozenIndPHIInfo {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class="">    // A freeze instruction that uses an induction phi</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class="">    FreezeInst *FI = nullptr;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class="">    // The induction phi, step instruction, the operand idx of StepInst which is</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class="">    // a step value</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class="">    PHINode *PHI;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class="">    BinaryOperator *StepInst;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class="">    unsigned StepValIdx = 0;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class="uncoveredLine">    FrozenIndPHIInfo(PHINode *PHI, BinaryOperator *StepInst)</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class="uncoveredLine">        : PHI(PHI), StepInst(StepInst) {}</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class="">  };</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class="">  // Can freeze instruction be pushed into operands of I?</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class="">  // In order to do this, I should not create a poison after I's flags are</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class="">  // stripped.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class="uncoveredLine">  bool canHandleInst(const Instruction *I) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class="uncoveredLine">    auto Opc = I->getOpcode();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class="">    // If add/sub/mul, drop nsw/nuw flags.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class="uncoveredLine">    return Opc == Instruction::Add || Opc == Instruction::Sub ||</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class="uncoveredLine">           Opc == Instruction::Mul;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class="">  }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">90</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">91</td>
+    <td class="">  void InsertFreezeAndForgetFromSCEV(Use &U);</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">92</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">93</td>
+    <td class="">public:</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">94</td>
+    <td class="uncoveredLine">  CanonicalizeFreezeInLoopsImpl(Loop *L, ScalarEvolution &SE, DominatorTree &DT)</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">95</td>
+    <td class="uncoveredLine">      : L(L), SE(SE), DT(DT) {}</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">96</td>
+    <td class="">  bool run();</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">97</td>
+    <td class="">};</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">98</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">99</td>
+    <td class="">} // anonymous namespace</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">100</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">101</td>
+    <td class="">// Given U = (value, user), replace value with freeze(value), and let</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">102</td>
+    <td class="">// SCEV forget user. The inserted freeze is placed in the preheader.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">103</td>
+    <td class="uncoveredLine">void CanonicalizeFreezeInLoopsImpl::InsertFreezeAndForgetFromSCEV(Use &U) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">104</td>
+    <td class="uncoveredLine">  auto *PH = L->getLoopPreheader();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">105</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">106</td>
+    <td class="uncoveredLine">  auto *UserI = cast<Instruction>(U.getUser());</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">107</td>
+    <td class="uncoveredLine">  auto *ValueToFr = U.get();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">108</td>
+    <td class="uncoveredLine">  assert(L->contains(UserI->getParent()) &&</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">109</td>
+    <td class="">         "Should not process an instruction that isn't inside the loop");</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">110</td>
+    <td class="uncoveredLine">  if (isGuaranteedNotToBeUndefOrPoison(ValueToFr, nullptr, UserI, &DT))</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">111</td>
+    <td class="uncoveredLine">    return;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">112</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">113</td>
+    <td class="uncoveredLine">  LLVM_DEBUG(dbgs() << "canonfr: inserting freeze:\n");</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">114</td>
+    <td class="uncoveredLine">  LLVM_DEBUG(dbgs() << "\tUser: " << *U.getUser() << "\n");</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">115</td>
+    <td class="uncoveredLine">  LLVM_DEBUG(dbgs() << "\tOperand: " << *U.get() << "\n");</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">116</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">117</td>
+    <td class="uncoveredLine">  U.set(new FreezeInst(ValueToFr, ValueToFr->getName() + ".frozen",</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">118</td>
+    <td class="uncoveredLine">                       PH->getTerminator()));</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">119</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">120</td>
+    <td class="uncoveredLine">  SE.forgetValue(UserI);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">121</td>
+    <td class="">}</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">122</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">123</td>
+    <td class="uncoveredLine">bool CanonicalizeFreezeInLoopsImpl::run() {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">124</td>
+    <td class="">  // The loop should be in LoopSimplify form.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">125</td>
+    <td class="uncoveredLine">  if (!L->isLoopSimplifyForm())</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">126</td>
+    <td class="uncoveredLine">    return false;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">127</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">128</td>
+    <td class="uncoveredLine">  SmallVector<FrozenIndPHIInfo, 4> Candidates;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">129</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">130</td>
+    <td class="uncoveredLine">  for (auto &PHI : L->getHeader()->phis()) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">131</td>
+    <td class="uncoveredLine">    InductionDescriptor ID;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">132</td>
+    <td class="uncoveredLine">    if (!InductionDescriptor::isInductionPHI(&PHI, L, &SE, ID))</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">133</td>
+    <td class="uncoveredLine">      continue;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">134</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">135</td>
+    <td class="uncoveredLine">    LLVM_DEBUG(dbgs() << "canonfr: PHI: " << PHI << "\n");</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">136</td>
+    <td class="uncoveredLine">    FrozenIndPHIInfo Info(&PHI, ID.getInductionBinOp());</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">137</td>
+    <td class="uncoveredLine">    if (!Info.StepInst || !canHandleInst(Info.StepInst)) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">138</td>
+    <td class="">      // The stepping instruction has unknown form.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">139</td>
+    <td class="">      // Ignore this PHI.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">140</td>
+    <td class="uncoveredLine">      continue;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">141</td>
+    <td class="">    }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">142</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">143</td>
+    <td class="uncoveredLine">    Info.StepValIdx = Info.StepInst->getOperand(0) == &PHI;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">144</td>
+    <td class="uncoveredLine">    Value *StepV = Info.StepInst->getOperand(Info.StepValIdx);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">145</td>
+    <td class="uncoveredLine">    if (auto *StepI = dyn_cast<Instruction>(StepV)) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">146</td>
+    <td class="uncoveredLine">      if (L->contains(StepI->getParent())) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">147</td>
+    <td class="">        // The step value is inside the loop. Freezing step value will introduce</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">148</td>
+    <td class="">        // another freeze into the loop, so skip this PHI.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">149</td>
+    <td class="uncoveredLine">        continue;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">150</td>
+    <td class="">      }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">151</td>
+    <td class="">    }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">152</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">153</td>
+    <td class="uncoveredLine">    auto Visit = [&](User *U) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">154</td>
+    <td class="uncoveredLine">      if (auto *FI = dyn_cast<FreezeInst>(U)) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">155</td>
+    <td class="uncoveredLine">        LLVM_DEBUG(dbgs() << "canonfr: found: " << *FI << "\n");</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">156</td>
+    <td class="uncoveredLine">        Info.FI = FI;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">157</td>
+    <td class="uncoveredLine">        Candidates.push_back(Info);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">158</td>
+    <td class="">      }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">159</td>
+    <td class="uncoveredLine">    };</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">160</td>
+    <td class="uncoveredLine">    for_each(PHI.users(), Visit);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">161</td>
+    <td class="uncoveredLine">    for_each(Info.StepInst->users(), Visit);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">162</td>
+    <td class="uncoveredLine">  }</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">163</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">164</td>
+    <td class="uncoveredLine">  if (Candidates.empty())</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">165</td>
+    <td class="uncoveredLine">    return false;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">166</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">167</td>
+    <td class="uncoveredLine">  SmallSet<PHINode *, 8> ProcessedPHIs;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">168</td>
+    <td class="uncoveredLine">  for (const auto &Info : Candidates) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">169</td>
+    <td class="uncoveredLine">    PHINode *PHI = Info.PHI;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">170</td>
+    <td class="uncoveredLine">    if (!ProcessedPHIs.insert(Info.PHI).second)</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">171</td>
+    <td class="uncoveredLine">      continue;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">172</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">173</td>
+    <td class="uncoveredLine">    BinaryOperator *StepI = Info.StepInst;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">174</td>
+    <td class="uncoveredLine">    assert(StepI && "Step instruction should have been found");</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">175</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">176</td>
+    <td class="">    // Drop flags from the step instruction.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">177</td>
+    <td class="uncoveredLine">    if (!isGuaranteedNotToBeUndefOrPoison(StepI, nullptr, StepI, &DT)) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">178</td>
+    <td class="uncoveredLine">      LLVM_DEBUG(dbgs() << "canonfr: drop flags: " << *StepI << "\n");</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">179</td>
+    <td class="uncoveredLine">      StepI->dropPoisonGeneratingFlags();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">180</td>
+    <td class="uncoveredLine">      SE.forgetValue(StepI);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">181</td>
+    <td class="">    }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">182</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">183</td>
+    <td class="uncoveredLine">    InsertFreezeAndForgetFromSCEV(StepI->getOperandUse(Info.StepValIdx));</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">184</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">185</td>
+    <td class="">    unsigned OperandIdx =</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">186</td>
+    <td class="uncoveredLine">        PHI->getOperandNumForIncomingValue(PHI->getIncomingValue(0) == StepI);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">187</td>
+    <td class="uncoveredLine">    InsertFreezeAndForgetFromSCEV(PHI->getOperandUse(OperandIdx));</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">188</td>
+    <td class="">  }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">189</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">190</td>
+    <td class="">  // Finally, remove the old freeze instructions.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">191</td>
+    <td class="uncoveredLine">  for (const auto &Item : Candidates) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">192</td>
+    <td class="uncoveredLine">    auto *FI = Item.FI;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">193</td>
+    <td class="uncoveredLine">    LLVM_DEBUG(dbgs() << "canonfr: removing " << *FI << "\n");</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">194</td>
+    <td class="uncoveredLine">    SE.forgetValue(FI);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">195</td>
+    <td class="uncoveredLine">    FI->replaceAllUsesWith(FI->getOperand(0));</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">196</td>
+    <td class="uncoveredLine">    FI->eraseFromParent();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">197</td>
+    <td class="">  }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">198</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">199</td>
+    <td class="uncoveredLine">  return true;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">200</td>
+    <td class="uncoveredLine">}</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">201</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">202</td>
+    <td class="coveredLine">CanonicalizeFreezeInLoops::CanonicalizeFreezeInLoops() : LoopPass(ID) {</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">203</td>
+    <td class="coveredLine">  initializeCanonicalizeFreezeInLoopsPass(*PassRegistry::getPassRegistry());</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">204</td>
+    <td class="coveredLine">}</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">205</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">206</td>
+    <td class="coveredLine">void CanonicalizeFreezeInLoops::getAnalysisUsage(AnalysisUsage &AU) const {</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">207</td>
+    <td class="coveredLine">  AU.addPreservedID(LoopSimplifyID);</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">208</td>
+    <td class="coveredLine">  AU.addRequired<LoopInfoWrapperPass>();</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">209</td>
+    <td class="coveredLine">  AU.addPreserved<LoopInfoWrapperPass>();</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">210</td>
+    <td class="coveredLine">  AU.addRequiredID(LoopSimplifyID);</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">211</td>
+    <td class="coveredLine">  AU.addRequired<ScalarEvolutionWrapperPass>();</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">212</td>
+    <td class="coveredLine">  AU.addPreserved<ScalarEvolutionWrapperPass>();</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">213</td>
+    <td class="coveredLine">  AU.addRequired<DominatorTreeWrapperPass>();</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">214</td>
+    <td class="coveredLine">  AU.addPreserved<DominatorTreeWrapperPass>();</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">215</td>
+    <td class="coveredLine">}</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">216</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">217</td>
+    <td class="uncoveredLine">bool CanonicalizeFreezeInLoops::runOnLoop(Loop *L, LPPassManager &) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">218</td>
+    <td class="uncoveredLine">  if (skipLoop(L))</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">219</td>
+    <td class="uncoveredLine">    return false;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">220</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">221</td>
+    <td class="uncoveredLine">  auto &SE = getAnalysis<ScalarEvolutionWrapperPass>().getSE();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">222</td>
+    <td class="uncoveredLine">  auto &DT = getAnalysis<DominatorTreeWrapperPass>().getDomTree();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">223</td>
+    <td class="uncoveredLine">  return CanonicalizeFreezeInLoopsImpl(L, SE, DT).run();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">224</td>
+    <td class="">}</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">225</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">226</td>
+    <td class="">PreservedAnalyses</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">227</td>
+    <td class="uncoveredLine">CanonicalizeFreezeInLoopsPass::run(Loop &L, LoopAnalysisManager &AM,</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">228</td>
+    <td class="">                                   LoopStandardAnalysisResults &AR,</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">229</td>
+    <td class="">                                   LPMUpdater &U) {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">230</td>
+    <td class="uncoveredLine">  if (!CanonicalizeFreezeInLoopsImpl(&L, AR.SE, AR.DT).run())</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">231</td>
+    <td class="uncoveredLine">    return PreservedAnalyses::all();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">232</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">233</td>
+    <td class="uncoveredLine">  return getLoopPassPreservedAnalyses();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">234</td>
+    <td class="">}</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">235</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">236</td>
+    <td class="coveredLine">INITIALIZE_PASS_BEGIN(CanonicalizeFreezeInLoops, "canon-freeze",</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">237</td>
+    <td class="">                      "Canonicalize Freeze Instructions in Loops", false, false)</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">238</td>
+    <td class="coveredLine">INITIALIZE_PASS_DEPENDENCY(DominatorTreeWrapperPass)</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">239</td>
+    <td class="coveredLine">INITIALIZE_PASS_DEPENDENCY(ScalarEvolutionWrapperPass)</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">240</td>
+    <td class="coveredLine">INITIALIZE_PASS_DEPENDENCY(LoopSimplify)</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">241</td>
+    <td class="coveredLine">INITIALIZE_PASS_END(CanonicalizeFreezeInLoops, "canon-freeze",</td>
+    <td>6</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">242</td>
+    <td class="">                    "Canonicalize Freeze Instructions in Loops", false, false)</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">243</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">244</td>
+    <td class="coveredLine">Pass *llvm::createCanonicalizeFreezeInLoopsPass() {</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">245</td>
+    <td class="coveredLine">  return new CanonicalizeFreezeInLoops();</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">246</td>
+    <td class="">}</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">247</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">248</td>
+    <td class="">char CanonicalizeFreezeInLoops::ID = 0;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">249</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Functions Report</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Functions Report</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Function name</th>
+    <th class="mainTh">Number of hits</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_129CanonicalizeFreezeInLoopsImpl16FrozenIndPHIInfoC2EPN4llvm7PHINodeEPNS2_14BinaryOperatorE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_129CanonicalizeFreezeInLoopsImpl13canHandleInstEPKN4llvm11InstructionE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_129CanonicalizeFreezeInLoopsImplC2EPN4llvm4LoopERNS1_15ScalarEvolutionERNS1_13DominatorTreeE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_129CanonicalizeFreezeInLoopsImpl29InsertFreezeAndForgetFromSCEVERN4llvm3UseE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_129CanonicalizeFreezeInLoopsImpl3runEv</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZZN12_GLOBAL__N_129CanonicalizeFreezeInLoopsImpl3runEvENKUlPN4llvm4UserEE_clES3_</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_125CanonicalizeFreezeInLoopsC2Ev</td>
+    <td class="numberOfCalls">2</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZNK12_GLOBAL__N_125CanonicalizeFreezeInLoops16getAnalysisUsageERN4llvm13AnalysisUsageE</td>
+    <td class="numberOfCalls">2</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_125CanonicalizeFreezeInLoops9runOnLoopEPN4llvm4LoopERNS1_13LPPassManagerE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN4llvm29CanonicalizeFreezeInLoopsPass3runERNS_4LoopERNS_15AnalysisManagerIS1_JRNS_27LoopStandardAnalysisResultsEEEES5_RNS_10LPMUpdaterE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZL43initializeCanonicalizeFreezeInLoopsPassOnceRN4llvm12PassRegistryE</td>
+    <td class="numberOfCalls">2</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN4llvm39initializeCanonicalizeFreezeInLoopsPassERNS_12PassRegistryE</td>
+    <td class="numberOfCalls">4</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN4llvm35createCanonicalizeFreezeInLoopsPassEv</td>
+    <td class="numberOfCalls">2</td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Coverage Diff</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Coverage Diff</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span> BUT NOT </span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </th>
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+      <span> BUT NOT </span>
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+    </th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="codeline">//==- CanonicalizeFreezeInLoops - Canonicalize freezes in a loop-*- C++ -*-===//</td>
+    <td class="lineNumber">1</td>
+    <td class="codeline">//==- CanonicalizeFreezeInLoops - Canonicalize freezes in a loop-*- C++ -*-===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">2</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="codeline">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">3</td>
+    <td class="codeline">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="codeline">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">4</td>
+    <td class="codeline">// See https://llvm.org/LICENSE.txt for license information.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="codeline">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">5</td>
+    <td class="codeline">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">6</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">7</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">8</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="codeline">// This pass canonicalizes freeze instructions in a loop by pushing them out to</td>
+    <td class="lineNumber">9</td>
+    <td class="codeline">// This pass canonicalizes freeze instructions in a loop by pushing them out to</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="codeline">// the preheader.</td>
+    <td class="lineNumber">10</td>
+    <td class="codeline">// the preheader.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">11</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class="codeline">//   loop:</td>
+    <td class="lineNumber">12</td>
+    <td class="codeline">//   loop:</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class="codeline">//     i = phi init, i.next</td>
+    <td class="lineNumber">13</td>
+    <td class="codeline">//     i = phi init, i.next</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class="codeline">//     i.next = add nsw i, 1</td>
+    <td class="lineNumber">14</td>
+    <td class="codeline">//     i.next = add nsw i, 1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class="codeline">//     i.next.fr = freeze i.next // push this out of this loop</td>
+    <td class="lineNumber">15</td>
+    <td class="codeline">//     i.next.fr = freeze i.next // push this out of this loop</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class="codeline">//     use(i.next.fr)</td>
+    <td class="lineNumber">16</td>
+    <td class="codeline">//     use(i.next.fr)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class="codeline">//     br i1 (i.next <= N), loop, exit</td>
+    <td class="lineNumber">17</td>
+    <td class="codeline">//     br i1 (i.next <= N), loop, exit</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class="codeline">//   =></td>
+    <td class="lineNumber">18</td>
+    <td class="codeline">//   =></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class="codeline">//     init.fr = freeze init</td>
+    <td class="lineNumber">19</td>
+    <td class="codeline">//     init.fr = freeze init</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class="codeline">//   loop:</td>
+    <td class="lineNumber">20</td>
+    <td class="codeline">//   loop:</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class="codeline">//     i = phi init.fr, i.next</td>
+    <td class="lineNumber">21</td>
+    <td class="codeline">//     i = phi init.fr, i.next</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class="codeline">//     i.next = add i, 1         // nsw is dropped here</td>
+    <td class="lineNumber">22</td>
+    <td class="codeline">//     i.next = add i, 1         // nsw is dropped here</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class="codeline">//     use(i.next)</td>
+    <td class="lineNumber">23</td>
+    <td class="codeline">//     use(i.next)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class="codeline">//     br i1 (i.next <= N), loop, exit</td>
+    <td class="lineNumber">24</td>
+    <td class="codeline">//     br i1 (i.next <= N), loop, exit</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">25</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class="codeline">// Removing freezes from these chains help scalar evolution successfully analyze</td>
+    <td class="lineNumber">26</td>
+    <td class="codeline">// Removing freezes from these chains help scalar evolution successfully analyze</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class="codeline">// expressions.</td>
+    <td class="lineNumber">27</td>
+    <td class="codeline">// expressions.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">28</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">29</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">30</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class="codeline">#include "llvm/Transforms/Utils/CanonicalizeFreezeInLoops.h"</td>
+    <td class="lineNumber">31</td>
+    <td class="codeline">#include "llvm/Transforms/Utils/CanonicalizeFreezeInLoops.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class="codeline">#include "llvm/ADT/STLExtras.h"</td>
+    <td class="lineNumber">32</td>
+    <td class="codeline">#include "llvm/ADT/STLExtras.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class="codeline">#include "llvm/ADT/SmallVector.h"</td>
+    <td class="lineNumber">33</td>
+    <td class="codeline">#include "llvm/ADT/SmallVector.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class="codeline">#include "llvm/Analysis/IVDescriptors.h"</td>
+    <td class="lineNumber">34</td>
+    <td class="codeline">#include "llvm/Analysis/IVDescriptors.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class="codeline">#include "llvm/Analysis/LoopAnalysisManager.h"</td>
+    <td class="lineNumber">35</td>
+    <td class="codeline">#include "llvm/Analysis/LoopAnalysisManager.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class="codeline">#include "llvm/Analysis/LoopInfo.h"</td>
+    <td class="lineNumber">36</td>
+    <td class="codeline">#include "llvm/Analysis/LoopInfo.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class="codeline">#include "llvm/Analysis/LoopPass.h"</td>
+    <td class="lineNumber">37</td>
+    <td class="codeline">#include "llvm/Analysis/LoopPass.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class="codeline">#include "llvm/Analysis/ScalarEvolution.h"</td>
+    <td class="lineNumber">38</td>
+    <td class="codeline">#include "llvm/Analysis/ScalarEvolution.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class="codeline">#include "llvm/Analysis/ValueTracking.h"</td>
+    <td class="lineNumber">39</td>
+    <td class="codeline">#include "llvm/Analysis/ValueTracking.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class="codeline">#include "llvm/IR/Dominators.h"</td>
+    <td class="lineNumber">40</td>
+    <td class="codeline">#include "llvm/IR/Dominators.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class="codeline">#include "llvm/InitializePasses.h"</td>
+    <td class="lineNumber">41</td>
+    <td class="codeline">#include "llvm/InitializePasses.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class="codeline">#include "llvm/Pass.h"</td>
+    <td class="lineNumber">42</td>
+    <td class="codeline">#include "llvm/Pass.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class="codeline">#include "llvm/Support/Debug.h"</td>
+    <td class="lineNumber">43</td>
+    <td class="codeline">#include "llvm/Support/Debug.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class="codeline">#include "llvm/Transforms/Utils.h"</td>
+    <td class="lineNumber">44</td>
+    <td class="codeline">#include "llvm/Transforms/Utils.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">45</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class="codeline">using namespace llvm;</td>
+    <td class="lineNumber">46</td>
+    <td class="codeline">using namespace llvm;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">47</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class="codeline">#define DEBUG_TYPE "canon-freeze"</td>
+    <td class="lineNumber">48</td>
+    <td class="codeline">#define DEBUG_TYPE "canon-freeze"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">49</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class="codeline">namespace {</td>
+    <td class="lineNumber">50</td>
+    <td class="codeline">namespace {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">51</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class="codeline">class CanonicalizeFreezeInLoops : public LoopPass {</td>
+    <td class="lineNumber">52</td>
+    <td class="codeline">class CanonicalizeFreezeInLoops : public LoopPass {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class="codeline">public:</td>
+    <td class="lineNumber">53</td>
+    <td class="codeline">public:</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class="codeline">  static char ID;</td>
+    <td class="lineNumber">54</td>
+    <td class="codeline">  static char ID;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">55</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class="codeline">  CanonicalizeFreezeInLoops();</td>
+    <td class="lineNumber">56</td>
+    <td class="codeline">  CanonicalizeFreezeInLoops();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">57</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class="codeline">private:</td>
+    <td class="lineNumber">58</td>
+    <td class="codeline">private:</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class="codeline">  bool runOnLoop(Loop *L, LPPassManager &LPM) override;</td>
+    <td class="lineNumber">59</td>
+    <td class="codeline">  bool runOnLoop(Loop *L, LPPassManager &LPM) override;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class="codeline">  void getAnalysisUsage(AnalysisUsage &AU) const override;</td>
+    <td class="lineNumber">60</td>
+    <td class="codeline">  void getAnalysisUsage(AnalysisUsage &AU) const override;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class="codeline">};</td>
+    <td class="lineNumber">61</td>
+    <td class="codeline">};</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">62</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class="codeline">class CanonicalizeFreezeInLoopsImpl {</td>
+    <td class="lineNumber">63</td>
+    <td class="codeline">class CanonicalizeFreezeInLoopsImpl {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class="codeline">  Loop *L;</td>
+    <td class="lineNumber">64</td>
+    <td class="codeline">  Loop *L;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class="codeline">  ScalarEvolution &SE;</td>
+    <td class="lineNumber">65</td>
+    <td class="codeline">  ScalarEvolution &SE;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class="codeline">  DominatorTree &DT;</td>
+    <td class="lineNumber">66</td>
+    <td class="codeline">  DominatorTree &DT;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">67</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class="codeline">  struct FrozenIndPHIInfo {</td>
+    <td class="lineNumber">68</td>
+    <td class="codeline">  struct FrozenIndPHIInfo {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class="codeline">    // A freeze instruction that uses an induction phi</td>
+    <td class="lineNumber">69</td>
+    <td class="codeline">    // A freeze instruction that uses an induction phi</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class="codeline">    FreezeInst *FI = nullptr;</td>
+    <td class="lineNumber">70</td>
+    <td class="codeline">    FreezeInst *FI = nullptr;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class="codeline">    // The induction phi, step instruction, the operand idx of StepInst which is</td>
+    <td class="lineNumber">71</td>
+    <td class="codeline">    // The induction phi, step instruction, the operand idx of StepInst which is</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class="codeline">    // a step value</td>
+    <td class="lineNumber">72</td>
+    <td class="codeline">    // a step value</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class="codeline">    PHINode *PHI;</td>
+    <td class="lineNumber">73</td>
+    <td class="codeline">    PHINode *PHI;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class="codeline">    BinaryOperator *StepInst;</td>
+    <td class="lineNumber">74</td>
+    <td class="codeline">    BinaryOperator *StepInst;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class="codeline">    unsigned StepValIdx = 0;</td>
+    <td class="lineNumber">75</td>
+    <td class="codeline">    unsigned StepValIdx = 0;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">76</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class="codeline">    FrozenIndPHIInfo(PHINode *PHI, BinaryOperator *StepInst)</td>
+    <td class="lineNumber">77</td>
+    <td class="codeline">    FrozenIndPHIInfo(PHINode *PHI, BinaryOperator *StepInst)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class="codeline">        : PHI(PHI), StepInst(StepInst) {}</td>
+    <td class="lineNumber">78</td>
+    <td class="codeline">        : PHI(PHI), StepInst(StepInst) {}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class="codeline">  };</td>
+    <td class="lineNumber">79</td>
+    <td class="codeline">  };</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">80</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class="codeline">  // Can freeze instruction be pushed into operands of I?</td>
+    <td class="lineNumber">81</td>
+    <td class="codeline">  // Can freeze instruction be pushed into operands of I?</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class="codeline">  // In order to do this, I should not create a poison after I's flags are</td>
+    <td class="lineNumber">82</td>
+    <td class="codeline">  // In order to do this, I should not create a poison after I's flags are</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class="codeline">  // stripped.</td>
+    <td class="lineNumber">83</td>
+    <td class="codeline">  // stripped.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class="codeline">  bool canHandleInst(const Instruction *I) {</td>
+    <td class="lineNumber">84</td>
+    <td class="codeline">  bool canHandleInst(const Instruction *I) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class="codeline">    auto Opc = I->getOpcode();</td>
+    <td class="lineNumber">85</td>
+    <td class="codeline">    auto Opc = I->getOpcode();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class="codeline">    // If add/sub/mul, drop nsw/nuw flags.</td>
+    <td class="lineNumber">86</td>
+    <td class="codeline">    // If add/sub/mul, drop nsw/nuw flags.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class="codeline">    return Opc == Instruction::Add || Opc == Instruction::Sub ||</td>
+    <td class="lineNumber">87</td>
+    <td class="codeline">    return Opc == Instruction::Add || Opc == Instruction::Sub ||</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class="codeline">           Opc == Instruction::Mul;</td>
+    <td class="lineNumber">88</td>
+    <td class="codeline">           Opc == Instruction::Mul;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">89</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">90</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">90</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">91</td>
+    <td class="codeline">  void InsertFreezeAndForgetFromSCEV(Use &U);</td>
+    <td class="lineNumber">91</td>
+    <td class="codeline">  void InsertFreezeAndForgetFromSCEV(Use &U);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">92</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">92</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">93</td>
+    <td class="codeline">public:</td>
+    <td class="lineNumber">93</td>
+    <td class="codeline">public:</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">94</td>
+    <td class="codeline">  CanonicalizeFreezeInLoopsImpl(Loop *L, ScalarEvolution &SE, DominatorTree &DT)</td>
+    <td class="lineNumber">94</td>
+    <td class="codeline">  CanonicalizeFreezeInLoopsImpl(Loop *L, ScalarEvolution &SE, DominatorTree &DT)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">95</td>
+    <td class="codeline">      : L(L), SE(SE), DT(DT) {}</td>
+    <td class="lineNumber">95</td>
+    <td class="codeline">      : L(L), SE(SE), DT(DT) {}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">96</td>
+    <td class="codeline">  bool run();</td>
+    <td class="lineNumber">96</td>
+    <td class="codeline">  bool run();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">97</td>
+    <td class="codeline">};</td>
+    <td class="lineNumber">97</td>
+    <td class="codeline">};</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">98</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">98</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">99</td>
+    <td class="codeline">} // anonymous namespace</td>
+    <td class="lineNumber">99</td>
+    <td class="codeline">} // anonymous namespace</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">100</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">100</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">101</td>
+    <td class="codeline">// Given U = (value, user), replace value with freeze(value), and let</td>
+    <td class="lineNumber">101</td>
+    <td class="codeline">// Given U = (value, user), replace value with freeze(value), and let</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">102</td>
+    <td class="codeline">// SCEV forget user. The inserted freeze is placed in the preheader.</td>
+    <td class="lineNumber">102</td>
+    <td class="codeline">// SCEV forget user. The inserted freeze is placed in the preheader.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">103</td>
+    <td class="codeline">void CanonicalizeFreezeInLoopsImpl::InsertFreezeAndForgetFromSCEV(Use &U) {</td>
+    <td class="lineNumber">103</td>
+    <td class="codeline">void CanonicalizeFreezeInLoopsImpl::InsertFreezeAndForgetFromSCEV(Use &U) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">104</td>
+    <td class="codeline">  auto *PH = L->getLoopPreheader();</td>
+    <td class="lineNumber">104</td>
+    <td class="codeline">  auto *PH = L->getLoopPreheader();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">105</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">105</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">106</td>
+    <td class="codeline">  auto *UserI = cast<Instruction>(U.getUser());</td>
+    <td class="lineNumber">106</td>
+    <td class="codeline">  auto *UserI = cast<Instruction>(U.getUser());</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">107</td>
+    <td class="codeline">  auto *ValueToFr = U.get();</td>
+    <td class="lineNumber">107</td>
+    <td class="codeline">  auto *ValueToFr = U.get();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">108</td>
+    <td class="codeline">  assert(L->contains(UserI->getParent()) &&</td>
+    <td class="lineNumber">108</td>
+    <td class="codeline">  assert(L->contains(UserI->getParent()) &&</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">109</td>
+    <td class="codeline">         "Should not process an instruction that isn't inside the loop");</td>
+    <td class="lineNumber">109</td>
+    <td class="codeline">         "Should not process an instruction that isn't inside the loop");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">110</td>
+    <td class="codeline">  if (isGuaranteedNotToBeUndefOrPoison(ValueToFr, nullptr, UserI, &DT))</td>
+    <td class="lineNumber">110</td>
+    <td class="codeline">  if (isGuaranteedNotToBeUndefOrPoison(ValueToFr, nullptr, UserI, &DT))</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">111</td>
+    <td class="codeline">    return;</td>
+    <td class="lineNumber">111</td>
+    <td class="codeline">    return;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">112</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">112</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">113</td>
+    <td class="codeline">  LLVM_DEBUG(dbgs() << "canonfr: inserting freeze:\n");</td>
+    <td class="lineNumber">113</td>
+    <td class="codeline">  LLVM_DEBUG(dbgs() << "canonfr: inserting freeze:\n");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">114</td>
+    <td class="codeline">  LLVM_DEBUG(dbgs() << "\tUser: " << *U.getUser() << "\n");</td>
+    <td class="lineNumber">114</td>
+    <td class="codeline">  LLVM_DEBUG(dbgs() << "\tUser: " << *U.getUser() << "\n");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">115</td>
+    <td class="codeline">  LLVM_DEBUG(dbgs() << "\tOperand: " << *U.get() << "\n");</td>
+    <td class="lineNumber">115</td>
+    <td class="codeline">  LLVM_DEBUG(dbgs() << "\tOperand: " << *U.get() << "\n");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">116</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">116</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">117</td>
+    <td class="codeline">  U.set(new FreezeInst(ValueToFr, ValueToFr->getName() + ".frozen",</td>
+    <td class="lineNumber">117</td>
+    <td class="codeline">  U.set(new FreezeInst(ValueToFr, ValueToFr->getName() + ".frozen",</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">118</td>
+    <td class="codeline">                       PH->getTerminator()));</td>
+    <td class="lineNumber">118</td>
+    <td class="codeline">                       PH->getTerminator()));</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">119</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">119</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">120</td>
+    <td class="codeline">  SE.forgetValue(UserI);</td>
+    <td class="lineNumber">120</td>
+    <td class="codeline">  SE.forgetValue(UserI);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">121</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">121</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">122</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">122</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">123</td>
+    <td class="codeline">bool CanonicalizeFreezeInLoopsImpl::run() {</td>
+    <td class="lineNumber">123</td>
+    <td class="codeline">bool CanonicalizeFreezeInLoopsImpl::run() {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">124</td>
+    <td class="codeline">  // The loop should be in LoopSimplify form.</td>
+    <td class="lineNumber">124</td>
+    <td class="codeline">  // The loop should be in LoopSimplify form.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">125</td>
+    <td class="codeline">  if (!L->isLoopSimplifyForm())</td>
+    <td class="lineNumber">125</td>
+    <td class="codeline">  if (!L->isLoopSimplifyForm())</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">126</td>
+    <td class="codeline">    return false;</td>
+    <td class="lineNumber">126</td>
+    <td class="codeline">    return false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">127</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">127</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">128</td>
+    <td class="codeline">  SmallVector<FrozenIndPHIInfo, 4> Candidates;</td>
+    <td class="lineNumber">128</td>
+    <td class="codeline">  SmallVector<FrozenIndPHIInfo, 4> Candidates;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">129</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">129</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">130</td>
+    <td class="codeline">  for (auto &PHI : L->getHeader()->phis()) {</td>
+    <td class="lineNumber">130</td>
+    <td class="codeline">  for (auto &PHI : L->getHeader()->phis()) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">131</td>
+    <td class="codeline">    InductionDescriptor ID;</td>
+    <td class="lineNumber">131</td>
+    <td class="codeline">    InductionDescriptor ID;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">132</td>
+    <td class="codeline">    if (!InductionDescriptor::isInductionPHI(&PHI, L, &SE, ID))</td>
+    <td class="lineNumber">132</td>
+    <td class="codeline">    if (!InductionDescriptor::isInductionPHI(&PHI, L, &SE, ID))</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">133</td>
+    <td class="codeline">      continue;</td>
+    <td class="lineNumber">133</td>
+    <td class="codeline">      continue;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">134</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">134</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">135</td>
+    <td class="codeline">    LLVM_DEBUG(dbgs() << "canonfr: PHI: " << PHI << "\n");</td>
+    <td class="lineNumber">135</td>
+    <td class="codeline">    LLVM_DEBUG(dbgs() << "canonfr: PHI: " << PHI << "\n");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">136</td>
+    <td class="codeline">    FrozenIndPHIInfo Info(&PHI, ID.getInductionBinOp());</td>
+    <td class="lineNumber">136</td>
+    <td class="codeline">    FrozenIndPHIInfo Info(&PHI, ID.getInductionBinOp());</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">137</td>
+    <td class="codeline">    if (!Info.StepInst || !canHandleInst(Info.StepInst)) {</td>
+    <td class="lineNumber">137</td>
+    <td class="codeline">    if (!Info.StepInst || !canHandleInst(Info.StepInst)) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">138</td>
+    <td class="codeline">      // The stepping instruction has unknown form.</td>
+    <td class="lineNumber">138</td>
+    <td class="codeline">      // The stepping instruction has unknown form.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">139</td>
+    <td class="codeline">      // Ignore this PHI.</td>
+    <td class="lineNumber">139</td>
+    <td class="codeline">      // Ignore this PHI.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">140</td>
+    <td class="codeline">      continue;</td>
+    <td class="lineNumber">140</td>
+    <td class="codeline">      continue;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">141</td>
+    <td class="codeline">    }</td>
+    <td class="lineNumber">141</td>
+    <td class="codeline">    }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">142</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">142</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">143</td>
+    <td class="codeline">    Info.StepValIdx = Info.StepInst->getOperand(0) == &PHI;</td>
+    <td class="lineNumber">143</td>
+    <td class="codeline">    Info.StepValIdx = Info.StepInst->getOperand(0) == &PHI;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">144</td>
+    <td class="codeline">    Value *StepV = Info.StepInst->getOperand(Info.StepValIdx);</td>
+    <td class="lineNumber">144</td>
+    <td class="codeline">    Value *StepV = Info.StepInst->getOperand(Info.StepValIdx);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">145</td>
+    <td class="codeline">    if (auto *StepI = dyn_cast<Instruction>(StepV)) {</td>
+    <td class="lineNumber">145</td>
+    <td class="codeline">    if (auto *StepI = dyn_cast<Instruction>(StepV)) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">146</td>
+    <td class="codeline">      if (L->contains(StepI->getParent())) {</td>
+    <td class="lineNumber">146</td>
+    <td class="codeline">      if (L->contains(StepI->getParent())) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">147</td>
+    <td class="codeline">        // The step value is inside the loop. Freezing step value will introduce</td>
+    <td class="lineNumber">147</td>
+    <td class="codeline">        // The step value is inside the loop. Freezing step value will introduce</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">148</td>
+    <td class="codeline">        // another freeze into the loop, so skip this PHI.</td>
+    <td class="lineNumber">148</td>
+    <td class="codeline">        // another freeze into the loop, so skip this PHI.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">149</td>
+    <td class="codeline">        continue;</td>
+    <td class="lineNumber">149</td>
+    <td class="codeline">        continue;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">150</td>
+    <td class="codeline">      }</td>
+    <td class="lineNumber">150</td>
+    <td class="codeline">      }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">151</td>
+    <td class="codeline">    }</td>
+    <td class="lineNumber">151</td>
+    <td class="codeline">    }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">152</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">152</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">153</td>
+    <td class="codeline">    auto Visit = [&](User *U) {</td>
+    <td class="lineNumber">153</td>
+    <td class="codeline">    auto Visit = [&](User *U) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">154</td>
+    <td class="codeline">      if (auto *FI = dyn_cast<FreezeInst>(U)) {</td>
+    <td class="lineNumber">154</td>
+    <td class="codeline">      if (auto *FI = dyn_cast<FreezeInst>(U)) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">155</td>
+    <td class="codeline">        LLVM_DEBUG(dbgs() << "canonfr: found: " << *FI << "\n");</td>
+    <td class="lineNumber">155</td>
+    <td class="codeline">        LLVM_DEBUG(dbgs() << "canonfr: found: " << *FI << "\n");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">156</td>
+    <td class="codeline">        Info.FI = FI;</td>
+    <td class="lineNumber">156</td>
+    <td class="codeline">        Info.FI = FI;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">157</td>
+    <td class="codeline">        Candidates.push_back(Info);</td>
+    <td class="lineNumber">157</td>
+    <td class="codeline">        Candidates.push_back(Info);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">158</td>
+    <td class="codeline">      }</td>
+    <td class="lineNumber">158</td>
+    <td class="codeline">      }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">159</td>
+    <td class="codeline">    };</td>
+    <td class="lineNumber">159</td>
+    <td class="codeline">    };</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">160</td>
+    <td class="codeline">    for_each(PHI.users(), Visit);</td>
+    <td class="lineNumber">160</td>
+    <td class="codeline">    for_each(PHI.users(), Visit);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">161</td>
+    <td class="codeline">    for_each(Info.StepInst->users(), Visit);</td>
+    <td class="lineNumber">161</td>
+    <td class="codeline">    for_each(Info.StepInst->users(), Visit);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">162</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">162</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">163</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">163</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">164</td>
+    <td class="codeline">  if (Candidates.empty())</td>
+    <td class="lineNumber">164</td>
+    <td class="codeline">  if (Candidates.empty())</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">165</td>
+    <td class="codeline">    return false;</td>
+    <td class="lineNumber">165</td>
+    <td class="codeline">    return false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">166</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">166</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">167</td>
+    <td class="codeline">  SmallSet<PHINode *, 8> ProcessedPHIs;</td>
+    <td class="lineNumber">167</td>
+    <td class="codeline">  SmallSet<PHINode *, 8> ProcessedPHIs;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">168</td>
+    <td class="codeline">  for (const auto &Info : Candidates) {</td>
+    <td class="lineNumber">168</td>
+    <td class="codeline">  for (const auto &Info : Candidates) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">169</td>
+    <td class="codeline">    PHINode *PHI = Info.PHI;</td>
+    <td class="lineNumber">169</td>
+    <td class="codeline">    PHINode *PHI = Info.PHI;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">170</td>
+    <td class="codeline">    if (!ProcessedPHIs.insert(Info.PHI).second)</td>
+    <td class="lineNumber">170</td>
+    <td class="codeline">    if (!ProcessedPHIs.insert(Info.PHI).second)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">171</td>
+    <td class="codeline">      continue;</td>
+    <td class="lineNumber">171</td>
+    <td class="codeline">      continue;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">172</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">172</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">173</td>
+    <td class="codeline">    BinaryOperator *StepI = Info.StepInst;</td>
+    <td class="lineNumber">173</td>
+    <td class="codeline">    BinaryOperator *StepI = Info.StepInst;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">174</td>
+    <td class="codeline">    assert(StepI && "Step instruction should have been found");</td>
+    <td class="lineNumber">174</td>
+    <td class="codeline">    assert(StepI && "Step instruction should have been found");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">175</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">175</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">176</td>
+    <td class="codeline">    // Drop flags from the step instruction.</td>
+    <td class="lineNumber">176</td>
+    <td class="codeline">    // Drop flags from the step instruction.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">177</td>
+    <td class="codeline">    if (!isGuaranteedNotToBeUndefOrPoison(StepI, nullptr, StepI, &DT)) {</td>
+    <td class="lineNumber">177</td>
+    <td class="codeline">    if (!isGuaranteedNotToBeUndefOrPoison(StepI, nullptr, StepI, &DT)) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">178</td>
+    <td class="codeline">      LLVM_DEBUG(dbgs() << "canonfr: drop flags: " << *StepI << "\n");</td>
+    <td class="lineNumber">178</td>
+    <td class="codeline">      LLVM_DEBUG(dbgs() << "canonfr: drop flags: " << *StepI << "\n");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">179</td>
+    <td class="codeline">      StepI->dropPoisonGeneratingFlags();</td>
+    <td class="lineNumber">179</td>
+    <td class="codeline">      StepI->dropPoisonGeneratingFlags();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">180</td>
+    <td class="codeline">      SE.forgetValue(StepI);</td>
+    <td class="lineNumber">180</td>
+    <td class="codeline">      SE.forgetValue(StepI);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">181</td>
+    <td class="codeline">    }</td>
+    <td class="lineNumber">181</td>
+    <td class="codeline">    }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">182</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">182</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">183</td>
+    <td class="codeline">    InsertFreezeAndForgetFromSCEV(StepI->getOperandUse(Info.StepValIdx));</td>
+    <td class="lineNumber">183</td>
+    <td class="codeline">    InsertFreezeAndForgetFromSCEV(StepI->getOperandUse(Info.StepValIdx));</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">184</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">184</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">185</td>
+    <td class="codeline">    unsigned OperandIdx =</td>
+    <td class="lineNumber">185</td>
+    <td class="codeline">    unsigned OperandIdx =</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">186</td>
+    <td class="codeline">        PHI->getOperandNumForIncomingValue(PHI->getIncomingValue(0) == StepI);</td>
+    <td class="lineNumber">186</td>
+    <td class="codeline">        PHI->getOperandNumForIncomingValue(PHI->getIncomingValue(0) == StepI);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">187</td>
+    <td class="codeline">    InsertFreezeAndForgetFromSCEV(PHI->getOperandUse(OperandIdx));</td>
+    <td class="lineNumber">187</td>
+    <td class="codeline">    InsertFreezeAndForgetFromSCEV(PHI->getOperandUse(OperandIdx));</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">188</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">188</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">189</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">189</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">190</td>
+    <td class="codeline">  // Finally, remove the old freeze instructions.</td>
+    <td class="lineNumber">190</td>
+    <td class="codeline">  // Finally, remove the old freeze instructions.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">191</td>
+    <td class="codeline">  for (const auto &Item : Candidates) {</td>
+    <td class="lineNumber">191</td>
+    <td class="codeline">  for (const auto &Item : Candidates) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">192</td>
+    <td class="codeline">    auto *FI = Item.FI;</td>
+    <td class="lineNumber">192</td>
+    <td class="codeline">    auto *FI = Item.FI;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">193</td>
+    <td class="codeline">    LLVM_DEBUG(dbgs() << "canonfr: removing " << *FI << "\n");</td>
+    <td class="lineNumber">193</td>
+    <td class="codeline">    LLVM_DEBUG(dbgs() << "canonfr: removing " << *FI << "\n");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">194</td>
+    <td class="codeline">    SE.forgetValue(FI);</td>
+    <td class="lineNumber">194</td>
+    <td class="codeline">    SE.forgetValue(FI);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">195</td>
+    <td class="codeline">    FI->replaceAllUsesWith(FI->getOperand(0));</td>
+    <td class="lineNumber">195</td>
+    <td class="codeline">    FI->replaceAllUsesWith(FI->getOperand(0));</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">196</td>
+    <td class="codeline">    FI->eraseFromParent();</td>
+    <td class="lineNumber">196</td>
+    <td class="codeline">    FI->eraseFromParent();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">197</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">197</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">198</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">198</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">199</td>
+    <td class="codeline">  return true;</td>
+    <td class="lineNumber">199</td>
+    <td class="codeline">  return true;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">200</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">200</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">201</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">201</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">202</td>
+    <td class="codeline">CanonicalizeFreezeInLoops::CanonicalizeFreezeInLoops() : LoopPass(ID) {</td>
+    <td class="lineNumber">202</td>
+    <td class="codeline">CanonicalizeFreezeInLoops::CanonicalizeFreezeInLoops() : LoopPass(ID) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">203</td>
+    <td class="codeline">  initializeCanonicalizeFreezeInLoopsPass(*PassRegistry::getPassRegistry());</td>
+    <td class="lineNumber">203</td>
+    <td class="codeline">  initializeCanonicalizeFreezeInLoopsPass(*PassRegistry::getPassRegistry());</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">204</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">204</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">205</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">205</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">206</td>
+    <td class="codeline">void CanonicalizeFreezeInLoops::getAnalysisUsage(AnalysisUsage &AU) const {</td>
+    <td class="lineNumber">206</td>
+    <td class="codeline">void CanonicalizeFreezeInLoops::getAnalysisUsage(AnalysisUsage &AU) const {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">207</td>
+    <td class="codeline">  AU.addPreservedID(LoopSimplifyID);</td>
+    <td class="lineNumber">207</td>
+    <td class="codeline">  AU.addPreservedID(LoopSimplifyID);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">208</td>
+    <td class="codeline">  AU.addRequired<LoopInfoWrapperPass>();</td>
+    <td class="lineNumber">208</td>
+    <td class="codeline">  AU.addRequired<LoopInfoWrapperPass>();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">209</td>
+    <td class="codeline">  AU.addPreserved<LoopInfoWrapperPass>();</td>
+    <td class="lineNumber">209</td>
+    <td class="codeline">  AU.addPreserved<LoopInfoWrapperPass>();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">210</td>
+    <td class="codeline">  AU.addRequiredID(LoopSimplifyID);</td>
+    <td class="lineNumber">210</td>
+    <td class="codeline">  AU.addRequiredID(LoopSimplifyID);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">211</td>
+    <td class="codeline">  AU.addRequired<ScalarEvolutionWrapperPass>();</td>
+    <td class="lineNumber">211</td>
+    <td class="codeline">  AU.addRequired<ScalarEvolutionWrapperPass>();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">212</td>
+    <td class="codeline">  AU.addPreserved<ScalarEvolutionWrapperPass>();</td>
+    <td class="lineNumber">212</td>
+    <td class="codeline">  AU.addPreserved<ScalarEvolutionWrapperPass>();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">213</td>
+    <td class="codeline">  AU.addRequired<DominatorTreeWrapperPass>();</td>
+    <td class="lineNumber">213</td>
+    <td class="codeline">  AU.addRequired<DominatorTreeWrapperPass>();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">214</td>
+    <td class="codeline">  AU.addPreserved<DominatorTreeWrapperPass>();</td>
+    <td class="lineNumber">214</td>
+    <td class="codeline">  AU.addPreserved<DominatorTreeWrapperPass>();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">215</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">215</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">216</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">216</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">217</td>
+    <td class="codeline">bool CanonicalizeFreezeInLoops::runOnLoop(Loop *L, LPPassManager &) {</td>
+    <td class="lineNumber">217</td>
+    <td class="codeline">bool CanonicalizeFreezeInLoops::runOnLoop(Loop *L, LPPassManager &) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">218</td>
+    <td class="codeline">  if (skipLoop(L))</td>
+    <td class="lineNumber">218</td>
+    <td class="codeline">  if (skipLoop(L))</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">219</td>
+    <td class="codeline">    return false;</td>
+    <td class="lineNumber">219</td>
+    <td class="codeline">    return false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">220</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">220</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">221</td>
+    <td class="codeline">  auto &SE = getAnalysis<ScalarEvolutionWrapperPass>().getSE();</td>
+    <td class="lineNumber">221</td>
+    <td class="codeline">  auto &SE = getAnalysis<ScalarEvolutionWrapperPass>().getSE();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">222</td>
+    <td class="codeline">  auto &DT = getAnalysis<DominatorTreeWrapperPass>().getDomTree();</td>
+    <td class="lineNumber">222</td>
+    <td class="codeline">  auto &DT = getAnalysis<DominatorTreeWrapperPass>().getDomTree();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">223</td>
+    <td class="codeline">  return CanonicalizeFreezeInLoopsImpl(L, SE, DT).run();</td>
+    <td class="lineNumber">223</td>
+    <td class="codeline">  return CanonicalizeFreezeInLoopsImpl(L, SE, DT).run();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">224</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">224</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">225</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">225</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">226</td>
+    <td class="codeline">PreservedAnalyses</td>
+    <td class="lineNumber">226</td>
+    <td class="codeline">PreservedAnalyses</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">227</td>
+    <td class="codeline">CanonicalizeFreezeInLoopsPass::run(Loop &L, LoopAnalysisManager &AM,</td>
+    <td class="lineNumber">227</td>
+    <td class="codeline">CanonicalizeFreezeInLoopsPass::run(Loop &L, LoopAnalysisManager &AM,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">228</td>
+    <td class="codeline">                                   LoopStandardAnalysisResults &AR,</td>
+    <td class="lineNumber">228</td>
+    <td class="codeline">                                   LoopStandardAnalysisResults &AR,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">229</td>
+    <td class="codeline">                                   LPMUpdater &U) {</td>
+    <td class="lineNumber">229</td>
+    <td class="codeline">                                   LPMUpdater &U) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">230</td>
+    <td class="codeline">  if (!CanonicalizeFreezeInLoopsImpl(&L, AR.SE, AR.DT).run())</td>
+    <td class="lineNumber">230</td>
+    <td class="codeline">  if (!CanonicalizeFreezeInLoopsImpl(&L, AR.SE, AR.DT).run())</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">231</td>
+    <td class="codeline">    return PreservedAnalyses::all();</td>
+    <td class="lineNumber">231</td>
+    <td class="codeline">    return PreservedAnalyses::all();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">232</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">232</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">233</td>
+    <td class="codeline">  return getLoopPassPreservedAnalyses();</td>
+    <td class="lineNumber">233</td>
+    <td class="codeline">  return getLoopPassPreservedAnalyses();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">234</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">234</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">235</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">235</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">236</td>
+    <td class="codeline">INITIALIZE_PASS_BEGIN(CanonicalizeFreezeInLoops, "canon-freeze",</td>
+    <td class="lineNumber">236</td>
+    <td class="codeline">INITIALIZE_PASS_BEGIN(CanonicalizeFreezeInLoops, "canon-freeze",</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">237</td>
+    <td class="codeline">                      "Canonicalize Freeze Instructions in Loops", false, false)</td>
+    <td class="lineNumber">237</td>
+    <td class="codeline">                      "Canonicalize Freeze Instructions in Loops", false, false)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">238</td>
+    <td class="codeline">INITIALIZE_PASS_DEPENDENCY(DominatorTreeWrapperPass)</td>
+    <td class="lineNumber">238</td>
+    <td class="codeline">INITIALIZE_PASS_DEPENDENCY(DominatorTreeWrapperPass)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">239</td>
+    <td class="codeline">INITIALIZE_PASS_DEPENDENCY(ScalarEvolutionWrapperPass)</td>
+    <td class="lineNumber">239</td>
+    <td class="codeline">INITIALIZE_PASS_DEPENDENCY(ScalarEvolutionWrapperPass)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">240</td>
+    <td class="codeline">INITIALIZE_PASS_DEPENDENCY(LoopSimplify)</td>
+    <td class="lineNumber">240</td>
+    <td class="codeline">INITIALIZE_PASS_DEPENDENCY(LoopSimplify)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">241</td>
+    <td class="codeline">INITIALIZE_PASS_END(CanonicalizeFreezeInLoops, "canon-freeze",</td>
+    <td class="lineNumber">241</td>
+    <td class="codeline">INITIALIZE_PASS_END(CanonicalizeFreezeInLoops, "canon-freeze",</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">242</td>
+    <td class="codeline">                    "Canonicalize Freeze Instructions in Loops", false, false)</td>
+    <td class="lineNumber">242</td>
+    <td class="codeline">                    "Canonicalize Freeze Instructions in Loops", false, false)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">243</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">243</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">244</td>
+    <td class="codeline">Pass *llvm::createCanonicalizeFreezeInLoopsPass() {</td>
+    <td class="lineNumber">244</td>
+    <td class="codeline">Pass *llvm::createCanonicalizeFreezeInLoopsPass() {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">245</td>
+    <td class="codeline">  return new CanonicalizeFreezeInLoops();</td>
+    <td class="lineNumber">245</td>
+    <td class="codeline">  return new CanonicalizeFreezeInLoops();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">246</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">246</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">247</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">247</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">248</td>
+    <td class="codeline">char CanonicalizeFreezeInLoops::ID = 0;</td>
+    <td class="lineNumber">248</td>
+    <td class="codeline">char CanonicalizeFreezeInLoops::ID = 0;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">249</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">249</td>
+    <td class="codeline"></td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Side By Side Comparison</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Side By Side Comparison</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+    </th>
+    <th class="mainTh">Hit count</th>
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </th>
+    <th class="mainTh">Hit count</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="codeLine">//==- CanonicalizeFreezeInLoops - Canonicalize freezes in a loop-*- C++ -*-===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">1</td>
+    <td class="codeLine">//==- CanonicalizeFreezeInLoops - Canonicalize freezes in a loop-*- C++ -*-===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">2</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="codeLine">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">3</td>
+    <td class="codeLine">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="codeLine">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">4</td>
+    <td class="codeLine">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="codeLine">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">5</td>
+    <td class="codeLine">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">6</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">7</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">8</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="codeLine">// This pass canonicalizes freeze instructions in a loop by pushing them out to</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">9</td>
+    <td class="codeLine">// This pass canonicalizes freeze instructions in a loop by pushing them out to</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="codeLine">// the preheader.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">10</td>
+    <td class="codeLine">// the preheader.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">11</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class="codeLine">//   loop:</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">12</td>
+    <td class="codeLine">//   loop:</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class="codeLine">//     i = phi init, i.next</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">13</td>
+    <td class="codeLine">//     i = phi init, i.next</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class="codeLine">//     i.next = add nsw i, 1</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">14</td>
+    <td class="codeLine">//     i.next = add nsw i, 1</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class="codeLine">//     i.next.fr = freeze i.next // push this out of this loop</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">15</td>
+    <td class="codeLine">//     i.next.fr = freeze i.next // push this out of this loop</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class="codeLine">//     use(i.next.fr)</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">16</td>
+    <td class="codeLine">//     use(i.next.fr)</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class="codeLine">//     br i1 (i.next <= N), loop, exit</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">17</td>
+    <td class="codeLine">//     br i1 (i.next <= N), loop, exit</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class="codeLine">//   =></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">18</td>
+    <td class="codeLine">//   =></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class="codeLine">//     init.fr = freeze init</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">19</td>
+    <td class="codeLine">//     init.fr = freeze init</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class="codeLine">//   loop:</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">20</td>
+    <td class="codeLine">//   loop:</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class="codeLine">//     i = phi init.fr, i.next</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">21</td>
+    <td class="codeLine">//     i = phi init.fr, i.next</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class="codeLine">//     i.next = add i, 1         // nsw is dropped here</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">22</td>
+    <td class="codeLine">//     i.next = add i, 1         // nsw is dropped here</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class="codeLine">//     use(i.next)</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">23</td>
+    <td class="codeLine">//     use(i.next)</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class="codeLine">//     br i1 (i.next <= N), loop, exit</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">24</td>
+    <td class="codeLine">//     br i1 (i.next <= N), loop, exit</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">25</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class="codeLine">// Removing freezes from these chains help scalar evolution successfully analyze</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">26</td>
+    <td class="codeLine">// Removing freezes from these chains help scalar evolution successfully analyze</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class="codeLine">// expressions.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">27</td>
+    <td class="codeLine">// expressions.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">28</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">29</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">30</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class="codeLine">#include "llvm/Transforms/Utils/CanonicalizeFreezeInLoops.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">31</td>
+    <td class="codeLine">#include "llvm/Transforms/Utils/CanonicalizeFreezeInLoops.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class="codeLine">#include "llvm/ADT/STLExtras.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">32</td>
+    <td class="codeLine">#include "llvm/ADT/STLExtras.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class="codeLine">#include "llvm/ADT/SmallVector.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">33</td>
+    <td class="codeLine">#include "llvm/ADT/SmallVector.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class="codeLine">#include "llvm/Analysis/IVDescriptors.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">34</td>
+    <td class="codeLine">#include "llvm/Analysis/IVDescriptors.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class="codeLine">#include "llvm/Analysis/LoopAnalysisManager.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">35</td>
+    <td class="codeLine">#include "llvm/Analysis/LoopAnalysisManager.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class="codeLine">#include "llvm/Analysis/LoopInfo.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">36</td>
+    <td class="codeLine">#include "llvm/Analysis/LoopInfo.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class="codeLine">#include "llvm/Analysis/LoopPass.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">37</td>
+    <td class="codeLine">#include "llvm/Analysis/LoopPass.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class="codeLine">#include "llvm/Analysis/ScalarEvolution.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">38</td>
+    <td class="codeLine">#include "llvm/Analysis/ScalarEvolution.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class="codeLine">#include "llvm/Analysis/ValueTracking.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">39</td>
+    <td class="codeLine">#include "llvm/Analysis/ValueTracking.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class="codeLine">#include "llvm/IR/Dominators.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">40</td>
+    <td class="codeLine">#include "llvm/IR/Dominators.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class="codeLine">#include "llvm/InitializePasses.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">41</td>
+    <td class="codeLine">#include "llvm/InitializePasses.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class="codeLine">#include "llvm/Pass.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">42</td>
+    <td class="codeLine">#include "llvm/Pass.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class="codeLine">#include "llvm/Support/Debug.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">43</td>
+    <td class="codeLine">#include "llvm/Support/Debug.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class="codeLine">#include "llvm/Transforms/Utils.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">44</td>
+    <td class="codeLine">#include "llvm/Transforms/Utils.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">45</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class="codeLine">using namespace llvm;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">46</td>
+    <td class="codeLine">using namespace llvm;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">47</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class="codeLine">#define DEBUG_TYPE "canon-freeze"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">48</td>
+    <td class="codeLine">#define DEBUG_TYPE "canon-freeze"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">49</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class="codeLine">namespace {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">50</td>
+    <td class="codeLine">namespace {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">51</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class="codeLine">class CanonicalizeFreezeInLoops : public LoopPass {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">52</td>
+    <td class="codeLine">class CanonicalizeFreezeInLoops : public LoopPass {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class="codeLine">public:</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">53</td>
+    <td class="codeLine">public:</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class="codeLine">  static char ID;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">54</td>
+    <td class="codeLine">  static char ID;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">55</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class="codeLine">  CanonicalizeFreezeInLoops();</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">56</td>
+    <td class="codeLine">  CanonicalizeFreezeInLoops();</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">57</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class="codeLine">private:</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">58</td>
+    <td class="codeLine">private:</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class="codeLine">  bool runOnLoop(Loop *L, LPPassManager &LPM) override;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">59</td>
+    <td class="codeLine">  bool runOnLoop(Loop *L, LPPassManager &LPM) override;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class="codeLine">  void getAnalysisUsage(AnalysisUsage &AU) const override;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">60</td>
+    <td class="codeLine">  void getAnalysisUsage(AnalysisUsage &AU) const override;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class="codeLine">};</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">61</td>
+    <td class="codeLine">};</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">62</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class="codeLine">class CanonicalizeFreezeInLoopsImpl {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">63</td>
+    <td class="codeLine">class CanonicalizeFreezeInLoopsImpl {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class="codeLine">  Loop *L;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">64</td>
+    <td class="codeLine">  Loop *L;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class="codeLine">  ScalarEvolution &SE;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">65</td>
+    <td class="codeLine">  ScalarEvolution &SE;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class="codeLine">  DominatorTree &DT;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">66</td>
+    <td class="codeLine">  DominatorTree &DT;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">67</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class="codeLine">  struct FrozenIndPHIInfo {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">68</td>
+    <td class="codeLine">  struct FrozenIndPHIInfo {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class="codeLine">    // A freeze instruction that uses an induction phi</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">69</td>
+    <td class="codeLine">    // A freeze instruction that uses an induction phi</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class="codeLine">    FreezeInst *FI = nullptr;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">70</td>
+    <td class="codeLine">    FreezeInst *FI = nullptr;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class="codeLine">    // The induction phi, step instruction, the operand idx of StepInst which is</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">71</td>
+    <td class="codeLine">    // The induction phi, step instruction, the operand idx of StepInst which is</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class="codeLine">    // a step value</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">72</td>
+    <td class="codeLine">    // a step value</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class="codeLine">    PHINode *PHI;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">73</td>
+    <td class="codeLine">    PHINode *PHI;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class="codeLine">    BinaryOperator *StepInst;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">74</td>
+    <td class="codeLine">    BinaryOperator *StepInst;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class="codeLine">    unsigned StepValIdx = 0;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">75</td>
+    <td class="codeLine">    unsigned StepValIdx = 0;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">76</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class="codeLine">    FrozenIndPHIInfo(PHINode *PHI, BinaryOperator *StepInst)</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">77</td>
+    <td class="codeLine">    FrozenIndPHIInfo(PHINode *PHI, BinaryOperator *StepInst)</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class="codeLine">        : PHI(PHI), StepInst(StepInst) {}</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">78</td>
+    <td class="codeLine">        : PHI(PHI), StepInst(StepInst) {}</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class="codeLine">  };</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">79</td>
+    <td class="codeLine">  };</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">80</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class="codeLine">  // Can freeze instruction be pushed into operands of I?</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">81</td>
+    <td class="codeLine">  // Can freeze instruction be pushed into operands of I?</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class="codeLine">  // In order to do this, I should not create a poison after I's flags are</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">82</td>
+    <td class="codeLine">  // In order to do this, I should not create a poison after I's flags are</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class="codeLine">  // stripped.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">83</td>
+    <td class="codeLine">  // stripped.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class="codeLine">  bool canHandleInst(const Instruction *I) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">84</td>
+    <td class="codeLine">  bool canHandleInst(const Instruction *I) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class="codeLine">    auto Opc = I->getOpcode();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">85</td>
+    <td class="codeLine">    auto Opc = I->getOpcode();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class="codeLine">    // If add/sub/mul, drop nsw/nuw flags.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">86</td>
+    <td class="codeLine">    // If add/sub/mul, drop nsw/nuw flags.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class="codeLine">    return Opc == Instruction::Add || Opc == Instruction::Sub ||</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">87</td>
+    <td class="codeLine">    return Opc == Instruction::Add || Opc == Instruction::Sub ||</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class="codeLine">           Opc == Instruction::Mul;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">88</td>
+    <td class="codeLine">           Opc == Instruction::Mul;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">89</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">90</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">90</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">91</td>
+    <td class="codeLine">  void InsertFreezeAndForgetFromSCEV(Use &U);</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">91</td>
+    <td class="codeLine">  void InsertFreezeAndForgetFromSCEV(Use &U);</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">92</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">92</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">93</td>
+    <td class="codeLine">public:</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">93</td>
+    <td class="codeLine">public:</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">94</td>
+    <td class="codeLine">  CanonicalizeFreezeInLoopsImpl(Loop *L, ScalarEvolution &SE, DominatorTree &DT)</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">94</td>
+    <td class="codeLine">  CanonicalizeFreezeInLoopsImpl(Loop *L, ScalarEvolution &SE, DominatorTree &DT)</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">95</td>
+    <td class="codeLine">      : L(L), SE(SE), DT(DT) {}</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">95</td>
+    <td class="codeLine">      : L(L), SE(SE), DT(DT) {}</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">96</td>
+    <td class="codeLine">  bool run();</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">96</td>
+    <td class="codeLine">  bool run();</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">97</td>
+    <td class="codeLine">};</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">97</td>
+    <td class="codeLine">};</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">98</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">98</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">99</td>
+    <td class="codeLine">} // anonymous namespace</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">99</td>
+    <td class="codeLine">} // anonymous namespace</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">100</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">100</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">101</td>
+    <td class="codeLine">// Given U = (value, user), replace value with freeze(value), and let</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">101</td>
+    <td class="codeLine">// Given U = (value, user), replace value with freeze(value), and let</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">102</td>
+    <td class="codeLine">// SCEV forget user. The inserted freeze is placed in the preheader.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">102</td>
+    <td class="codeLine">// SCEV forget user. The inserted freeze is placed in the preheader.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">103</td>
+    <td class="codeLine">void CanonicalizeFreezeInLoopsImpl::InsertFreezeAndForgetFromSCEV(Use &U) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">103</td>
+    <td class="codeLine">void CanonicalizeFreezeInLoopsImpl::InsertFreezeAndForgetFromSCEV(Use &U) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">104</td>
+    <td class="codeLine">  auto *PH = L->getLoopPreheader();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">104</td>
+    <td class="codeLine">  auto *PH = L->getLoopPreheader();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">105</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">105</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">106</td>
+    <td class="codeLine">  auto *UserI = cast<Instruction>(U.getUser());</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">106</td>
+    <td class="codeLine">  auto *UserI = cast<Instruction>(U.getUser());</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">107</td>
+    <td class="codeLine">  auto *ValueToFr = U.get();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">107</td>
+    <td class="codeLine">  auto *ValueToFr = U.get();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">108</td>
+    <td class="codeLine">  assert(L->contains(UserI->getParent()) &&</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">108</td>
+    <td class="codeLine">  assert(L->contains(UserI->getParent()) &&</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">109</td>
+    <td class="codeLine">         "Should not process an instruction that isn't inside the loop");</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">109</td>
+    <td class="codeLine">         "Should not process an instruction that isn't inside the loop");</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">110</td>
+    <td class="codeLine">  if (isGuaranteedNotToBeUndefOrPoison(ValueToFr, nullptr, UserI, &DT))</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">110</td>
+    <td class="codeLine">  if (isGuaranteedNotToBeUndefOrPoison(ValueToFr, nullptr, UserI, &DT))</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">111</td>
+    <td class="codeLine">    return;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">111</td>
+    <td class="codeLine">    return;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">112</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">112</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">113</td>
+    <td class="codeLine">  LLVM_DEBUG(dbgs() << "canonfr: inserting freeze:\n");</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">113</td>
+    <td class="codeLine">  LLVM_DEBUG(dbgs() << "canonfr: inserting freeze:\n");</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">114</td>
+    <td class="codeLine">  LLVM_DEBUG(dbgs() << "\tUser: " << *U.getUser() << "\n");</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">114</td>
+    <td class="codeLine">  LLVM_DEBUG(dbgs() << "\tUser: " << *U.getUser() << "\n");</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">115</td>
+    <td class="codeLine">  LLVM_DEBUG(dbgs() << "\tOperand: " << *U.get() << "\n");</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">115</td>
+    <td class="codeLine">  LLVM_DEBUG(dbgs() << "\tOperand: " << *U.get() << "\n");</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">116</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">116</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">117</td>
+    <td class="codeLine">  U.set(new FreezeInst(ValueToFr, ValueToFr->getName() + ".frozen",</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">117</td>
+    <td class="codeLine">  U.set(new FreezeInst(ValueToFr, ValueToFr->getName() + ".frozen",</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">118</td>
+    <td class="codeLine">                       PH->getTerminator()));</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">118</td>
+    <td class="codeLine">                       PH->getTerminator()));</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">119</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">119</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">120</td>
+    <td class="codeLine">  SE.forgetValue(UserI);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">120</td>
+    <td class="codeLine">  SE.forgetValue(UserI);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">121</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">121</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">122</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">122</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">123</td>
+    <td class="codeLine">bool CanonicalizeFreezeInLoopsImpl::run() {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">123</td>
+    <td class="codeLine">bool CanonicalizeFreezeInLoopsImpl::run() {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">124</td>
+    <td class="codeLine">  // The loop should be in LoopSimplify form.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">124</td>
+    <td class="codeLine">  // The loop should be in LoopSimplify form.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">125</td>
+    <td class="codeLine">  if (!L->isLoopSimplifyForm())</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">125</td>
+    <td class="codeLine">  if (!L->isLoopSimplifyForm())</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">126</td>
+    <td class="codeLine">    return false;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">126</td>
+    <td class="codeLine">    return false;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">127</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">127</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">128</td>
+    <td class="codeLine">  SmallVector<FrozenIndPHIInfo, 4> Candidates;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">128</td>
+    <td class="codeLine">  SmallVector<FrozenIndPHIInfo, 4> Candidates;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">129</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">129</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">130</td>
+    <td class="codeLine">  for (auto &PHI : L->getHeader()->phis()) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">130</td>
+    <td class="codeLine">  for (auto &PHI : L->getHeader()->phis()) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">131</td>
+    <td class="codeLine">    InductionDescriptor ID;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">131</td>
+    <td class="codeLine">    InductionDescriptor ID;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">132</td>
+    <td class="codeLine">    if (!InductionDescriptor::isInductionPHI(&PHI, L, &SE, ID))</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">132</td>
+    <td class="codeLine">    if (!InductionDescriptor::isInductionPHI(&PHI, L, &SE, ID))</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">133</td>
+    <td class="codeLine">      continue;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">133</td>
+    <td class="codeLine">      continue;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">134</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">134</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">135</td>
+    <td class="codeLine">    LLVM_DEBUG(dbgs() << "canonfr: PHI: " << PHI << "\n");</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">135</td>
+    <td class="codeLine">    LLVM_DEBUG(dbgs() << "canonfr: PHI: " << PHI << "\n");</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">136</td>
+    <td class="codeLine">    FrozenIndPHIInfo Info(&PHI, ID.getInductionBinOp());</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">136</td>
+    <td class="codeLine">    FrozenIndPHIInfo Info(&PHI, ID.getInductionBinOp());</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">137</td>
+    <td class="codeLine">    if (!Info.StepInst || !canHandleInst(Info.StepInst)) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">137</td>
+    <td class="codeLine">    if (!Info.StepInst || !canHandleInst(Info.StepInst)) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">138</td>
+    <td class="codeLine">      // The stepping instruction has unknown form.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">138</td>
+    <td class="codeLine">      // The stepping instruction has unknown form.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">139</td>
+    <td class="codeLine">      // Ignore this PHI.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">139</td>
+    <td class="codeLine">      // Ignore this PHI.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">140</td>
+    <td class="codeLine">      continue;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">140</td>
+    <td class="codeLine">      continue;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">141</td>
+    <td class="codeLine">    }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">141</td>
+    <td class="codeLine">    }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">142</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">142</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">143</td>
+    <td class="codeLine">    Info.StepValIdx = Info.StepInst->getOperand(0) == &PHI;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">143</td>
+    <td class="codeLine">    Info.StepValIdx = Info.StepInst->getOperand(0) == &PHI;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">144</td>
+    <td class="codeLine">    Value *StepV = Info.StepInst->getOperand(Info.StepValIdx);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">144</td>
+    <td class="codeLine">    Value *StepV = Info.StepInst->getOperand(Info.StepValIdx);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">145</td>
+    <td class="codeLine">    if (auto *StepI = dyn_cast<Instruction>(StepV)) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">145</td>
+    <td class="codeLine">    if (auto *StepI = dyn_cast<Instruction>(StepV)) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">146</td>
+    <td class="codeLine">      if (L->contains(StepI->getParent())) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">146</td>
+    <td class="codeLine">      if (L->contains(StepI->getParent())) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">147</td>
+    <td class="codeLine">        // The step value is inside the loop. Freezing step value will introduce</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">147</td>
+    <td class="codeLine">        // The step value is inside the loop. Freezing step value will introduce</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">148</td>
+    <td class="codeLine">        // another freeze into the loop, so skip this PHI.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">148</td>
+    <td class="codeLine">        // another freeze into the loop, so skip this PHI.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">149</td>
+    <td class="codeLine">        continue;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">149</td>
+    <td class="codeLine">        continue;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">150</td>
+    <td class="codeLine">      }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">150</td>
+    <td class="codeLine">      }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">151</td>
+    <td class="codeLine">    }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">151</td>
+    <td class="codeLine">    }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">152</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">152</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">153</td>
+    <td class="codeLine">    auto Visit = [&](User *U) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">153</td>
+    <td class="codeLine">    auto Visit = [&](User *U) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">154</td>
+    <td class="codeLine">      if (auto *FI = dyn_cast<FreezeInst>(U)) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">154</td>
+    <td class="codeLine">      if (auto *FI = dyn_cast<FreezeInst>(U)) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">155</td>
+    <td class="codeLine">        LLVM_DEBUG(dbgs() << "canonfr: found: " << *FI << "\n");</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">155</td>
+    <td class="codeLine">        LLVM_DEBUG(dbgs() << "canonfr: found: " << *FI << "\n");</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">156</td>
+    <td class="codeLine">        Info.FI = FI;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">156</td>
+    <td class="codeLine">        Info.FI = FI;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">157</td>
+    <td class="codeLine">        Candidates.push_back(Info);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">157</td>
+    <td class="codeLine">        Candidates.push_back(Info);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">158</td>
+    <td class="codeLine">      }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">158</td>
+    <td class="codeLine">      }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">159</td>
+    <td class="codeLine">    };</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">159</td>
+    <td class="codeLine">    };</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">160</td>
+    <td class="codeLine">    for_each(PHI.users(), Visit);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">160</td>
+    <td class="codeLine">    for_each(PHI.users(), Visit);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">161</td>
+    <td class="codeLine">    for_each(Info.StepInst->users(), Visit);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">161</td>
+    <td class="codeLine">    for_each(Info.StepInst->users(), Visit);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">162</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">162</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">163</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">163</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">164</td>
+    <td class="codeLine">  if (Candidates.empty())</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">164</td>
+    <td class="codeLine">  if (Candidates.empty())</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">165</td>
+    <td class="codeLine">    return false;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">165</td>
+    <td class="codeLine">    return false;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">166</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">166</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">167</td>
+    <td class="codeLine">  SmallSet<PHINode *, 8> ProcessedPHIs;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">167</td>
+    <td class="codeLine">  SmallSet<PHINode *, 8> ProcessedPHIs;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">168</td>
+    <td class="codeLine">  for (const auto &Info : Candidates) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">168</td>
+    <td class="codeLine">  for (const auto &Info : Candidates) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">169</td>
+    <td class="codeLine">    PHINode *PHI = Info.PHI;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">169</td>
+    <td class="codeLine">    PHINode *PHI = Info.PHI;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">170</td>
+    <td class="codeLine">    if (!ProcessedPHIs.insert(Info.PHI).second)</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">170</td>
+    <td class="codeLine">    if (!ProcessedPHIs.insert(Info.PHI).second)</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">171</td>
+    <td class="codeLine">      continue;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">171</td>
+    <td class="codeLine">      continue;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">172</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">172</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">173</td>
+    <td class="codeLine">    BinaryOperator *StepI = Info.StepInst;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">173</td>
+    <td class="codeLine">    BinaryOperator *StepI = Info.StepInst;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">174</td>
+    <td class="codeLine">    assert(StepI && "Step instruction should have been found");</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">174</td>
+    <td class="codeLine">    assert(StepI && "Step instruction should have been found");</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">175</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">175</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">176</td>
+    <td class="codeLine">    // Drop flags from the step instruction.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">176</td>
+    <td class="codeLine">    // Drop flags from the step instruction.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">177</td>
+    <td class="codeLine">    if (!isGuaranteedNotToBeUndefOrPoison(StepI, nullptr, StepI, &DT)) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">177</td>
+    <td class="codeLine">    if (!isGuaranteedNotToBeUndefOrPoison(StepI, nullptr, StepI, &DT)) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">178</td>
+    <td class="codeLine">      LLVM_DEBUG(dbgs() << "canonfr: drop flags: " << *StepI << "\n");</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">178</td>
+    <td class="codeLine">      LLVM_DEBUG(dbgs() << "canonfr: drop flags: " << *StepI << "\n");</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">179</td>
+    <td class="codeLine">      StepI->dropPoisonGeneratingFlags();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">179</td>
+    <td class="codeLine">      StepI->dropPoisonGeneratingFlags();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">180</td>
+    <td class="codeLine">      SE.forgetValue(StepI);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">180</td>
+    <td class="codeLine">      SE.forgetValue(StepI);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">181</td>
+    <td class="codeLine">    }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">181</td>
+    <td class="codeLine">    }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">182</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">182</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">183</td>
+    <td class="codeLine">    InsertFreezeAndForgetFromSCEV(StepI->getOperandUse(Info.StepValIdx));</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">183</td>
+    <td class="codeLine">    InsertFreezeAndForgetFromSCEV(StepI->getOperandUse(Info.StepValIdx));</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">184</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">184</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">185</td>
+    <td class="codeLine">    unsigned OperandIdx =</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">185</td>
+    <td class="codeLine">    unsigned OperandIdx =</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">186</td>
+    <td class="codeLine">        PHI->getOperandNumForIncomingValue(PHI->getIncomingValue(0) == StepI);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">186</td>
+    <td class="codeLine">        PHI->getOperandNumForIncomingValue(PHI->getIncomingValue(0) == StepI);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">187</td>
+    <td class="codeLine">    InsertFreezeAndForgetFromSCEV(PHI->getOperandUse(OperandIdx));</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">187</td>
+    <td class="codeLine">    InsertFreezeAndForgetFromSCEV(PHI->getOperandUse(OperandIdx));</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">188</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">188</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">189</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">189</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">190</td>
+    <td class="codeLine">  // Finally, remove the old freeze instructions.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">190</td>
+    <td class="codeLine">  // Finally, remove the old freeze instructions.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">191</td>
+    <td class="codeLine">  for (const auto &Item : Candidates) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">191</td>
+    <td class="codeLine">  for (const auto &Item : Candidates) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">192</td>
+    <td class="codeLine">    auto *FI = Item.FI;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">192</td>
+    <td class="codeLine">    auto *FI = Item.FI;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">193</td>
+    <td class="codeLine">    LLVM_DEBUG(dbgs() << "canonfr: removing " << *FI << "\n");</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">193</td>
+    <td class="codeLine">    LLVM_DEBUG(dbgs() << "canonfr: removing " << *FI << "\n");</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">194</td>
+    <td class="codeLine">    SE.forgetValue(FI);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">194</td>
+    <td class="codeLine">    SE.forgetValue(FI);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">195</td>
+    <td class="codeLine">    FI->replaceAllUsesWith(FI->getOperand(0));</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">195</td>
+    <td class="codeLine">    FI->replaceAllUsesWith(FI->getOperand(0));</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">196</td>
+    <td class="codeLine">    FI->eraseFromParent();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">196</td>
+    <td class="codeLine">    FI->eraseFromParent();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">197</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">197</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">198</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">198</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">199</td>
+    <td class="codeLine">  return true;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">199</td>
+    <td class="codeLine">  return true;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">200</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">200</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">201</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">201</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">202</td>
+    <td class="codeLine coveredLine">CanonicalizeFreezeInLoops::CanonicalizeFreezeInLoops() : LoopPass(ID) {</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">202</td>
+    <td class="codeLine coveredLine">CanonicalizeFreezeInLoops::CanonicalizeFreezeInLoops() : LoopPass(ID) {</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">203</td>
+    <td class="codeLine coveredLine">  initializeCanonicalizeFreezeInLoopsPass(*PassRegistry::getPassRegistry());</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">203</td>
+    <td class="codeLine coveredLine">  initializeCanonicalizeFreezeInLoopsPass(*PassRegistry::getPassRegistry());</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">204</td>
+    <td class="codeLine coveredLine">}</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">204</td>
+    <td class="codeLine coveredLine">}</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">205</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">205</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">206</td>
+    <td class="codeLine coveredLine">void CanonicalizeFreezeInLoops::getAnalysisUsage(AnalysisUsage &AU) const {</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">206</td>
+    <td class="codeLine coveredLine">void CanonicalizeFreezeInLoops::getAnalysisUsage(AnalysisUsage &AU) const {</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">207</td>
+    <td class="codeLine coveredLine">  AU.addPreservedID(LoopSimplifyID);</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">207</td>
+    <td class="codeLine coveredLine">  AU.addPreservedID(LoopSimplifyID);</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">208</td>
+    <td class="codeLine coveredLine">  AU.addRequired<LoopInfoWrapperPass>();</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">208</td>
+    <td class="codeLine coveredLine">  AU.addRequired<LoopInfoWrapperPass>();</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">209</td>
+    <td class="codeLine coveredLine">  AU.addPreserved<LoopInfoWrapperPass>();</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">209</td>
+    <td class="codeLine coveredLine">  AU.addPreserved<LoopInfoWrapperPass>();</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">210</td>
+    <td class="codeLine coveredLine">  AU.addRequiredID(LoopSimplifyID);</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">210</td>
+    <td class="codeLine coveredLine">  AU.addRequiredID(LoopSimplifyID);</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">211</td>
+    <td class="codeLine coveredLine">  AU.addRequired<ScalarEvolutionWrapperPass>();</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">211</td>
+    <td class="codeLine coveredLine">  AU.addRequired<ScalarEvolutionWrapperPass>();</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">212</td>
+    <td class="codeLine coveredLine">  AU.addPreserved<ScalarEvolutionWrapperPass>();</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">212</td>
+    <td class="codeLine coveredLine">  AU.addPreserved<ScalarEvolutionWrapperPass>();</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">213</td>
+    <td class="codeLine coveredLine">  AU.addRequired<DominatorTreeWrapperPass>();</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">213</td>
+    <td class="codeLine coveredLine">  AU.addRequired<DominatorTreeWrapperPass>();</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">214</td>
+    <td class="codeLine coveredLine">  AU.addPreserved<DominatorTreeWrapperPass>();</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">214</td>
+    <td class="codeLine coveredLine">  AU.addPreserved<DominatorTreeWrapperPass>();</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">215</td>
+    <td class="codeLine coveredLine">}</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">215</td>
+    <td class="codeLine coveredLine">}</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">216</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">216</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">217</td>
+    <td class="codeLine">bool CanonicalizeFreezeInLoops::runOnLoop(Loop *L, LPPassManager &) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">217</td>
+    <td class="codeLine">bool CanonicalizeFreezeInLoops::runOnLoop(Loop *L, LPPassManager &) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">218</td>
+    <td class="codeLine">  if (skipLoop(L))</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">218</td>
+    <td class="codeLine">  if (skipLoop(L))</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">219</td>
+    <td class="codeLine">    return false;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">219</td>
+    <td class="codeLine">    return false;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">220</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">220</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">221</td>
+    <td class="codeLine">  auto &SE = getAnalysis<ScalarEvolutionWrapperPass>().getSE();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">221</td>
+    <td class="codeLine">  auto &SE = getAnalysis<ScalarEvolutionWrapperPass>().getSE();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">222</td>
+    <td class="codeLine">  auto &DT = getAnalysis<DominatorTreeWrapperPass>().getDomTree();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">222</td>
+    <td class="codeLine">  auto &DT = getAnalysis<DominatorTreeWrapperPass>().getDomTree();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">223</td>
+    <td class="codeLine">  return CanonicalizeFreezeInLoopsImpl(L, SE, DT).run();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">223</td>
+    <td class="codeLine">  return CanonicalizeFreezeInLoopsImpl(L, SE, DT).run();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">224</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">224</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">225</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">225</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">226</td>
+    <td class="codeLine">PreservedAnalyses</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">226</td>
+    <td class="codeLine">PreservedAnalyses</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">227</td>
+    <td class="codeLine">CanonicalizeFreezeInLoopsPass::run(Loop &L, LoopAnalysisManager &AM,</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">227</td>
+    <td class="codeLine">CanonicalizeFreezeInLoopsPass::run(Loop &L, LoopAnalysisManager &AM,</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">228</td>
+    <td class="codeLine">                                   LoopStandardAnalysisResults &AR,</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">228</td>
+    <td class="codeLine">                                   LoopStandardAnalysisResults &AR,</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">229</td>
+    <td class="codeLine">                                   LPMUpdater &U) {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">229</td>
+    <td class="codeLine">                                   LPMUpdater &U) {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">230</td>
+    <td class="codeLine">  if (!CanonicalizeFreezeInLoopsImpl(&L, AR.SE, AR.DT).run())</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">230</td>
+    <td class="codeLine">  if (!CanonicalizeFreezeInLoopsImpl(&L, AR.SE, AR.DT).run())</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">231</td>
+    <td class="codeLine">    return PreservedAnalyses::all();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">231</td>
+    <td class="codeLine">    return PreservedAnalyses::all();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">232</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">232</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">233</td>
+    <td class="codeLine">  return getLoopPassPreservedAnalyses();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">233</td>
+    <td class="codeLine">  return getLoopPassPreservedAnalyses();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">234</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">234</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">235</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">235</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">236</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_BEGIN(CanonicalizeFreezeInLoops, "canon-freeze",</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">236</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_BEGIN(CanonicalizeFreezeInLoops, "canon-freeze",</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">237</td>
+    <td class="codeLine">                      "Canonicalize Freeze Instructions in Loops", false, false)</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">237</td>
+    <td class="codeLine">                      "Canonicalize Freeze Instructions in Loops", false, false)</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">238</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_DEPENDENCY(DominatorTreeWrapperPass)</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">238</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_DEPENDENCY(DominatorTreeWrapperPass)</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">239</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_DEPENDENCY(ScalarEvolutionWrapperPass)</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">239</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_DEPENDENCY(ScalarEvolutionWrapperPass)</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">240</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_DEPENDENCY(LoopSimplify)</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">240</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_DEPENDENCY(LoopSimplify)</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">241</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_END(CanonicalizeFreezeInLoops, "canon-freeze",</td>
+    <td class="lineNumber">3</td>
+    <td class="lineNumber">241</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_END(CanonicalizeFreezeInLoops, "canon-freeze",</td>
+    <td class="lineNumber">3</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">242</td>
+    <td class="codeLine">                    "Canonicalize Freeze Instructions in Loops", false, false)</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">242</td>
+    <td class="codeLine">                    "Canonicalize Freeze Instructions in Loops", false, false)</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">243</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">243</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">244</td>
+    <td class="codeLine coveredLine">Pass *llvm::createCanonicalizeFreezeInLoopsPass() {</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">244</td>
+    <td class="codeLine coveredLine">Pass *llvm::createCanonicalizeFreezeInLoopsPass() {</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">245</td>
+    <td class="codeLine coveredLine">  return new CanonicalizeFreezeInLoops();</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">245</td>
+    <td class="codeLine coveredLine">  return new CanonicalizeFreezeInLoops();</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">246</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">246</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">247</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">247</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">248</td>
+    <td class="codeLine">char CanonicalizeFreezeInLoops::ID = 0;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">248</td>
+    <td class="codeLine">char CanonicalizeFreezeInLoops::ID = 0;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">249</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">249</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+</table>
+    </div>
+    <button id="myBtn" onclick="topFunction()" title="Go to top" type="button">Top</button>
+    <script src="../Javascript/drop_down.js"></script>
+    <script src="../Javascript/top_button.js"></script>
+  </body>
+</html>

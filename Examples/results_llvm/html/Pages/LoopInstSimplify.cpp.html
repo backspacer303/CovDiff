@@ -1,0 +1,5358 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>LoopInstSimplify.cpp</title>
+    <link rel="stylesheet" href="../Style/style.css" />
+  </head>
+  <body>
+    <div class="headerDiv">
+      <h1>
+        Code Coverage
+      </h1>
+      <p>
+        Source file: /home/nikola/Desktop/llvm-project/llvm/lib/Transforms/Scalar/LoopInstSimplify.cpp
+      </p>
+    </div>
+    <button class="collapsible" type="button">Open Summary Report</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Summary Report</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line number</th>
+    <th class="mainTh">Line</th>
+    <th class="mainTh">Number of hits</th>
+    <th class="mainTh">Tests that cover line</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="">//===- LoopInstSimplify.cpp - Loop Instruction Simplification Pass --------===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="">//===----------------------------------------------------------------------===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="">// This pass performs lightweight instruction simplification on loop bodies.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="">//===----------------------------------------------------------------------===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class="">#include "llvm/Transforms/Scalar/LoopInstSimplify.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class="">#include "llvm/ADT/STLExtras.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class="">#include "llvm/ADT/SmallPtrSet.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class="">#include "llvm/ADT/SmallVector.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class="">#include "llvm/ADT/Statistic.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class="">#include "llvm/Analysis/AssumptionCache.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class="">#include "llvm/Analysis/InstructionSimplify.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class="">#include "llvm/Analysis/LoopInfo.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class="">#include "llvm/Analysis/LoopIterator.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class="">#include "llvm/Analysis/LoopPass.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class="">#include "llvm/Analysis/MemorySSA.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class="">#include "llvm/Analysis/MemorySSAUpdater.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class="">#include "llvm/Analysis/TargetLibraryInfo.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class="">#include "llvm/IR/BasicBlock.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class="">#include "llvm/IR/Dominators.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class="">#include "llvm/IR/Instruction.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class="">#include "llvm/IR/Instructions.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class="">#include "llvm/IR/Module.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class="">#include "llvm/IR/PassManager.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class="">#include "llvm/InitializePasses.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class="">#include "llvm/Pass.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class="">#include "llvm/Support/Casting.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class="">#include "llvm/Transforms/Scalar.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class="">#include "llvm/Transforms/Utils/Local.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class="">#include "llvm/Transforms/Utils/LoopUtils.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class="">#include <optional></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class="">#include <utility></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class="">using namespace llvm;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class="">#define DEBUG_TYPE "loop-instsimplify"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class="">STATISTIC(NumSimplified, "Number of redundant instructions simplified");</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class="uncoveredLine">static bool simplifyLoopInst(Loop &L, DominatorTree &DT, LoopInfo &LI,</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class="">                             AssumptionCache &AC, const TargetLibraryInfo &TLI,</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class="">                             MemorySSAUpdater *MSSAU) {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class="uncoveredLine">  const DataLayout &DL = L.getHeader()->getModule()->getDataLayout();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class="uncoveredLine">  SimplifyQuery SQ(DL, &TLI, &DT, &AC);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class="">  // On the first pass over the loop body we try to simplify every instruction.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class="">  // On subsequent passes, we can restrict this to only simplifying instructions</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class="">  // where the inputs have been updated. We end up needing two sets: one</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class="">  // containing the instructions we are simplifying in *this* pass, and one for</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class="">  // the instructions we will want to simplify in the *next* pass. We use</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class="">  // pointers so we can swap between two stably allocated sets.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class="uncoveredLine">  SmallPtrSet<const Instruction *, 8> S1, S2, *ToSimplify = &S1, *Next = &S2;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class="">  // Track the PHI nodes that have already been visited during each iteration so</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class="">  // that we can identify when it is necessary to iterate.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class="uncoveredLine">  SmallPtrSet<PHINode *, 4> VisitedPHIs;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class="">  // While simplifying we may discover dead code or cause code to become dead.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class="">  // Keep track of all such instructions and we will delete them at the end.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class="uncoveredLine">  SmallVector<WeakTrackingVH, 8> DeadInsts;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class="">  // First we want to create an RPO traversal of the loop body. By processing in</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class="">  // RPO we can ensure that definitions are processed prior to uses (for non PHI</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class="">  // uses) in all cases. This ensures we maximize the simplifications in each</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class="">  // iteration over the loop and minimizes the possible causes for continuing to</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class="">  // iterate.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class="uncoveredLine">  LoopBlocksRPO RPOT(&L);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class="uncoveredLine">  RPOT.perform(&LI);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class="uncoveredLine">  MemorySSA *MSSA = MSSAU ? MSSAU->getMemorySSA() : nullptr;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class="uncoveredLine">  bool Changed = false;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class="">  for (;;) {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class="uncoveredLine">    if (MSSAU && VerifyMemorySSA)</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class="uncoveredLine">      MSSA->verifyMemorySSA();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class="uncoveredLine">    for (BasicBlock *BB : RPOT) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class="uncoveredLine">      for (Instruction &I : *BB) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class="uncoveredLine">        if (auto *PI = dyn_cast<PHINode>(&I))</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class="uncoveredLine">          VisitedPHIs.insert(PI);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class="uncoveredLine">        if (I.use_empty()) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class="uncoveredLine">          if (isInstructionTriviallyDead(&I, &TLI))</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class="uncoveredLine">            DeadInsts.push_back(&I);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">90</td>
+    <td class="uncoveredLine">          continue;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">91</td>
+    <td class="">        }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">92</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">93</td>
+    <td class="">        // We special case the first iteration which we can detect due to the</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">94</td>
+    <td class="">        // empty `ToSimplify` set.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">95</td>
+    <td class="uncoveredLine">        bool IsFirstIteration = ToSimplify->empty();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">96</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">97</td>
+    <td class="uncoveredLine">        if (!IsFirstIteration && !ToSimplify->count(&I))</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">98</td>
+    <td class="uncoveredLine">          continue;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">99</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">100</td>
+    <td class="uncoveredLine">        Value *V = simplifyInstruction(&I, SQ.getWithInstruction(&I));</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">101</td>
+    <td class="uncoveredLine">        if (!V || !LI.replacementPreservesLCSSAForm(&I, V))</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">102</td>
+    <td class="uncoveredLine">          continue;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">103</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">104</td>
+    <td class="uncoveredLine">        for (Use &U : llvm::make_early_inc_range(I.uses())) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">105</td>
+    <td class="uncoveredLine">          auto *UserI = cast<Instruction>(U.getUser());</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">106</td>
+    <td class="uncoveredLine">          U.set(V);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">107</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">108</td>
+    <td class="">          // Do not bother dealing with unreachable code.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">109</td>
+    <td class="uncoveredLine">          if (!DT.isReachableFromEntry(UserI->getParent()))</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">110</td>
+    <td class="uncoveredLine">            continue;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">111</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">112</td>
+    <td class="">          // If the instruction is used by a PHI node we have already processed</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">113</td>
+    <td class="">          // we'll need to iterate on the loop body to converge, so add it to</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">114</td>
+    <td class="">          // the next set.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">115</td>
+    <td class="uncoveredLine">          if (auto *UserPI = dyn_cast<PHINode>(UserI))</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">116</td>
+    <td class="uncoveredLine">            if (VisitedPHIs.count(UserPI)) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">117</td>
+    <td class="uncoveredLine">              Next->insert(UserPI);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">118</td>
+    <td class="uncoveredLine">              continue;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">119</td>
+    <td class="">            }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">120</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">121</td>
+    <td class="">          // If we are only simplifying targeted instructions and the user is an</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">122</td>
+    <td class="">          // instruction in the loop body, add it to our set of targeted</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">123</td>
+    <td class="">          // instructions. Because we process defs before uses (outside of PHIs)</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">124</td>
+    <td class="">          // we won't have visited it yet.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">125</td>
+    <td class="">          //</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">126</td>
+    <td class="">          // We also skip any uses outside of the loop being simplified. Those</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">127</td>
+    <td class="">          // should always be PHI nodes due to LCSSA form, and we don't want to</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">128</td>
+    <td class="">          // try to simplify those away.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">129</td>
+    <td class="uncoveredLine">          assert((L.contains(UserI) || isa<PHINode>(UserI)) &&</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">130</td>
+    <td class="">                 "Uses outside the loop should be PHI nodes due to LCSSA!");</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">131</td>
+    <td class="uncoveredLine">          if (!IsFirstIteration && L.contains(UserI))</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">132</td>
+    <td class="uncoveredLine">            ToSimplify->insert(UserI);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">133</td>
+    <td class="">        }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">134</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">135</td>
+    <td class="uncoveredLine">        if (MSSAU)</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">136</td>
+    <td class="uncoveredLine">          if (Instruction *SimpleI = dyn_cast_or_null<Instruction>(V))</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">137</td>
+    <td class="uncoveredLine">            if (MemoryAccess *MA = MSSA->getMemoryAccess(&I))</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">138</td>
+    <td class="uncoveredLine">              if (MemoryAccess *ReplacementMA = MSSA->getMemoryAccess(SimpleI))</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">139</td>
+    <td class="uncoveredLine">                MA->replaceAllUsesWith(ReplacementMA);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">140</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">141</td>
+    <td class="uncoveredLine">        assert(I.use_empty() && "Should always have replaced all uses!");</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">142</td>
+    <td class="uncoveredLine">        if (isInstructionTriviallyDead(&I, &TLI))</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">143</td>
+    <td class="uncoveredLine">          DeadInsts.push_back(&I);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">144</td>
+    <td class="uncoveredLine">        ++NumSimplified;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">145</td>
+    <td class="uncoveredLine">        Changed = true;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">146</td>
+    <td class="">      }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">147</td>
+    <td class="">    }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">148</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">149</td>
+    <td class="">    // Delete any dead instructions found thus far now that we've finished an</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">150</td>
+    <td class="">    // iteration over all instructions in all the loop blocks.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">151</td>
+    <td class="uncoveredLine">    if (!DeadInsts.empty()) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">152</td>
+    <td class="uncoveredLine">      Changed = true;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">153</td>
+    <td class="uncoveredLine">      RecursivelyDeleteTriviallyDeadInstructions(DeadInsts, &TLI, MSSAU);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">154</td>
+    <td class="">    }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">155</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">156</td>
+    <td class="uncoveredLine">    if (MSSAU && VerifyMemorySSA)</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">157</td>
+    <td class="uncoveredLine">      MSSA->verifyMemorySSA();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">158</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">159</td>
+    <td class="">    // If we never found a PHI that needs to be simplified in the next</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">160</td>
+    <td class="">    // iteration, we're done.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">161</td>
+    <td class="uncoveredLine">    if (Next->empty())</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">162</td>
+    <td class="uncoveredLine">      break;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">163</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">164</td>
+    <td class="">    // Otherwise, put the next set in place for the next iteration and reset it</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">165</td>
+    <td class="">    // and the visited PHIs for that iteration.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">166</td>
+    <td class="uncoveredLine">    std::swap(Next, ToSimplify);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">167</td>
+    <td class="uncoveredLine">    Next->clear();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">168</td>
+    <td class="uncoveredLine">    VisitedPHIs.clear();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">169</td>
+    <td class="uncoveredLine">    DeadInsts.clear();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">170</td>
+    <td class="uncoveredLine">  }</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">171</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">172</td>
+    <td class="uncoveredLine">  return Changed;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">173</td>
+    <td class="uncoveredLine">}</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">174</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">175</td>
+    <td class="">namespace {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">176</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">177</td>
+    <td class="">class LoopInstSimplifyLegacyPass : public LoopPass {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">178</td>
+    <td class="">public:</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">179</td>
+    <td class="">  static char ID; // Pass ID, replacement for typeid</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">180</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">181</td>
+    <td class="uncoveredLine">  LoopInstSimplifyLegacyPass() : LoopPass(ID) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">182</td>
+    <td class="uncoveredLine">    initializeLoopInstSimplifyLegacyPassPass(*PassRegistry::getPassRegistry());</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">183</td>
+    <td class="uncoveredLine">  }</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">184</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">185</td>
+    <td class="uncoveredLine">  bool runOnLoop(Loop *L, LPPassManager &LPM) override {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">186</td>
+    <td class="uncoveredLine">    if (skipLoop(L))</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">187</td>
+    <td class="uncoveredLine">      return false;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">188</td>
+    <td class="uncoveredLine">    DominatorTree &DT = getAnalysis<DominatorTreeWrapperPass>().getDomTree();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">189</td>
+    <td class="uncoveredLine">    LoopInfo &LI = getAnalysis<LoopInfoWrapperPass>().getLoopInfo();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">190</td>
+    <td class="">    AssumptionCache &AC =</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">191</td>
+    <td class="uncoveredLine">        getAnalysis<AssumptionCacheTracker>().getAssumptionCache(</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">192</td>
+    <td class="uncoveredLine">            *L->getHeader()->getParent());</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">193</td>
+    <td class="">    const TargetLibraryInfo &TLI =</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">194</td>
+    <td class="uncoveredLine">        getAnalysis<TargetLibraryInfoWrapperPass>().getTLI(</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">195</td>
+    <td class="uncoveredLine">            *L->getHeader()->getParent());</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">196</td>
+    <td class="uncoveredLine">    MemorySSA *MSSA = &getAnalysis<MemorySSAWrapperPass>().getMSSA();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">197</td>
+    <td class="uncoveredLine">    MemorySSAUpdater MSSAU(MSSA);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">198</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">199</td>
+    <td class="uncoveredLine">    return simplifyLoopInst(*L, DT, LI, AC, TLI, &MSSAU);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">200</td>
+    <td class="uncoveredLine">  }</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">201</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">202</td>
+    <td class="uncoveredLine">  void getAnalysisUsage(AnalysisUsage &AU) const override {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">203</td>
+    <td class="uncoveredLine">    AU.addRequired<AssumptionCacheTracker>();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">204</td>
+    <td class="uncoveredLine">    AU.addRequired<DominatorTreeWrapperPass>();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">205</td>
+    <td class="uncoveredLine">    AU.addRequired<TargetLibraryInfoWrapperPass>();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">206</td>
+    <td class="uncoveredLine">    AU.setPreservesCFG();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">207</td>
+    <td class="uncoveredLine">    AU.addRequired<MemorySSAWrapperPass>();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">208</td>
+    <td class="uncoveredLine">    AU.addPreserved<MemorySSAWrapperPass>();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">209</td>
+    <td class="uncoveredLine">    getLoopAnalysisUsage(AU);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">210</td>
+    <td class="uncoveredLine">  }</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">211</td>
+    <td class="">};</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">212</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">213</td>
+    <td class="">} // end anonymous namespace</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">214</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">215</td>
+    <td class="uncoveredLine">PreservedAnalyses LoopInstSimplifyPass::run(Loop &L, LoopAnalysisManager &AM,</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">216</td>
+    <td class="">                                            LoopStandardAnalysisResults &AR,</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">217</td>
+    <td class="">                                            LPMUpdater &) {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">218</td>
+    <td class="uncoveredLine">  std::optional<MemorySSAUpdater> MSSAU;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">219</td>
+    <td class="uncoveredLine">  if (AR.MSSA) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">220</td>
+    <td class="uncoveredLine">    MSSAU = MemorySSAUpdater(AR.MSSA);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">221</td>
+    <td class="uncoveredLine">    if (VerifyMemorySSA)</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">222</td>
+    <td class="uncoveredLine">      AR.MSSA->verifyMemorySSA();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">223</td>
+    <td class="">  }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">224</td>
+    <td class="uncoveredLine">  if (!simplifyLoopInst(L, AR.DT, AR.LI, AR.AC, AR.TLI,</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">225</td>
+    <td class="uncoveredLine">                        MSSAU ? &*MSSAU : nullptr))</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">226</td>
+    <td class="uncoveredLine">    return PreservedAnalyses::all();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">227</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">228</td>
+    <td class="uncoveredLine">  auto PA = getLoopPassPreservedAnalyses();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">229</td>
+    <td class="uncoveredLine">  PA.preserveSet<CFGAnalyses>();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">230</td>
+    <td class="uncoveredLine">  if (AR.MSSA)</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">231</td>
+    <td class="uncoveredLine">    PA.preserve<MemorySSAAnalysis>();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">232</td>
+    <td class="uncoveredLine">  return PA;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">233</td>
+    <td class="uncoveredLine">}</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">234</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">235</td>
+    <td class="">char LoopInstSimplifyLegacyPass::ID = 0;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">236</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">237</td>
+    <td class="coveredLine">INITIALIZE_PASS_BEGIN(LoopInstSimplifyLegacyPass, "loop-instsimplify",</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">238</td>
+    <td class="">                      "Simplify instructions in loops", false, false)</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">239</td>
+    <td class="coveredLine">INITIALIZE_PASS_DEPENDENCY(AssumptionCacheTracker)</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">240</td>
+    <td class="coveredLine">INITIALIZE_PASS_DEPENDENCY(LoopPass)</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">241</td>
+    <td class="coveredLine">INITIALIZE_PASS_DEPENDENCY(MemorySSAWrapperPass)</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">242</td>
+    <td class="coveredLine">INITIALIZE_PASS_DEPENDENCY(TargetLibraryInfoWrapperPass)</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">243</td>
+    <td class="coveredLine">INITIALIZE_PASS_END(LoopInstSimplifyLegacyPass, "loop-instsimplify",</td>
+    <td>4</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">244</td>
+    <td class="">                    "Simplify instructions in loops", false, false)</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">245</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">246</td>
+    <td class="uncoveredLine">Pass *llvm::createLoopInstSimplifyPass() {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">247</td>
+    <td class="uncoveredLine">  return new LoopInstSimplifyLegacyPass();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">248</td>
+    <td class="">}</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">249</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Functions Report</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Functions Report</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Function name</th>
+    <th class="mainTh">Number of hits</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZL16simplifyLoopInstRN4llvm4LoopERNS_13DominatorTreeERNS_8LoopInfoERNS_15AssumptionCacheERKNS_17TargetLibraryInfoEPNS_16MemorySSAUpdaterE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_126LoopInstSimplifyLegacyPassC2Ev</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_126LoopInstSimplifyLegacyPass9runOnLoopEPN4llvm4LoopERNS1_13LPPassManagerE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZNK12_GLOBAL__N_126LoopInstSimplifyLegacyPass16getAnalysisUsageERN4llvm13AnalysisUsageE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN4llvm20LoopInstSimplifyPass3runERNS_4LoopERNS_15AnalysisManagerIS1_JRNS_27LoopStandardAnalysisResultsEEEES5_RNS_10LPMUpdaterE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZL44initializeLoopInstSimplifyLegacyPassPassOnceRN4llvm12PassRegistryE</td>
+    <td class="numberOfCalls">2</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN4llvm40initializeLoopInstSimplifyLegacyPassPassERNS_12PassRegistryE</td>
+    <td class="numberOfCalls">2</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN4llvm26createLoopInstSimplifyPassEv</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Coverage Diff</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Coverage Diff</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span> BUT NOT </span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </th>
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+      <span> BUT NOT </span>
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+    </th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="codeline">//===- LoopInstSimplify.cpp - Loop Instruction Simplification Pass --------===//</td>
+    <td class="lineNumber">1</td>
+    <td class="codeline">//===- LoopInstSimplify.cpp - Loop Instruction Simplification Pass --------===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">2</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="codeline">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">3</td>
+    <td class="codeline">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="codeline">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">4</td>
+    <td class="codeline">// See https://llvm.org/LICENSE.txt for license information.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="codeline">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">5</td>
+    <td class="codeline">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">6</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">7</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">8</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="codeline">// This pass performs lightweight instruction simplification on loop bodies.</td>
+    <td class="lineNumber">9</td>
+    <td class="codeline">// This pass performs lightweight instruction simplification on loop bodies.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">10</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">11</td>
+    <td class="codeline">//===----------------------------------------------------------------------===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">12</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class="codeline">#include "llvm/Transforms/Scalar/LoopInstSimplify.h"</td>
+    <td class="lineNumber">13</td>
+    <td class="codeline">#include "llvm/Transforms/Scalar/LoopInstSimplify.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class="codeline">#include "llvm/ADT/STLExtras.h"</td>
+    <td class="lineNumber">14</td>
+    <td class="codeline">#include "llvm/ADT/STLExtras.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class="codeline">#include "llvm/ADT/SmallPtrSet.h"</td>
+    <td class="lineNumber">15</td>
+    <td class="codeline">#include "llvm/ADT/SmallPtrSet.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class="codeline">#include "llvm/ADT/SmallVector.h"</td>
+    <td class="lineNumber">16</td>
+    <td class="codeline">#include "llvm/ADT/SmallVector.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class="codeline">#include "llvm/ADT/Statistic.h"</td>
+    <td class="lineNumber">17</td>
+    <td class="codeline">#include "llvm/ADT/Statistic.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class="codeline">#include "llvm/Analysis/AssumptionCache.h"</td>
+    <td class="lineNumber">18</td>
+    <td class="codeline">#include "llvm/Analysis/AssumptionCache.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class="codeline">#include "llvm/Analysis/InstructionSimplify.h"</td>
+    <td class="lineNumber">19</td>
+    <td class="codeline">#include "llvm/Analysis/InstructionSimplify.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class="codeline">#include "llvm/Analysis/LoopInfo.h"</td>
+    <td class="lineNumber">20</td>
+    <td class="codeline">#include "llvm/Analysis/LoopInfo.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class="codeline">#include "llvm/Analysis/LoopIterator.h"</td>
+    <td class="lineNumber">21</td>
+    <td class="codeline">#include "llvm/Analysis/LoopIterator.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class="codeline">#include "llvm/Analysis/LoopPass.h"</td>
+    <td class="lineNumber">22</td>
+    <td class="codeline">#include "llvm/Analysis/LoopPass.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class="codeline">#include "llvm/Analysis/MemorySSA.h"</td>
+    <td class="lineNumber">23</td>
+    <td class="codeline">#include "llvm/Analysis/MemorySSA.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class="codeline">#include "llvm/Analysis/MemorySSAUpdater.h"</td>
+    <td class="lineNumber">24</td>
+    <td class="codeline">#include "llvm/Analysis/MemorySSAUpdater.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class="codeline">#include "llvm/Analysis/TargetLibraryInfo.h"</td>
+    <td class="lineNumber">25</td>
+    <td class="codeline">#include "llvm/Analysis/TargetLibraryInfo.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class="codeline">#include "llvm/IR/BasicBlock.h"</td>
+    <td class="lineNumber">26</td>
+    <td class="codeline">#include "llvm/IR/BasicBlock.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class="codeline">#include "llvm/IR/Dominators.h"</td>
+    <td class="lineNumber">27</td>
+    <td class="codeline">#include "llvm/IR/Dominators.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class="codeline">#include "llvm/IR/Instruction.h"</td>
+    <td class="lineNumber">28</td>
+    <td class="codeline">#include "llvm/IR/Instruction.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class="codeline">#include "llvm/IR/Instructions.h"</td>
+    <td class="lineNumber">29</td>
+    <td class="codeline">#include "llvm/IR/Instructions.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class="codeline">#include "llvm/IR/Module.h"</td>
+    <td class="lineNumber">30</td>
+    <td class="codeline">#include "llvm/IR/Module.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class="codeline">#include "llvm/IR/PassManager.h"</td>
+    <td class="lineNumber">31</td>
+    <td class="codeline">#include "llvm/IR/PassManager.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class="codeline">#include "llvm/InitializePasses.h"</td>
+    <td class="lineNumber">32</td>
+    <td class="codeline">#include "llvm/InitializePasses.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class="codeline">#include "llvm/Pass.h"</td>
+    <td class="lineNumber">33</td>
+    <td class="codeline">#include "llvm/Pass.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class="codeline">#include "llvm/Support/Casting.h"</td>
+    <td class="lineNumber">34</td>
+    <td class="codeline">#include "llvm/Support/Casting.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class="codeline">#include "llvm/Transforms/Scalar.h"</td>
+    <td class="lineNumber">35</td>
+    <td class="codeline">#include "llvm/Transforms/Scalar.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class="codeline">#include "llvm/Transforms/Utils/Local.h"</td>
+    <td class="lineNumber">36</td>
+    <td class="codeline">#include "llvm/Transforms/Utils/Local.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class="codeline">#include "llvm/Transforms/Utils/LoopUtils.h"</td>
+    <td class="lineNumber">37</td>
+    <td class="codeline">#include "llvm/Transforms/Utils/LoopUtils.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class="codeline">#include <optional></td>
+    <td class="lineNumber">38</td>
+    <td class="codeline">#include <optional></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class="codeline">#include <utility></td>
+    <td class="lineNumber">39</td>
+    <td class="codeline">#include <utility></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">40</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class="codeline">using namespace llvm;</td>
+    <td class="lineNumber">41</td>
+    <td class="codeline">using namespace llvm;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">42</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class="codeline">#define DEBUG_TYPE "loop-instsimplify"</td>
+    <td class="lineNumber">43</td>
+    <td class="codeline">#define DEBUG_TYPE "loop-instsimplify"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">44</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class="codeline">STATISTIC(NumSimplified, "Number of redundant instructions simplified");</td>
+    <td class="lineNumber">45</td>
+    <td class="codeline">STATISTIC(NumSimplified, "Number of redundant instructions simplified");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">46</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class="codeline">static bool simplifyLoopInst(Loop &L, DominatorTree &DT, LoopInfo &LI,</td>
+    <td class="lineNumber">47</td>
+    <td class="codeline">static bool simplifyLoopInst(Loop &L, DominatorTree &DT, LoopInfo &LI,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class="codeline">                             AssumptionCache &AC, const TargetLibraryInfo &TLI,</td>
+    <td class="lineNumber">48</td>
+    <td class="codeline">                             AssumptionCache &AC, const TargetLibraryInfo &TLI,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class="codeline">                             MemorySSAUpdater *MSSAU) {</td>
+    <td class="lineNumber">49</td>
+    <td class="codeline">                             MemorySSAUpdater *MSSAU) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class="codeline">  const DataLayout &DL = L.getHeader()->getModule()->getDataLayout();</td>
+    <td class="lineNumber">50</td>
+    <td class="codeline">  const DataLayout &DL = L.getHeader()->getModule()->getDataLayout();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class="codeline">  SimplifyQuery SQ(DL, &TLI, &DT, &AC);</td>
+    <td class="lineNumber">51</td>
+    <td class="codeline">  SimplifyQuery SQ(DL, &TLI, &DT, &AC);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">52</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class="codeline">  // On the first pass over the loop body we try to simplify every instruction.</td>
+    <td class="lineNumber">53</td>
+    <td class="codeline">  // On the first pass over the loop body we try to simplify every instruction.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class="codeline">  // On subsequent passes, we can restrict this to only simplifying instructions</td>
+    <td class="lineNumber">54</td>
+    <td class="codeline">  // On subsequent passes, we can restrict this to only simplifying instructions</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class="codeline">  // where the inputs have been updated. We end up needing two sets: one</td>
+    <td class="lineNumber">55</td>
+    <td class="codeline">  // where the inputs have been updated. We end up needing two sets: one</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class="codeline">  // containing the instructions we are simplifying in *this* pass, and one for</td>
+    <td class="lineNumber">56</td>
+    <td class="codeline">  // containing the instructions we are simplifying in *this* pass, and one for</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class="codeline">  // the instructions we will want to simplify in the *next* pass. We use</td>
+    <td class="lineNumber">57</td>
+    <td class="codeline">  // the instructions we will want to simplify in the *next* pass. We use</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class="codeline">  // pointers so we can swap between two stably allocated sets.</td>
+    <td class="lineNumber">58</td>
+    <td class="codeline">  // pointers so we can swap between two stably allocated sets.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class="codeline">  SmallPtrSet<const Instruction *, 8> S1, S2, *ToSimplify = &S1, *Next = &S2;</td>
+    <td class="lineNumber">59</td>
+    <td class="codeline">  SmallPtrSet<const Instruction *, 8> S1, S2, *ToSimplify = &S1, *Next = &S2;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">60</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class="codeline">  // Track the PHI nodes that have already been visited during each iteration so</td>
+    <td class="lineNumber">61</td>
+    <td class="codeline">  // Track the PHI nodes that have already been visited during each iteration so</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class="codeline">  // that we can identify when it is necessary to iterate.</td>
+    <td class="lineNumber">62</td>
+    <td class="codeline">  // that we can identify when it is necessary to iterate.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class="codeline">  SmallPtrSet<PHINode *, 4> VisitedPHIs;</td>
+    <td class="lineNumber">63</td>
+    <td class="codeline">  SmallPtrSet<PHINode *, 4> VisitedPHIs;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">64</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class="codeline">  // While simplifying we may discover dead code or cause code to become dead.</td>
+    <td class="lineNumber">65</td>
+    <td class="codeline">  // While simplifying we may discover dead code or cause code to become dead.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class="codeline">  // Keep track of all such instructions and we will delete them at the end.</td>
+    <td class="lineNumber">66</td>
+    <td class="codeline">  // Keep track of all such instructions and we will delete them at the end.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class="codeline">  SmallVector<WeakTrackingVH, 8> DeadInsts;</td>
+    <td class="lineNumber">67</td>
+    <td class="codeline">  SmallVector<WeakTrackingVH, 8> DeadInsts;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">68</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class="codeline">  // First we want to create an RPO traversal of the loop body. By processing in</td>
+    <td class="lineNumber">69</td>
+    <td class="codeline">  // First we want to create an RPO traversal of the loop body. By processing in</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class="codeline">  // RPO we can ensure that definitions are processed prior to uses (for non PHI</td>
+    <td class="lineNumber">70</td>
+    <td class="codeline">  // RPO we can ensure that definitions are processed prior to uses (for non PHI</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class="codeline">  // uses) in all cases. This ensures we maximize the simplifications in each</td>
+    <td class="lineNumber">71</td>
+    <td class="codeline">  // uses) in all cases. This ensures we maximize the simplifications in each</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class="codeline">  // iteration over the loop and minimizes the possible causes for continuing to</td>
+    <td class="lineNumber">72</td>
+    <td class="codeline">  // iteration over the loop and minimizes the possible causes for continuing to</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class="codeline">  // iterate.</td>
+    <td class="lineNumber">73</td>
+    <td class="codeline">  // iterate.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class="codeline">  LoopBlocksRPO RPOT(&L);</td>
+    <td class="lineNumber">74</td>
+    <td class="codeline">  LoopBlocksRPO RPOT(&L);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class="codeline">  RPOT.perform(&LI);</td>
+    <td class="lineNumber">75</td>
+    <td class="codeline">  RPOT.perform(&LI);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class="codeline">  MemorySSA *MSSA = MSSAU ? MSSAU->getMemorySSA() : nullptr;</td>
+    <td class="lineNumber">76</td>
+    <td class="codeline">  MemorySSA *MSSA = MSSAU ? MSSAU->getMemorySSA() : nullptr;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">77</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class="codeline">  bool Changed = false;</td>
+    <td class="lineNumber">78</td>
+    <td class="codeline">  bool Changed = false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class="codeline">  for (;;) {</td>
+    <td class="lineNumber">79</td>
+    <td class="codeline">  for (;;) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class="codeline">    if (MSSAU && VerifyMemorySSA)</td>
+    <td class="lineNumber">80</td>
+    <td class="codeline">    if (MSSAU && VerifyMemorySSA)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class="codeline">      MSSA->verifyMemorySSA();</td>
+    <td class="lineNumber">81</td>
+    <td class="codeline">      MSSA->verifyMemorySSA();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class="codeline">    for (BasicBlock *BB : RPOT) {</td>
+    <td class="lineNumber">82</td>
+    <td class="codeline">    for (BasicBlock *BB : RPOT) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class="codeline">      for (Instruction &I : *BB) {</td>
+    <td class="lineNumber">83</td>
+    <td class="codeline">      for (Instruction &I : *BB) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class="codeline">        if (auto *PI = dyn_cast<PHINode>(&I))</td>
+    <td class="lineNumber">84</td>
+    <td class="codeline">        if (auto *PI = dyn_cast<PHINode>(&I))</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class="codeline">          VisitedPHIs.insert(PI);</td>
+    <td class="lineNumber">85</td>
+    <td class="codeline">          VisitedPHIs.insert(PI);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">86</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class="codeline">        if (I.use_empty()) {</td>
+    <td class="lineNumber">87</td>
+    <td class="codeline">        if (I.use_empty()) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class="codeline">          if (isInstructionTriviallyDead(&I, &TLI))</td>
+    <td class="lineNumber">88</td>
+    <td class="codeline">          if (isInstructionTriviallyDead(&I, &TLI))</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class="codeline">            DeadInsts.push_back(&I);</td>
+    <td class="lineNumber">89</td>
+    <td class="codeline">            DeadInsts.push_back(&I);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">90</td>
+    <td class="codeline">          continue;</td>
+    <td class="lineNumber">90</td>
+    <td class="codeline">          continue;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">91</td>
+    <td class="codeline">        }</td>
+    <td class="lineNumber">91</td>
+    <td class="codeline">        }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">92</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">92</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">93</td>
+    <td class="codeline">        // We special case the first iteration which we can detect due to the</td>
+    <td class="lineNumber">93</td>
+    <td class="codeline">        // We special case the first iteration which we can detect due to the</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">94</td>
+    <td class="codeline">        // empty `ToSimplify` set.</td>
+    <td class="lineNumber">94</td>
+    <td class="codeline">        // empty `ToSimplify` set.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">95</td>
+    <td class="codeline">        bool IsFirstIteration = ToSimplify->empty();</td>
+    <td class="lineNumber">95</td>
+    <td class="codeline">        bool IsFirstIteration = ToSimplify->empty();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">96</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">96</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">97</td>
+    <td class="codeline">        if (!IsFirstIteration && !ToSimplify->count(&I))</td>
+    <td class="lineNumber">97</td>
+    <td class="codeline">        if (!IsFirstIteration && !ToSimplify->count(&I))</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">98</td>
+    <td class="codeline">          continue;</td>
+    <td class="lineNumber">98</td>
+    <td class="codeline">          continue;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">99</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">99</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">100</td>
+    <td class="codeline">        Value *V = simplifyInstruction(&I, SQ.getWithInstruction(&I));</td>
+    <td class="lineNumber">100</td>
+    <td class="codeline">        Value *V = simplifyInstruction(&I, SQ.getWithInstruction(&I));</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">101</td>
+    <td class="codeline">        if (!V || !LI.replacementPreservesLCSSAForm(&I, V))</td>
+    <td class="lineNumber">101</td>
+    <td class="codeline">        if (!V || !LI.replacementPreservesLCSSAForm(&I, V))</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">102</td>
+    <td class="codeline">          continue;</td>
+    <td class="lineNumber">102</td>
+    <td class="codeline">          continue;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">103</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">103</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">104</td>
+    <td class="codeline">        for (Use &U : llvm::make_early_inc_range(I.uses())) {</td>
+    <td class="lineNumber">104</td>
+    <td class="codeline">        for (Use &U : llvm::make_early_inc_range(I.uses())) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">105</td>
+    <td class="codeline">          auto *UserI = cast<Instruction>(U.getUser());</td>
+    <td class="lineNumber">105</td>
+    <td class="codeline">          auto *UserI = cast<Instruction>(U.getUser());</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">106</td>
+    <td class="codeline">          U.set(V);</td>
+    <td class="lineNumber">106</td>
+    <td class="codeline">          U.set(V);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">107</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">107</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">108</td>
+    <td class="codeline">          // Do not bother dealing with unreachable code.</td>
+    <td class="lineNumber">108</td>
+    <td class="codeline">          // Do not bother dealing with unreachable code.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">109</td>
+    <td class="codeline">          if (!DT.isReachableFromEntry(UserI->getParent()))</td>
+    <td class="lineNumber">109</td>
+    <td class="codeline">          if (!DT.isReachableFromEntry(UserI->getParent()))</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">110</td>
+    <td class="codeline">            continue;</td>
+    <td class="lineNumber">110</td>
+    <td class="codeline">            continue;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">111</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">111</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">112</td>
+    <td class="codeline">          // If the instruction is used by a PHI node we have already processed</td>
+    <td class="lineNumber">112</td>
+    <td class="codeline">          // If the instruction is used by a PHI node we have already processed</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">113</td>
+    <td class="codeline">          // we'll need to iterate on the loop body to converge, so add it to</td>
+    <td class="lineNumber">113</td>
+    <td class="codeline">          // we'll need to iterate on the loop body to converge, so add it to</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">114</td>
+    <td class="codeline">          // the next set.</td>
+    <td class="lineNumber">114</td>
+    <td class="codeline">          // the next set.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">115</td>
+    <td class="codeline">          if (auto *UserPI = dyn_cast<PHINode>(UserI))</td>
+    <td class="lineNumber">115</td>
+    <td class="codeline">          if (auto *UserPI = dyn_cast<PHINode>(UserI))</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">116</td>
+    <td class="codeline">            if (VisitedPHIs.count(UserPI)) {</td>
+    <td class="lineNumber">116</td>
+    <td class="codeline">            if (VisitedPHIs.count(UserPI)) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">117</td>
+    <td class="codeline">              Next->insert(UserPI);</td>
+    <td class="lineNumber">117</td>
+    <td class="codeline">              Next->insert(UserPI);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">118</td>
+    <td class="codeline">              continue;</td>
+    <td class="lineNumber">118</td>
+    <td class="codeline">              continue;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">119</td>
+    <td class="codeline">            }</td>
+    <td class="lineNumber">119</td>
+    <td class="codeline">            }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">120</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">120</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">121</td>
+    <td class="codeline">          // If we are only simplifying targeted instructions and the user is an</td>
+    <td class="lineNumber">121</td>
+    <td class="codeline">          // If we are only simplifying targeted instructions and the user is an</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">122</td>
+    <td class="codeline">          // instruction in the loop body, add it to our set of targeted</td>
+    <td class="lineNumber">122</td>
+    <td class="codeline">          // instruction in the loop body, add it to our set of targeted</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">123</td>
+    <td class="codeline">          // instructions. Because we process defs before uses (outside of PHIs)</td>
+    <td class="lineNumber">123</td>
+    <td class="codeline">          // instructions. Because we process defs before uses (outside of PHIs)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">124</td>
+    <td class="codeline">          // we won't have visited it yet.</td>
+    <td class="lineNumber">124</td>
+    <td class="codeline">          // we won't have visited it yet.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">125</td>
+    <td class="codeline">          //</td>
+    <td class="lineNumber">125</td>
+    <td class="codeline">          //</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">126</td>
+    <td class="codeline">          // We also skip any uses outside of the loop being simplified. Those</td>
+    <td class="lineNumber">126</td>
+    <td class="codeline">          // We also skip any uses outside of the loop being simplified. Those</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">127</td>
+    <td class="codeline">          // should always be PHI nodes due to LCSSA form, and we don't want to</td>
+    <td class="lineNumber">127</td>
+    <td class="codeline">          // should always be PHI nodes due to LCSSA form, and we don't want to</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">128</td>
+    <td class="codeline">          // try to simplify those away.</td>
+    <td class="lineNumber">128</td>
+    <td class="codeline">          // try to simplify those away.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">129</td>
+    <td class="codeline">          assert((L.contains(UserI) || isa<PHINode>(UserI)) &&</td>
+    <td class="lineNumber">129</td>
+    <td class="codeline">          assert((L.contains(UserI) || isa<PHINode>(UserI)) &&</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">130</td>
+    <td class="codeline">                 "Uses outside the loop should be PHI nodes due to LCSSA!");</td>
+    <td class="lineNumber">130</td>
+    <td class="codeline">                 "Uses outside the loop should be PHI nodes due to LCSSA!");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">131</td>
+    <td class="codeline">          if (!IsFirstIteration && L.contains(UserI))</td>
+    <td class="lineNumber">131</td>
+    <td class="codeline">          if (!IsFirstIteration && L.contains(UserI))</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">132</td>
+    <td class="codeline">            ToSimplify->insert(UserI);</td>
+    <td class="lineNumber">132</td>
+    <td class="codeline">            ToSimplify->insert(UserI);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">133</td>
+    <td class="codeline">        }</td>
+    <td class="lineNumber">133</td>
+    <td class="codeline">        }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">134</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">134</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">135</td>
+    <td class="codeline">        if (MSSAU)</td>
+    <td class="lineNumber">135</td>
+    <td class="codeline">        if (MSSAU)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">136</td>
+    <td class="codeline">          if (Instruction *SimpleI = dyn_cast_or_null<Instruction>(V))</td>
+    <td class="lineNumber">136</td>
+    <td class="codeline">          if (Instruction *SimpleI = dyn_cast_or_null<Instruction>(V))</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">137</td>
+    <td class="codeline">            if (MemoryAccess *MA = MSSA->getMemoryAccess(&I))</td>
+    <td class="lineNumber">137</td>
+    <td class="codeline">            if (MemoryAccess *MA = MSSA->getMemoryAccess(&I))</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">138</td>
+    <td class="codeline">              if (MemoryAccess *ReplacementMA = MSSA->getMemoryAccess(SimpleI))</td>
+    <td class="lineNumber">138</td>
+    <td class="codeline">              if (MemoryAccess *ReplacementMA = MSSA->getMemoryAccess(SimpleI))</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">139</td>
+    <td class="codeline">                MA->replaceAllUsesWith(ReplacementMA);</td>
+    <td class="lineNumber">139</td>
+    <td class="codeline">                MA->replaceAllUsesWith(ReplacementMA);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">140</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">140</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">141</td>
+    <td class="codeline">        assert(I.use_empty() && "Should always have replaced all uses!");</td>
+    <td class="lineNumber">141</td>
+    <td class="codeline">        assert(I.use_empty() && "Should always have replaced all uses!");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">142</td>
+    <td class="codeline">        if (isInstructionTriviallyDead(&I, &TLI))</td>
+    <td class="lineNumber">142</td>
+    <td class="codeline">        if (isInstructionTriviallyDead(&I, &TLI))</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">143</td>
+    <td class="codeline">          DeadInsts.push_back(&I);</td>
+    <td class="lineNumber">143</td>
+    <td class="codeline">          DeadInsts.push_back(&I);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">144</td>
+    <td class="codeline">        ++NumSimplified;</td>
+    <td class="lineNumber">144</td>
+    <td class="codeline">        ++NumSimplified;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">145</td>
+    <td class="codeline">        Changed = true;</td>
+    <td class="lineNumber">145</td>
+    <td class="codeline">        Changed = true;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">146</td>
+    <td class="codeline">      }</td>
+    <td class="lineNumber">146</td>
+    <td class="codeline">      }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">147</td>
+    <td class="codeline">    }</td>
+    <td class="lineNumber">147</td>
+    <td class="codeline">    }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">148</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">148</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">149</td>
+    <td class="codeline">    // Delete any dead instructions found thus far now that we've finished an</td>
+    <td class="lineNumber">149</td>
+    <td class="codeline">    // Delete any dead instructions found thus far now that we've finished an</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">150</td>
+    <td class="codeline">    // iteration over all instructions in all the loop blocks.</td>
+    <td class="lineNumber">150</td>
+    <td class="codeline">    // iteration over all instructions in all the loop blocks.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">151</td>
+    <td class="codeline">    if (!DeadInsts.empty()) {</td>
+    <td class="lineNumber">151</td>
+    <td class="codeline">    if (!DeadInsts.empty()) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">152</td>
+    <td class="codeline">      Changed = true;</td>
+    <td class="lineNumber">152</td>
+    <td class="codeline">      Changed = true;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">153</td>
+    <td class="codeline">      RecursivelyDeleteTriviallyDeadInstructions(DeadInsts, &TLI, MSSAU);</td>
+    <td class="lineNumber">153</td>
+    <td class="codeline">      RecursivelyDeleteTriviallyDeadInstructions(DeadInsts, &TLI, MSSAU);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">154</td>
+    <td class="codeline">    }</td>
+    <td class="lineNumber">154</td>
+    <td class="codeline">    }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">155</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">155</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">156</td>
+    <td class="codeline">    if (MSSAU && VerifyMemorySSA)</td>
+    <td class="lineNumber">156</td>
+    <td class="codeline">    if (MSSAU && VerifyMemorySSA)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">157</td>
+    <td class="codeline">      MSSA->verifyMemorySSA();</td>
+    <td class="lineNumber">157</td>
+    <td class="codeline">      MSSA->verifyMemorySSA();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">158</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">158</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">159</td>
+    <td class="codeline">    // If we never found a PHI that needs to be simplified in the next</td>
+    <td class="lineNumber">159</td>
+    <td class="codeline">    // If we never found a PHI that needs to be simplified in the next</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">160</td>
+    <td class="codeline">    // iteration, we're done.</td>
+    <td class="lineNumber">160</td>
+    <td class="codeline">    // iteration, we're done.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">161</td>
+    <td class="codeline">    if (Next->empty())</td>
+    <td class="lineNumber">161</td>
+    <td class="codeline">    if (Next->empty())</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">162</td>
+    <td class="codeline">      break;</td>
+    <td class="lineNumber">162</td>
+    <td class="codeline">      break;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">163</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">163</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">164</td>
+    <td class="codeline">    // Otherwise, put the next set in place for the next iteration and reset it</td>
+    <td class="lineNumber">164</td>
+    <td class="codeline">    // Otherwise, put the next set in place for the next iteration and reset it</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">165</td>
+    <td class="codeline">    // and the visited PHIs for that iteration.</td>
+    <td class="lineNumber">165</td>
+    <td class="codeline">    // and the visited PHIs for that iteration.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">166</td>
+    <td class="codeline">    std::swap(Next, ToSimplify);</td>
+    <td class="lineNumber">166</td>
+    <td class="codeline">    std::swap(Next, ToSimplify);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">167</td>
+    <td class="codeline">    Next->clear();</td>
+    <td class="lineNumber">167</td>
+    <td class="codeline">    Next->clear();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">168</td>
+    <td class="codeline">    VisitedPHIs.clear();</td>
+    <td class="lineNumber">168</td>
+    <td class="codeline">    VisitedPHIs.clear();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">169</td>
+    <td class="codeline">    DeadInsts.clear();</td>
+    <td class="lineNumber">169</td>
+    <td class="codeline">    DeadInsts.clear();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">170</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">170</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">171</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">171</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">172</td>
+    <td class="codeline">  return Changed;</td>
+    <td class="lineNumber">172</td>
+    <td class="codeline">  return Changed;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">173</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">173</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">174</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">174</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">175</td>
+    <td class="codeline">namespace {</td>
+    <td class="lineNumber">175</td>
+    <td class="codeline">namespace {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">176</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">176</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">177</td>
+    <td class="codeline">class LoopInstSimplifyLegacyPass : public LoopPass {</td>
+    <td class="lineNumber">177</td>
+    <td class="codeline">class LoopInstSimplifyLegacyPass : public LoopPass {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">178</td>
+    <td class="codeline">public:</td>
+    <td class="lineNumber">178</td>
+    <td class="codeline">public:</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">179</td>
+    <td class="codeline">  static char ID; // Pass ID, replacement for typeid</td>
+    <td class="lineNumber">179</td>
+    <td class="codeline">  static char ID; // Pass ID, replacement for typeid</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">180</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">180</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">181</td>
+    <td class="codeline">  LoopInstSimplifyLegacyPass() : LoopPass(ID) {</td>
+    <td class="lineNumber">181</td>
+    <td class="codeline">  LoopInstSimplifyLegacyPass() : LoopPass(ID) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">182</td>
+    <td class="codeline">    initializeLoopInstSimplifyLegacyPassPass(*PassRegistry::getPassRegistry());</td>
+    <td class="lineNumber">182</td>
+    <td class="codeline">    initializeLoopInstSimplifyLegacyPassPass(*PassRegistry::getPassRegistry());</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">183</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">183</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">184</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">184</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">185</td>
+    <td class="codeline">  bool runOnLoop(Loop *L, LPPassManager &LPM) override {</td>
+    <td class="lineNumber">185</td>
+    <td class="codeline">  bool runOnLoop(Loop *L, LPPassManager &LPM) override {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">186</td>
+    <td class="codeline">    if (skipLoop(L))</td>
+    <td class="lineNumber">186</td>
+    <td class="codeline">    if (skipLoop(L))</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">187</td>
+    <td class="codeline">      return false;</td>
+    <td class="lineNumber">187</td>
+    <td class="codeline">      return false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">188</td>
+    <td class="codeline">    DominatorTree &DT = getAnalysis<DominatorTreeWrapperPass>().getDomTree();</td>
+    <td class="lineNumber">188</td>
+    <td class="codeline">    DominatorTree &DT = getAnalysis<DominatorTreeWrapperPass>().getDomTree();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">189</td>
+    <td class="codeline">    LoopInfo &LI = getAnalysis<LoopInfoWrapperPass>().getLoopInfo();</td>
+    <td class="lineNumber">189</td>
+    <td class="codeline">    LoopInfo &LI = getAnalysis<LoopInfoWrapperPass>().getLoopInfo();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">190</td>
+    <td class="codeline">    AssumptionCache &AC =</td>
+    <td class="lineNumber">190</td>
+    <td class="codeline">    AssumptionCache &AC =</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">191</td>
+    <td class="codeline">        getAnalysis<AssumptionCacheTracker>().getAssumptionCache(</td>
+    <td class="lineNumber">191</td>
+    <td class="codeline">        getAnalysis<AssumptionCacheTracker>().getAssumptionCache(</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">192</td>
+    <td class="codeline">            *L->getHeader()->getParent());</td>
+    <td class="lineNumber">192</td>
+    <td class="codeline">            *L->getHeader()->getParent());</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">193</td>
+    <td class="codeline">    const TargetLibraryInfo &TLI =</td>
+    <td class="lineNumber">193</td>
+    <td class="codeline">    const TargetLibraryInfo &TLI =</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">194</td>
+    <td class="codeline">        getAnalysis<TargetLibraryInfoWrapperPass>().getTLI(</td>
+    <td class="lineNumber">194</td>
+    <td class="codeline">        getAnalysis<TargetLibraryInfoWrapperPass>().getTLI(</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">195</td>
+    <td class="codeline">            *L->getHeader()->getParent());</td>
+    <td class="lineNumber">195</td>
+    <td class="codeline">            *L->getHeader()->getParent());</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">196</td>
+    <td class="codeline">    MemorySSA *MSSA = &getAnalysis<MemorySSAWrapperPass>().getMSSA();</td>
+    <td class="lineNumber">196</td>
+    <td class="codeline">    MemorySSA *MSSA = &getAnalysis<MemorySSAWrapperPass>().getMSSA();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">197</td>
+    <td class="codeline">    MemorySSAUpdater MSSAU(MSSA);</td>
+    <td class="lineNumber">197</td>
+    <td class="codeline">    MemorySSAUpdater MSSAU(MSSA);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">198</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">198</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">199</td>
+    <td class="codeline">    return simplifyLoopInst(*L, DT, LI, AC, TLI, &MSSAU);</td>
+    <td class="lineNumber">199</td>
+    <td class="codeline">    return simplifyLoopInst(*L, DT, LI, AC, TLI, &MSSAU);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">200</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">200</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">201</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">201</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">202</td>
+    <td class="codeline">  void getAnalysisUsage(AnalysisUsage &AU) const override {</td>
+    <td class="lineNumber">202</td>
+    <td class="codeline">  void getAnalysisUsage(AnalysisUsage &AU) const override {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">203</td>
+    <td class="codeline">    AU.addRequired<AssumptionCacheTracker>();</td>
+    <td class="lineNumber">203</td>
+    <td class="codeline">    AU.addRequired<AssumptionCacheTracker>();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">204</td>
+    <td class="codeline">    AU.addRequired<DominatorTreeWrapperPass>();</td>
+    <td class="lineNumber">204</td>
+    <td class="codeline">    AU.addRequired<DominatorTreeWrapperPass>();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">205</td>
+    <td class="codeline">    AU.addRequired<TargetLibraryInfoWrapperPass>();</td>
+    <td class="lineNumber">205</td>
+    <td class="codeline">    AU.addRequired<TargetLibraryInfoWrapperPass>();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">206</td>
+    <td class="codeline">    AU.setPreservesCFG();</td>
+    <td class="lineNumber">206</td>
+    <td class="codeline">    AU.setPreservesCFG();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">207</td>
+    <td class="codeline">    AU.addRequired<MemorySSAWrapperPass>();</td>
+    <td class="lineNumber">207</td>
+    <td class="codeline">    AU.addRequired<MemorySSAWrapperPass>();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">208</td>
+    <td class="codeline">    AU.addPreserved<MemorySSAWrapperPass>();</td>
+    <td class="lineNumber">208</td>
+    <td class="codeline">    AU.addPreserved<MemorySSAWrapperPass>();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">209</td>
+    <td class="codeline">    getLoopAnalysisUsage(AU);</td>
+    <td class="lineNumber">209</td>
+    <td class="codeline">    getLoopAnalysisUsage(AU);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">210</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">210</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">211</td>
+    <td class="codeline">};</td>
+    <td class="lineNumber">211</td>
+    <td class="codeline">};</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">212</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">212</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">213</td>
+    <td class="codeline">} // end anonymous namespace</td>
+    <td class="lineNumber">213</td>
+    <td class="codeline">} // end anonymous namespace</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">214</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">214</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">215</td>
+    <td class="codeline">PreservedAnalyses LoopInstSimplifyPass::run(Loop &L, LoopAnalysisManager &AM,</td>
+    <td class="lineNumber">215</td>
+    <td class="codeline">PreservedAnalyses LoopInstSimplifyPass::run(Loop &L, LoopAnalysisManager &AM,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">216</td>
+    <td class="codeline">                                            LoopStandardAnalysisResults &AR,</td>
+    <td class="lineNumber">216</td>
+    <td class="codeline">                                            LoopStandardAnalysisResults &AR,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">217</td>
+    <td class="codeline">                                            LPMUpdater &) {</td>
+    <td class="lineNumber">217</td>
+    <td class="codeline">                                            LPMUpdater &) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">218</td>
+    <td class="codeline">  std::optional<MemorySSAUpdater> MSSAU;</td>
+    <td class="lineNumber">218</td>
+    <td class="codeline">  std::optional<MemorySSAUpdater> MSSAU;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">219</td>
+    <td class="codeline">  if (AR.MSSA) {</td>
+    <td class="lineNumber">219</td>
+    <td class="codeline">  if (AR.MSSA) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">220</td>
+    <td class="codeline">    MSSAU = MemorySSAUpdater(AR.MSSA);</td>
+    <td class="lineNumber">220</td>
+    <td class="codeline">    MSSAU = MemorySSAUpdater(AR.MSSA);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">221</td>
+    <td class="codeline">    if (VerifyMemorySSA)</td>
+    <td class="lineNumber">221</td>
+    <td class="codeline">    if (VerifyMemorySSA)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">222</td>
+    <td class="codeline">      AR.MSSA->verifyMemorySSA();</td>
+    <td class="lineNumber">222</td>
+    <td class="codeline">      AR.MSSA->verifyMemorySSA();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">223</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">223</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">224</td>
+    <td class="codeline">  if (!simplifyLoopInst(L, AR.DT, AR.LI, AR.AC, AR.TLI,</td>
+    <td class="lineNumber">224</td>
+    <td class="codeline">  if (!simplifyLoopInst(L, AR.DT, AR.LI, AR.AC, AR.TLI,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">225</td>
+    <td class="codeline">                        MSSAU ? &*MSSAU : nullptr))</td>
+    <td class="lineNumber">225</td>
+    <td class="codeline">                        MSSAU ? &*MSSAU : nullptr))</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">226</td>
+    <td class="codeline">    return PreservedAnalyses::all();</td>
+    <td class="lineNumber">226</td>
+    <td class="codeline">    return PreservedAnalyses::all();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">227</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">227</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">228</td>
+    <td class="codeline">  auto PA = getLoopPassPreservedAnalyses();</td>
+    <td class="lineNumber">228</td>
+    <td class="codeline">  auto PA = getLoopPassPreservedAnalyses();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">229</td>
+    <td class="codeline">  PA.preserveSet<CFGAnalyses>();</td>
+    <td class="lineNumber">229</td>
+    <td class="codeline">  PA.preserveSet<CFGAnalyses>();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">230</td>
+    <td class="codeline">  if (AR.MSSA)</td>
+    <td class="lineNumber">230</td>
+    <td class="codeline">  if (AR.MSSA)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">231</td>
+    <td class="codeline">    PA.preserve<MemorySSAAnalysis>();</td>
+    <td class="lineNumber">231</td>
+    <td class="codeline">    PA.preserve<MemorySSAAnalysis>();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">232</td>
+    <td class="codeline">  return PA;</td>
+    <td class="lineNumber">232</td>
+    <td class="codeline">  return PA;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">233</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">233</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">234</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">234</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">235</td>
+    <td class="codeline">char LoopInstSimplifyLegacyPass::ID = 0;</td>
+    <td class="lineNumber">235</td>
+    <td class="codeline">char LoopInstSimplifyLegacyPass::ID = 0;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">236</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">236</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">237</td>
+    <td class="codeline">INITIALIZE_PASS_BEGIN(LoopInstSimplifyLegacyPass, "loop-instsimplify",</td>
+    <td class="lineNumber">237</td>
+    <td class="codeline">INITIALIZE_PASS_BEGIN(LoopInstSimplifyLegacyPass, "loop-instsimplify",</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">238</td>
+    <td class="codeline">                      "Simplify instructions in loops", false, false)</td>
+    <td class="lineNumber">238</td>
+    <td class="codeline">                      "Simplify instructions in loops", false, false)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">239</td>
+    <td class="codeline">INITIALIZE_PASS_DEPENDENCY(AssumptionCacheTracker)</td>
+    <td class="lineNumber">239</td>
+    <td class="codeline">INITIALIZE_PASS_DEPENDENCY(AssumptionCacheTracker)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">240</td>
+    <td class="codeline">INITIALIZE_PASS_DEPENDENCY(LoopPass)</td>
+    <td class="lineNumber">240</td>
+    <td class="codeline">INITIALIZE_PASS_DEPENDENCY(LoopPass)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">241</td>
+    <td class="codeline">INITIALIZE_PASS_DEPENDENCY(MemorySSAWrapperPass)</td>
+    <td class="lineNumber">241</td>
+    <td class="codeline">INITIALIZE_PASS_DEPENDENCY(MemorySSAWrapperPass)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">242</td>
+    <td class="codeline">INITIALIZE_PASS_DEPENDENCY(TargetLibraryInfoWrapperPass)</td>
+    <td class="lineNumber">242</td>
+    <td class="codeline">INITIALIZE_PASS_DEPENDENCY(TargetLibraryInfoWrapperPass)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">243</td>
+    <td class="codeline">INITIALIZE_PASS_END(LoopInstSimplifyLegacyPass, "loop-instsimplify",</td>
+    <td class="lineNumber">243</td>
+    <td class="codeline">INITIALIZE_PASS_END(LoopInstSimplifyLegacyPass, "loop-instsimplify",</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">244</td>
+    <td class="codeline">                    "Simplify instructions in loops", false, false)</td>
+    <td class="lineNumber">244</td>
+    <td class="codeline">                    "Simplify instructions in loops", false, false)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">245</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">245</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">246</td>
+    <td class="codeline">Pass *llvm::createLoopInstSimplifyPass() {</td>
+    <td class="lineNumber">246</td>
+    <td class="codeline">Pass *llvm::createLoopInstSimplifyPass() {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">247</td>
+    <td class="codeline">  return new LoopInstSimplifyLegacyPass();</td>
+    <td class="lineNumber">247</td>
+    <td class="codeline">  return new LoopInstSimplifyLegacyPass();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">248</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">248</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">249</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">249</td>
+    <td class="codeline"></td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Side By Side Comparison</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Side By Side Comparison</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+    </th>
+    <th class="mainTh">Hit count</th>
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </th>
+    <th class="mainTh">Hit count</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="codeLine">//===- LoopInstSimplify.cpp - Loop Instruction Simplification Pass --------===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">1</td>
+    <td class="codeLine">//===- LoopInstSimplify.cpp - Loop Instruction Simplification Pass --------===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">2</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="codeLine">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">3</td>
+    <td class="codeLine">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="codeLine">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">4</td>
+    <td class="codeLine">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="codeLine">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">5</td>
+    <td class="codeLine">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">6</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">7</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">8</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="codeLine">// This pass performs lightweight instruction simplification on loop bodies.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">9</td>
+    <td class="codeLine">// This pass performs lightweight instruction simplification on loop bodies.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">10</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">11</td>
+    <td class="codeLine">//===----------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">12</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class="codeLine">#include "llvm/Transforms/Scalar/LoopInstSimplify.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">13</td>
+    <td class="codeLine">#include "llvm/Transforms/Scalar/LoopInstSimplify.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class="codeLine">#include "llvm/ADT/STLExtras.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">14</td>
+    <td class="codeLine">#include "llvm/ADT/STLExtras.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class="codeLine">#include "llvm/ADT/SmallPtrSet.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">15</td>
+    <td class="codeLine">#include "llvm/ADT/SmallPtrSet.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class="codeLine">#include "llvm/ADT/SmallVector.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">16</td>
+    <td class="codeLine">#include "llvm/ADT/SmallVector.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class="codeLine">#include "llvm/ADT/Statistic.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">17</td>
+    <td class="codeLine">#include "llvm/ADT/Statistic.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class="codeLine">#include "llvm/Analysis/AssumptionCache.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">18</td>
+    <td class="codeLine">#include "llvm/Analysis/AssumptionCache.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class="codeLine">#include "llvm/Analysis/InstructionSimplify.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">19</td>
+    <td class="codeLine">#include "llvm/Analysis/InstructionSimplify.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class="codeLine">#include "llvm/Analysis/LoopInfo.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">20</td>
+    <td class="codeLine">#include "llvm/Analysis/LoopInfo.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class="codeLine">#include "llvm/Analysis/LoopIterator.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">21</td>
+    <td class="codeLine">#include "llvm/Analysis/LoopIterator.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class="codeLine">#include "llvm/Analysis/LoopPass.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">22</td>
+    <td class="codeLine">#include "llvm/Analysis/LoopPass.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class="codeLine">#include "llvm/Analysis/MemorySSA.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">23</td>
+    <td class="codeLine">#include "llvm/Analysis/MemorySSA.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class="codeLine">#include "llvm/Analysis/MemorySSAUpdater.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">24</td>
+    <td class="codeLine">#include "llvm/Analysis/MemorySSAUpdater.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class="codeLine">#include "llvm/Analysis/TargetLibraryInfo.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">25</td>
+    <td class="codeLine">#include "llvm/Analysis/TargetLibraryInfo.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class="codeLine">#include "llvm/IR/BasicBlock.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">26</td>
+    <td class="codeLine">#include "llvm/IR/BasicBlock.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class="codeLine">#include "llvm/IR/Dominators.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">27</td>
+    <td class="codeLine">#include "llvm/IR/Dominators.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class="codeLine">#include "llvm/IR/Instruction.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">28</td>
+    <td class="codeLine">#include "llvm/IR/Instruction.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class="codeLine">#include "llvm/IR/Instructions.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">29</td>
+    <td class="codeLine">#include "llvm/IR/Instructions.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class="codeLine">#include "llvm/IR/Module.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">30</td>
+    <td class="codeLine">#include "llvm/IR/Module.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class="codeLine">#include "llvm/IR/PassManager.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">31</td>
+    <td class="codeLine">#include "llvm/IR/PassManager.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class="codeLine">#include "llvm/InitializePasses.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">32</td>
+    <td class="codeLine">#include "llvm/InitializePasses.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class="codeLine">#include "llvm/Pass.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">33</td>
+    <td class="codeLine">#include "llvm/Pass.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class="codeLine">#include "llvm/Support/Casting.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">34</td>
+    <td class="codeLine">#include "llvm/Support/Casting.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class="codeLine">#include "llvm/Transforms/Scalar.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">35</td>
+    <td class="codeLine">#include "llvm/Transforms/Scalar.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class="codeLine">#include "llvm/Transforms/Utils/Local.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">36</td>
+    <td class="codeLine">#include "llvm/Transforms/Utils/Local.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class="codeLine">#include "llvm/Transforms/Utils/LoopUtils.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">37</td>
+    <td class="codeLine">#include "llvm/Transforms/Utils/LoopUtils.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class="codeLine">#include <optional></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">38</td>
+    <td class="codeLine">#include <optional></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class="codeLine">#include <utility></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">39</td>
+    <td class="codeLine">#include <utility></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">40</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class="codeLine">using namespace llvm;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">41</td>
+    <td class="codeLine">using namespace llvm;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">42</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class="codeLine">#define DEBUG_TYPE "loop-instsimplify"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">43</td>
+    <td class="codeLine">#define DEBUG_TYPE "loop-instsimplify"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">44</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class="codeLine">STATISTIC(NumSimplified, "Number of redundant instructions simplified");</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">45</td>
+    <td class="codeLine">STATISTIC(NumSimplified, "Number of redundant instructions simplified");</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">46</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class="codeLine">static bool simplifyLoopInst(Loop &L, DominatorTree &DT, LoopInfo &LI,</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">47</td>
+    <td class="codeLine">static bool simplifyLoopInst(Loop &L, DominatorTree &DT, LoopInfo &LI,</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class="codeLine">                             AssumptionCache &AC, const TargetLibraryInfo &TLI,</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">48</td>
+    <td class="codeLine">                             AssumptionCache &AC, const TargetLibraryInfo &TLI,</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class="codeLine">                             MemorySSAUpdater *MSSAU) {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">49</td>
+    <td class="codeLine">                             MemorySSAUpdater *MSSAU) {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class="codeLine">  const DataLayout &DL = L.getHeader()->getModule()->getDataLayout();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">50</td>
+    <td class="codeLine">  const DataLayout &DL = L.getHeader()->getModule()->getDataLayout();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class="codeLine">  SimplifyQuery SQ(DL, &TLI, &DT, &AC);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">51</td>
+    <td class="codeLine">  SimplifyQuery SQ(DL, &TLI, &DT, &AC);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">52</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class="codeLine">  // On the first pass over the loop body we try to simplify every instruction.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">53</td>
+    <td class="codeLine">  // On the first pass over the loop body we try to simplify every instruction.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class="codeLine">  // On subsequent passes, we can restrict this to only simplifying instructions</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">54</td>
+    <td class="codeLine">  // On subsequent passes, we can restrict this to only simplifying instructions</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class="codeLine">  // where the inputs have been updated. We end up needing two sets: one</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">55</td>
+    <td class="codeLine">  // where the inputs have been updated. We end up needing two sets: one</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class="codeLine">  // containing the instructions we are simplifying in *this* pass, and one for</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">56</td>
+    <td class="codeLine">  // containing the instructions we are simplifying in *this* pass, and one for</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class="codeLine">  // the instructions we will want to simplify in the *next* pass. We use</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">57</td>
+    <td class="codeLine">  // the instructions we will want to simplify in the *next* pass. We use</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class="codeLine">  // pointers so we can swap between two stably allocated sets.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">58</td>
+    <td class="codeLine">  // pointers so we can swap between two stably allocated sets.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class="codeLine">  SmallPtrSet<const Instruction *, 8> S1, S2, *ToSimplify = &S1, *Next = &S2;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">59</td>
+    <td class="codeLine">  SmallPtrSet<const Instruction *, 8> S1, S2, *ToSimplify = &S1, *Next = &S2;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">60</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class="codeLine">  // Track the PHI nodes that have already been visited during each iteration so</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">61</td>
+    <td class="codeLine">  // Track the PHI nodes that have already been visited during each iteration so</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class="codeLine">  // that we can identify when it is necessary to iterate.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">62</td>
+    <td class="codeLine">  // that we can identify when it is necessary to iterate.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class="codeLine">  SmallPtrSet<PHINode *, 4> VisitedPHIs;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">63</td>
+    <td class="codeLine">  SmallPtrSet<PHINode *, 4> VisitedPHIs;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">64</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class="codeLine">  // While simplifying we may discover dead code or cause code to become dead.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">65</td>
+    <td class="codeLine">  // While simplifying we may discover dead code or cause code to become dead.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class="codeLine">  // Keep track of all such instructions and we will delete them at the end.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">66</td>
+    <td class="codeLine">  // Keep track of all such instructions and we will delete them at the end.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class="codeLine">  SmallVector<WeakTrackingVH, 8> DeadInsts;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">67</td>
+    <td class="codeLine">  SmallVector<WeakTrackingVH, 8> DeadInsts;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">68</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class="codeLine">  // First we want to create an RPO traversal of the loop body. By processing in</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">69</td>
+    <td class="codeLine">  // First we want to create an RPO traversal of the loop body. By processing in</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class="codeLine">  // RPO we can ensure that definitions are processed prior to uses (for non PHI</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">70</td>
+    <td class="codeLine">  // RPO we can ensure that definitions are processed prior to uses (for non PHI</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class="codeLine">  // uses) in all cases. This ensures we maximize the simplifications in each</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">71</td>
+    <td class="codeLine">  // uses) in all cases. This ensures we maximize the simplifications in each</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class="codeLine">  // iteration over the loop and minimizes the possible causes for continuing to</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">72</td>
+    <td class="codeLine">  // iteration over the loop and minimizes the possible causes for continuing to</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class="codeLine">  // iterate.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">73</td>
+    <td class="codeLine">  // iterate.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class="codeLine">  LoopBlocksRPO RPOT(&L);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">74</td>
+    <td class="codeLine">  LoopBlocksRPO RPOT(&L);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class="codeLine">  RPOT.perform(&LI);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">75</td>
+    <td class="codeLine">  RPOT.perform(&LI);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class="codeLine">  MemorySSA *MSSA = MSSAU ? MSSAU->getMemorySSA() : nullptr;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">76</td>
+    <td class="codeLine">  MemorySSA *MSSA = MSSAU ? MSSAU->getMemorySSA() : nullptr;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">77</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class="codeLine">  bool Changed = false;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">78</td>
+    <td class="codeLine">  bool Changed = false;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class="codeLine">  for (;;) {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">79</td>
+    <td class="codeLine">  for (;;) {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class="codeLine">    if (MSSAU && VerifyMemorySSA)</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">80</td>
+    <td class="codeLine">    if (MSSAU && VerifyMemorySSA)</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class="codeLine">      MSSA->verifyMemorySSA();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">81</td>
+    <td class="codeLine">      MSSA->verifyMemorySSA();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class="codeLine">    for (BasicBlock *BB : RPOT) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">82</td>
+    <td class="codeLine">    for (BasicBlock *BB : RPOT) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class="codeLine">      for (Instruction &I : *BB) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">83</td>
+    <td class="codeLine">      for (Instruction &I : *BB) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class="codeLine">        if (auto *PI = dyn_cast<PHINode>(&I))</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">84</td>
+    <td class="codeLine">        if (auto *PI = dyn_cast<PHINode>(&I))</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class="codeLine">          VisitedPHIs.insert(PI);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">85</td>
+    <td class="codeLine">          VisitedPHIs.insert(PI);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">86</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class="codeLine">        if (I.use_empty()) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">87</td>
+    <td class="codeLine">        if (I.use_empty()) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class="codeLine">          if (isInstructionTriviallyDead(&I, &TLI))</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">88</td>
+    <td class="codeLine">          if (isInstructionTriviallyDead(&I, &TLI))</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class="codeLine">            DeadInsts.push_back(&I);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">89</td>
+    <td class="codeLine">            DeadInsts.push_back(&I);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">90</td>
+    <td class="codeLine">          continue;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">90</td>
+    <td class="codeLine">          continue;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">91</td>
+    <td class="codeLine">        }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">91</td>
+    <td class="codeLine">        }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">92</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">92</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">93</td>
+    <td class="codeLine">        // We special case the first iteration which we can detect due to the</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">93</td>
+    <td class="codeLine">        // We special case the first iteration which we can detect due to the</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">94</td>
+    <td class="codeLine">        // empty `ToSimplify` set.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">94</td>
+    <td class="codeLine">        // empty `ToSimplify` set.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">95</td>
+    <td class="codeLine">        bool IsFirstIteration = ToSimplify->empty();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">95</td>
+    <td class="codeLine">        bool IsFirstIteration = ToSimplify->empty();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">96</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">96</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">97</td>
+    <td class="codeLine">        if (!IsFirstIteration && !ToSimplify->count(&I))</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">97</td>
+    <td class="codeLine">        if (!IsFirstIteration && !ToSimplify->count(&I))</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">98</td>
+    <td class="codeLine">          continue;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">98</td>
+    <td class="codeLine">          continue;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">99</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">99</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">100</td>
+    <td class="codeLine">        Value *V = simplifyInstruction(&I, SQ.getWithInstruction(&I));</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">100</td>
+    <td class="codeLine">        Value *V = simplifyInstruction(&I, SQ.getWithInstruction(&I));</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">101</td>
+    <td class="codeLine">        if (!V || !LI.replacementPreservesLCSSAForm(&I, V))</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">101</td>
+    <td class="codeLine">        if (!V || !LI.replacementPreservesLCSSAForm(&I, V))</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">102</td>
+    <td class="codeLine">          continue;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">102</td>
+    <td class="codeLine">          continue;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">103</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">103</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">104</td>
+    <td class="codeLine">        for (Use &U : llvm::make_early_inc_range(I.uses())) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">104</td>
+    <td class="codeLine">        for (Use &U : llvm::make_early_inc_range(I.uses())) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">105</td>
+    <td class="codeLine">          auto *UserI = cast<Instruction>(U.getUser());</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">105</td>
+    <td class="codeLine">          auto *UserI = cast<Instruction>(U.getUser());</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">106</td>
+    <td class="codeLine">          U.set(V);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">106</td>
+    <td class="codeLine">          U.set(V);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">107</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">107</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">108</td>
+    <td class="codeLine">          // Do not bother dealing with unreachable code.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">108</td>
+    <td class="codeLine">          // Do not bother dealing with unreachable code.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">109</td>
+    <td class="codeLine">          if (!DT.isReachableFromEntry(UserI->getParent()))</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">109</td>
+    <td class="codeLine">          if (!DT.isReachableFromEntry(UserI->getParent()))</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">110</td>
+    <td class="codeLine">            continue;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">110</td>
+    <td class="codeLine">            continue;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">111</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">111</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">112</td>
+    <td class="codeLine">          // If the instruction is used by a PHI node we have already processed</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">112</td>
+    <td class="codeLine">          // If the instruction is used by a PHI node we have already processed</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">113</td>
+    <td class="codeLine">          // we'll need to iterate on the loop body to converge, so add it to</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">113</td>
+    <td class="codeLine">          // we'll need to iterate on the loop body to converge, so add it to</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">114</td>
+    <td class="codeLine">          // the next set.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">114</td>
+    <td class="codeLine">          // the next set.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">115</td>
+    <td class="codeLine">          if (auto *UserPI = dyn_cast<PHINode>(UserI))</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">115</td>
+    <td class="codeLine">          if (auto *UserPI = dyn_cast<PHINode>(UserI))</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">116</td>
+    <td class="codeLine">            if (VisitedPHIs.count(UserPI)) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">116</td>
+    <td class="codeLine">            if (VisitedPHIs.count(UserPI)) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">117</td>
+    <td class="codeLine">              Next->insert(UserPI);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">117</td>
+    <td class="codeLine">              Next->insert(UserPI);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">118</td>
+    <td class="codeLine">              continue;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">118</td>
+    <td class="codeLine">              continue;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">119</td>
+    <td class="codeLine">            }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">119</td>
+    <td class="codeLine">            }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">120</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">120</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">121</td>
+    <td class="codeLine">          // If we are only simplifying targeted instructions and the user is an</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">121</td>
+    <td class="codeLine">          // If we are only simplifying targeted instructions and the user is an</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">122</td>
+    <td class="codeLine">          // instruction in the loop body, add it to our set of targeted</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">122</td>
+    <td class="codeLine">          // instruction in the loop body, add it to our set of targeted</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">123</td>
+    <td class="codeLine">          // instructions. Because we process defs before uses (outside of PHIs)</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">123</td>
+    <td class="codeLine">          // instructions. Because we process defs before uses (outside of PHIs)</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">124</td>
+    <td class="codeLine">          // we won't have visited it yet.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">124</td>
+    <td class="codeLine">          // we won't have visited it yet.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">125</td>
+    <td class="codeLine">          //</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">125</td>
+    <td class="codeLine">          //</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">126</td>
+    <td class="codeLine">          // We also skip any uses outside of the loop being simplified. Those</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">126</td>
+    <td class="codeLine">          // We also skip any uses outside of the loop being simplified. Those</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">127</td>
+    <td class="codeLine">          // should always be PHI nodes due to LCSSA form, and we don't want to</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">127</td>
+    <td class="codeLine">          // should always be PHI nodes due to LCSSA form, and we don't want to</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">128</td>
+    <td class="codeLine">          // try to simplify those away.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">128</td>
+    <td class="codeLine">          // try to simplify those away.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">129</td>
+    <td class="codeLine">          assert((L.contains(UserI) || isa<PHINode>(UserI)) &&</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">129</td>
+    <td class="codeLine">          assert((L.contains(UserI) || isa<PHINode>(UserI)) &&</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">130</td>
+    <td class="codeLine">                 "Uses outside the loop should be PHI nodes due to LCSSA!");</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">130</td>
+    <td class="codeLine">                 "Uses outside the loop should be PHI nodes due to LCSSA!");</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">131</td>
+    <td class="codeLine">          if (!IsFirstIteration && L.contains(UserI))</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">131</td>
+    <td class="codeLine">          if (!IsFirstIteration && L.contains(UserI))</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">132</td>
+    <td class="codeLine">            ToSimplify->insert(UserI);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">132</td>
+    <td class="codeLine">            ToSimplify->insert(UserI);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">133</td>
+    <td class="codeLine">        }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">133</td>
+    <td class="codeLine">        }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">134</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">134</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">135</td>
+    <td class="codeLine">        if (MSSAU)</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">135</td>
+    <td class="codeLine">        if (MSSAU)</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">136</td>
+    <td class="codeLine">          if (Instruction *SimpleI = dyn_cast_or_null<Instruction>(V))</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">136</td>
+    <td class="codeLine">          if (Instruction *SimpleI = dyn_cast_or_null<Instruction>(V))</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">137</td>
+    <td class="codeLine">            if (MemoryAccess *MA = MSSA->getMemoryAccess(&I))</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">137</td>
+    <td class="codeLine">            if (MemoryAccess *MA = MSSA->getMemoryAccess(&I))</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">138</td>
+    <td class="codeLine">              if (MemoryAccess *ReplacementMA = MSSA->getMemoryAccess(SimpleI))</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">138</td>
+    <td class="codeLine">              if (MemoryAccess *ReplacementMA = MSSA->getMemoryAccess(SimpleI))</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">139</td>
+    <td class="codeLine">                MA->replaceAllUsesWith(ReplacementMA);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">139</td>
+    <td class="codeLine">                MA->replaceAllUsesWith(ReplacementMA);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">140</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">140</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">141</td>
+    <td class="codeLine">        assert(I.use_empty() && "Should always have replaced all uses!");</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">141</td>
+    <td class="codeLine">        assert(I.use_empty() && "Should always have replaced all uses!");</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">142</td>
+    <td class="codeLine">        if (isInstructionTriviallyDead(&I, &TLI))</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">142</td>
+    <td class="codeLine">        if (isInstructionTriviallyDead(&I, &TLI))</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">143</td>
+    <td class="codeLine">          DeadInsts.push_back(&I);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">143</td>
+    <td class="codeLine">          DeadInsts.push_back(&I);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">144</td>
+    <td class="codeLine">        ++NumSimplified;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">144</td>
+    <td class="codeLine">        ++NumSimplified;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">145</td>
+    <td class="codeLine">        Changed = true;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">145</td>
+    <td class="codeLine">        Changed = true;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">146</td>
+    <td class="codeLine">      }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">146</td>
+    <td class="codeLine">      }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">147</td>
+    <td class="codeLine">    }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">147</td>
+    <td class="codeLine">    }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">148</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">148</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">149</td>
+    <td class="codeLine">    // Delete any dead instructions found thus far now that we've finished an</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">149</td>
+    <td class="codeLine">    // Delete any dead instructions found thus far now that we've finished an</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">150</td>
+    <td class="codeLine">    // iteration over all instructions in all the loop blocks.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">150</td>
+    <td class="codeLine">    // iteration over all instructions in all the loop blocks.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">151</td>
+    <td class="codeLine">    if (!DeadInsts.empty()) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">151</td>
+    <td class="codeLine">    if (!DeadInsts.empty()) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">152</td>
+    <td class="codeLine">      Changed = true;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">152</td>
+    <td class="codeLine">      Changed = true;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">153</td>
+    <td class="codeLine">      RecursivelyDeleteTriviallyDeadInstructions(DeadInsts, &TLI, MSSAU);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">153</td>
+    <td class="codeLine">      RecursivelyDeleteTriviallyDeadInstructions(DeadInsts, &TLI, MSSAU);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">154</td>
+    <td class="codeLine">    }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">154</td>
+    <td class="codeLine">    }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">155</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">155</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">156</td>
+    <td class="codeLine">    if (MSSAU && VerifyMemorySSA)</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">156</td>
+    <td class="codeLine">    if (MSSAU && VerifyMemorySSA)</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">157</td>
+    <td class="codeLine">      MSSA->verifyMemorySSA();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">157</td>
+    <td class="codeLine">      MSSA->verifyMemorySSA();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">158</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">158</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">159</td>
+    <td class="codeLine">    // If we never found a PHI that needs to be simplified in the next</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">159</td>
+    <td class="codeLine">    // If we never found a PHI that needs to be simplified in the next</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">160</td>
+    <td class="codeLine">    // iteration, we're done.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">160</td>
+    <td class="codeLine">    // iteration, we're done.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">161</td>
+    <td class="codeLine">    if (Next->empty())</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">161</td>
+    <td class="codeLine">    if (Next->empty())</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">162</td>
+    <td class="codeLine">      break;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">162</td>
+    <td class="codeLine">      break;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">163</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">163</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">164</td>
+    <td class="codeLine">    // Otherwise, put the next set in place for the next iteration and reset it</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">164</td>
+    <td class="codeLine">    // Otherwise, put the next set in place for the next iteration and reset it</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">165</td>
+    <td class="codeLine">    // and the visited PHIs for that iteration.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">165</td>
+    <td class="codeLine">    // and the visited PHIs for that iteration.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">166</td>
+    <td class="codeLine">    std::swap(Next, ToSimplify);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">166</td>
+    <td class="codeLine">    std::swap(Next, ToSimplify);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">167</td>
+    <td class="codeLine">    Next->clear();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">167</td>
+    <td class="codeLine">    Next->clear();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">168</td>
+    <td class="codeLine">    VisitedPHIs.clear();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">168</td>
+    <td class="codeLine">    VisitedPHIs.clear();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">169</td>
+    <td class="codeLine">    DeadInsts.clear();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">169</td>
+    <td class="codeLine">    DeadInsts.clear();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">170</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">170</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">171</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">171</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">172</td>
+    <td class="codeLine">  return Changed;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">172</td>
+    <td class="codeLine">  return Changed;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">173</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">173</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">174</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">174</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">175</td>
+    <td class="codeLine">namespace {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">175</td>
+    <td class="codeLine">namespace {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">176</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">176</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">177</td>
+    <td class="codeLine">class LoopInstSimplifyLegacyPass : public LoopPass {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">177</td>
+    <td class="codeLine">class LoopInstSimplifyLegacyPass : public LoopPass {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">178</td>
+    <td class="codeLine">public:</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">178</td>
+    <td class="codeLine">public:</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">179</td>
+    <td class="codeLine">  static char ID; // Pass ID, replacement for typeid</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">179</td>
+    <td class="codeLine">  static char ID; // Pass ID, replacement for typeid</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">180</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">180</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">181</td>
+    <td class="codeLine">  LoopInstSimplifyLegacyPass() : LoopPass(ID) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">181</td>
+    <td class="codeLine">  LoopInstSimplifyLegacyPass() : LoopPass(ID) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">182</td>
+    <td class="codeLine">    initializeLoopInstSimplifyLegacyPassPass(*PassRegistry::getPassRegistry());</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">182</td>
+    <td class="codeLine">    initializeLoopInstSimplifyLegacyPassPass(*PassRegistry::getPassRegistry());</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">183</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">183</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">184</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">184</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">185</td>
+    <td class="codeLine">  bool runOnLoop(Loop *L, LPPassManager &LPM) override {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">185</td>
+    <td class="codeLine">  bool runOnLoop(Loop *L, LPPassManager &LPM) override {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">186</td>
+    <td class="codeLine">    if (skipLoop(L))</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">186</td>
+    <td class="codeLine">    if (skipLoop(L))</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">187</td>
+    <td class="codeLine">      return false;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">187</td>
+    <td class="codeLine">      return false;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">188</td>
+    <td class="codeLine">    DominatorTree &DT = getAnalysis<DominatorTreeWrapperPass>().getDomTree();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">188</td>
+    <td class="codeLine">    DominatorTree &DT = getAnalysis<DominatorTreeWrapperPass>().getDomTree();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">189</td>
+    <td class="codeLine">    LoopInfo &LI = getAnalysis<LoopInfoWrapperPass>().getLoopInfo();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">189</td>
+    <td class="codeLine">    LoopInfo &LI = getAnalysis<LoopInfoWrapperPass>().getLoopInfo();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">190</td>
+    <td class="codeLine">    AssumptionCache &AC =</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">190</td>
+    <td class="codeLine">    AssumptionCache &AC =</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">191</td>
+    <td class="codeLine">        getAnalysis<AssumptionCacheTracker>().getAssumptionCache(</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">191</td>
+    <td class="codeLine">        getAnalysis<AssumptionCacheTracker>().getAssumptionCache(</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">192</td>
+    <td class="codeLine">            *L->getHeader()->getParent());</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">192</td>
+    <td class="codeLine">            *L->getHeader()->getParent());</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">193</td>
+    <td class="codeLine">    const TargetLibraryInfo &TLI =</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">193</td>
+    <td class="codeLine">    const TargetLibraryInfo &TLI =</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">194</td>
+    <td class="codeLine">        getAnalysis<TargetLibraryInfoWrapperPass>().getTLI(</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">194</td>
+    <td class="codeLine">        getAnalysis<TargetLibraryInfoWrapperPass>().getTLI(</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">195</td>
+    <td class="codeLine">            *L->getHeader()->getParent());</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">195</td>
+    <td class="codeLine">            *L->getHeader()->getParent());</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">196</td>
+    <td class="codeLine">    MemorySSA *MSSA = &getAnalysis<MemorySSAWrapperPass>().getMSSA();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">196</td>
+    <td class="codeLine">    MemorySSA *MSSA = &getAnalysis<MemorySSAWrapperPass>().getMSSA();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">197</td>
+    <td class="codeLine">    MemorySSAUpdater MSSAU(MSSA);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">197</td>
+    <td class="codeLine">    MemorySSAUpdater MSSAU(MSSA);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">198</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">198</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">199</td>
+    <td class="codeLine">    return simplifyLoopInst(*L, DT, LI, AC, TLI, &MSSAU);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">199</td>
+    <td class="codeLine">    return simplifyLoopInst(*L, DT, LI, AC, TLI, &MSSAU);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">200</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">200</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">201</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">201</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">202</td>
+    <td class="codeLine">  void getAnalysisUsage(AnalysisUsage &AU) const override {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">202</td>
+    <td class="codeLine">  void getAnalysisUsage(AnalysisUsage &AU) const override {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">203</td>
+    <td class="codeLine">    AU.addRequired<AssumptionCacheTracker>();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">203</td>
+    <td class="codeLine">    AU.addRequired<AssumptionCacheTracker>();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">204</td>
+    <td class="codeLine">    AU.addRequired<DominatorTreeWrapperPass>();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">204</td>
+    <td class="codeLine">    AU.addRequired<DominatorTreeWrapperPass>();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">205</td>
+    <td class="codeLine">    AU.addRequired<TargetLibraryInfoWrapperPass>();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">205</td>
+    <td class="codeLine">    AU.addRequired<TargetLibraryInfoWrapperPass>();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">206</td>
+    <td class="codeLine">    AU.setPreservesCFG();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">206</td>
+    <td class="codeLine">    AU.setPreservesCFG();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">207</td>
+    <td class="codeLine">    AU.addRequired<MemorySSAWrapperPass>();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">207</td>
+    <td class="codeLine">    AU.addRequired<MemorySSAWrapperPass>();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">208</td>
+    <td class="codeLine">    AU.addPreserved<MemorySSAWrapperPass>();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">208</td>
+    <td class="codeLine">    AU.addPreserved<MemorySSAWrapperPass>();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">209</td>
+    <td class="codeLine">    getLoopAnalysisUsage(AU);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">209</td>
+    <td class="codeLine">    getLoopAnalysisUsage(AU);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">210</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">210</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">211</td>
+    <td class="codeLine">};</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">211</td>
+    <td class="codeLine">};</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">212</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">212</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">213</td>
+    <td class="codeLine">} // end anonymous namespace</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">213</td>
+    <td class="codeLine">} // end anonymous namespace</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">214</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">214</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">215</td>
+    <td class="codeLine">PreservedAnalyses LoopInstSimplifyPass::run(Loop &L, LoopAnalysisManager &AM,</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">215</td>
+    <td class="codeLine">PreservedAnalyses LoopInstSimplifyPass::run(Loop &L, LoopAnalysisManager &AM,</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">216</td>
+    <td class="codeLine">                                            LoopStandardAnalysisResults &AR,</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">216</td>
+    <td class="codeLine">                                            LoopStandardAnalysisResults &AR,</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">217</td>
+    <td class="codeLine">                                            LPMUpdater &) {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">217</td>
+    <td class="codeLine">                                            LPMUpdater &) {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">218</td>
+    <td class="codeLine">  std::optional<MemorySSAUpdater> MSSAU;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">218</td>
+    <td class="codeLine">  std::optional<MemorySSAUpdater> MSSAU;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">219</td>
+    <td class="codeLine">  if (AR.MSSA) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">219</td>
+    <td class="codeLine">  if (AR.MSSA) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">220</td>
+    <td class="codeLine">    MSSAU = MemorySSAUpdater(AR.MSSA);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">220</td>
+    <td class="codeLine">    MSSAU = MemorySSAUpdater(AR.MSSA);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">221</td>
+    <td class="codeLine">    if (VerifyMemorySSA)</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">221</td>
+    <td class="codeLine">    if (VerifyMemorySSA)</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">222</td>
+    <td class="codeLine">      AR.MSSA->verifyMemorySSA();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">222</td>
+    <td class="codeLine">      AR.MSSA->verifyMemorySSA();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">223</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">223</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">224</td>
+    <td class="codeLine">  if (!simplifyLoopInst(L, AR.DT, AR.LI, AR.AC, AR.TLI,</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">224</td>
+    <td class="codeLine">  if (!simplifyLoopInst(L, AR.DT, AR.LI, AR.AC, AR.TLI,</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">225</td>
+    <td class="codeLine">                        MSSAU ? &*MSSAU : nullptr))</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">225</td>
+    <td class="codeLine">                        MSSAU ? &*MSSAU : nullptr))</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">226</td>
+    <td class="codeLine">    return PreservedAnalyses::all();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">226</td>
+    <td class="codeLine">    return PreservedAnalyses::all();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">227</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">227</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">228</td>
+    <td class="codeLine">  auto PA = getLoopPassPreservedAnalyses();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">228</td>
+    <td class="codeLine">  auto PA = getLoopPassPreservedAnalyses();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">229</td>
+    <td class="codeLine">  PA.preserveSet<CFGAnalyses>();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">229</td>
+    <td class="codeLine">  PA.preserveSet<CFGAnalyses>();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">230</td>
+    <td class="codeLine">  if (AR.MSSA)</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">230</td>
+    <td class="codeLine">  if (AR.MSSA)</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">231</td>
+    <td class="codeLine">    PA.preserve<MemorySSAAnalysis>();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">231</td>
+    <td class="codeLine">    PA.preserve<MemorySSAAnalysis>();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">232</td>
+    <td class="codeLine">  return PA;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">232</td>
+    <td class="codeLine">  return PA;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">233</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">233</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">234</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">234</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">235</td>
+    <td class="codeLine">char LoopInstSimplifyLegacyPass::ID = 0;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">235</td>
+    <td class="codeLine">char LoopInstSimplifyLegacyPass::ID = 0;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">236</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">236</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">237</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_BEGIN(LoopInstSimplifyLegacyPass, "loop-instsimplify",</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">237</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_BEGIN(LoopInstSimplifyLegacyPass, "loop-instsimplify",</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">238</td>
+    <td class="codeLine">                      "Simplify instructions in loops", false, false)</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">238</td>
+    <td class="codeLine">                      "Simplify instructions in loops", false, false)</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">239</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_DEPENDENCY(AssumptionCacheTracker)</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">239</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_DEPENDENCY(AssumptionCacheTracker)</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">240</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_DEPENDENCY(LoopPass)</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">240</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_DEPENDENCY(LoopPass)</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">241</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_DEPENDENCY(MemorySSAWrapperPass)</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">241</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_DEPENDENCY(MemorySSAWrapperPass)</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">242</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_DEPENDENCY(TargetLibraryInfoWrapperPass)</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">242</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_DEPENDENCY(TargetLibraryInfoWrapperPass)</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">243</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_END(LoopInstSimplifyLegacyPass, "loop-instsimplify",</td>
+    <td class="lineNumber">2</td>
+    <td class="lineNumber">243</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS_END(LoopInstSimplifyLegacyPass, "loop-instsimplify",</td>
+    <td class="lineNumber">2</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">244</td>
+    <td class="codeLine">                    "Simplify instructions in loops", false, false)</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">244</td>
+    <td class="codeLine">                    "Simplify instructions in loops", false, false)</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">245</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">245</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">246</td>
+    <td class="codeLine">Pass *llvm::createLoopInstSimplifyPass() {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">246</td>
+    <td class="codeLine">Pass *llvm::createLoopInstSimplifyPass() {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">247</td>
+    <td class="codeLine">  return new LoopInstSimplifyLegacyPass();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">247</td>
+    <td class="codeLine">  return new LoopInstSimplifyLegacyPass();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">248</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">248</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">249</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">249</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+</table>
+    </div>
+    <button id="myBtn" onclick="topFunction()" title="Go to top" type="button">Top</button>
+    <script src="../Javascript/drop_down.js"></script>
+    <script src="../Javascript/top_button.js"></script>
+  </body>
+</html>

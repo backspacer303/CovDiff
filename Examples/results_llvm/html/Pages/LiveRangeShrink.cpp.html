@@ -1,0 +1,5285 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>LiveRangeShrink.cpp</title>
+    <link rel="stylesheet" href="../Style/style.css" />
+  </head>
+  <body>
+    <div class="headerDiv">
+      <h1>
+        Code Coverage
+      </h1>
+      <p>
+        Source file: /home/nikola/Desktop/llvm-project/llvm/lib/CodeGen/LiveRangeShrink.cpp
+      </p>
+    </div>
+    <button class="collapsible" type="button">Open Summary Report</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Summary Report</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line number</th>
+    <th class="mainTh">Line</th>
+    <th class="mainTh">Number of hits</th>
+    <th class="mainTh">Tests that cover line</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="">//===- LiveRangeShrink.cpp - Move instructions to shrink live range -------===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="">//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="">///===---------------------------------------------------------------------===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="">///</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="">/// \file</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="">/// This pass moves instructions close to the definition of its operands to</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="">/// shrink live range of the def instruction. The code motion is limited within</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class="">/// the basic block. The moved instruction should have 1 def, and more than one</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class="">/// uses, all of which are the only use of the def.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class="">///</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class="">///===---------------------------------------------------------------------===//</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class="">#include "llvm/ADT/DenseMap.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class="">#include "llvm/ADT/Statistic.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class="">#include "llvm/ADT/iterator_range.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class="">#include "llvm/CodeGen/MachineBasicBlock.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class="">#include "llvm/CodeGen/MachineFunction.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class="">#include "llvm/CodeGen/MachineFunctionPass.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class="">#include "llvm/CodeGen/MachineInstr.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class="">#include "llvm/CodeGen/MachineOperand.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class="">#include "llvm/CodeGen/MachineRegisterInfo.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class="">#include "llvm/InitializePasses.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class="">#include "llvm/Pass.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class="">#include "llvm/Support/Debug.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class="">#include "llvm/Support/raw_ostream.h"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class="">#include <iterator></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class="">#include <utility></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class="">using namespace llvm;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class="">#define DEBUG_TYPE "lrshrink"</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class="">STATISTIC(NumInstrsHoistedToShrinkLiveRange,</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class="">          "Number of insructions hoisted to shrink live range.");</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class="">namespace {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class="">class LiveRangeShrink : public MachineFunctionPass {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class="">public:</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class="">  static char ID;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class="uncoveredLine">  LiveRangeShrink() : MachineFunctionPass(ID) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class="uncoveredLine">    initializeLiveRangeShrinkPass(*PassRegistry::getPassRegistry());</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class="uncoveredLine">  }</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class="uncoveredLine">  void getAnalysisUsage(AnalysisUsage &AU) const override {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class="uncoveredLine">    AU.setPreservesCFG();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class="uncoveredLine">    MachineFunctionPass::getAnalysisUsage(AU);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class="uncoveredLine">  }</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class="uncoveredLine">  StringRef getPassName() const override { return "Live Range Shrink"; }</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class="">  bool runOnMachineFunction(MachineFunction &MF) override;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class="">};</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class="">} // end anonymous namespace</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class="">char LiveRangeShrink::ID = 0;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class="">char &llvm::LiveRangeShrinkID = LiveRangeShrink::ID;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class="coveredLine">INITIALIZE_PASS(LiveRangeShrink, "lrshrink", "Live Range Shrink Pass", false,</td>
+    <td>2</td>
+    <td class="testName">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class="">                false)</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class="">using InstOrderMap = DenseMap<MachineInstr *, unsigned>;</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class="">/// Returns \p New if it's dominated by \p Old, otherwise return \p Old.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class="">/// \p M maintains a map from instruction to its dominating order that satisfies</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class="">/// M[A] > M[B] guarantees that A is dominated by B.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class="">/// If \p New is not in \p M, return \p Old. Otherwise if \p Old is null, return</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class="">/// \p New.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class="uncoveredLine">static MachineInstr *FindDominatedInstruction(MachineInstr &New,</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class="">                                              MachineInstr *Old,</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class="">                                              const InstOrderMap &M) {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class="uncoveredLine">  auto NewIter = M.find(&New);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class="uncoveredLine">  if (NewIter == M.end())</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class="uncoveredLine">    return Old;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class="uncoveredLine">  if (Old == nullptr)</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class="uncoveredLine">    return &New;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class="uncoveredLine">  unsigned OrderOld = M.find(Old)->second;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class="uncoveredLine">  unsigned OrderNew = NewIter->second;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class="uncoveredLine">  if (OrderOld != OrderNew)</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class="uncoveredLine">    return OrderOld < OrderNew ? &New : Old;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class="">  // OrderOld == OrderNew, we need to iterate down from Old to see if it</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class="">  // can reach New, if yes, New is dominated by Old.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">90</td>
+    <td class="uncoveredLine">  for (MachineInstr *I = Old->getNextNode(); M.find(I)->second == OrderNew;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">91</td>
+    <td class="uncoveredLine">       I = I->getNextNode())</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">92</td>
+    <td class="uncoveredLine">    if (I == &New)</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">93</td>
+    <td class="uncoveredLine">      return &New;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">94</td>
+    <td class="uncoveredLine">  return Old;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">95</td>
+    <td class="">}</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">96</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">97</td>
+    <td class="">/// Builds Instruction to its dominating order number map \p M by traversing</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">98</td>
+    <td class="">/// from instruction \p Start.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">99</td>
+    <td class="uncoveredLine">static void BuildInstOrderMap(MachineBasicBlock::iterator Start,</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">100</td>
+    <td class="">                              InstOrderMap &M) {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">101</td>
+    <td class="uncoveredLine">  M.clear();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">102</td>
+    <td class="uncoveredLine">  unsigned i = 0;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">103</td>
+    <td class="uncoveredLine">  for (MachineInstr &I : make_range(Start, Start->getParent()->end()))</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">104</td>
+    <td class="uncoveredLine">    M[&I] = i++;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">105</td>
+    <td class="uncoveredLine">}</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">106</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">107</td>
+    <td class="uncoveredLine">bool LiveRangeShrink::runOnMachineFunction(MachineFunction &MF) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">108</td>
+    <td class="uncoveredLine">  if (skipFunction(MF.getFunction()))</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">109</td>
+    <td class="uncoveredLine">    return false;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">110</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">111</td>
+    <td class="uncoveredLine">  MachineRegisterInfo &MRI = MF.getRegInfo();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">112</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">113</td>
+    <td class="uncoveredLine">  LLVM_DEBUG(dbgs() << "**** Analysing " << MF.getName() << '\n');</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">114</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">115</td>
+    <td class="uncoveredLine">  InstOrderMap IOM;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">116</td>
+    <td class="">  // Map from register to instruction order (value of IOM) where the</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">117</td>
+    <td class="">  // register is used last. When moving instructions up, we need to</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">118</td>
+    <td class="">  // make sure all its defs (including dead def) will not cross its</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">119</td>
+    <td class="">  // last use when moving up.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">120</td>
+    <td class="uncoveredLine">  DenseMap<unsigned, std::pair<unsigned, MachineInstr *>> UseMap;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">121</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">122</td>
+    <td class="uncoveredLine">  for (MachineBasicBlock &MBB : MF) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">123</td>
+    <td class="uncoveredLine">    if (MBB.empty())</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">124</td>
+    <td class="uncoveredLine">      continue;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">125</td>
+    <td class="uncoveredLine">    bool SawStore = false;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">126</td>
+    <td class="uncoveredLine">    BuildInstOrderMap(MBB.begin(), IOM);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">127</td>
+    <td class="uncoveredLine">    UseMap.clear();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">128</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">129</td>
+    <td class="uncoveredLine">    for (MachineBasicBlock::iterator Next = MBB.begin(); Next != MBB.end();) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">130</td>
+    <td class="uncoveredLine">      MachineInstr &MI = *Next;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">131</td>
+    <td class="uncoveredLine">      ++Next;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">132</td>
+    <td class="uncoveredLine">      if (MI.isPHI() || MI.isDebugOrPseudoInstr())</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">133</td>
+    <td class="uncoveredLine">        continue;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">134</td>
+    <td class="uncoveredLine">      if (MI.mayStore())</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">135</td>
+    <td class="uncoveredLine">        SawStore = true;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">136</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">137</td>
+    <td class="uncoveredLine">      unsigned CurrentOrder = IOM[&MI];</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">138</td>
+    <td class="uncoveredLine">      unsigned Barrier = 0;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">139</td>
+    <td class="uncoveredLine">      MachineInstr *BarrierMI = nullptr;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">140</td>
+    <td class="uncoveredLine">      for (const MachineOperand &MO : MI.operands()) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">141</td>
+    <td class="uncoveredLine">        if (!MO.isReg() || MO.isDebug())</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">142</td>
+    <td class="uncoveredLine">          continue;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">143</td>
+    <td class="uncoveredLine">        if (MO.isUse())</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">144</td>
+    <td class="uncoveredLine">          UseMap[MO.getReg()] = std::make_pair(CurrentOrder, &MI);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">145</td>
+    <td class="uncoveredLine">        else if (MO.isDead() && UseMap.count(MO.getReg()))</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">146</td>
+    <td class="">          // Barrier is the last instruction where MO get used. MI should not</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">147</td>
+    <td class="">          // be moved above Barrier.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">148</td>
+    <td class="uncoveredLine">          if (Barrier < UseMap[MO.getReg()].first) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">149</td>
+    <td class="uncoveredLine">            Barrier = UseMap[MO.getReg()].first;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">150</td>
+    <td class="uncoveredLine">            BarrierMI = UseMap[MO.getReg()].second;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">151</td>
+    <td class="">          }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">152</td>
+    <td class="">      }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">153</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">154</td>
+    <td class="uncoveredLine">      if (!MI.isSafeToMove(nullptr, SawStore)) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">155</td>
+    <td class="">        // If MI has side effects, it should become a barrier for code motion.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">156</td>
+    <td class="">        // IOM is rebuild from the next instruction to prevent later</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">157</td>
+    <td class="">        // instructions from being moved before this MI.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">158</td>
+    <td class="uncoveredLine">        if (MI.hasUnmodeledSideEffects() && !MI.isPseudoProbe() &&</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">159</td>
+    <td class="uncoveredLine">            Next != MBB.end()) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">160</td>
+    <td class="uncoveredLine">          BuildInstOrderMap(Next, IOM);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">161</td>
+    <td class="uncoveredLine">          SawStore = false;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">162</td>
+    <td class="">        }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">163</td>
+    <td class="uncoveredLine">        continue;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">164</td>
+    <td class="">      }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">165</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">166</td>
+    <td class="uncoveredLine">      const MachineOperand *DefMO = nullptr;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">167</td>
+    <td class="uncoveredLine">      MachineInstr *Insert = nullptr;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">168</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">169</td>
+    <td class="">      // Number of live-ranges that will be shortened. We do not count</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">170</td>
+    <td class="">      // live-ranges that are defined by a COPY as it could be coalesced later.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">171</td>
+    <td class="uncoveredLine">      unsigned NumEligibleUse = 0;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">172</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">173</td>
+    <td class="uncoveredLine">      for (const MachineOperand &MO : MI.operands()) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">174</td>
+    <td class="uncoveredLine">        if (!MO.isReg() || MO.isDead() || MO.isDebug())</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">175</td>
+    <td class="uncoveredLine">          continue;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">176</td>
+    <td class="uncoveredLine">        Register Reg = MO.getReg();</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">177</td>
+    <td class="">        // Do not move the instruction if it def/uses a physical register,</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">178</td>
+    <td class="">        // unless it is a constant physical register or a noreg.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">179</td>
+    <td class="uncoveredLine">        if (!Reg.isVirtual()) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">180</td>
+    <td class="uncoveredLine">          if (!Reg || MRI.isConstantPhysReg(Reg))</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">181</td>
+    <td class="uncoveredLine">            continue;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">182</td>
+    <td class="uncoveredLine">          Insert = nullptr;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">183</td>
+    <td class="uncoveredLine">          break;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">184</td>
+    <td class="">        }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">185</td>
+    <td class="uncoveredLine">        if (MO.isDef()) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">186</td>
+    <td class="">          // Do not move if there is more than one def.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">187</td>
+    <td class="uncoveredLine">          if (DefMO) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">188</td>
+    <td class="uncoveredLine">            Insert = nullptr;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">189</td>
+    <td class="uncoveredLine">            break;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">190</td>
+    <td class="">          }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">191</td>
+    <td class="uncoveredLine">          DefMO = &MO;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">192</td>
+    <td class="uncoveredLine">        } else if (MRI.hasOneNonDBGUse(Reg) && MRI.hasOneDef(Reg) && DefMO &&</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">193</td>
+    <td class="uncoveredLine">                   MRI.getRegClass(DefMO->getReg()) ==</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">194</td>
+    <td class="uncoveredLine">                       MRI.getRegClass(MO.getReg())) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">195</td>
+    <td class="">          // The heuristic does not handle different register classes yet</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">196</td>
+    <td class="">          // (registers of different sizes, looser/tighter constraints). This</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">197</td>
+    <td class="">          // is because it needs more accurate model to handle register</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">198</td>
+    <td class="">          // pressure correctly.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">199</td>
+    <td class="uncoveredLine">          MachineInstr &DefInstr = *MRI.def_instr_begin(Reg);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">200</td>
+    <td class="uncoveredLine">          if (!DefInstr.isCopy())</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">201</td>
+    <td class="uncoveredLine">            NumEligibleUse++;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">202</td>
+    <td class="uncoveredLine">          Insert = FindDominatedInstruction(DefInstr, Insert, IOM);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">203</td>
+    <td class="">        } else {</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">204</td>
+    <td class="uncoveredLine">          Insert = nullptr;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">205</td>
+    <td class="uncoveredLine">          break;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">206</td>
+    <td class="">        }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">207</td>
+    <td class="">      }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">208</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">209</td>
+    <td class="">      // If Barrier equals IOM[I], traverse forward to find if BarrierMI is</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">210</td>
+    <td class="">      // after Insert, if yes, then we should not hoist.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">211</td>
+    <td class="uncoveredLine">      for (MachineInstr *I = Insert; I && IOM[I] == Barrier;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">212</td>
+    <td class="uncoveredLine">           I = I->getNextNode())</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">213</td>
+    <td class="uncoveredLine">        if (I == BarrierMI) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">214</td>
+    <td class="uncoveredLine">          Insert = nullptr;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">215</td>
+    <td class="uncoveredLine">          break;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">216</td>
+    <td class="">        }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">217</td>
+    <td class="">      // Move the instruction when # of shrunk live range > 1.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">218</td>
+    <td class="uncoveredLine">      if (DefMO && Insert && NumEligibleUse > 1 && Barrier <= IOM[Insert]) {</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">219</td>
+    <td class="uncoveredLine">        MachineBasicBlock::iterator I = std::next(Insert->getIterator());</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">220</td>
+    <td class="">        // Skip all the PHI and debug instructions.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">221</td>
+    <td class="uncoveredLine">        while (I != MBB.end() && (I->isPHI() || I->isDebugOrPseudoInstr()))</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">222</td>
+    <td class="uncoveredLine">          I = std::next(I);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">223</td>
+    <td class="uncoveredLine">        if (I == MI.getIterator())</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">224</td>
+    <td class="uncoveredLine">          continue;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">225</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">226</td>
+    <td class="">        // Update the dominator order to be the same as the insertion point.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">227</td>
+    <td class="">        // We do this to maintain a non-decreasing order without need to update</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">228</td>
+    <td class="">        // all instruction orders after the insertion point.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">229</td>
+    <td class="uncoveredLine">        unsigned NewOrder = IOM[&*I];</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">230</td>
+    <td class="uncoveredLine">        IOM[&MI] = NewOrder;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">231</td>
+    <td class="uncoveredLine">        NumInstrsHoistedToShrinkLiveRange++;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">232</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">233</td>
+    <td class="">        // Find MI's debug value following MI.</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">234</td>
+    <td class="uncoveredLine">        MachineBasicBlock::iterator EndIter = std::next(MI.getIterator());</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">235</td>
+    <td class="uncoveredLine">        if (MI.getOperand(0).isReg())</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">236</td>
+    <td class="uncoveredLine">          for (; EndIter != MBB.end() && EndIter->isDebugValue() &&</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">237</td>
+    <td class="uncoveredLine">                 EndIter->hasDebugOperandForReg(MI.getOperand(0).getReg());</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">238</td>
+    <td class="uncoveredLine">               ++EndIter, ++Next)</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">239</td>
+    <td class="uncoveredLine">            IOM[&*EndIter] = NewOrder;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">240</td>
+    <td class="uncoveredLine">        MBB.splice(I, &MBB, MI.getIterator(), EndIter);</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">241</td>
+    <td class="">      }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">242</td>
+    <td class="">    }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">243</td>
+    <td class="">  }</td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">244</td>
+    <td class="uncoveredLine">  return false;</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">245</td>
+    <td class="uncoveredLine">}</td>
+    <td>0</td>
+    <td class="testName">
+    </td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">246</td>
+    <td class=""></td>
+    <td>----</td>
+    <td class="testName">
+    </td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Functions Report</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Functions Report</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Function name</th>
+    <th class="mainTh">Number of hits</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_115LiveRangeShrinkC2Ev</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZNK12_GLOBAL__N_115LiveRangeShrink16getAnalysisUsageERN4llvm13AnalysisUsageE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZNK12_GLOBAL__N_115LiveRangeShrink11getPassNameEv</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN4llvm29initializeLiveRangeShrinkPassERNS_12PassRegistryE</td>
+    <td class="numberOfCalls">4</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZL33initializeLiveRangeShrinkPassOnceRN4llvm12PassRegistryE</td>
+    <td class="numberOfCalls">2</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZL24FindDominatedInstructionRN4llvm12MachineInstrEPS0_RKNS_8DenseMapIS2_jNS_12DenseMapInfoIS2_vEENS_6detail12DenseMapPairIS2_jEEEE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZL17BuildInstOrderMapN4llvm26MachineInstrBundleIteratorINS_12MachineInstrELb0EEERNS_8DenseMapIPS1_jNS_12DenseMapInfoIS4_vEENS_6detail12DenseMapPairIS4_jEEEE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="functionName">_ZN12_GLOBAL__N_115LiveRangeShrink20runOnMachineFunctionERN4llvm15MachineFunctionE</td>
+    <td class="numberOfCalls">0</td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Coverage Diff</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Coverage Diff</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+      <span> BUT NOT </span>
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </th>
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+      <span> BUT NOT </span>
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+    </th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="codeline">//===- LiveRangeShrink.cpp - Move instructions to shrink live range -------===//</td>
+    <td class="lineNumber">1</td>
+    <td class="codeline">//===- LiveRangeShrink.cpp - Move instructions to shrink live range -------===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">2</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="codeline">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">3</td>
+    <td class="codeline">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="codeline">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">4</td>
+    <td class="codeline">// See https://llvm.org/LICENSE.txt for license information.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="codeline">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">5</td>
+    <td class="codeline">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="codeline">//</td>
+    <td class="lineNumber">6</td>
+    <td class="codeline">//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="codeline">///===---------------------------------------------------------------------===//</td>
+    <td class="lineNumber">7</td>
+    <td class="codeline">///===---------------------------------------------------------------------===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="codeline">///</td>
+    <td class="lineNumber">8</td>
+    <td class="codeline">///</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="codeline">/// \file</td>
+    <td class="lineNumber">9</td>
+    <td class="codeline">/// \file</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="codeline">/// This pass moves instructions close to the definition of its operands to</td>
+    <td class="lineNumber">10</td>
+    <td class="codeline">/// This pass moves instructions close to the definition of its operands to</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="codeline">/// shrink live range of the def instruction. The code motion is limited within</td>
+    <td class="lineNumber">11</td>
+    <td class="codeline">/// shrink live range of the def instruction. The code motion is limited within</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class="codeline">/// the basic block. The moved instruction should have 1 def, and more than one</td>
+    <td class="lineNumber">12</td>
+    <td class="codeline">/// the basic block. The moved instruction should have 1 def, and more than one</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class="codeline">/// uses, all of which are the only use of the def.</td>
+    <td class="lineNumber">13</td>
+    <td class="codeline">/// uses, all of which are the only use of the def.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class="codeline">///</td>
+    <td class="lineNumber">14</td>
+    <td class="codeline">///</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class="codeline">///===---------------------------------------------------------------------===//</td>
+    <td class="lineNumber">15</td>
+    <td class="codeline">///===---------------------------------------------------------------------===//</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">16</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class="codeline">#include "llvm/ADT/DenseMap.h"</td>
+    <td class="lineNumber">17</td>
+    <td class="codeline">#include "llvm/ADT/DenseMap.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class="codeline">#include "llvm/ADT/Statistic.h"</td>
+    <td class="lineNumber">18</td>
+    <td class="codeline">#include "llvm/ADT/Statistic.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class="codeline">#include "llvm/ADT/iterator_range.h"</td>
+    <td class="lineNumber">19</td>
+    <td class="codeline">#include "llvm/ADT/iterator_range.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class="codeline">#include "llvm/CodeGen/MachineBasicBlock.h"</td>
+    <td class="lineNumber">20</td>
+    <td class="codeline">#include "llvm/CodeGen/MachineBasicBlock.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class="codeline">#include "llvm/CodeGen/MachineFunction.h"</td>
+    <td class="lineNumber">21</td>
+    <td class="codeline">#include "llvm/CodeGen/MachineFunction.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class="codeline">#include "llvm/CodeGen/MachineFunctionPass.h"</td>
+    <td class="lineNumber">22</td>
+    <td class="codeline">#include "llvm/CodeGen/MachineFunctionPass.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class="codeline">#include "llvm/CodeGen/MachineInstr.h"</td>
+    <td class="lineNumber">23</td>
+    <td class="codeline">#include "llvm/CodeGen/MachineInstr.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class="codeline">#include "llvm/CodeGen/MachineOperand.h"</td>
+    <td class="lineNumber">24</td>
+    <td class="codeline">#include "llvm/CodeGen/MachineOperand.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class="codeline">#include "llvm/CodeGen/MachineRegisterInfo.h"</td>
+    <td class="lineNumber">25</td>
+    <td class="codeline">#include "llvm/CodeGen/MachineRegisterInfo.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class="codeline">#include "llvm/InitializePasses.h"</td>
+    <td class="lineNumber">26</td>
+    <td class="codeline">#include "llvm/InitializePasses.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class="codeline">#include "llvm/Pass.h"</td>
+    <td class="lineNumber">27</td>
+    <td class="codeline">#include "llvm/Pass.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class="codeline">#include "llvm/Support/Debug.h"</td>
+    <td class="lineNumber">28</td>
+    <td class="codeline">#include "llvm/Support/Debug.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class="codeline">#include "llvm/Support/raw_ostream.h"</td>
+    <td class="lineNumber">29</td>
+    <td class="codeline">#include "llvm/Support/raw_ostream.h"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class="codeline">#include <iterator></td>
+    <td class="lineNumber">30</td>
+    <td class="codeline">#include <iterator></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class="codeline">#include <utility></td>
+    <td class="lineNumber">31</td>
+    <td class="codeline">#include <utility></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">32</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class="codeline">using namespace llvm;</td>
+    <td class="lineNumber">33</td>
+    <td class="codeline">using namespace llvm;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">34</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class="codeline">#define DEBUG_TYPE "lrshrink"</td>
+    <td class="lineNumber">35</td>
+    <td class="codeline">#define DEBUG_TYPE "lrshrink"</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">36</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class="codeline">STATISTIC(NumInstrsHoistedToShrinkLiveRange,</td>
+    <td class="lineNumber">37</td>
+    <td class="codeline">STATISTIC(NumInstrsHoistedToShrinkLiveRange,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class="codeline">          "Number of insructions hoisted to shrink live range.");</td>
+    <td class="lineNumber">38</td>
+    <td class="codeline">          "Number of insructions hoisted to shrink live range.");</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">39</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class="codeline">namespace {</td>
+    <td class="lineNumber">40</td>
+    <td class="codeline">namespace {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">41</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class="codeline">class LiveRangeShrink : public MachineFunctionPass {</td>
+    <td class="lineNumber">42</td>
+    <td class="codeline">class LiveRangeShrink : public MachineFunctionPass {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class="codeline">public:</td>
+    <td class="lineNumber">43</td>
+    <td class="codeline">public:</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class="codeline">  static char ID;</td>
+    <td class="lineNumber">44</td>
+    <td class="codeline">  static char ID;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">45</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class="codeline">  LiveRangeShrink() : MachineFunctionPass(ID) {</td>
+    <td class="lineNumber">46</td>
+    <td class="codeline">  LiveRangeShrink() : MachineFunctionPass(ID) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class="codeline">    initializeLiveRangeShrinkPass(*PassRegistry::getPassRegistry());</td>
+    <td class="lineNumber">47</td>
+    <td class="codeline">    initializeLiveRangeShrinkPass(*PassRegistry::getPassRegistry());</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">48</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">49</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class="codeline">  void getAnalysisUsage(AnalysisUsage &AU) const override {</td>
+    <td class="lineNumber">50</td>
+    <td class="codeline">  void getAnalysisUsage(AnalysisUsage &AU) const override {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class="codeline">    AU.setPreservesCFG();</td>
+    <td class="lineNumber">51</td>
+    <td class="codeline">    AU.setPreservesCFG();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class="codeline">    MachineFunctionPass::getAnalysisUsage(AU);</td>
+    <td class="lineNumber">52</td>
+    <td class="codeline">    MachineFunctionPass::getAnalysisUsage(AU);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">53</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">54</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class="codeline">  StringRef getPassName() const override { return "Live Range Shrink"; }</td>
+    <td class="lineNumber">55</td>
+    <td class="codeline">  StringRef getPassName() const override { return "Live Range Shrink"; }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">56</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class="codeline">  bool runOnMachineFunction(MachineFunction &MF) override;</td>
+    <td class="lineNumber">57</td>
+    <td class="codeline">  bool runOnMachineFunction(MachineFunction &MF) override;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class="codeline">};</td>
+    <td class="lineNumber">58</td>
+    <td class="codeline">};</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">59</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class="codeline">} // end anonymous namespace</td>
+    <td class="lineNumber">60</td>
+    <td class="codeline">} // end anonymous namespace</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">61</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class="codeline">char LiveRangeShrink::ID = 0;</td>
+    <td class="lineNumber">62</td>
+    <td class="codeline">char LiveRangeShrink::ID = 0;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">63</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class="codeline">char &llvm::LiveRangeShrinkID = LiveRangeShrink::ID;</td>
+    <td class="lineNumber">64</td>
+    <td class="codeline">char &llvm::LiveRangeShrinkID = LiveRangeShrink::ID;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">65</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class="codeline">INITIALIZE_PASS(LiveRangeShrink, "lrshrink", "Live Range Shrink Pass", false,</td>
+    <td class="lineNumber">66</td>
+    <td class="codeline">INITIALIZE_PASS(LiveRangeShrink, "lrshrink", "Live Range Shrink Pass", false,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class="codeline">                false)</td>
+    <td class="lineNumber">67</td>
+    <td class="codeline">                false)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">68</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class="codeline">using InstOrderMap = DenseMap<MachineInstr *, unsigned>;</td>
+    <td class="lineNumber">69</td>
+    <td class="codeline">using InstOrderMap = DenseMap<MachineInstr *, unsigned>;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">70</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class="codeline">/// Returns \p New if it's dominated by \p Old, otherwise return \p Old.</td>
+    <td class="lineNumber">71</td>
+    <td class="codeline">/// Returns \p New if it's dominated by \p Old, otherwise return \p Old.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class="codeline">/// \p M maintains a map from instruction to its dominating order that satisfies</td>
+    <td class="lineNumber">72</td>
+    <td class="codeline">/// \p M maintains a map from instruction to its dominating order that satisfies</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class="codeline">/// M[A] > M[B] guarantees that A is dominated by B.</td>
+    <td class="lineNumber">73</td>
+    <td class="codeline">/// M[A] > M[B] guarantees that A is dominated by B.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class="codeline">/// If \p New is not in \p M, return \p Old. Otherwise if \p Old is null, return</td>
+    <td class="lineNumber">74</td>
+    <td class="codeline">/// If \p New is not in \p M, return \p Old. Otherwise if \p Old is null, return</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class="codeline">/// \p New.</td>
+    <td class="lineNumber">75</td>
+    <td class="codeline">/// \p New.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class="codeline">static MachineInstr *FindDominatedInstruction(MachineInstr &New,</td>
+    <td class="lineNumber">76</td>
+    <td class="codeline">static MachineInstr *FindDominatedInstruction(MachineInstr &New,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class="codeline">                                              MachineInstr *Old,</td>
+    <td class="lineNumber">77</td>
+    <td class="codeline">                                              MachineInstr *Old,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class="codeline">                                              const InstOrderMap &M) {</td>
+    <td class="lineNumber">78</td>
+    <td class="codeline">                                              const InstOrderMap &M) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class="codeline">  auto NewIter = M.find(&New);</td>
+    <td class="lineNumber">79</td>
+    <td class="codeline">  auto NewIter = M.find(&New);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class="codeline">  if (NewIter == M.end())</td>
+    <td class="lineNumber">80</td>
+    <td class="codeline">  if (NewIter == M.end())</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class="codeline">    return Old;</td>
+    <td class="lineNumber">81</td>
+    <td class="codeline">    return Old;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class="codeline">  if (Old == nullptr)</td>
+    <td class="lineNumber">82</td>
+    <td class="codeline">  if (Old == nullptr)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class="codeline">    return &New;</td>
+    <td class="lineNumber">83</td>
+    <td class="codeline">    return &New;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class="codeline">  unsigned OrderOld = M.find(Old)->second;</td>
+    <td class="lineNumber">84</td>
+    <td class="codeline">  unsigned OrderOld = M.find(Old)->second;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class="codeline">  unsigned OrderNew = NewIter->second;</td>
+    <td class="lineNumber">85</td>
+    <td class="codeline">  unsigned OrderNew = NewIter->second;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class="codeline">  if (OrderOld != OrderNew)</td>
+    <td class="lineNumber">86</td>
+    <td class="codeline">  if (OrderOld != OrderNew)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class="codeline">    return OrderOld < OrderNew ? &New : Old;</td>
+    <td class="lineNumber">87</td>
+    <td class="codeline">    return OrderOld < OrderNew ? &New : Old;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class="codeline">  // OrderOld == OrderNew, we need to iterate down from Old to see if it</td>
+    <td class="lineNumber">88</td>
+    <td class="codeline">  // OrderOld == OrderNew, we need to iterate down from Old to see if it</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class="codeline">  // can reach New, if yes, New is dominated by Old.</td>
+    <td class="lineNumber">89</td>
+    <td class="codeline">  // can reach New, if yes, New is dominated by Old.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">90</td>
+    <td class="codeline">  for (MachineInstr *I = Old->getNextNode(); M.find(I)->second == OrderNew;</td>
+    <td class="lineNumber">90</td>
+    <td class="codeline">  for (MachineInstr *I = Old->getNextNode(); M.find(I)->second == OrderNew;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">91</td>
+    <td class="codeline">       I = I->getNextNode())</td>
+    <td class="lineNumber">91</td>
+    <td class="codeline">       I = I->getNextNode())</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">92</td>
+    <td class="codeline">    if (I == &New)</td>
+    <td class="lineNumber">92</td>
+    <td class="codeline">    if (I == &New)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">93</td>
+    <td class="codeline">      return &New;</td>
+    <td class="lineNumber">93</td>
+    <td class="codeline">      return &New;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">94</td>
+    <td class="codeline">  return Old;</td>
+    <td class="lineNumber">94</td>
+    <td class="codeline">  return Old;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">95</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">95</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">96</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">96</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">97</td>
+    <td class="codeline">/// Builds Instruction to its dominating order number map \p M by traversing</td>
+    <td class="lineNumber">97</td>
+    <td class="codeline">/// Builds Instruction to its dominating order number map \p M by traversing</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">98</td>
+    <td class="codeline">/// from instruction \p Start.</td>
+    <td class="lineNumber">98</td>
+    <td class="codeline">/// from instruction \p Start.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">99</td>
+    <td class="codeline">static void BuildInstOrderMap(MachineBasicBlock::iterator Start,</td>
+    <td class="lineNumber">99</td>
+    <td class="codeline">static void BuildInstOrderMap(MachineBasicBlock::iterator Start,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">100</td>
+    <td class="codeline">                              InstOrderMap &M) {</td>
+    <td class="lineNumber">100</td>
+    <td class="codeline">                              InstOrderMap &M) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">101</td>
+    <td class="codeline">  M.clear();</td>
+    <td class="lineNumber">101</td>
+    <td class="codeline">  M.clear();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">102</td>
+    <td class="codeline">  unsigned i = 0;</td>
+    <td class="lineNumber">102</td>
+    <td class="codeline">  unsigned i = 0;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">103</td>
+    <td class="codeline">  for (MachineInstr &I : make_range(Start, Start->getParent()->end()))</td>
+    <td class="lineNumber">103</td>
+    <td class="codeline">  for (MachineInstr &I : make_range(Start, Start->getParent()->end()))</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">104</td>
+    <td class="codeline">    M[&I] = i++;</td>
+    <td class="lineNumber">104</td>
+    <td class="codeline">    M[&I] = i++;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">105</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">105</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">106</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">106</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">107</td>
+    <td class="codeline">bool LiveRangeShrink::runOnMachineFunction(MachineFunction &MF) {</td>
+    <td class="lineNumber">107</td>
+    <td class="codeline">bool LiveRangeShrink::runOnMachineFunction(MachineFunction &MF) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">108</td>
+    <td class="codeline">  if (skipFunction(MF.getFunction()))</td>
+    <td class="lineNumber">108</td>
+    <td class="codeline">  if (skipFunction(MF.getFunction()))</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">109</td>
+    <td class="codeline">    return false;</td>
+    <td class="lineNumber">109</td>
+    <td class="codeline">    return false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">110</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">110</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">111</td>
+    <td class="codeline">  MachineRegisterInfo &MRI = MF.getRegInfo();</td>
+    <td class="lineNumber">111</td>
+    <td class="codeline">  MachineRegisterInfo &MRI = MF.getRegInfo();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">112</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">112</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">113</td>
+    <td class="codeline">  LLVM_DEBUG(dbgs() << "**** Analysing " << MF.getName() << '\n');</td>
+    <td class="lineNumber">113</td>
+    <td class="codeline">  LLVM_DEBUG(dbgs() << "**** Analysing " << MF.getName() << '\n');</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">114</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">114</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">115</td>
+    <td class="codeline">  InstOrderMap IOM;</td>
+    <td class="lineNumber">115</td>
+    <td class="codeline">  InstOrderMap IOM;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">116</td>
+    <td class="codeline">  // Map from register to instruction order (value of IOM) where the</td>
+    <td class="lineNumber">116</td>
+    <td class="codeline">  // Map from register to instruction order (value of IOM) where the</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">117</td>
+    <td class="codeline">  // register is used last. When moving instructions up, we need to</td>
+    <td class="lineNumber">117</td>
+    <td class="codeline">  // register is used last. When moving instructions up, we need to</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">118</td>
+    <td class="codeline">  // make sure all its defs (including dead def) will not cross its</td>
+    <td class="lineNumber">118</td>
+    <td class="codeline">  // make sure all its defs (including dead def) will not cross its</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">119</td>
+    <td class="codeline">  // last use when moving up.</td>
+    <td class="lineNumber">119</td>
+    <td class="codeline">  // last use when moving up.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">120</td>
+    <td class="codeline">  DenseMap<unsigned, std::pair<unsigned, MachineInstr *>> UseMap;</td>
+    <td class="lineNumber">120</td>
+    <td class="codeline">  DenseMap<unsigned, std::pair<unsigned, MachineInstr *>> UseMap;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">121</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">121</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">122</td>
+    <td class="codeline">  for (MachineBasicBlock &MBB : MF) {</td>
+    <td class="lineNumber">122</td>
+    <td class="codeline">  for (MachineBasicBlock &MBB : MF) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">123</td>
+    <td class="codeline">    if (MBB.empty())</td>
+    <td class="lineNumber">123</td>
+    <td class="codeline">    if (MBB.empty())</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">124</td>
+    <td class="codeline">      continue;</td>
+    <td class="lineNumber">124</td>
+    <td class="codeline">      continue;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">125</td>
+    <td class="codeline">    bool SawStore = false;</td>
+    <td class="lineNumber">125</td>
+    <td class="codeline">    bool SawStore = false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">126</td>
+    <td class="codeline">    BuildInstOrderMap(MBB.begin(), IOM);</td>
+    <td class="lineNumber">126</td>
+    <td class="codeline">    BuildInstOrderMap(MBB.begin(), IOM);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">127</td>
+    <td class="codeline">    UseMap.clear();</td>
+    <td class="lineNumber">127</td>
+    <td class="codeline">    UseMap.clear();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">128</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">128</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">129</td>
+    <td class="codeline">    for (MachineBasicBlock::iterator Next = MBB.begin(); Next != MBB.end();) {</td>
+    <td class="lineNumber">129</td>
+    <td class="codeline">    for (MachineBasicBlock::iterator Next = MBB.begin(); Next != MBB.end();) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">130</td>
+    <td class="codeline">      MachineInstr &MI = *Next;</td>
+    <td class="lineNumber">130</td>
+    <td class="codeline">      MachineInstr &MI = *Next;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">131</td>
+    <td class="codeline">      ++Next;</td>
+    <td class="lineNumber">131</td>
+    <td class="codeline">      ++Next;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">132</td>
+    <td class="codeline">      if (MI.isPHI() || MI.isDebugOrPseudoInstr())</td>
+    <td class="lineNumber">132</td>
+    <td class="codeline">      if (MI.isPHI() || MI.isDebugOrPseudoInstr())</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">133</td>
+    <td class="codeline">        continue;</td>
+    <td class="lineNumber">133</td>
+    <td class="codeline">        continue;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">134</td>
+    <td class="codeline">      if (MI.mayStore())</td>
+    <td class="lineNumber">134</td>
+    <td class="codeline">      if (MI.mayStore())</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">135</td>
+    <td class="codeline">        SawStore = true;</td>
+    <td class="lineNumber">135</td>
+    <td class="codeline">        SawStore = true;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">136</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">136</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">137</td>
+    <td class="codeline">      unsigned CurrentOrder = IOM[&MI];</td>
+    <td class="lineNumber">137</td>
+    <td class="codeline">      unsigned CurrentOrder = IOM[&MI];</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">138</td>
+    <td class="codeline">      unsigned Barrier = 0;</td>
+    <td class="lineNumber">138</td>
+    <td class="codeline">      unsigned Barrier = 0;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">139</td>
+    <td class="codeline">      MachineInstr *BarrierMI = nullptr;</td>
+    <td class="lineNumber">139</td>
+    <td class="codeline">      MachineInstr *BarrierMI = nullptr;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">140</td>
+    <td class="codeline">      for (const MachineOperand &MO : MI.operands()) {</td>
+    <td class="lineNumber">140</td>
+    <td class="codeline">      for (const MachineOperand &MO : MI.operands()) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">141</td>
+    <td class="codeline">        if (!MO.isReg() || MO.isDebug())</td>
+    <td class="lineNumber">141</td>
+    <td class="codeline">        if (!MO.isReg() || MO.isDebug())</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">142</td>
+    <td class="codeline">          continue;</td>
+    <td class="lineNumber">142</td>
+    <td class="codeline">          continue;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">143</td>
+    <td class="codeline">        if (MO.isUse())</td>
+    <td class="lineNumber">143</td>
+    <td class="codeline">        if (MO.isUse())</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">144</td>
+    <td class="codeline">          UseMap[MO.getReg()] = std::make_pair(CurrentOrder, &MI);</td>
+    <td class="lineNumber">144</td>
+    <td class="codeline">          UseMap[MO.getReg()] = std::make_pair(CurrentOrder, &MI);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">145</td>
+    <td class="codeline">        else if (MO.isDead() && UseMap.count(MO.getReg()))</td>
+    <td class="lineNumber">145</td>
+    <td class="codeline">        else if (MO.isDead() && UseMap.count(MO.getReg()))</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">146</td>
+    <td class="codeline">          // Barrier is the last instruction where MO get used. MI should not</td>
+    <td class="lineNumber">146</td>
+    <td class="codeline">          // Barrier is the last instruction where MO get used. MI should not</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">147</td>
+    <td class="codeline">          // be moved above Barrier.</td>
+    <td class="lineNumber">147</td>
+    <td class="codeline">          // be moved above Barrier.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">148</td>
+    <td class="codeline">          if (Barrier < UseMap[MO.getReg()].first) {</td>
+    <td class="lineNumber">148</td>
+    <td class="codeline">          if (Barrier < UseMap[MO.getReg()].first) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">149</td>
+    <td class="codeline">            Barrier = UseMap[MO.getReg()].first;</td>
+    <td class="lineNumber">149</td>
+    <td class="codeline">            Barrier = UseMap[MO.getReg()].first;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">150</td>
+    <td class="codeline">            BarrierMI = UseMap[MO.getReg()].second;</td>
+    <td class="lineNumber">150</td>
+    <td class="codeline">            BarrierMI = UseMap[MO.getReg()].second;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">151</td>
+    <td class="codeline">          }</td>
+    <td class="lineNumber">151</td>
+    <td class="codeline">          }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">152</td>
+    <td class="codeline">      }</td>
+    <td class="lineNumber">152</td>
+    <td class="codeline">      }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">153</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">153</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">154</td>
+    <td class="codeline">      if (!MI.isSafeToMove(nullptr, SawStore)) {</td>
+    <td class="lineNumber">154</td>
+    <td class="codeline">      if (!MI.isSafeToMove(nullptr, SawStore)) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">155</td>
+    <td class="codeline">        // If MI has side effects, it should become a barrier for code motion.</td>
+    <td class="lineNumber">155</td>
+    <td class="codeline">        // If MI has side effects, it should become a barrier for code motion.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">156</td>
+    <td class="codeline">        // IOM is rebuild from the next instruction to prevent later</td>
+    <td class="lineNumber">156</td>
+    <td class="codeline">        // IOM is rebuild from the next instruction to prevent later</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">157</td>
+    <td class="codeline">        // instructions from being moved before this MI.</td>
+    <td class="lineNumber">157</td>
+    <td class="codeline">        // instructions from being moved before this MI.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">158</td>
+    <td class="codeline">        if (MI.hasUnmodeledSideEffects() && !MI.isPseudoProbe() &&</td>
+    <td class="lineNumber">158</td>
+    <td class="codeline">        if (MI.hasUnmodeledSideEffects() && !MI.isPseudoProbe() &&</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">159</td>
+    <td class="codeline">            Next != MBB.end()) {</td>
+    <td class="lineNumber">159</td>
+    <td class="codeline">            Next != MBB.end()) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">160</td>
+    <td class="codeline">          BuildInstOrderMap(Next, IOM);</td>
+    <td class="lineNumber">160</td>
+    <td class="codeline">          BuildInstOrderMap(Next, IOM);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">161</td>
+    <td class="codeline">          SawStore = false;</td>
+    <td class="lineNumber">161</td>
+    <td class="codeline">          SawStore = false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">162</td>
+    <td class="codeline">        }</td>
+    <td class="lineNumber">162</td>
+    <td class="codeline">        }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">163</td>
+    <td class="codeline">        continue;</td>
+    <td class="lineNumber">163</td>
+    <td class="codeline">        continue;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">164</td>
+    <td class="codeline">      }</td>
+    <td class="lineNumber">164</td>
+    <td class="codeline">      }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">165</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">165</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">166</td>
+    <td class="codeline">      const MachineOperand *DefMO = nullptr;</td>
+    <td class="lineNumber">166</td>
+    <td class="codeline">      const MachineOperand *DefMO = nullptr;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">167</td>
+    <td class="codeline">      MachineInstr *Insert = nullptr;</td>
+    <td class="lineNumber">167</td>
+    <td class="codeline">      MachineInstr *Insert = nullptr;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">168</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">168</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">169</td>
+    <td class="codeline">      // Number of live-ranges that will be shortened. We do not count</td>
+    <td class="lineNumber">169</td>
+    <td class="codeline">      // Number of live-ranges that will be shortened. We do not count</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">170</td>
+    <td class="codeline">      // live-ranges that are defined by a COPY as it could be coalesced later.</td>
+    <td class="lineNumber">170</td>
+    <td class="codeline">      // live-ranges that are defined by a COPY as it could be coalesced later.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">171</td>
+    <td class="codeline">      unsigned NumEligibleUse = 0;</td>
+    <td class="lineNumber">171</td>
+    <td class="codeline">      unsigned NumEligibleUse = 0;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">172</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">172</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">173</td>
+    <td class="codeline">      for (const MachineOperand &MO : MI.operands()) {</td>
+    <td class="lineNumber">173</td>
+    <td class="codeline">      for (const MachineOperand &MO : MI.operands()) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">174</td>
+    <td class="codeline">        if (!MO.isReg() || MO.isDead() || MO.isDebug())</td>
+    <td class="lineNumber">174</td>
+    <td class="codeline">        if (!MO.isReg() || MO.isDead() || MO.isDebug())</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">175</td>
+    <td class="codeline">          continue;</td>
+    <td class="lineNumber">175</td>
+    <td class="codeline">          continue;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">176</td>
+    <td class="codeline">        Register Reg = MO.getReg();</td>
+    <td class="lineNumber">176</td>
+    <td class="codeline">        Register Reg = MO.getReg();</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">177</td>
+    <td class="codeline">        // Do not move the instruction if it def/uses a physical register,</td>
+    <td class="lineNumber">177</td>
+    <td class="codeline">        // Do not move the instruction if it def/uses a physical register,</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">178</td>
+    <td class="codeline">        // unless it is a constant physical register or a noreg.</td>
+    <td class="lineNumber">178</td>
+    <td class="codeline">        // unless it is a constant physical register or a noreg.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">179</td>
+    <td class="codeline">        if (!Reg.isVirtual()) {</td>
+    <td class="lineNumber">179</td>
+    <td class="codeline">        if (!Reg.isVirtual()) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">180</td>
+    <td class="codeline">          if (!Reg || MRI.isConstantPhysReg(Reg))</td>
+    <td class="lineNumber">180</td>
+    <td class="codeline">          if (!Reg || MRI.isConstantPhysReg(Reg))</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">181</td>
+    <td class="codeline">            continue;</td>
+    <td class="lineNumber">181</td>
+    <td class="codeline">            continue;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">182</td>
+    <td class="codeline">          Insert = nullptr;</td>
+    <td class="lineNumber">182</td>
+    <td class="codeline">          Insert = nullptr;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">183</td>
+    <td class="codeline">          break;</td>
+    <td class="lineNumber">183</td>
+    <td class="codeline">          break;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">184</td>
+    <td class="codeline">        }</td>
+    <td class="lineNumber">184</td>
+    <td class="codeline">        }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">185</td>
+    <td class="codeline">        if (MO.isDef()) {</td>
+    <td class="lineNumber">185</td>
+    <td class="codeline">        if (MO.isDef()) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">186</td>
+    <td class="codeline">          // Do not move if there is more than one def.</td>
+    <td class="lineNumber">186</td>
+    <td class="codeline">          // Do not move if there is more than one def.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">187</td>
+    <td class="codeline">          if (DefMO) {</td>
+    <td class="lineNumber">187</td>
+    <td class="codeline">          if (DefMO) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">188</td>
+    <td class="codeline">            Insert = nullptr;</td>
+    <td class="lineNumber">188</td>
+    <td class="codeline">            Insert = nullptr;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">189</td>
+    <td class="codeline">            break;</td>
+    <td class="lineNumber">189</td>
+    <td class="codeline">            break;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">190</td>
+    <td class="codeline">          }</td>
+    <td class="lineNumber">190</td>
+    <td class="codeline">          }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">191</td>
+    <td class="codeline">          DefMO = &MO;</td>
+    <td class="lineNumber">191</td>
+    <td class="codeline">          DefMO = &MO;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">192</td>
+    <td class="codeline">        } else if (MRI.hasOneNonDBGUse(Reg) && MRI.hasOneDef(Reg) && DefMO &&</td>
+    <td class="lineNumber">192</td>
+    <td class="codeline">        } else if (MRI.hasOneNonDBGUse(Reg) && MRI.hasOneDef(Reg) && DefMO &&</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">193</td>
+    <td class="codeline">                   MRI.getRegClass(DefMO->getReg()) ==</td>
+    <td class="lineNumber">193</td>
+    <td class="codeline">                   MRI.getRegClass(DefMO->getReg()) ==</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">194</td>
+    <td class="codeline">                       MRI.getRegClass(MO.getReg())) {</td>
+    <td class="lineNumber">194</td>
+    <td class="codeline">                       MRI.getRegClass(MO.getReg())) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">195</td>
+    <td class="codeline">          // The heuristic does not handle different register classes yet</td>
+    <td class="lineNumber">195</td>
+    <td class="codeline">          // The heuristic does not handle different register classes yet</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">196</td>
+    <td class="codeline">          // (registers of different sizes, looser/tighter constraints). This</td>
+    <td class="lineNumber">196</td>
+    <td class="codeline">          // (registers of different sizes, looser/tighter constraints). This</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">197</td>
+    <td class="codeline">          // is because it needs more accurate model to handle register</td>
+    <td class="lineNumber">197</td>
+    <td class="codeline">          // is because it needs more accurate model to handle register</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">198</td>
+    <td class="codeline">          // pressure correctly.</td>
+    <td class="lineNumber">198</td>
+    <td class="codeline">          // pressure correctly.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">199</td>
+    <td class="codeline">          MachineInstr &DefInstr = *MRI.def_instr_begin(Reg);</td>
+    <td class="lineNumber">199</td>
+    <td class="codeline">          MachineInstr &DefInstr = *MRI.def_instr_begin(Reg);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">200</td>
+    <td class="codeline">          if (!DefInstr.isCopy())</td>
+    <td class="lineNumber">200</td>
+    <td class="codeline">          if (!DefInstr.isCopy())</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">201</td>
+    <td class="codeline">            NumEligibleUse++;</td>
+    <td class="lineNumber">201</td>
+    <td class="codeline">            NumEligibleUse++;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">202</td>
+    <td class="codeline">          Insert = FindDominatedInstruction(DefInstr, Insert, IOM);</td>
+    <td class="lineNumber">202</td>
+    <td class="codeline">          Insert = FindDominatedInstruction(DefInstr, Insert, IOM);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">203</td>
+    <td class="codeline">        } else {</td>
+    <td class="lineNumber">203</td>
+    <td class="codeline">        } else {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">204</td>
+    <td class="codeline">          Insert = nullptr;</td>
+    <td class="lineNumber">204</td>
+    <td class="codeline">          Insert = nullptr;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">205</td>
+    <td class="codeline">          break;</td>
+    <td class="lineNumber">205</td>
+    <td class="codeline">          break;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">206</td>
+    <td class="codeline">        }</td>
+    <td class="lineNumber">206</td>
+    <td class="codeline">        }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">207</td>
+    <td class="codeline">      }</td>
+    <td class="lineNumber">207</td>
+    <td class="codeline">      }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">208</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">208</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">209</td>
+    <td class="codeline">      // If Barrier equals IOM[I], traverse forward to find if BarrierMI is</td>
+    <td class="lineNumber">209</td>
+    <td class="codeline">      // If Barrier equals IOM[I], traverse forward to find if BarrierMI is</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">210</td>
+    <td class="codeline">      // after Insert, if yes, then we should not hoist.</td>
+    <td class="lineNumber">210</td>
+    <td class="codeline">      // after Insert, if yes, then we should not hoist.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">211</td>
+    <td class="codeline">      for (MachineInstr *I = Insert; I && IOM[I] == Barrier;</td>
+    <td class="lineNumber">211</td>
+    <td class="codeline">      for (MachineInstr *I = Insert; I && IOM[I] == Barrier;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">212</td>
+    <td class="codeline">           I = I->getNextNode())</td>
+    <td class="lineNumber">212</td>
+    <td class="codeline">           I = I->getNextNode())</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">213</td>
+    <td class="codeline">        if (I == BarrierMI) {</td>
+    <td class="lineNumber">213</td>
+    <td class="codeline">        if (I == BarrierMI) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">214</td>
+    <td class="codeline">          Insert = nullptr;</td>
+    <td class="lineNumber">214</td>
+    <td class="codeline">          Insert = nullptr;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">215</td>
+    <td class="codeline">          break;</td>
+    <td class="lineNumber">215</td>
+    <td class="codeline">          break;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">216</td>
+    <td class="codeline">        }</td>
+    <td class="lineNumber">216</td>
+    <td class="codeline">        }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">217</td>
+    <td class="codeline">      // Move the instruction when # of shrunk live range > 1.</td>
+    <td class="lineNumber">217</td>
+    <td class="codeline">      // Move the instruction when # of shrunk live range > 1.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">218</td>
+    <td class="codeline">      if (DefMO && Insert && NumEligibleUse > 1 && Barrier <= IOM[Insert]) {</td>
+    <td class="lineNumber">218</td>
+    <td class="codeline">      if (DefMO && Insert && NumEligibleUse > 1 && Barrier <= IOM[Insert]) {</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">219</td>
+    <td class="codeline">        MachineBasicBlock::iterator I = std::next(Insert->getIterator());</td>
+    <td class="lineNumber">219</td>
+    <td class="codeline">        MachineBasicBlock::iterator I = std::next(Insert->getIterator());</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">220</td>
+    <td class="codeline">        // Skip all the PHI and debug instructions.</td>
+    <td class="lineNumber">220</td>
+    <td class="codeline">        // Skip all the PHI and debug instructions.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">221</td>
+    <td class="codeline">        while (I != MBB.end() && (I->isPHI() || I->isDebugOrPseudoInstr()))</td>
+    <td class="lineNumber">221</td>
+    <td class="codeline">        while (I != MBB.end() && (I->isPHI() || I->isDebugOrPseudoInstr()))</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">222</td>
+    <td class="codeline">          I = std::next(I);</td>
+    <td class="lineNumber">222</td>
+    <td class="codeline">          I = std::next(I);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">223</td>
+    <td class="codeline">        if (I == MI.getIterator())</td>
+    <td class="lineNumber">223</td>
+    <td class="codeline">        if (I == MI.getIterator())</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">224</td>
+    <td class="codeline">          continue;</td>
+    <td class="lineNumber">224</td>
+    <td class="codeline">          continue;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">225</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">225</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">226</td>
+    <td class="codeline">        // Update the dominator order to be the same as the insertion point.</td>
+    <td class="lineNumber">226</td>
+    <td class="codeline">        // Update the dominator order to be the same as the insertion point.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">227</td>
+    <td class="codeline">        // We do this to maintain a non-decreasing order without need to update</td>
+    <td class="lineNumber">227</td>
+    <td class="codeline">        // We do this to maintain a non-decreasing order without need to update</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">228</td>
+    <td class="codeline">        // all instruction orders after the insertion point.</td>
+    <td class="lineNumber">228</td>
+    <td class="codeline">        // all instruction orders after the insertion point.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">229</td>
+    <td class="codeline">        unsigned NewOrder = IOM[&*I];</td>
+    <td class="lineNumber">229</td>
+    <td class="codeline">        unsigned NewOrder = IOM[&*I];</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">230</td>
+    <td class="codeline">        IOM[&MI] = NewOrder;</td>
+    <td class="lineNumber">230</td>
+    <td class="codeline">        IOM[&MI] = NewOrder;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">231</td>
+    <td class="codeline">        NumInstrsHoistedToShrinkLiveRange++;</td>
+    <td class="lineNumber">231</td>
+    <td class="codeline">        NumInstrsHoistedToShrinkLiveRange++;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">232</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">232</td>
+    <td class="codeline"></td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">233</td>
+    <td class="codeline">        // Find MI's debug value following MI.</td>
+    <td class="lineNumber">233</td>
+    <td class="codeline">        // Find MI's debug value following MI.</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">234</td>
+    <td class="codeline">        MachineBasicBlock::iterator EndIter = std::next(MI.getIterator());</td>
+    <td class="lineNumber">234</td>
+    <td class="codeline">        MachineBasicBlock::iterator EndIter = std::next(MI.getIterator());</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">235</td>
+    <td class="codeline">        if (MI.getOperand(0).isReg())</td>
+    <td class="lineNumber">235</td>
+    <td class="codeline">        if (MI.getOperand(0).isReg())</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">236</td>
+    <td class="codeline">          for (; EndIter != MBB.end() && EndIter->isDebugValue() &&</td>
+    <td class="lineNumber">236</td>
+    <td class="codeline">          for (; EndIter != MBB.end() && EndIter->isDebugValue() &&</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">237</td>
+    <td class="codeline">                 EndIter->hasDebugOperandForReg(MI.getOperand(0).getReg());</td>
+    <td class="lineNumber">237</td>
+    <td class="codeline">                 EndIter->hasDebugOperandForReg(MI.getOperand(0).getReg());</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">238</td>
+    <td class="codeline">               ++EndIter, ++Next)</td>
+    <td class="lineNumber">238</td>
+    <td class="codeline">               ++EndIter, ++Next)</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">239</td>
+    <td class="codeline">            IOM[&*EndIter] = NewOrder;</td>
+    <td class="lineNumber">239</td>
+    <td class="codeline">            IOM[&*EndIter] = NewOrder;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">240</td>
+    <td class="codeline">        MBB.splice(I, &MBB, MI.getIterator(), EndIter);</td>
+    <td class="lineNumber">240</td>
+    <td class="codeline">        MBB.splice(I, &MBB, MI.getIterator(), EndIter);</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">241</td>
+    <td class="codeline">      }</td>
+    <td class="lineNumber">241</td>
+    <td class="codeline">      }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">242</td>
+    <td class="codeline">    }</td>
+    <td class="lineNumber">242</td>
+    <td class="codeline">    }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">243</td>
+    <td class="codeline">  }</td>
+    <td class="lineNumber">243</td>
+    <td class="codeline">  }</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">244</td>
+    <td class="codeline">  return false;</td>
+    <td class="lineNumber">244</td>
+    <td class="codeline">  return false;</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">245</td>
+    <td class="codeline">}</td>
+    <td class="lineNumber">245</td>
+    <td class="codeline">}</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">246</td>
+    <td class="codeline"></td>
+    <td class="lineNumber">246</td>
+    <td class="codeline"></td>
+  </tr>
+</table>
+    </div>
+    <button class="collapsible" type="button">Open Side By Side Comparison</button>
+    <div class="content" style="display: none;">
+      <hr />
+      <h3 class="subheader">Side By Side Comparison</h3>
+      <table class="mainTable">
+  <tr class="mainTr">
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips_dbg.ll</span>
+    </th>
+    <th class="mainTh">Hit count</th>
+    <th class="mainTh">Line Number</th>
+    <th class="mainTh">
+      <span class="badge">../DebugInfoTest/example_mips.ll</span>
+    </th>
+    <th class="mainTh">Hit count</th>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">1</td>
+    <td class="codeLine">//===- LiveRangeShrink.cpp - Move instructions to shrink live range -------===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">1</td>
+    <td class="codeLine">//===- LiveRangeShrink.cpp - Move instructions to shrink live range -------===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">2</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">2</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">3</td>
+    <td class="codeLine">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">3</td>
+    <td class="codeLine">// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">4</td>
+    <td class="codeLine">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">4</td>
+    <td class="codeLine">// See https://llvm.org/LICENSE.txt for license information.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">5</td>
+    <td class="codeLine">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">5</td>
+    <td class="codeLine">// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">6</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">6</td>
+    <td class="codeLine">//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">7</td>
+    <td class="codeLine">///===---------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">7</td>
+    <td class="codeLine">///===---------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">8</td>
+    <td class="codeLine">///</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">8</td>
+    <td class="codeLine">///</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">9</td>
+    <td class="codeLine">/// \file</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">9</td>
+    <td class="codeLine">/// \file</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">10</td>
+    <td class="codeLine">/// This pass moves instructions close to the definition of its operands to</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">10</td>
+    <td class="codeLine">/// This pass moves instructions close to the definition of its operands to</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">11</td>
+    <td class="codeLine">/// shrink live range of the def instruction. The code motion is limited within</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">11</td>
+    <td class="codeLine">/// shrink live range of the def instruction. The code motion is limited within</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">12</td>
+    <td class="codeLine">/// the basic block. The moved instruction should have 1 def, and more than one</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">12</td>
+    <td class="codeLine">/// the basic block. The moved instruction should have 1 def, and more than one</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">13</td>
+    <td class="codeLine">/// uses, all of which are the only use of the def.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">13</td>
+    <td class="codeLine">/// uses, all of which are the only use of the def.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">14</td>
+    <td class="codeLine">///</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">14</td>
+    <td class="codeLine">///</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">15</td>
+    <td class="codeLine">///===---------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">15</td>
+    <td class="codeLine">///===---------------------------------------------------------------------===//</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">16</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">16</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">17</td>
+    <td class="codeLine">#include "llvm/ADT/DenseMap.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">17</td>
+    <td class="codeLine">#include "llvm/ADT/DenseMap.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">18</td>
+    <td class="codeLine">#include "llvm/ADT/Statistic.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">18</td>
+    <td class="codeLine">#include "llvm/ADT/Statistic.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">19</td>
+    <td class="codeLine">#include "llvm/ADT/iterator_range.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">19</td>
+    <td class="codeLine">#include "llvm/ADT/iterator_range.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">20</td>
+    <td class="codeLine">#include "llvm/CodeGen/MachineBasicBlock.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">20</td>
+    <td class="codeLine">#include "llvm/CodeGen/MachineBasicBlock.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">21</td>
+    <td class="codeLine">#include "llvm/CodeGen/MachineFunction.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">21</td>
+    <td class="codeLine">#include "llvm/CodeGen/MachineFunction.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">22</td>
+    <td class="codeLine">#include "llvm/CodeGen/MachineFunctionPass.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">22</td>
+    <td class="codeLine">#include "llvm/CodeGen/MachineFunctionPass.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">23</td>
+    <td class="codeLine">#include "llvm/CodeGen/MachineInstr.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">23</td>
+    <td class="codeLine">#include "llvm/CodeGen/MachineInstr.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">24</td>
+    <td class="codeLine">#include "llvm/CodeGen/MachineOperand.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">24</td>
+    <td class="codeLine">#include "llvm/CodeGen/MachineOperand.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">25</td>
+    <td class="codeLine">#include "llvm/CodeGen/MachineRegisterInfo.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">25</td>
+    <td class="codeLine">#include "llvm/CodeGen/MachineRegisterInfo.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">26</td>
+    <td class="codeLine">#include "llvm/InitializePasses.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">26</td>
+    <td class="codeLine">#include "llvm/InitializePasses.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">27</td>
+    <td class="codeLine">#include "llvm/Pass.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">27</td>
+    <td class="codeLine">#include "llvm/Pass.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">28</td>
+    <td class="codeLine">#include "llvm/Support/Debug.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">28</td>
+    <td class="codeLine">#include "llvm/Support/Debug.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">29</td>
+    <td class="codeLine">#include "llvm/Support/raw_ostream.h"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">29</td>
+    <td class="codeLine">#include "llvm/Support/raw_ostream.h"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">30</td>
+    <td class="codeLine">#include <iterator></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">30</td>
+    <td class="codeLine">#include <iterator></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">31</td>
+    <td class="codeLine">#include <utility></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">31</td>
+    <td class="codeLine">#include <utility></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">32</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">32</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">33</td>
+    <td class="codeLine">using namespace llvm;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">33</td>
+    <td class="codeLine">using namespace llvm;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">34</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">34</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">35</td>
+    <td class="codeLine">#define DEBUG_TYPE "lrshrink"</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">35</td>
+    <td class="codeLine">#define DEBUG_TYPE "lrshrink"</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">36</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">36</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">37</td>
+    <td class="codeLine">STATISTIC(NumInstrsHoistedToShrinkLiveRange,</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">37</td>
+    <td class="codeLine">STATISTIC(NumInstrsHoistedToShrinkLiveRange,</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">38</td>
+    <td class="codeLine">          "Number of insructions hoisted to shrink live range.");</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">38</td>
+    <td class="codeLine">          "Number of insructions hoisted to shrink live range.");</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">39</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">39</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">40</td>
+    <td class="codeLine">namespace {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">40</td>
+    <td class="codeLine">namespace {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">41</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">41</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">42</td>
+    <td class="codeLine">class LiveRangeShrink : public MachineFunctionPass {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">42</td>
+    <td class="codeLine">class LiveRangeShrink : public MachineFunctionPass {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">43</td>
+    <td class="codeLine">public:</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">43</td>
+    <td class="codeLine">public:</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">44</td>
+    <td class="codeLine">  static char ID;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">44</td>
+    <td class="codeLine">  static char ID;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">45</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">45</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">46</td>
+    <td class="codeLine">  LiveRangeShrink() : MachineFunctionPass(ID) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">46</td>
+    <td class="codeLine">  LiveRangeShrink() : MachineFunctionPass(ID) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">47</td>
+    <td class="codeLine">    initializeLiveRangeShrinkPass(*PassRegistry::getPassRegistry());</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">47</td>
+    <td class="codeLine">    initializeLiveRangeShrinkPass(*PassRegistry::getPassRegistry());</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">48</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">48</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">49</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">49</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">50</td>
+    <td class="codeLine">  void getAnalysisUsage(AnalysisUsage &AU) const override {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">50</td>
+    <td class="codeLine">  void getAnalysisUsage(AnalysisUsage &AU) const override {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">51</td>
+    <td class="codeLine">    AU.setPreservesCFG();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">51</td>
+    <td class="codeLine">    AU.setPreservesCFG();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">52</td>
+    <td class="codeLine">    MachineFunctionPass::getAnalysisUsage(AU);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">52</td>
+    <td class="codeLine">    MachineFunctionPass::getAnalysisUsage(AU);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">53</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">53</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">54</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">54</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">55</td>
+    <td class="codeLine">  StringRef getPassName() const override { return "Live Range Shrink"; }</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">55</td>
+    <td class="codeLine">  StringRef getPassName() const override { return "Live Range Shrink"; }</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">56</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">56</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">57</td>
+    <td class="codeLine">  bool runOnMachineFunction(MachineFunction &MF) override;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">57</td>
+    <td class="codeLine">  bool runOnMachineFunction(MachineFunction &MF) override;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">58</td>
+    <td class="codeLine">};</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">58</td>
+    <td class="codeLine">};</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">59</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">59</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">60</td>
+    <td class="codeLine">} // end anonymous namespace</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">60</td>
+    <td class="codeLine">} // end anonymous namespace</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">61</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">61</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">62</td>
+    <td class="codeLine">char LiveRangeShrink::ID = 0;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">62</td>
+    <td class="codeLine">char LiveRangeShrink::ID = 0;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">63</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">63</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">64</td>
+    <td class="codeLine">char &llvm::LiveRangeShrinkID = LiveRangeShrink::ID;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">64</td>
+    <td class="codeLine">char &llvm::LiveRangeShrinkID = LiveRangeShrink::ID;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">65</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">65</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">66</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS(LiveRangeShrink, "lrshrink", "Live Range Shrink Pass", false,</td>
+    <td class="lineNumber">1</td>
+    <td class="lineNumber">66</td>
+    <td class="codeLine coveredLine">INITIALIZE_PASS(LiveRangeShrink, "lrshrink", "Live Range Shrink Pass", false,</td>
+    <td class="lineNumber">1</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">67</td>
+    <td class="codeLine">                false)</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">67</td>
+    <td class="codeLine">                false)</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">68</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">68</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">69</td>
+    <td class="codeLine">using InstOrderMap = DenseMap<MachineInstr *, unsigned>;</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">69</td>
+    <td class="codeLine">using InstOrderMap = DenseMap<MachineInstr *, unsigned>;</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">70</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">70</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">71</td>
+    <td class="codeLine">/// Returns \p New if it's dominated by \p Old, otherwise return \p Old.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">71</td>
+    <td class="codeLine">/// Returns \p New if it's dominated by \p Old, otherwise return \p Old.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">72</td>
+    <td class="codeLine">/// \p M maintains a map from instruction to its dominating order that satisfies</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">72</td>
+    <td class="codeLine">/// \p M maintains a map from instruction to its dominating order that satisfies</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">73</td>
+    <td class="codeLine">/// M[A] > M[B] guarantees that A is dominated by B.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">73</td>
+    <td class="codeLine">/// M[A] > M[B] guarantees that A is dominated by B.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">74</td>
+    <td class="codeLine">/// If \p New is not in \p M, return \p Old. Otherwise if \p Old is null, return</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">74</td>
+    <td class="codeLine">/// If \p New is not in \p M, return \p Old. Otherwise if \p Old is null, return</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">75</td>
+    <td class="codeLine">/// \p New.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">75</td>
+    <td class="codeLine">/// \p New.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">76</td>
+    <td class="codeLine">static MachineInstr *FindDominatedInstruction(MachineInstr &New,</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">76</td>
+    <td class="codeLine">static MachineInstr *FindDominatedInstruction(MachineInstr &New,</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">77</td>
+    <td class="codeLine">                                              MachineInstr *Old,</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">77</td>
+    <td class="codeLine">                                              MachineInstr *Old,</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">78</td>
+    <td class="codeLine">                                              const InstOrderMap &M) {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">78</td>
+    <td class="codeLine">                                              const InstOrderMap &M) {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">79</td>
+    <td class="codeLine">  auto NewIter = M.find(&New);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">79</td>
+    <td class="codeLine">  auto NewIter = M.find(&New);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">80</td>
+    <td class="codeLine">  if (NewIter == M.end())</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">80</td>
+    <td class="codeLine">  if (NewIter == M.end())</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">81</td>
+    <td class="codeLine">    return Old;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">81</td>
+    <td class="codeLine">    return Old;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">82</td>
+    <td class="codeLine">  if (Old == nullptr)</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">82</td>
+    <td class="codeLine">  if (Old == nullptr)</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">83</td>
+    <td class="codeLine">    return &New;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">83</td>
+    <td class="codeLine">    return &New;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">84</td>
+    <td class="codeLine">  unsigned OrderOld = M.find(Old)->second;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">84</td>
+    <td class="codeLine">  unsigned OrderOld = M.find(Old)->second;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">85</td>
+    <td class="codeLine">  unsigned OrderNew = NewIter->second;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">85</td>
+    <td class="codeLine">  unsigned OrderNew = NewIter->second;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">86</td>
+    <td class="codeLine">  if (OrderOld != OrderNew)</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">86</td>
+    <td class="codeLine">  if (OrderOld != OrderNew)</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">87</td>
+    <td class="codeLine">    return OrderOld < OrderNew ? &New : Old;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">87</td>
+    <td class="codeLine">    return OrderOld < OrderNew ? &New : Old;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">88</td>
+    <td class="codeLine">  // OrderOld == OrderNew, we need to iterate down from Old to see if it</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">88</td>
+    <td class="codeLine">  // OrderOld == OrderNew, we need to iterate down from Old to see if it</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">89</td>
+    <td class="codeLine">  // can reach New, if yes, New is dominated by Old.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">89</td>
+    <td class="codeLine">  // can reach New, if yes, New is dominated by Old.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">90</td>
+    <td class="codeLine">  for (MachineInstr *I = Old->getNextNode(); M.find(I)->second == OrderNew;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">90</td>
+    <td class="codeLine">  for (MachineInstr *I = Old->getNextNode(); M.find(I)->second == OrderNew;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">91</td>
+    <td class="codeLine">       I = I->getNextNode())</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">91</td>
+    <td class="codeLine">       I = I->getNextNode())</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">92</td>
+    <td class="codeLine">    if (I == &New)</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">92</td>
+    <td class="codeLine">    if (I == &New)</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">93</td>
+    <td class="codeLine">      return &New;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">93</td>
+    <td class="codeLine">      return &New;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">94</td>
+    <td class="codeLine">  return Old;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">94</td>
+    <td class="codeLine">  return Old;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">95</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">95</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">96</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">96</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">97</td>
+    <td class="codeLine">/// Builds Instruction to its dominating order number map \p M by traversing</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">97</td>
+    <td class="codeLine">/// Builds Instruction to its dominating order number map \p M by traversing</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">98</td>
+    <td class="codeLine">/// from instruction \p Start.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">98</td>
+    <td class="codeLine">/// from instruction \p Start.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">99</td>
+    <td class="codeLine">static void BuildInstOrderMap(MachineBasicBlock::iterator Start,</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">99</td>
+    <td class="codeLine">static void BuildInstOrderMap(MachineBasicBlock::iterator Start,</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">100</td>
+    <td class="codeLine">                              InstOrderMap &M) {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">100</td>
+    <td class="codeLine">                              InstOrderMap &M) {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">101</td>
+    <td class="codeLine">  M.clear();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">101</td>
+    <td class="codeLine">  M.clear();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">102</td>
+    <td class="codeLine">  unsigned i = 0;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">102</td>
+    <td class="codeLine">  unsigned i = 0;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">103</td>
+    <td class="codeLine">  for (MachineInstr &I : make_range(Start, Start->getParent()->end()))</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">103</td>
+    <td class="codeLine">  for (MachineInstr &I : make_range(Start, Start->getParent()->end()))</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">104</td>
+    <td class="codeLine">    M[&I] = i++;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">104</td>
+    <td class="codeLine">    M[&I] = i++;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">105</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">105</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">106</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">106</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">107</td>
+    <td class="codeLine">bool LiveRangeShrink::runOnMachineFunction(MachineFunction &MF) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">107</td>
+    <td class="codeLine">bool LiveRangeShrink::runOnMachineFunction(MachineFunction &MF) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">108</td>
+    <td class="codeLine">  if (skipFunction(MF.getFunction()))</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">108</td>
+    <td class="codeLine">  if (skipFunction(MF.getFunction()))</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">109</td>
+    <td class="codeLine">    return false;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">109</td>
+    <td class="codeLine">    return false;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">110</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">110</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">111</td>
+    <td class="codeLine">  MachineRegisterInfo &MRI = MF.getRegInfo();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">111</td>
+    <td class="codeLine">  MachineRegisterInfo &MRI = MF.getRegInfo();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">112</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">112</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">113</td>
+    <td class="codeLine">  LLVM_DEBUG(dbgs() << "**** Analysing " << MF.getName() << '\n');</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">113</td>
+    <td class="codeLine">  LLVM_DEBUG(dbgs() << "**** Analysing " << MF.getName() << '\n');</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">114</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">114</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">115</td>
+    <td class="codeLine">  InstOrderMap IOM;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">115</td>
+    <td class="codeLine">  InstOrderMap IOM;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">116</td>
+    <td class="codeLine">  // Map from register to instruction order (value of IOM) where the</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">116</td>
+    <td class="codeLine">  // Map from register to instruction order (value of IOM) where the</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">117</td>
+    <td class="codeLine">  // register is used last. When moving instructions up, we need to</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">117</td>
+    <td class="codeLine">  // register is used last. When moving instructions up, we need to</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">118</td>
+    <td class="codeLine">  // make sure all its defs (including dead def) will not cross its</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">118</td>
+    <td class="codeLine">  // make sure all its defs (including dead def) will not cross its</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">119</td>
+    <td class="codeLine">  // last use when moving up.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">119</td>
+    <td class="codeLine">  // last use when moving up.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">120</td>
+    <td class="codeLine">  DenseMap<unsigned, std::pair<unsigned, MachineInstr *>> UseMap;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">120</td>
+    <td class="codeLine">  DenseMap<unsigned, std::pair<unsigned, MachineInstr *>> UseMap;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">121</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">121</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">122</td>
+    <td class="codeLine">  for (MachineBasicBlock &MBB : MF) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">122</td>
+    <td class="codeLine">  for (MachineBasicBlock &MBB : MF) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">123</td>
+    <td class="codeLine">    if (MBB.empty())</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">123</td>
+    <td class="codeLine">    if (MBB.empty())</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">124</td>
+    <td class="codeLine">      continue;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">124</td>
+    <td class="codeLine">      continue;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">125</td>
+    <td class="codeLine">    bool SawStore = false;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">125</td>
+    <td class="codeLine">    bool SawStore = false;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">126</td>
+    <td class="codeLine">    BuildInstOrderMap(MBB.begin(), IOM);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">126</td>
+    <td class="codeLine">    BuildInstOrderMap(MBB.begin(), IOM);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">127</td>
+    <td class="codeLine">    UseMap.clear();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">127</td>
+    <td class="codeLine">    UseMap.clear();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">128</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">128</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">129</td>
+    <td class="codeLine">    for (MachineBasicBlock::iterator Next = MBB.begin(); Next != MBB.end();) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">129</td>
+    <td class="codeLine">    for (MachineBasicBlock::iterator Next = MBB.begin(); Next != MBB.end();) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">130</td>
+    <td class="codeLine">      MachineInstr &MI = *Next;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">130</td>
+    <td class="codeLine">      MachineInstr &MI = *Next;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">131</td>
+    <td class="codeLine">      ++Next;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">131</td>
+    <td class="codeLine">      ++Next;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">132</td>
+    <td class="codeLine">      if (MI.isPHI() || MI.isDebugOrPseudoInstr())</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">132</td>
+    <td class="codeLine">      if (MI.isPHI() || MI.isDebugOrPseudoInstr())</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">133</td>
+    <td class="codeLine">        continue;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">133</td>
+    <td class="codeLine">        continue;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">134</td>
+    <td class="codeLine">      if (MI.mayStore())</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">134</td>
+    <td class="codeLine">      if (MI.mayStore())</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">135</td>
+    <td class="codeLine">        SawStore = true;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">135</td>
+    <td class="codeLine">        SawStore = true;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">136</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">136</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">137</td>
+    <td class="codeLine">      unsigned CurrentOrder = IOM[&MI];</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">137</td>
+    <td class="codeLine">      unsigned CurrentOrder = IOM[&MI];</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">138</td>
+    <td class="codeLine">      unsigned Barrier = 0;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">138</td>
+    <td class="codeLine">      unsigned Barrier = 0;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">139</td>
+    <td class="codeLine">      MachineInstr *BarrierMI = nullptr;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">139</td>
+    <td class="codeLine">      MachineInstr *BarrierMI = nullptr;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">140</td>
+    <td class="codeLine">      for (const MachineOperand &MO : MI.operands()) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">140</td>
+    <td class="codeLine">      for (const MachineOperand &MO : MI.operands()) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">141</td>
+    <td class="codeLine">        if (!MO.isReg() || MO.isDebug())</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">141</td>
+    <td class="codeLine">        if (!MO.isReg() || MO.isDebug())</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">142</td>
+    <td class="codeLine">          continue;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">142</td>
+    <td class="codeLine">          continue;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">143</td>
+    <td class="codeLine">        if (MO.isUse())</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">143</td>
+    <td class="codeLine">        if (MO.isUse())</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">144</td>
+    <td class="codeLine">          UseMap[MO.getReg()] = std::make_pair(CurrentOrder, &MI);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">144</td>
+    <td class="codeLine">          UseMap[MO.getReg()] = std::make_pair(CurrentOrder, &MI);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">145</td>
+    <td class="codeLine">        else if (MO.isDead() && UseMap.count(MO.getReg()))</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">145</td>
+    <td class="codeLine">        else if (MO.isDead() && UseMap.count(MO.getReg()))</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">146</td>
+    <td class="codeLine">          // Barrier is the last instruction where MO get used. MI should not</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">146</td>
+    <td class="codeLine">          // Barrier is the last instruction where MO get used. MI should not</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">147</td>
+    <td class="codeLine">          // be moved above Barrier.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">147</td>
+    <td class="codeLine">          // be moved above Barrier.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">148</td>
+    <td class="codeLine">          if (Barrier < UseMap[MO.getReg()].first) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">148</td>
+    <td class="codeLine">          if (Barrier < UseMap[MO.getReg()].first) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">149</td>
+    <td class="codeLine">            Barrier = UseMap[MO.getReg()].first;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">149</td>
+    <td class="codeLine">            Barrier = UseMap[MO.getReg()].first;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">150</td>
+    <td class="codeLine">            BarrierMI = UseMap[MO.getReg()].second;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">150</td>
+    <td class="codeLine">            BarrierMI = UseMap[MO.getReg()].second;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">151</td>
+    <td class="codeLine">          }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">151</td>
+    <td class="codeLine">          }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">152</td>
+    <td class="codeLine">      }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">152</td>
+    <td class="codeLine">      }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">153</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">153</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">154</td>
+    <td class="codeLine">      if (!MI.isSafeToMove(nullptr, SawStore)) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">154</td>
+    <td class="codeLine">      if (!MI.isSafeToMove(nullptr, SawStore)) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">155</td>
+    <td class="codeLine">        // If MI has side effects, it should become a barrier for code motion.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">155</td>
+    <td class="codeLine">        // If MI has side effects, it should become a barrier for code motion.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">156</td>
+    <td class="codeLine">        // IOM is rebuild from the next instruction to prevent later</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">156</td>
+    <td class="codeLine">        // IOM is rebuild from the next instruction to prevent later</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">157</td>
+    <td class="codeLine">        // instructions from being moved before this MI.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">157</td>
+    <td class="codeLine">        // instructions from being moved before this MI.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">158</td>
+    <td class="codeLine">        if (MI.hasUnmodeledSideEffects() && !MI.isPseudoProbe() &&</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">158</td>
+    <td class="codeLine">        if (MI.hasUnmodeledSideEffects() && !MI.isPseudoProbe() &&</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">159</td>
+    <td class="codeLine">            Next != MBB.end()) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">159</td>
+    <td class="codeLine">            Next != MBB.end()) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">160</td>
+    <td class="codeLine">          BuildInstOrderMap(Next, IOM);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">160</td>
+    <td class="codeLine">          BuildInstOrderMap(Next, IOM);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">161</td>
+    <td class="codeLine">          SawStore = false;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">161</td>
+    <td class="codeLine">          SawStore = false;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">162</td>
+    <td class="codeLine">        }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">162</td>
+    <td class="codeLine">        }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">163</td>
+    <td class="codeLine">        continue;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">163</td>
+    <td class="codeLine">        continue;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">164</td>
+    <td class="codeLine">      }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">164</td>
+    <td class="codeLine">      }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">165</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">165</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">166</td>
+    <td class="codeLine">      const MachineOperand *DefMO = nullptr;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">166</td>
+    <td class="codeLine">      const MachineOperand *DefMO = nullptr;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">167</td>
+    <td class="codeLine">      MachineInstr *Insert = nullptr;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">167</td>
+    <td class="codeLine">      MachineInstr *Insert = nullptr;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">168</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">168</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">169</td>
+    <td class="codeLine">      // Number of live-ranges that will be shortened. We do not count</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">169</td>
+    <td class="codeLine">      // Number of live-ranges that will be shortened. We do not count</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">170</td>
+    <td class="codeLine">      // live-ranges that are defined by a COPY as it could be coalesced later.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">170</td>
+    <td class="codeLine">      // live-ranges that are defined by a COPY as it could be coalesced later.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">171</td>
+    <td class="codeLine">      unsigned NumEligibleUse = 0;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">171</td>
+    <td class="codeLine">      unsigned NumEligibleUse = 0;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">172</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">172</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">173</td>
+    <td class="codeLine">      for (const MachineOperand &MO : MI.operands()) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">173</td>
+    <td class="codeLine">      for (const MachineOperand &MO : MI.operands()) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">174</td>
+    <td class="codeLine">        if (!MO.isReg() || MO.isDead() || MO.isDebug())</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">174</td>
+    <td class="codeLine">        if (!MO.isReg() || MO.isDead() || MO.isDebug())</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">175</td>
+    <td class="codeLine">          continue;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">175</td>
+    <td class="codeLine">          continue;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">176</td>
+    <td class="codeLine">        Register Reg = MO.getReg();</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">176</td>
+    <td class="codeLine">        Register Reg = MO.getReg();</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">177</td>
+    <td class="codeLine">        // Do not move the instruction if it def/uses a physical register,</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">177</td>
+    <td class="codeLine">        // Do not move the instruction if it def/uses a physical register,</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">178</td>
+    <td class="codeLine">        // unless it is a constant physical register or a noreg.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">178</td>
+    <td class="codeLine">        // unless it is a constant physical register or a noreg.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">179</td>
+    <td class="codeLine">        if (!Reg.isVirtual()) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">179</td>
+    <td class="codeLine">        if (!Reg.isVirtual()) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">180</td>
+    <td class="codeLine">          if (!Reg || MRI.isConstantPhysReg(Reg))</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">180</td>
+    <td class="codeLine">          if (!Reg || MRI.isConstantPhysReg(Reg))</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">181</td>
+    <td class="codeLine">            continue;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">181</td>
+    <td class="codeLine">            continue;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">182</td>
+    <td class="codeLine">          Insert = nullptr;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">182</td>
+    <td class="codeLine">          Insert = nullptr;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">183</td>
+    <td class="codeLine">          break;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">183</td>
+    <td class="codeLine">          break;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">184</td>
+    <td class="codeLine">        }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">184</td>
+    <td class="codeLine">        }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">185</td>
+    <td class="codeLine">        if (MO.isDef()) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">185</td>
+    <td class="codeLine">        if (MO.isDef()) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">186</td>
+    <td class="codeLine">          // Do not move if there is more than one def.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">186</td>
+    <td class="codeLine">          // Do not move if there is more than one def.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">187</td>
+    <td class="codeLine">          if (DefMO) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">187</td>
+    <td class="codeLine">          if (DefMO) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">188</td>
+    <td class="codeLine">            Insert = nullptr;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">188</td>
+    <td class="codeLine">            Insert = nullptr;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">189</td>
+    <td class="codeLine">            break;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">189</td>
+    <td class="codeLine">            break;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">190</td>
+    <td class="codeLine">          }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">190</td>
+    <td class="codeLine">          }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">191</td>
+    <td class="codeLine">          DefMO = &MO;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">191</td>
+    <td class="codeLine">          DefMO = &MO;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">192</td>
+    <td class="codeLine">        } else if (MRI.hasOneNonDBGUse(Reg) && MRI.hasOneDef(Reg) && DefMO &&</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">192</td>
+    <td class="codeLine">        } else if (MRI.hasOneNonDBGUse(Reg) && MRI.hasOneDef(Reg) && DefMO &&</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">193</td>
+    <td class="codeLine">                   MRI.getRegClass(DefMO->getReg()) ==</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">193</td>
+    <td class="codeLine">                   MRI.getRegClass(DefMO->getReg()) ==</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">194</td>
+    <td class="codeLine">                       MRI.getRegClass(MO.getReg())) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">194</td>
+    <td class="codeLine">                       MRI.getRegClass(MO.getReg())) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">195</td>
+    <td class="codeLine">          // The heuristic does not handle different register classes yet</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">195</td>
+    <td class="codeLine">          // The heuristic does not handle different register classes yet</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">196</td>
+    <td class="codeLine">          // (registers of different sizes, looser/tighter constraints). This</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">196</td>
+    <td class="codeLine">          // (registers of different sizes, looser/tighter constraints). This</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">197</td>
+    <td class="codeLine">          // is because it needs more accurate model to handle register</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">197</td>
+    <td class="codeLine">          // is because it needs more accurate model to handle register</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">198</td>
+    <td class="codeLine">          // pressure correctly.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">198</td>
+    <td class="codeLine">          // pressure correctly.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">199</td>
+    <td class="codeLine">          MachineInstr &DefInstr = *MRI.def_instr_begin(Reg);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">199</td>
+    <td class="codeLine">          MachineInstr &DefInstr = *MRI.def_instr_begin(Reg);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">200</td>
+    <td class="codeLine">          if (!DefInstr.isCopy())</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">200</td>
+    <td class="codeLine">          if (!DefInstr.isCopy())</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">201</td>
+    <td class="codeLine">            NumEligibleUse++;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">201</td>
+    <td class="codeLine">            NumEligibleUse++;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">202</td>
+    <td class="codeLine">          Insert = FindDominatedInstruction(DefInstr, Insert, IOM);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">202</td>
+    <td class="codeLine">          Insert = FindDominatedInstruction(DefInstr, Insert, IOM);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">203</td>
+    <td class="codeLine">        } else {</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">203</td>
+    <td class="codeLine">        } else {</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">204</td>
+    <td class="codeLine">          Insert = nullptr;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">204</td>
+    <td class="codeLine">          Insert = nullptr;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">205</td>
+    <td class="codeLine">          break;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">205</td>
+    <td class="codeLine">          break;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">206</td>
+    <td class="codeLine">        }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">206</td>
+    <td class="codeLine">        }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">207</td>
+    <td class="codeLine">      }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">207</td>
+    <td class="codeLine">      }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">208</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">208</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">209</td>
+    <td class="codeLine">      // If Barrier equals IOM[I], traverse forward to find if BarrierMI is</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">209</td>
+    <td class="codeLine">      // If Barrier equals IOM[I], traverse forward to find if BarrierMI is</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">210</td>
+    <td class="codeLine">      // after Insert, if yes, then we should not hoist.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">210</td>
+    <td class="codeLine">      // after Insert, if yes, then we should not hoist.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">211</td>
+    <td class="codeLine">      for (MachineInstr *I = Insert; I && IOM[I] == Barrier;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">211</td>
+    <td class="codeLine">      for (MachineInstr *I = Insert; I && IOM[I] == Barrier;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">212</td>
+    <td class="codeLine">           I = I->getNextNode())</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">212</td>
+    <td class="codeLine">           I = I->getNextNode())</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">213</td>
+    <td class="codeLine">        if (I == BarrierMI) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">213</td>
+    <td class="codeLine">        if (I == BarrierMI) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">214</td>
+    <td class="codeLine">          Insert = nullptr;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">214</td>
+    <td class="codeLine">          Insert = nullptr;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">215</td>
+    <td class="codeLine">          break;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">215</td>
+    <td class="codeLine">          break;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">216</td>
+    <td class="codeLine">        }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">216</td>
+    <td class="codeLine">        }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">217</td>
+    <td class="codeLine">      // Move the instruction when # of shrunk live range > 1.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">217</td>
+    <td class="codeLine">      // Move the instruction when # of shrunk live range > 1.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">218</td>
+    <td class="codeLine">      if (DefMO && Insert && NumEligibleUse > 1 && Barrier <= IOM[Insert]) {</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">218</td>
+    <td class="codeLine">      if (DefMO && Insert && NumEligibleUse > 1 && Barrier <= IOM[Insert]) {</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">219</td>
+    <td class="codeLine">        MachineBasicBlock::iterator I = std::next(Insert->getIterator());</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">219</td>
+    <td class="codeLine">        MachineBasicBlock::iterator I = std::next(Insert->getIterator());</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">220</td>
+    <td class="codeLine">        // Skip all the PHI and debug instructions.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">220</td>
+    <td class="codeLine">        // Skip all the PHI and debug instructions.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">221</td>
+    <td class="codeLine">        while (I != MBB.end() && (I->isPHI() || I->isDebugOrPseudoInstr()))</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">221</td>
+    <td class="codeLine">        while (I != MBB.end() && (I->isPHI() || I->isDebugOrPseudoInstr()))</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">222</td>
+    <td class="codeLine">          I = std::next(I);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">222</td>
+    <td class="codeLine">          I = std::next(I);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">223</td>
+    <td class="codeLine">        if (I == MI.getIterator())</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">223</td>
+    <td class="codeLine">        if (I == MI.getIterator())</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">224</td>
+    <td class="codeLine">          continue;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">224</td>
+    <td class="codeLine">          continue;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">225</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">225</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">226</td>
+    <td class="codeLine">        // Update the dominator order to be the same as the insertion point.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">226</td>
+    <td class="codeLine">        // Update the dominator order to be the same as the insertion point.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">227</td>
+    <td class="codeLine">        // We do this to maintain a non-decreasing order without need to update</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">227</td>
+    <td class="codeLine">        // We do this to maintain a non-decreasing order without need to update</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">228</td>
+    <td class="codeLine">        // all instruction orders after the insertion point.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">228</td>
+    <td class="codeLine">        // all instruction orders after the insertion point.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">229</td>
+    <td class="codeLine">        unsigned NewOrder = IOM[&*I];</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">229</td>
+    <td class="codeLine">        unsigned NewOrder = IOM[&*I];</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">230</td>
+    <td class="codeLine">        IOM[&MI] = NewOrder;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">230</td>
+    <td class="codeLine">        IOM[&MI] = NewOrder;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">231</td>
+    <td class="codeLine">        NumInstrsHoistedToShrinkLiveRange++;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">231</td>
+    <td class="codeLine">        NumInstrsHoistedToShrinkLiveRange++;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">232</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">232</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">233</td>
+    <td class="codeLine">        // Find MI's debug value following MI.</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">233</td>
+    <td class="codeLine">        // Find MI's debug value following MI.</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">234</td>
+    <td class="codeLine">        MachineBasicBlock::iterator EndIter = std::next(MI.getIterator());</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">234</td>
+    <td class="codeLine">        MachineBasicBlock::iterator EndIter = std::next(MI.getIterator());</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">235</td>
+    <td class="codeLine">        if (MI.getOperand(0).isReg())</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">235</td>
+    <td class="codeLine">        if (MI.getOperand(0).isReg())</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">236</td>
+    <td class="codeLine">          for (; EndIter != MBB.end() && EndIter->isDebugValue() &&</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">236</td>
+    <td class="codeLine">          for (; EndIter != MBB.end() && EndIter->isDebugValue() &&</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">237</td>
+    <td class="codeLine">                 EndIter->hasDebugOperandForReg(MI.getOperand(0).getReg());</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">237</td>
+    <td class="codeLine">                 EndIter->hasDebugOperandForReg(MI.getOperand(0).getReg());</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">238</td>
+    <td class="codeLine">               ++EndIter, ++Next)</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">238</td>
+    <td class="codeLine">               ++EndIter, ++Next)</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">239</td>
+    <td class="codeLine">            IOM[&*EndIter] = NewOrder;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">239</td>
+    <td class="codeLine">            IOM[&*EndIter] = NewOrder;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">240</td>
+    <td class="codeLine">        MBB.splice(I, &MBB, MI.getIterator(), EndIter);</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">240</td>
+    <td class="codeLine">        MBB.splice(I, &MBB, MI.getIterator(), EndIter);</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">241</td>
+    <td class="codeLine">      }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">241</td>
+    <td class="codeLine">      }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">242</td>
+    <td class="codeLine">    }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">242</td>
+    <td class="codeLine">    }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">243</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">243</td>
+    <td class="codeLine">  }</td>
+    <td class="lineNumber">---</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">244</td>
+    <td class="codeLine">  return false;</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">244</td>
+    <td class="codeLine">  return false;</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">245</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">0</td>
+    <td class="lineNumber">245</td>
+    <td class="codeLine">}</td>
+    <td class="lineNumber">0</td>
+  </tr>
+  <tr class="mainTr">
+    <td class="lineNumber">246</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+    <td class="lineNumber">246</td>
+    <td class="codeLine"></td>
+    <td class="lineNumber">---</td>
+  </tr>
+</table>
+    </div>
+    <button id="myBtn" onclick="topFunction()" title="Go to top" type="button">Top</button>
+    <script src="../Javascript/drop_down.js"></script>
+    <script src="../Javascript/top_button.js"></script>
+  </body>
+</html>
