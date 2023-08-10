@@ -1,6 +1,6 @@
 # Pokretanje alata *CovDiff* nad jednostavnim projektom
 
-Alat *CovDif* pokrenut je nad projektom koji sadrži samo jednu datoteku. Datoteka sadži implementaciju funkcija za sabiranje oduzimanje, množenje i pronalaženje maksimuma vrednosti dva realna broja. Sadrža datoteke se može videti ispod:
+Alat *CovDif* pokrenut je nad projektom koji sadrži samo jednu datoteku. Datoteka sadži implementaciju funkcija za sabiranje oduzimanje, množenje i pronalaženje maksimuma vrednosti dva realna broja. Sadrža [datoteke](./results_lib/arithmetic.c) se može videti ispod:
 
 ```C
 #include "arithmetic.h"
@@ -26,7 +26,7 @@ double max(double a, double b){
 
 Formirana su dva test primera koja testiraju rad ovih funkcija. 
 
-Prvi test primer:
+[Prvi test primer](./results_lib/test1.c):
 ```C
 #include "../lib/arithmetic.h"
 
@@ -38,7 +38,7 @@ int main(){
     return 0;
 }
 ```
-Drugi test primer:
+[Drugi test primer](./results_lib/test2.c):
 ```C
 #include "../lib/arithmetic.h"
 
@@ -58,7 +58,9 @@ Alat *CovDiff* je pokrenut nad ovim projektom sledećom komandom:
 python3 covdiff.py ~/Desktop/CodeCoverage/Test/lib ../CodeCoverage/Test/lib_tests/test1 ../CodeCoverage/Test/lib_tests/test2 ./results_lib ./
 ```
 
-Razlike u pokrivenosti koda se prave u funkcije za oduzimanje i pronalaženje maksimuma u korist prvog testa, odnosno u funkciji za množenje u korist drugog testa. Prikaz razlika u pokrivenosti koda sa ova dva testa i uporedni prikaz pokrivenih linija se može videti na slikama ispod. Kompletan izeštaj u formatu *html* je dostupan [ovde](./results_lib/html/).
+Razlike u pokrivenosti koda se prave u funkcije za oduzimanje i pronalaženje maksimuma u korist prvog testa, odnosno u funkciji za množenje u korist drugog testa. Prikaz razlika u pokrivenosti koda sa ova dva testa i uporedni prikaz pokrivenih linija se može videti na slikama ispod. 
+
+> Kompletan izeštaj u formatu *html* je dostupan [ovde](./results_lib/html/).
 
 ### Prikaz razlika
 ![Prikaz razlika](../screenshots/mali_primer_prikaz_razlika.png)
@@ -126,8 +128,9 @@ Alat *CovDiff* je pokrenut sledećom komandom:
 python3 covdiff.py ~/llvm_builds/llvm-clang-coverage-build  ../DebugInfoTest/example_mips_dbg.ll ../DebugInfoTest/example_mips.ll ./results_llvm ~/llvm_builds/llvm-clang-coverage-build/bin/llc mtriple=mips O2 o llc_out.s
 ```
 
-Kompletni rezultati ovog pokretanja dostupni su [ovde](./results_llvm/html/).
 Alat *CovDiff* je pri ovom pokretanju obradio 1293 datoteka formata *.gcda* nastalih nakon pokretanja testa ```example_mips_dbg.ll``` i 1247 datoteka formata *.gcda* nastalih nakon pokratanja testa  ```example_mips.ll```. 
+
+> Kompletan izveštaj ovog pokretanja u formatu *html* dostupan je [ovde](./results_llvm/html/).
 
 Na slici ispod se može videti da je ubačeni deo koda u prolaz *RemoveRedundantDebugValues* prisutan u razlikama u pokrivenosti koda projekta *LLVM* prvim testom u odnosu na drugi test. Pregledom tih rezultata korisnik alata može lako uočiti grešku u izvornom kodu projekta *LLVM* i otkloniti je.
 
