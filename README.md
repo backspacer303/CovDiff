@@ -94,20 +94,8 @@ ukoliko je jedan od argumenata komande opcija `o` sledećem u nizu argumenata ne
 
 `--object-path` - opcija koja se mođe navesti uz `--source-file` a koja označava putanju do objektne datoteke kompilacione jedinice od interesa (a samim tim i gcno/gcda datoteke). Tada se ne vrši rekurzivni obilazak celog build direktorijuma već se direktno pristupa zadatoj lokaciji pa se i rezultat dobija brže
 
-### Primer pokretanja
-Primer 1 - Pokretanje alata ukoliko su testovi sami po sebi izvršne datoteke
-```bash
-python3 covdiff.py ~/Desktop/lib_build/ ~/Desktop/lib_test/test1 ~/Desktop/lib_test/test2 ./results ./
-```
-Primer 2 - Pokretanje alata nad projektom *LLVM*
-```bash
-python3 covdiff.py ~/Desktop/ClangCoverageBuild ./bbi-70612_typed.ll ./bbi-70612_typed_no_llvmdbg.ll ./results ~/Desktop/ClangCoverageBuild/bin/opt opaque-pointers=0 O2 S o opt_out.ll
-```
-<br>
-
----
-> Rezultati pokretanja alata nad projektom *LLVM* komandom iz primera 2, mogu se preuzeti na [ovoj adresi](https://drive.google.com/drive/folders/1vGo_d2THwaoFHrfzuAzkI46bw06fiHqn?usp=share_link). Tu su dostupni i izvorni kodovi testova koji su tom prilikom pokrenuti.
----
+## Primeri pokretanja alata
+Primere pokretanja alata *CovDiff* moguće je pogledati u okviru dirktorijuma [Examples](./Examples/). Tu su dostupni i rezultati pokretanja alata nad jednostavnim projektom ali i rezultai pokretanja nad projektom *LLVM*.
 
 <br>
 
