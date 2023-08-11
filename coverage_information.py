@@ -1,6 +1,6 @@
 # Klasa odgovorna za cuvanje informacija o pokrivenosti koda
-# jedne kompilacione jedinice. 
-class CUCoverageInformation:
+# jedne izvorne datoteke.
+class SFCoverageInformation:
 
     def __init__(self):
         
@@ -18,11 +18,11 @@ class CUCoverageInformation:
         self.functionHitCount = None
     
     def __str__(self):
-        CUstr = ""
-        CUstr += self.name + "\n"        
-        CUstr += "Covered lines: " + str(self.coveredLines) + "\n"
-        CUstr += "Function hit count:" + "\n"
+        SFstr = ""
+        SFstr += self.name + "\n"
+        SFstr += "Covered lines: " + str(self.coveredLines) + "\n"
+        SFstr += "Function hit count:" + "\n"
         for fName, count in self.functionHitCount.items():
-            CUstr += "\t" + fName + "  ----->  " + str(count) + "\n"
-        return CUstr
+            SFstr += "\t" + fName + "  ----->  " + str(count) + "\n"
+        return SFstr
 

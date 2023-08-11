@@ -5,27 +5,27 @@ import shutil
 from airium import Airium
 
 # Klasa generise finalni prikaz razlika u pokrivenosti koda.
-# Zaduzena je za formiranje pocetna stranice i stranica za pojedinacne kompilacione jedinice.
+# Zaduzena je za formiranje pocetna stranice i stranica za pojedinacne izvorne datoteke.
 class HtmlReport:
 
-    def __init__(self, buildCoverage1, buildCoverage2, coverageInfoDest):
+    def __init__(self, projectCoverage1, projectCoverage2, coverageInfoDest):
 
-        self.buildCoverage1 = buildCoverage1
-        self.buildCoverage2 = buildCoverage2
+        self.projectCoverage1 = projectCoverage1
+        self.projectCoverage2 = projectCoverage2
         self.coverageInfoDest = coverageInfoDest
 
-        self.reports_1 = self.buildCoverage1.reports
-        self.reports_2 = self.buildCoverage2.reports
+        self.reports_1 = self.projectCoverage1.reports
+        self.reports_2 = self.projectCoverage2.reports
 
-        self.numOfSameCUNames = 1
+        self.numOfSameSFNames = 1
 
-        # Mapa koja preslikava naziv kompilacione jedinice u html stranicu koja joj odgovara.
-        self.CUToHtmlPage = {}
+        # Mapa koja preslikava naziv izvorne datoteke u html stranicu koja joj odgovara.
+        self.SFToHtmlPage = {}
 
-        # Promenljive koje se koriste pri paralelnom generisanju html izvestaja za CU.
-        # Videti funkciju generateIndividualPagesforAllCU().
+        # Promenljive koje se koriste pri paralelnom generisanju html izvestaja za izvorne datoteke.
+        # Videti funkciju generateIndividualPagesforAllSF().
         # Ovde su njihove deklaracije, bice postavljne u pomenutoj funkciji koja ujedno i formira decu-procese.
-        self.allCUList = None
+        self.allSFList = None
         self.numOfWorkers = None
 
     # Funkcija generise pocetnu stranicu izvestaja o pokrivenosti projekta.
@@ -51,26 +51,26 @@ class HtmlReport:
                 with a.div(klass="parent"):
 
                     with a.div(klass="float-child"):
-                        a(self.generateMiniReport(self.buildCoverage1.miniReport, self.buildCoverage1.test))
+                        a(self.generateMiniReport(self.projectCoverage1.miniReport, self.projectCoverage1.test))
 
                     with a.div(klass="float-child"):
-                        a(self.generateMiniReport(self.buildCoverage2.miniReport, self.buildCoverage2.test))
+                        a(self.generateMiniReport(self.projectCoverage2.miniReport, self.projectCoverage2.test))
 
                 # Tabela u padajucem elementu sa svim pokrivenih datotekama.
-                a.button(_t="Open All Compilation Unit Code Coverage", klass="collapsible", type="button")
+                a.button(_t="Open All Source Files Code Coverage", klass="collapsible", type="button")
                 with a.div(klass="content", style="display: none;"):
                     a.hr()
-                    a.h3(_t="All Compilation Unit Code Coverage", klass="subheader")
-                    a.input(type="text", klass="myInput", id="AllCUSearch", onkeyup="myFunction(\"AllCUSearch\",\"AllCUTable\")", placeholder="Search for CU names..")
-                    a(self.generateAllCUList())
+                    a.h3(_t="All Source Files Code Coverage", klass="subheader")
+                    a.input(type="text", klass="myInput", id="AllSFSearch", onkeyup="myFunction(\"AllSFSearch\",\"AllSFTable\")", placeholder="Search for SF names..")
+                    a(self.generateAllSFList())
 
                 # Tabela u padajucem elementu sa datotekama u kojima postije razlike u pokrivenosti.
-                a.button(_t="Open Compilation Unit Code Coverage Diff", klass="collapsible", type="button")
+                a.button(_t="Open Source Files Code Coverage Diff", klass="collapsible", type="button")
                 with a.div(klass="content", style="display: none;"):
                     a.hr()
-                    a.h3(_t="Compilation Unit Code Coverage Diff", klass="subheader")
-                    a.input(type="text", klass="myInput", id="CUDiffSearch", onkeyup="myFunction(\"CUDiffSearch\",\"CUDiffTable\")", placeholder="Search for CU names..")
-                    a(self.generateCUDiffList())
+                    a.h3(_t="Source Files Code Coverage Diff", klass="subheader")
+                    a.input(type="text", klass="myInput", id="SFDiffSearch", onkeyup="myFunction(\"SFDiffSearch\",\"SFDiffTable\")", placeholder="Search for SF names..")
+                    a(self.generateSFDiffList())
 
                 # Dugme za povratak na vrh stranice.
                 a.button(_t="Top", id="myBtn", onclick="topFunction()", title="Go to top", type="button")
@@ -86,13 +86,13 @@ class HtmlReport:
         with open(htmlFileName, "w") as f:
             f.write(pageStr)
 
-    # Genersi listu svih pogodjenih kompilacionih jedinica 
+    # Genersi listu svih pogodjenih izvornih datoteka
     # i procenat pokrivenosti jednim i drugim testom.
-    def generateAllCUList(self):
+    def generateAllSFList(self):
         a = Airium()
 
-        # Generise se tabela sa informacijama za sve kompilacione jedinice.
-        with a.table(klass="mainTable", id="AllCUTable"):
+        # Generise se tabela sa informacijama za sve izvorne datoteke.
+        with a.table(klass="mainTable", id="AllSFTable"):
 
             # Gnerise se zaglavlje tabele.
             with a.tr(klass="mainTr"):
@@ -100,28 +100,28 @@ class HtmlReport:
                 a.th(_t="Source file absolute path", klass="mainTh")
 
                 with a.th(klass="mainTh"):
-                    a.span(_t=self.buildCoverage1.test, klass="badge")
+                    a.span(_t=self.projectCoverage1.test, klass="badge")
 
                 with a.th(klass="mainTh"):
-                    a.span(_t=self.buildCoverage2.test, klass="badge")
+                    a.span(_t=self.projectCoverage2.test, klass="badge")
 
-            # Pravi se unija CU koje su pokrivene i jednim i drugim testom.
+            # Pravi se unija izvornih datoteka koje su pokrivene i jednim i drugim testom.
             # To ce biti unija kljuceva recnika.
             sourceFileUnion = set(self.reports_1.keys()).union(set(self.reports_2.keys()))
             print(len(sourceFileUnion))
 
             for file in sourceFileUnion:
 
-                # Dohvata se odgovarajuca html stranica za tekucu CU.       
-                htmlPageLink = self.CUToHtmlPage[file]
+                # Dohvata se odgovarajuca html stranica za tekucu izvornu datoteku.
+                htmlPageLink = self.SFToHtmlPage[file]
 
-                # Ispisujemo svaku CU kao link na koje ce kasnije moci da se klikne
-                # cime se otvara stranica sa detaljnijim izvestajem za tu CU.
+                # Ispisuje se naziv svake izvorne datoteke kao link na koji moze da se klikne
+                # cime se otvara stranica sa detaljnijim izvestajem za tu izvornu datoteku.
                 with a.tr(klass="mainTr"):
                     with a.td():
                         a.a(_t=file, href=htmlPageLink, target="_blank")
 
-                    # Za tekucu CU racunamo koji procenat njenih linija je pokriven prvim testom
+                    # Za tekucu izvornu datoteku racunamo koji procenat njenih linija je pokriven prvim testom
                     # a koji procenat je pokriven drugim testom.
                     test1_percentageCoverage = 0
                     test2_percentageCoverage = 0
@@ -169,13 +169,13 @@ class HtmlReport:
 
         return str(a)
 
-    # Generise listu kompilacionih jedinica u kojima postoje
+    # Generise listu izvornih datoteka u kojima postoje
     # neke razlike u pokrivenosti koda.
-    def generateCUDiffList(self):
+    def generateSFDiffList(self):
         a = Airium()
 
-        # Generise se tabela sa informacijama za sve kompilacione jedinice.
-        with a.table(klass="mainTable", id="CUDiffTable"):
+        # Generise se tabela sa informacijama za sve izvorne datoteke.
+        with a.table(klass="mainTable", id="SFDiffTable"):
 
             # Gnerise se zaglavlje tabele.
             with a.tr(klass="mainTr"):
@@ -183,12 +183,12 @@ class HtmlReport:
                 a.th(_t="Source file absolute path", klass="mainTh")
 
                 with a.th(klass="mainTh"):
-                    a.span(_t=self.buildCoverage1.test, klass="badge")
+                    a.span(_t=self.projectCoverage1.test, klass="badge")
 
                 with a.th(klass="mainTh"):
-                    a.span(_t=self.buildCoverage2.test, klass="badge")
+                    a.span(_t=self.projectCoverage2.test, klass="badge")
 
-            # Pravi se unija CU koje su pokrivene i jednim i drugim testom.
+            # Pravi se unija izvornih datoteka koje su pokrivene i jednim i drugim testom.
             # To ce biti unija kljuceva recnika.
             sourceFileUnion = set(self.reports_1.keys()).union(set(self.reports_2.keys()))
             print(len(sourceFileUnion))
@@ -210,7 +210,7 @@ class HtmlReport:
                 t1Difft2 = coveredLines_test1.difference(coveredLines_test2)
                 t2Difft1 = coveredLines_test2.difference(coveredLines_test1)
 
-                # Ako posoji neka razlika, CU se ispisuje u listu.
+                # Ako posoji neka razlika, izvorna datoteka se ispisuje u listu.
                 if t1Difft2 or t2Difft1:
 
                     test1_percentageCoverage = 0
@@ -230,11 +230,11 @@ class HtmlReport:
                     test1_percentageCoverage = round(test1_percentageCoverage, 3)
                     test2_percentageCoverage = round(test2_percentageCoverage, 3)
 
-                    # Dohvata se odgovarajuca html stranica za tekucu CU.                
-                    htmlPageLink = self.CUToHtmlPage[file]
+                    # Dohvata se odgovarajuca html stranica za tekucu izvornu datoteku.
+                    htmlPageLink = self.SFToHtmlPage[file]
 
-                    # Ispisujemo svaku CU kao link na koje ce kasnije moci da se klikne
-                    # cime se otvara stranica sa detaljnijim izvestajem za tu CU.
+                    # Ispisuje se naziv svake izvorne datoteke kao link na koji moze da se klikne
+                    # cime se otvara stranica sa detaljnijim izvestajem za tu izvornu datoteku.
                     with a.tr(klass="mainTr"):
 
                         with a.td():
@@ -299,15 +299,15 @@ class HtmlReport:
 
     # =============================================================================================
 
-    # Funkcija prolazi kroz sve CU koje su pogodjene nekim od testova i
+    # Funkcija prolazi kroz sve izvorne datoteke koje su pogodjene nekim od testova i
     # za svaku formira html stranicu.
-    def generateIndividualPagesforAllCU(self):
+    def generateIndividualPagesforAllSF(self):
 
-        self.allCUList = list(set(self.reports_1.keys()).union(set(self.reports_2.keys())))     
+        self.allSFList = list(set(self.reports_1.keys()).union(set(self.reports_2.keys())))
         self.numOfWorkers = 4
 
-        global numOfSameCUNames_lock
-        numOfSameCUNames_lock = multiprocessing.Lock()
+        global numOfSameSFNames_lock
+        numOfSameSFNames_lock = multiprocessing.Lock()
 
         # NAPOMENA: Pri generisanju stranica u html formatu pomocu niti procesa problem pravi
         # koncept "Global Interpreter Lock (GIL)" koji onemogucava nitima da paralelno citaju
@@ -320,30 +320,30 @@ class HtmlReport:
         # Pravi se skup dece-procesa.
         with multiprocessing.Pool(processes=self.numOfWorkers) as pool:
 
-            results = pool.map_async(self.threadFn, self.allCUList, chunksize=100)
+            results = pool.map_async(self.threadFn, self.allSFList, chunksize=100)
 
             results.wait()
 
             for r in results.get():
-                self.CUToHtmlPage[r[0]] = r[1]
+                self.SFToHtmlPage[r[0]] = r[1]
 
             pool.close()
             pool.join()
 
     # Funkica koji izvrsava svako radnik.
     def threadFn(self, sourceFile):
-        hrefValue = self.generateCUPage(sourceFile)
+        hrefValue = self.generateSFPage(sourceFile)
         return (sourceFile, hrefValue)
 
     # =============================================================================================
 
-    # Funkcija generise stranicu za pojedninace CU i vraca vezu ka njoj.
+    # Funkcija generise stranicu za pojedninace izvorne datoteke i vraca vezu ka njoj.
     # Stranica sadrzi:
     #    - Zbirni izvesta
     #    - Izvestaj o funkcijama
     #    - Izvestaj o razlikama
     #    - Uporedni prikaz pokrivenih linija        
-    def generateCUPage(self, sourceFile):
+    def generateSFPage(self, sourceFile):
 
         a = Airium()
 
@@ -374,14 +374,14 @@ class HtmlReport:
                 with a.div(klass="content", style="display: none;"):
                     a.hr()
                     a.h3(_t="Summary Report", klass="subheader")
-                    a(self.coveredLinesHtml(sourceFile, lines))
+                    a(self.generateCoveredLinesHtml(sourceFile, lines))
 
                 # Generise se izvestaj o funkcijama.
                 a.button(_t="Open Functions Report", klass="collapsible", type="button")
                 with a.div(klass="content", style="display: none;"):
                     a.hr()
                     a.h3(_t="Functions Report", klass="subheader")
-                    a(self.coveredFunctionsHtml(sourceFile))
+                    a(self.generateCoveredFunctionsHtml(sourceFile))
 
                 # Generise se izvestaj o razlikama u pokrivenosti linija.
                 a.button(_t="Open Coverage Diff", klass="collapsible", type="button")
@@ -413,20 +413,20 @@ class HtmlReport:
 
         if os.path.exists(htmlFileName):
 
-            # self.numOfSameCUNames je deljeni resurs koji deca-procesi mogu da citaju i uvecavaju istovremeno.
+            # self.numOfSameSFNames je deljeni resurs koji deca-procesi mogu da citaju i uvecavaju istovremeno.
             # Potrebno sinhronizovati njegovo koriscenje da ne bi doslo do progresnih rezultata.
-            with numOfSameCUNames_lock:
-                htmlFileName = self.coverageInfoDest + '/html/Pages/' + baseName + "_" + str(self.numOfSameCUNames) + ".html"
-                hrefValue = "./Pages/" +  baseName + "_" + str(self.numOfSameCUNames) + ".html"
-                self.numOfSameCUNames += 1
+            with numOfSameSFNames_lock:
+                htmlFileName = self.coverageInfoDest + '/html/Pages/' + baseName + "_" + str(self.numOfSameSFNames) + ".html"
+                hrefValue = "./Pages/" +  baseName + "_" + str(self.numOfSameSFNames) + ".html"
+                self.numOfSameSFNames += 1
 
         with open(htmlFileName, "w") as f:
             f.write(pageStr)
 
         return hrefValue
 
-    # Funkcija generise zbirni izvestaj o pokrivenosti linija testovima za jednu CU.
-    def coveredLinesHtml(self, sourceFile, lines):
+    # Funkcija generise zbirni izvestaj o pokrivenosti linija testovima za jednu izvornu datoteku.
+    def generateCoveredLinesHtml(self, sourceFile, lines):
 
         a = Airium()   
 
@@ -466,7 +466,7 @@ class HtmlReport:
                 # Dohvataju se informacije o liniji iz prvog izvestaja (prvi test).
                 if report1 != None:
                     if lineNumber in report1.coveredLines:
-                        testsCoveringLine.append(self.buildCoverage1.test)
+                        testsCoveringLine.append(self.projectCoverage1.test)
                     if lineNumber in report1.linesOfInterest:
                         isLineOfInterest = True
                         lineNumberOfHits += report1.lineHitCount[lineNumber]
@@ -474,7 +474,7 @@ class HtmlReport:
                 # Dohvataju se informacije o liniji iz drugog izvestaja (drugi test).
                 if report2 != None:
                     if lineNumber in report2.coveredLines:
-                        testsCoveringLine.append(self.buildCoverage2.test)
+                        testsCoveringLine.append(self.projectCoverage2.test)
                     if lineNumber in report2.linesOfInterest:
                         isLineOfInterest = True
                         lineNumberOfHits += report2.lineHitCount[lineNumber]
@@ -504,8 +504,8 @@ class HtmlReport:
 
         return str(a)
 
-    # Funkcija generise zbirni izvestaj o broju poziva funkcija jedne CU.
-    def coveredFunctionsHtml(self, sourceFile):
+    # Funkcija generise zbirni izvestaj o broju poziva funkcija jedne izvorne datoteke.
+    def generateCoveredFunctionsHtml(self, sourceFile):
 
         a = Airium()
 
@@ -550,7 +550,7 @@ class HtmlReport:
 
         return str(a)
 
-    # Funkcija genersie izvestaj o razlikama u pokrivenosti linija izmedju dva testa za jednu CU.
+    # Funkcija genersie izvestaj o razlikama u pokrivenosti linija izmedju dva testa za jednu izvornu datoteku.
     def generateCoverageDiffHtml(self, sourceFile, lines):
 
         # Dohavataju se skupovi pokrivenih linija.
@@ -565,8 +565,8 @@ class HtmlReport:
             r2_coveredLines = set()
 
         # Dohvataju se imena testoma.
-        test1_name = self.buildCoverage1.test
-        test2_name = self.buildCoverage2.test
+        test1_name = self.projectCoverage1.test
+        test2_name = self.projectCoverage2.test
 
         # Linije koje pokriva prvi test a ne pokriva drugi.
         r1Diffr2 = r1_coveredLines.difference(r2_coveredLines)
@@ -621,7 +621,7 @@ class HtmlReport:
 
         return str(a)
 
-    # Funkcija generise uporedni prikaz pokrivenih linija za jednu CU.
+    # Funkcija generise uporedni prikaz pokrivenih linija za jednu izvornu datoteku.
     def generateSideBySideCoverageHtml(self, sourceFile, lines):
 
         # Dohvataju se odgovarajuci izvestaji, ukoliko postoje.
@@ -636,8 +636,8 @@ class HtmlReport:
             r2 = None
 
         # Dohvataju se imena testoma
-        test1_name = self.buildCoverage1.test
-        test2_name = self.buildCoverage2.test
+        test1_name = self.projectCoverage1.test
+        test2_name = self.projectCoverage2.test
 
         a = Airium()
 
@@ -777,6 +777,6 @@ class HtmlReport:
         self.makeHtmlReportDir()
         self.copyStyleSheet()
         self.copyScripts()
-        self.generateIndividualPagesforAllCU()
+        self.generateIndividualPagesforAllSF()
         self.generateHomePage()
 
