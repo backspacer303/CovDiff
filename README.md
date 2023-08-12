@@ -1,36 +1,36 @@
 # *CovDiff* - alat za generisanje i prikaz razlika u pokrivenosti koda testovima 
 
-Alat generiše html stranice sa izveštajima o pokrivenosti kod celog build-a nakon pokretanja dva testa. Izveštaji se generišu za svaku kompilacionu jedinicu posebno. Na stranicama se nalaze različite uporedne informacije o pokrivenosti koda testovima pa je tako moguće videti u kojim datotekama i na kojim linijama postoje razlike.
+Alat generiše html stranice sa izveštajima o pokrivenosti kod celog projekta nakon pokretanja dva testa. Izveštaji se generišu za svaku izvornu datoteku posebno. Na stranicama se nalaze različite uporedne informacije o pokrivenosti koda testovima pa je tako moguće videti u kojim datotekama i na kojim linijama postoje razlike.
 
 ## Opis 
 
-Klasa `ProjectCodeCoverage` reprezentuje izveštaj o pokrivenosti koda celog build-a tj. svake kompilacione jedinice nakon pokretanja jednog testa i obavlje sledeće operacije:
-- čisti build direktorijum od prethodnih korišćenja koda odnosno briše sve `.gcda` datoteke koje postoje
-- pokreće zadati test zadatom komandom nakon čega se formiraju `.gcda` datoteke
-- radi rekurzivni obilazak zadatog build direktorijuma i za svaku pronađenu `.gcda` datoteku:
+Klasa `ProjectCodeCoverage` reprezentuje izveštaj o pokrivenosti koda celog projekta tj. svake izvorne datoteke, nakon pokretanja jednog testa i obavlja sledeće operacije:
+- čisti diretorijum u kome je izgrađen projekat od prethodnih korišćenja koda odnosno briše sve datoteke formata `.gcda` koje postoje
+- pokreće zadati test zadatom komandom nakon čega se formiraju datoteke formata `.gcda` 
 
-  - pokreće `gcov` alat i generiše izveštaj o pokrivenosti koda u `json` formatu
-  - parsira izveštaj iz `json` datoteke i pamti rezultate za odgovarajuću kompilacionu jedinicu
+- radi rekurzivni obilazak zadatog direktorijuma u kome je izgrađen projekat i za svaku pronađenu datoteku formata `.gcda`:
+  - pokreće alat `gcov` i generiše izveštaj o pokrivenosti koda u formatu `json` 
+  - parsira izveštaj iz datoteke formata `json`  i pamti rezultate za odgovarajuću izvorne datoteke
 
-Klasa `HtmlReport` koristi informacije o pokrivenosti kompilacionih jedinica iz prethodne klase kako bi generisala html izveštaj o pokrivenosti koda testovima. U okviru ove klase generišu se sledeći prikazi:
+Klasa `HtmlReport` koristi informacije o pokrivenosti izvornih datoteka iz prethodne klase kako bi generisala izveštaj u formatu `html`  o pokrivenosti koda testovima. U okviru ove klase generišu se sledeći prikazi:
 - Početna strana na kojoj se nalazi:
-  - **<span style="color:orange"> Izveštaj "Mini report" </span>** - sadrži sumarne informacije o pokrivenosti build-a testom, za oba testa, sa sledećim informacijama
-    -  broj obrađenih `.gcda` datoteka
-    -  ukupan broj obrađenih izveštaja (ima ih više od broja gcda datoteka jer jedna gcda datoteka može sadržati više od jednog izveštaja)
-    -  broj jedinstvenih kompilacionih jedinica pogođenih testom (bez komilacionih jedinica sa 0% pokrivenosti)
-    -  ukupan broj obrađenih jedinstvenih kompilacionih jedinica (sa komilacionim jedinicama sa 0% pokrivenosti) 
-    -  ekstenzije datoteka kompilacionih jedinica pogođenih testom
+  - **<span style="color:orange"> Izveštaj "Mini report" </span>** - sadrži sumarne informacije o pokrivenosti projekta testom, za oba testa, sa sledećim informacijama
+    -  broj obrađenih datoteka formata `.gcda` 
+    -  ukupan broj obrađenih izveštaja (ima ih više od broja  datoteka formata `.gcda` jer jedna takva datoteka može sadržati više od jednog izveštaja)
+    -  broj jedinstvenih izvornih datoteka pogođenih testom (bez izvornih datoteka sa 0% pokrivenosti)
+    -  ukupan broj obrađenih jedinstvenih izvornih datoteka (sa izvornim datotekama sa 0% pokrivenosti) 
+    -  ekstenzije izvornih datoteka pogođenih testom
     -  brojač za svaku ekstenziju
-  -  **<span style="color:orange"> Listu sa svim kompilacionin jedinicama pogođenim nekim od testova </span>** koja sadrži sledeće kolone
-     -  naziv kompilacione jedinice koji je ujedno link sa kojim je moguće otići na stranicu sa detaljnim izveštajem 
-     -  procentualnu pokrivenost kompilacione jedinice prvim testom, pored koga može stajati oznaka `diff` što znači da postoje linije kompilacione jedinice pokrivene prvim testom a da nisu pokrivene drugim testom
-     -  procentualnu pokrivenost kompilacione jedinice drugim testom, pored koga može stajati oznaka `diff` što znači da postoje linije kompilacione jedinice pokrivene drugim testom a da nisu pokrivene prvim testom
-     -  polje za pretragu kompilacionih jedinica
+  -  **<span style="color:orange"> Listu sa svim izvornim datotekama pogođenim nekim od testova </span>** koja sadrži sledeće kolone
+     -  naziv izvorne datoteke koji je ujedno link sa kojim je moguće otići na stranicu sa detaljnim izveštajem 
+     -  procentualnu pokrivenost izvorne datoteke prvim testom, pored koga može stajati oznaka `diff` što znači da postoje linije izvorne datoteke pokrivene prvim testom a da nisu pokrivene drugim testom
+     -  procentualnu pokrivenost izvorne datoteke drugim testom, pored koga može stajati oznaka `diff` što znači da postoje linije izvorne datoteke pokrivene drugim testom a da nisu pokrivene prvim testom
+     -  polje za pretragu naziva izvornih datoteka
      
-  -  **<span style="color:orange"> Listu sa svim kompilacionin jedinicama u kojima postoje razlike u pokrivenosti jednim testom u odnosu na drugi </span>**
-     - lista sadrži spisak onih kompilacionih jedinica iz prethodne liste koje imaju makar jednu `diff` oznakau a ima iste kolone kao prethodna lista
+  -  **<span style="color:orange"> Listu sa svim izvornim datotekama u kojima postoje razlike u pokrivenosti jednim testom u odnosu na drugi </span>**
+     - lista sadrži spisak onih izvornih datoteka iz prethodne liste koje imaju makar jednu `diff` oznakau a ima iste kolone kao prethodna lista
 
-- Stranice za svaku pojedinačnu kompilacionu jedinicu na kojima se nalaze:
+- Stranice za svaku pojedinačnu izvornu datoteku na kojima se nalaze:
   
   - **<span style="color:orange"> Zbirni izveštaj ("Summary Report") </span>** - predstavlja uniju linija pokrivenih svim zadatim testovima. Predstavljen je tabelom sa kolonama
     - `Line number` - broj linije u izvornoj datoteci
@@ -46,7 +46,7 @@ Klasa `HtmlReport` koristi informacije o pokrivenosti kompilacionih jedinica iz 
   - **<span style="color:orange"> Izveštaj o funkcijama ("Functions Report")</span>** - sadrži informacije o tome koliko je puta izvršena svaka od funkcija, zbirno po svim testovima. Kolone su sledeće
     - `Function name` - ime funkcije
     - `Number of hits` - ukupan broj izvršavanja
-  - **<span style="color:orange"> Izveštaj o razlikama ("Coverage Diff") </span>** - sadrži linije koje su pokrivene prvim a nisu pokrivene drugim testom i obrnuto, linije koje su pokrivene drugim a nisu pokrivene prvim testom. Kolone su sledće
+  - **<span style="color:orange"> Izveštaj o razlikama ("Coverage Diff") </span>** - sadrži linije koje su pokrivene prvim a nisu pokrivene drugim testom i obrnuto, linije koje su pokrivene drugim a nisu pokrivene prvim testom. Kolone su sledće:
     - `Line number` - broj linije u izvornoj datoteci
     - `<test1_name> BUT NOT <test2_name>` - linija izvornog koda koja može biti obojena
       - žuto - ukoliko je linija pokrivena prvim testom a nije pokrivena drugim testom
@@ -59,11 +59,19 @@ Klasa `HtmlReport` koristi informacije o pokrivenosti kompilacionih jedinica iz 
     - `Line number` - broj linije u izvornoj datoteci
     - `<test1_name>` - linija izvornog koda koja može biti obojena
       - zeleno - ukoliko prvi test pokriva liniju
-      - belo (ne obojena) - inače 
+      - belo (ne obojena) - inače
+    - `Number of hits` - broj izvršavanja svake linije, može sadržati vrednosti
+      - nula - za neizvršene linije
+      - pozitivan ceo broj - za izvršene linije
+      - "----" - za linije koje nisu od interesa
     -  `Line number` - još jednom broj linije u izvornoj datoteci
     - `<test2_name>` - linija izvornog koda koja može biti obojena
       - zeleno - ukoliko drugi test pokriva liniju
       - belo (ne obojena) - inače
+    - `Number of hits` - broj izvršavanja svake linije, može sadržati vrednosti
+      - nula - za neizvršene linije
+      - pozitivan ceo broj - za izvršene linije
+      - "----" - za linije koje nisu od interesa
 
 ## Upotreba
 
@@ -74,11 +82,11 @@ directory_path test1 test2 coverage_dest
 command [command_arg [command_arg ...]]
 ```
 ### Obavezni argumenti
-`directory_path` - putanja do build direktorijuma
+`directory_path` - putanja do direktorijuma u kome je izgrađen projekat
 
 `test1` - putanja do datoteke sa kodom prvog testa ili ime prvog testa
 
-`test2` - putanja do datoteke sa kodom drugog testa ili ime drugog
+`test2` - putanja do datoteke sa kodom drugog testa ili ime drugog testa
 
 `coverage_dest` - direktorijum u kojem će biti smešteni html prikazi
 
@@ -90,9 +98,9 @@ ukoliko je jedan od argumenata komande opcija `o` sledećem u nizu argumenata ne
 ### Opcioni argumenti
 `-h`, `--help` - prikaz uputstva za korišćenje
 
-`--source-file` - opcija kojom korisnim može zadati ime kompilacione jedinice od interesa, u tom slučaju se generiše izveštaj samo za nju
+`--source-file` - opcija kojom korisnim može zadati ime izvorne datoteke od interesa, u tom slučaju se generiše izveštaj samo za nju
 
-`--object-path` - opcija koja se mođe navesti uz `--source-file` a koja označava putanju do objektne datoteke kompilacione jedinice od interesa (a samim tim i gcno/gcda datoteke). Tada se ne vrši rekurzivni obilazak celog build direktorijuma već se direktno pristupa zadatoj lokaciji pa se i rezultat dobija brže
+`--object-path` - opcija koja se mođe navesti uz `--source-file` a koja označava putanju do objektne datoteke koja odgovara izvornoj datoteci od interesa. Tada se ne vrši rekurzivni obilazak celog build direktorijuma već se direktno pristupa zadatoj lokaciji pa se i rezultat dobija brže.
 
 ## Primeri pokretanja alata
 Primere pokretanja alata *CovDiff* moguće je pogledati u okviru dirktorijuma [Examples](./Examples/). Tu su dostupni i rezultati pokretanja alata nad jednostavnim projektom ali i rezultai pokretanja nad projektom *LLVM*.
@@ -101,11 +109,11 @@ Primere pokretanja alata *CovDiff* moguće je pogledati u okviru dirktorijuma [E
 
 ## Zavisnosti
 
-Za generisanje html prikaza korišćen je paket [Airium](https://pypi.org/project/airium/). Paket je moguće instalirati pozivom komande
+Za generisanje html prikaza korišćen je paket [Airium](https://pypi.org/project/airium/). Paket je moguće instalirati pozivom komande:
 
 ```bash
 pip install airium
 ```
-Aplikacija koristi `GCC gcov` alat za generisanje izveštaja o pokrivenosti koda pa je potrebno imati taj alat instaliran na sistemu.
+Aplikacija koristi alat `GCC gcov` za generisanje izveštaja o pokrivenosti koda pa je potrebno imati taj alat instaliran na sistemu.
 
-Aplikacija pretpostavlja da je build direktorijum dobijen uz zadate opcije `-ftest-coverage` i `-fprofile-arcs` pri prevođenju izvornog koda. Ove opcije je moguće zadati npr. `GCC` kompajleru.
+Aplikacija pretpostavlja da je projekat nad kojim se pokreće obrada preveden uz zadavanje opcija `-ftest-coverage` i `-fprofile-arcs`. Ove opcije je moguće zadati npr. programskom prevodiocu `GCC`.

@@ -1,5 +1,5 @@
-; ModuleID = '/home/syrmia/Desktop/Praksa/DebugInfoTest/example.c'
-source_filename = "/home/syrmia/Desktop/Praksa/DebugInfoTest/example.c"
+; ModuleID = '/home/nikola/Desktop/CodeCoverage/DebugInfoTest/example.c'
+source_filename = "/home/nikola/Desktop/CodeCoverage/DebugInfoTest/example.c"
 target datalayout = "E-m:m-p:32:32-i8:8:32-i16:16:32-i64:64-n32-S64"
 target triple = "mips"
 

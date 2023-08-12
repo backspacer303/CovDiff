@@ -1,5 +1,5 @@
-; ModuleID = '/home/syrmia/Desktop/Praksa/DebugInfoTest/example.c'
-source_filename = "/home/syrmia/Desktop/Praksa/DebugInfoTest/example.c"
+; ModuleID = '/home/nikola/Desktop/CodeCoverage/DebugInfoTest/example.c'
+source_filename = "/home/nikola/Desktop/CodeCoverage/DebugInfoTest/example.c"
 target datalayout = "E-m:m-p:32:32-i8:8:32-i16:16:32-i64:64-n32-S64"
 target triple = "mips"
 
@@ -45,14 +45,14 @@ attributes #1 = { nocallback nofree nosync nounwind speculatable willreturn memo
 !llvm.ident = !{!6}
 
 !0 = distinct !DICompileUnit(language: DW_LANG_C11, file: !1, producer: "clang version 18.0.0 (https://github.com/llvm/llvm-project.git bbe2887f5e9ca005b0f1b96c858969ee3ba646f4)", isOptimized: false, runtimeVersion: 0, emissionKind: FullDebug, splitDebugInlining: false, nameTableKind: None)
-!1 = !DIFile(filename: "/home/syrmia/Desktop/Praksa/DebugInfoTest/example.c", directory: "/home/syrmia/llvm_builds/llvm-clang-coverage-build", checksumkind: CSK_MD5, checksum: "5fcb4faf4a37ae34ae503ff87f779b52")
+!1 = !DIFile(filename: "/home/nikola/Desktop/CodeCoverage/DebugInfoTest/example.c", directory: "/home/nikola/llvm_builds/llvm-clang-coverage-build", checksumkind: CSK_MD5, checksum: "5fcb4faf4a37ae34ae503ff87f779b52")
 !2 = !{i32 7, !"Dwarf Version", i32 5}
 !3 = !{i32 2, !"Debug Info Version", i32 3}
 !4 = !{i32 1, !"wchar_size", i32 4}
 !5 = !{i32 7, !"frame-pointer", i32 2}
 !6 = !{!"clang version 18.0.0 (https://github.com/llvm/llvm-project.git bbe2887f5e9ca005b0f1b96c858969ee3ba646f4)"}
 !7 = distinct !DISubprogram(name: "foo", scope: !8, file: !8, line: 1, type: !9, scopeLine: 1, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition, unit: !0, retainedNodes: !12)
-!8 = !DIFile(filename: "Desktop/Praksa/DebugInfoTest/example.c", directory: "/home/syrmia", checksumkind: CSK_MD5, checksum: "5fcb4faf4a37ae34ae503ff87f779b52")
+!8 = !DIFile(filename: "Desktop/CodeCoverage/DebugInfoTest/example.c", directory: "/home/nikola", checksumkind: CSK_MD5, checksum: "5fcb4faf4a37ae34ae503ff87f779b52")
 !9 = !DISubroutineType(types: !10)
 !10 = !{!11, !11, !11}
 !11 = !DIBasicType(name: "int", size: 32, encoding: DW_ATE_signed)
