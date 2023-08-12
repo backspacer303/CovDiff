@@ -74,6 +74,8 @@ Razlike u pokrivenosti koda se prave u funkcijama za oduzimanje i pronalaženje 
 
 Alat *CovDiff* je pokrenut nad projektom *LLVM* kako bi se testirala stabilnost alat pri obradi velike količine informacija o pokrivenosti koda i pri generisanju velike količine stranica u formatu *hrml*.
 
+Korišćena je verzija [16.0.6](https://github.com/llvm/llvm-project/releases/tag/llvmorg-16.0.6) projekta *LLVM*.
+
 Projekat *LLVM* je preved uz zadavanje opcija za instrumentalizaciju koda prevodiocu *GCC*. Takođe, navedena je i opcija koja prevodiocu sugeriše da generiše informacije za debagovanje. 
 
 ### Komande za kofuguraciju i prevod projekta *LLVM*
