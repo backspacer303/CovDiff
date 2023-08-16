@@ -1,24 +1,34 @@
 import os
+from abc import ABC, abstractmethod
+
+# Apstraktna klasa koja predstavlja baznu klasu za sve tipove izvestaja.
+# Sadrzi apstaktnu metodu za prihvatanje posetioca klase koja je zaduzena
+# za formiranje izvestaja. Implementacija metode u izvedenim klasama
+# treba da pozove odgovarajucu metodu posetioca koja ce formirati izvestaj.
+class Report(ABC):
+    @abstractmethod
+    def accept(self, visitor):
+        pass
 
 # Klasa odgovorna za cuvanje razlicitih tipova zbirnih informacija
 # nastalih nakon pokretanje jednog testa.
-class MiniReport:
+class MiniReport(Report):
 
-    def __init__(self, gcdaCounter, numOfProcessedReports, listOfProcessedFileNames, reports, ifObjectPath):
+    def __init__(self):
         
         # Broj pronadjenih gcda datoteka
-        self.gcdaCounter = gcdaCounter
+        self.gcdaCounter = 0
     
         # Broj obradjenih izvestaja.
         # Ovaj broj je veci od broja gcda datoteka jer jedna gcda datoteka
         # moze imati izvestaje za vise izvornih datoteka
         # odgovara duzini liste self.listOfProcessedFileNames.
-        self.numOfProcessedReports = numOfProcessedReports
+        self.numOfProcessedReports = 0
 
         # Sva moguca imena datoteka na koja se naislo pri parsiranju.
         # Mnoga se ponavljaju vise puta 
         # (npr. imena header datoteka ukljucenih u razliciite izvorne datoteka).
-        self.listOfProcessedFileNames = listOfProcessedFileNames
+        self.listOfProcessedFileNames = []
 
         # Broj datoteka koje pogadja test
         # (bez datoteka sa 0% pokrivenosti).
@@ -34,7 +44,7 @@ class MiniReport:
         # gcda datoteka. Ekvivalentno, u listi self.listOfProcessedFileNames
         # se tada nalaze samo imena izvornih datoteka iz jedne gcda datoteke
         # ifObjectPath je indikator za --object-path.
-        self.ifObjectPath = ifObjectPath
+        self.ifObjectPath = False
 
         # Ekstenzije datoteka koje pogadja test.
         self.fileExtensions = None
@@ -42,9 +52,13 @@ class MiniReport:
         # Broj datoteka po svakoj ekstenziji.
         self.extensionsCounter = None
         
-        self.makeReport(reports)
+        # self.makeReport(reports)
 
-    def makeReport(self, reports):
+    def makeReport(self, gcdaCounter, numOfProcessedReports, listOfProcessedFileNames, reports, ifObjectPath):
+
+        self.gcdaCounter = gcdaCounter
+        self.numOfProcessedReports = numOfProcessedReports
+        self.listOfProcessedFileNames = listOfProcessedFileNames
 
         self.numOfUniqueFilesAfectedByTest = len(reports)
         
@@ -54,7 +68,7 @@ class MiniReport:
 
         # U slucaju zadate opcije --object-path ne moze se govoriti o 
         # broju jedinstvenih datoteka koje test pokriva.
-        if self.ifObjectPath:
+        if ifObjectPath:
             self.numOfUniqueFilesProcessed = None
         
         # Pomocna funkcija koja vraca ekstenziju imena datoteke.
@@ -78,6 +92,12 @@ class MiniReport:
                 self.extensionsCounter[extension] = 1
         
         self.printReport()        
+
+    # Implementacija metode accept() nasledjene iz bazne klase Report.
+    # Prihvata referencu na objekat klase ProjectCodeCoverage i poziva
+    # odgovarajucu metodu za formiranje izvstaja.
+    def accept(self, visitor):
+        visitor.visitMiniReport(self)
 
     def printReport(self):
 

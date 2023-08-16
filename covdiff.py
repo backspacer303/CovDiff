@@ -3,6 +3,7 @@ import argparse
 
 from html_report import HtmlReport
 from project_code_coverage import ProjectCodeCoverage
+from summary_report import MiniReport
 
 def parse_program_args(parser):
     parser.add_argument('directory_path', metavar='directory_path', action="store",
@@ -20,11 +21,11 @@ def parse_program_args(parser):
     parser.add_argument('command', metavar='command', action="store",
                         help='command to run the tests (specify "./" if test is already an executable)')
     parser.add_argument('command_arg', metavar='command_arg', action="store", nargs='*',
-                        help='command arguments')                        
+                        help='command arguments')
     return parser.parse_args()
 
 def Main():
-    
+
     # Parsiranje argumenata komandne linije.
     parser = argparse.ArgumentParser(description='Run tests and generate code coverage diff.')
     args = parse_program_args(parser)
@@ -33,11 +34,16 @@ def Main():
     for i in range(0,len(args.command_arg)):
         if not args.command_arg[i].startswith("-") and args.command_arg[i-1] != '-o':
             args.command_arg[i] = "-" + args.command_arg[i]
-    
+
+    # Lista izvestaja koje je potrebno formirati.
+    reportsList = [MiniReport()]
+
     # Prikupljanje i cuvanje informacija o pokrivenosti koda projekta prvim i drugim testom.
-    projectCCTest1 = ProjectCodeCoverage(args.directory_path, args.test1, args.command, args.command_arg, args.coverage_dest, args.source_file, args.object_path)
-    projectCCTest2 = ProjectCodeCoverage(args.directory_path, args.test2, args.command, args.command_arg, args.coverage_dest, args.source_file, args.object_path)
-    
+    projectCCTest1 = ProjectCodeCoverage(args.directory_path, args.test1, args.command, args.command_arg,
+                                         args.coverage_dest, args.source_file, args.object_path, reportsList)
+    projectCCTest2 = ProjectCodeCoverage(args.directory_path, args.test2, args.command, args.command_arg,
+                                         args.coverage_dest, args.source_file, args.object_path, reportsList)
+
     try:
         projectCCTest1.runProjectCodeCoverage()
     except Exception as e:
@@ -53,7 +59,7 @@ def Main():
     # Generisanje prikaza razlika u pokrivenosti koda testovima u formatu html.
     htmlReport = HtmlReport(projectCCTest1, projectCCTest2, args.coverage_dest)
     htmlReport.generateHtml()
-    
+
 if __name__ == "__main__":
   Main()
 

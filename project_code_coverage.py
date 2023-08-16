@@ -4,22 +4,26 @@ import os
 import subprocess
 
 from coverage_information import SFCoverageInformation
-from summary_report import MiniReport
+from report_visitor import ReportVisitor
 
 # Klasa koja obradjuje informacije o pokrivenosti koda projekta nakon poretanja jendog testa.
 # Zaduzena je za pokretanje testova, pokretanje alata gcov, prikupljanje informacije o pokrivenosti 
 # koda i cuvanje prikupljenih rezultata.
-class ProjectCodeCoverage:
+class ProjectCodeCoverage(ReportVisitor):
 
     ID = 1
 
-    def __init__(self, projectDirectory, test, command, commandArgs, coverageInfoDest, targetSourceFile, targetObjectPath):
+    def __init__(self, projectDirectory, test, command, commandArgs, coverageInfoDest, targetSourceFile, targetObjectPath, reportsList):
 
         self.projectDirectory = os.path.join(projectDirectory, "")
         self.test = test
         self.command = command
         self.commandArgs = commandArgs
         self.coverageInfoDest = os.path.join(coverageInfoDest, "")
+
+        # Lista izvestaja koje treba formirata nakon zavrsetka obrade
+        # datoteka formata gcda.
+        self.reportsList = reportsList
 
         self.targetSourceFile = targetSourceFile
         self.targetObjectPath = targetObjectPath
@@ -35,6 +39,13 @@ class ProjectCodeCoverage:
         # Videti klasu MiniReport.
         self.miniReport = None
 
+        # Ukupan broj obradjenih datoteka formata gcda.
+        self.gcdaCounter = 0
+        # Ukupan broj obradjenih izvestaja
+        # (jedna datoteka formata gcda moze imati vise izvestaja).
+        self.numOfProcessedReports = 0
+        # Nazivi svih obradjenih datoteka sa izvornim kodom (moze sadrzati duplikate).
+        self.listOfProcessedFileNames = []
 
     # Pokrece zadati test zadatom komandom.
     def runTest(self):
@@ -55,10 +66,6 @@ class ProjectCodeCoverage:
     # Vrsi pretragu svih gcda datoteka u direktorijumu projekta nakon pokretanja testa.
     # Za svaku od pronadjenih gcda datoteka pokrece gcov alat, parsira i pamti rezultate.
     def searchForGcda(self):
-
-        gcdaCounter = 0
-        numOfProcessedReports = 0
-        listOfProcessedFileNames = []
 
         # Ukoliko su na ulazu zatade obe opcije --source-file i --object-path
         # ne vrsi se pretraga celog direktorijuma projekta vec se gcda datoteka
@@ -99,15 +106,9 @@ class ProjectCodeCoverage:
             # Parsira se dobijeni izvestaj.
             (numOfReports, listOfFiles)  = self.parseJsonReport(report)
 
-            numOfProcessedReports += numOfReports
-            listOfProcessedFileNames += listOfFiles
-
-            gcdaCounter += 1
-
-            # # Formira se sumarni izvestaj.
-            self.miniReport = MiniReport(gcdaCounter, numOfProcessedReports, listOfProcessedFileNames,
-                                         self.reports.keys(), self.targetObjectPath != None
-                                        )
+            self.numOfProcessedReports += numOfReports
+            self.listOfProcessedFileNames += listOfFiles
+            self.gcdaCounter += 1
 
         # Ukoliko nije zadata --object-path opcija na ulazu,
         # vrsi se pretraga celog direktorijuma projekta kako bi se pronasle
@@ -134,16 +135,14 @@ class ProjectCodeCoverage:
                         # Parsira se dobijeni izvestaj.
                         (numOfReports, listOfFiles)  = self.parseJsonReport(report)
 
-                        numOfProcessedReports += numOfReports
-                        listOfProcessedFileNames += listOfFiles
+                        self.numOfProcessedReports += numOfReports
+                        self.listOfProcessedFileNames += listOfFiles
+                        self.gcdaCounter += 1
 
-                        gcdaCounter += 1
+        # Formiraju se svi zadati izvestaji.
+        for report in self.reportsList:
+            report.accept(self)
 
-            # Formira se sumarni izvestaj.
-            self.miniReport = MiniReport(gcdaCounter, numOfProcessedReports, listOfProcessedFileNames,
-                                         self.reports.keys(), self.targetObjectPath != None
-                                        )
-    
     # Obradjuje podatke procitane iz izvestaja u formatu json.
     def parseJsonReport(self, report):
 
@@ -298,6 +297,12 @@ class ProjectCodeCoverage:
         # Putanje se prosledjuju metodi readArchiveAndSaveJson() koja vraca ucitani json objekat
         # pa se taj objekat vraca i iz ove metode.
         return self.readArchiveAndSaveJson(archiveName)
+
+    # Formira MiniReport izvestaj i pamti referencu na taj objekat.
+    def visitMiniReport(self, miniReport):
+        miniReport.makeReport(self.gcdaCounter, self.numOfProcessedReports, self.listOfProcessedFileNames,
+                              self.reports.keys(), self.targetObjectPath != None)
+        self.miniReport = miniReport
 
     # Otvara arhivu i cita json izvesraj iz nje,
     # pamti json objekat u datoteci na prosedjenoj putanji i
