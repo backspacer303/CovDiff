@@ -35,14 +35,15 @@ def Main():
         if not args.command_arg[i].startswith("-") and args.command_arg[i-1] != '-o':
             args.command_arg[i] = "-" + args.command_arg[i]
 
-    # Lista izvestaja koje je potrebno formirati.
-    reportsList = [MiniReport()]
+    # Liste izvestaja koje je potrebno formirati.
+    reportsList1 = [MiniReport()]
+    reportsList2 = [MiniReport()]
 
     # Prikupljanje i cuvanje informacija o pokrivenosti koda projekta prvim i drugim testom.
     projectCCTest1 = ProjectCodeCoverage(args.directory_path, args.test1, args.command, args.command_arg,
-                                         args.coverage_dest, args.source_file, args.object_path, reportsList)
+                                         args.coverage_dest, args.source_file, args.object_path, reportsList1)
     projectCCTest2 = ProjectCodeCoverage(args.directory_path, args.test2, args.command, args.command_arg,
-                                         args.coverage_dest, args.source_file, args.object_path, reportsList)
+                                         args.coverage_dest, args.source_file, args.object_path, reportsList2)
 
     try:
         projectCCTest1.runProjectCodeCoverage()
