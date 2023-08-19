@@ -1,29 +1,27 @@
 import os
-from abc import ABC, abstractmethod
 
-# Apstraktna klasa koja predstavlja baznu klasu za sve tipove izvestaja.
-# Sadrzi apstaktnu metodu za prihvatanje posetioca klase koja je zaduzena
+# Klasa koja predstavlja baznu klasu za sve tipove zbirnih izvestaja.
+# Sadrzi metodu za prihvatanje posetioca klase zaduzene
 # za formiranje izvestaja. Implementacija metode u izvedenim klasama
 # treba da pozove odgovarajucu metodu posetioca koja ce formirati izvestaj.
-class Report(ABC):
-    @abstractmethod
+class SummaryReport():
     def accept(self, visitor):
         pass
 
 # Klasa odgovorna za cuvanje razlicitih tipova zbirnih informacija
 # nastalih nakon pokretanje jednog testa.
-class MiniReport(Report):
+class MiniReport(SummaryReport):
 
     def __init__(self):
         
         # Broj pronadjenih gcda datoteka
-        self.gcdaCounter = 0
+        self.gcdaCounter = None
     
         # Broj obradjenih izvestaja.
         # Ovaj broj je veci od broja gcda datoteka jer jedna gcda datoteka
         # moze imati izvestaje za vise izvornih datoteka
         # odgovara duzini liste self.listOfProcessedFileNames.
-        self.numOfProcessedReports = 0
+        self.numOfProcessedReports = None
 
         # Sva moguca imena datoteka na koja se naislo pri parsiranju.
         # Mnoga se ponavljaju vise puta 
@@ -47,12 +45,10 @@ class MiniReport(Report):
         self.ifObjectPath = False
 
         # Ekstenzije datoteka koje pogadja test.
-        self.fileExtensions = None
+        self.fileExtensions = set()
 
         # Broj datoteka po svakoj ekstenziji.
-        self.extensionsCounter = None
-        
-        # self.makeReport(reports)
+        self.extensionsCounter = {}
 
     def makeReport(self, gcdaCounter, numOfProcessedReports, listOfProcessedFileNames, reports, ifObjectPath):
 
@@ -91,7 +87,7 @@ class MiniReport(Report):
             else:
                 self.extensionsCounter[extension] = 1
         
-        self.printReport()        
+        self.printReport()
 
     # Implementacija metode accept() nasledjene iz bazne klase Report.
     # Prihvata referencu na objekat klase ProjectCodeCoverage i poziva

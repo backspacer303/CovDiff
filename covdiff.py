@@ -47,8 +47,7 @@ def Main():
             summaryReportsList1.append(MiniReport())
             summaryReportsList2.append(MiniReport())
         else:
-            print("Summary report type \"" + summary_report +  "\" not recognized!")
-            exit()
+            print("Summary report type \"" + summary_report +  "\" not recognized! Skipping...")
 
     # Prikupljanje i cuvanje informacija o pokrivenosti koda projekta prvim i drugim testom.
     projectCCTest1 = ProjectCodeCoverage(args.directory_path, args.test1, args.command, args.command_arg,

@@ -4,7 +4,8 @@ import os
 import subprocess
 
 from coverage_information import SFCoverageInformation
-from report_visitor import ReportVisitor
+from summary_report_visitor import ReportVisitor
+from summary_report import MiniReport
 
 # Klasa koja obradjuje informacije o pokrivenosti koda projekta nakon poretanja jendog testa.
 # Zaduzena je za pokretanje testova, pokretanje alata gcov, prikupljanje informacije o pokrivenosti 
@@ -13,7 +14,7 @@ class ProjectCodeCoverage(ReportVisitor):
 
     ID = 1
 
-    def __init__(self, projectDirectory, test, command, commandArgs, coverageInfoDest, targetSourceFile, targetObjectPath, reportsList):
+    def __init__(self, projectDirectory, test, command, commandArgs, coverageInfoDest, targetSourceFile, targetObjectPath, summaryReportsList):
 
         self.projectDirectory = os.path.join(projectDirectory, "")
         self.test = test
@@ -23,7 +24,7 @@ class ProjectCodeCoverage(ReportVisitor):
 
         # Lista izvestaja koje treba formirata nakon zavrsetka obrade
         # datoteka formata gcda.
-        self.reportsList = reportsList
+        self.summaryReportsList = summaryReportsList
 
         self.targetSourceFile = targetSourceFile
         self.targetObjectPath = targetObjectPath
@@ -37,7 +38,7 @@ class ProjectCodeCoverage(ReportVisitor):
 
         # Sumarni izvestaj o uticaju testa.
         # Videti klasu MiniReport.
-        self.miniReport = None
+        self.miniReport = MiniReport()
 
         # Ukupan broj obradjenih datoteka formata gcda.
         self.gcdaCounter = 0
@@ -140,8 +141,8 @@ class ProjectCodeCoverage(ReportVisitor):
                         self.gcdaCounter += 1
 
         # Formiraju se svi zadati izvestaji.
-        for report in self.reportsList:
-            report.accept(self)
+        for summaryReport in self.summaryReportsList:
+            summaryReport.accept(self)
 
     # Obradjuje podatke procitane iz izvestaja u formatu json.
     def parseJsonReport(self, report):
