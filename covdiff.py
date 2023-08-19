@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import argparse
 
-from html_report import HtmlReport
+from html_report import HtmlReport, ReportDisplayGenerator, HtmlReportDisplay
 from project_code_coverage import ProjectCodeCoverage
 from summary_report import MiniReport
 
@@ -22,6 +22,10 @@ def parse_program_args(parser):
                         help='command to run the tests (specify "./" if test is already an executable)')
     parser.add_argument('command_arg', metavar='command_arg', action="store", nargs='*',
                         help='command arguments')
+    parser.add_argument('--report-formats', metavar='report_formats', action="store", default="html",
+                        help='coma separated list of report formats to be created')
+    parser.add_argument('--summary-reports', metavar='summary_reports', action="store", default="minireport",
+                        help='coma separated list of summary reports to be created')
     return parser.parse_args()
 
 def Main():
@@ -35,15 +39,22 @@ def Main():
         if not args.command_arg[i].startswith("-") and args.command_arg[i-1] != '-o':
             args.command_arg[i] = "-" + args.command_arg[i]
 
-    # Liste izvestaja koje je potrebno formirati.
-    reportsList1 = [MiniReport()]
-    reportsList2 = [MiniReport()]
+    # Liste sumarnih izvestaja koje je potrebno formirati.
+    summaryReportsList1 = []
+    summaryReportsList2 = []
+    for summary_report in args.summary_reports.split(","):
+        if summary_report == 'minireport':
+            summaryReportsList1.append(MiniReport())
+            summaryReportsList2.append(MiniReport())
+        else:
+            print("Summary report type \"" + summary_report +  "\" not recognized!")
+            exit()
 
     # Prikupljanje i cuvanje informacija o pokrivenosti koda projekta prvim i drugim testom.
     projectCCTest1 = ProjectCodeCoverage(args.directory_path, args.test1, args.command, args.command_arg,
-                                         args.coverage_dest, args.source_file, args.object_path, reportsList1)
+                                         args.coverage_dest, args.source_file, args.object_path, summaryReportsList1)
     projectCCTest2 = ProjectCodeCoverage(args.directory_path, args.test2, args.command, args.command_arg,
-                                         args.coverage_dest, args.source_file, args.object_path, reportsList2)
+                                         args.coverage_dest, args.source_file, args.object_path, summaryReportsList2)
 
     try:
         projectCCTest1.runProjectCodeCoverage()
@@ -57,9 +68,17 @@ def Main():
         print(e)
         exit()
 
-    # Generisanje prikaza razlika u pokrivenosti koda testovima u formatu html.
-    htmlReport = HtmlReport(projectCCTest1, projectCCTest2, args.coverage_dest)
-    htmlReport.generateHtml()
+    # Lista formata izvestaja koje je potrebno kreirati.
+    reportDisplayList = []
+    for report_format in args.report_formats.split(","):
+        if report_format == "html":
+            reportDisplayList.append(HtmlReportDisplay(projectCCTest1, projectCCTest2, args.coverage_dest))
+        else:
+            print("Report format \"" + report_format + "\" not recognized! Skipping...")
+
+    # Generisanje prikaza razlika u pokrivenosti koda testovima u zadatim formatima.
+    generator = ReportDisplayGenerator(reportDisplayList, projectCCTest1, projectCCTest2, numOfWorkers=4)
+    generator.generate()
 
 if __name__ == "__main__":
   Main()
