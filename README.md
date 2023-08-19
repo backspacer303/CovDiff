@@ -12,7 +12,7 @@ Klasa `ProjectCodeCoverage` reprezentuje izveštaj o pokrivenosti koda celog pro
   - pokreće alat `gcov` i generiše izveštaj o pokrivenosti koda u formatu `json` 
   - parsira izveštaj iz datoteke formata `json`  i pamti rezultate za odgovarajuću izvorne datoteke
 
-Klasa `HtmlReport` koristi informacije o pokrivenosti izvornih datoteka iz prethodne klase kako bi generisala izveštaj u formatu `html`  o pokrivenosti koda testovima. U okviru ove klase generišu se sledeći prikazi:
+Klasa `HtmlReportDisplay` koristi informacije o pokrivenosti izvornih datoteka iz prethodne klase kako bi generisala izveštaj u formatu `html`  o pokrivenosti koda testovima. U okviru ove klase generišu se sledeći prikazi:
 - Početna strana na kojoj se nalazi:
   - **<span style="color:orange"> Izveštaj "Mini report" </span>** - sadrži sumarne informacije o pokrivenosti projekta testom, za oba testa, sa sledećim informacijama
     -  broj obrađenih datoteka formata `.gcda` 
@@ -101,6 +101,10 @@ ukoliko je jedan od argumenata komande opcija `o` sledećem u nizu argumenata ne
 `--source-file` - opcija kojom korisnim može zadati ime izvorne datoteke od interesa, u tom slučaju se generiše izveštaj samo za nju
 
 `--object-path` - opcija koja se mođe navesti uz `--source-file` a koja označava putanju do objektne datoteke koja odgovara izvornoj datoteci od interesa. Tada se ne vrši rekurzivni obilazak celog build direktorijuma već se direktno pristupa zadatoj lokaciji pa se i rezultat dobija brže.
+
+`--report-formats` - opcija kojom se zadaje lista formata izveštaja koje je potrebno generisati. Prilikom navođenja, formati se razdvajaju zarezom. Ukoliko se ne navede ova opcija, podrazumevano se generiše prikaz u formatu `html`.
+
+`--summary-reports` - opcija kojom se zadaju lista sumarnih izveštaja koje je potrebno generisati. Prilikom navođenja, sumarni izveštaji se razdvajaju zarezom. Ukoliko se ne navede ova opcija, podrazumevano se generiše sumarni izveštaj `MiniReport`.
 
 ## Primeri pokretanja alata
 Primere pokretanja alata *CovDiff* moguće je pogledati u okviru dirktorijuma [Examples](./Examples/). Tu su dostupni i rezultati pokretanja alata nad jednostavnim projektom ali i rezultai pokretanja nad projektom *LLVM*.
