@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import argparse
 
-from html_report import HtmlReport, ReportDisplayGenerator, HtmlReportDisplay
+from html_report import ReportDisplayGenerator, HtmlReportDisplay
 from project_code_coverage import ProjectCodeCoverage
 from summary_report import MiniReport
 
