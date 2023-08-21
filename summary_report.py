@@ -50,45 +50,6 @@ class MiniReport(SummaryReport):
         # Broj datoteka po svakoj ekstenziji.
         self.extensionsCounter = {}
 
-    def makeReport(self, gcdaCounter, numOfProcessedReports, listOfProcessedFileNames, reports, ifObjectPath):
-
-        self.gcdaCounter = gcdaCounter
-        self.numOfProcessedReports = numOfProcessedReports
-        self.listOfProcessedFileNames = listOfProcessedFileNames
-
-        self.numOfUniqueFilesAfectedByTest = len(reports)
-        
-        # Koristi se skup da se uklone duplikati.
-        uniqeFileNames = set(self.listOfProcessedFileNames)
-        self.numOfUniqueFilesProcessed = len(uniqeFileNames)
-
-        # U slucaju zadate opcije --object-path ne moze se govoriti o 
-        # broju jedinstvenih datoteka koje test pokriva.
-        if ifObjectPath:
-            self.numOfUniqueFilesProcessed = None
-        
-        # Pomocna funkcija koja vraca ekstenziju imena datoteke.
-        def toExt(e):
-            (root, extension) = os.path.splitext(e)
-            return extension
-
-        # Mapiraju se dobijena imena datoteka u ekstenzije
-        # Koristi se skup da se ukolne duplikati.
-        mappedToExt_it = map(lambda e: toExt(e), reports)
-        mappedToExt = list(mappedToExt_it)        
-        self.fileExtensions = set(mappedToExt)
-
-        # Za svkau eksteniziju se pamti koliko datoteka se njome zavrsava.
-        self.extensionsCounter = {}
-        for name in reports:
-            extension = toExt(name)            
-            if extension in self.extensionsCounter.keys():
-                self.extensionsCounter[extension] += 1
-            else:
-                self.extensionsCounter[extension] = 1
-        
-        self.printReport()
-
     # Implementacija metode accept() nasledjene iz bazne klase Report.
     # Prihvata referencu na objekat klase ProjectCodeCoverage i poziva
     # odgovarajucu metodu za formiranje izvstaja.

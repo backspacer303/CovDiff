@@ -4,13 +4,13 @@ import os
 import subprocess
 
 from coverage_information import SFCoverageInformation
-from summary_report_visitor import ReportVisitor
+from summary_report_visitor import SummaryReportVisitor
 from summary_report import MiniReport
 
 # Klasa koja obradjuje informacije o pokrivenosti koda projekta nakon poretanja jendog testa.
 # Zaduzena je za pokretanje testova, pokretanje alata gcov, prikupljanje informacije o pokrivenosti 
 # koda i cuvanje prikupljenih rezultata.
-class ProjectCodeCoverage(ReportVisitor):
+class ProjectCodeCoverage(SummaryReportVisitor):
 
     ID = 1
 
@@ -301,8 +301,42 @@ class ProjectCodeCoverage(ReportVisitor):
 
     # Formira MiniReport izvestaj i pamti referencu na taj objekat.
     def visitMiniReport(self, miniReport):
-        miniReport.makeReport(self.gcdaCounter, self.numOfProcessedReports, self.listOfProcessedFileNames,
-                              self.reports.keys(), self.targetObjectPath != None)
+        miniReport.gcdaCounter = self.gcdaCounter
+        miniReport.numOfProcessedReports = self.numOfProcessedReports
+        miniReport.listOfProcessedFileNames = self.numOfProcessedReports
+
+        miniReport.numOfUniqueFilesAfectedByTest = len(self.reports.keys())
+
+        # Koristi se skup da se uklone duplikati.
+        uniqeFileNames = set(self.listOfProcessedFileNames)
+        miniReport.numOfUniqueFilesProcessed = len(uniqeFileNames)
+
+        # U slucaju zadate opcije --object-path ne moze se govoriti o
+        # broju jedinstvenih datoteka koje test pokriva.
+        if self.targetObjectPath != None:
+            miniReport.numOfUniqueFilesProcessed = None
+
+        # Pomocna funkcija koja vraca ekstenziju imena datoteke.
+        def toExt(e):
+            (root, extension) = os.path.splitext(e)
+            return extension
+
+        # Mapiraju se dobijena imena datoteka u ekstenzije
+        # Koristi se skup da se ukolne duplikati.
+        mappedToExt_it = map(lambda e: toExt(e), self.reports.keys())
+        mappedToExt = list(mappedToExt_it)
+        miniReport.fileExtensions = set(mappedToExt)
+
+        # Za svkau eksteniziju se pamti koliko datoteka se njome zavrsava.
+        miniReport.extensionsCounter = {}
+        for name in self.reports.keys():
+            extension = toExt(name)
+            if extension in miniReport.extensionsCounter.keys():
+                miniReport.extensionsCounter[extension] += 1
+            else:
+                miniReport.extensionsCounter[extension] = 1
+
+        miniReport.printReport()
         self.miniReport = miniReport
 
     # Otvara arhivu i cita json izvesraj iz nje,
