@@ -32,7 +32,7 @@ class ReportDisplayGenerator:
 
     # Funkcija prolazi kroz sve izvorne datoteke koje su pogodjene nekim od testova i
     # za svaku formira odgovarajucu stranicu.
-    def generateIndividualPagesforAllSF(self):
+    def generateIndividualPagesForAllSF(self):
 
         global numOfSameSFNames_lock
         numOfSameSFNames_lock = multiprocessing.Lock()
@@ -92,7 +92,7 @@ class ReportDisplayGenerator:
 
             self.curretReportDisplay = reportDisplay
 
-            self.generateIndividualPagesforAllSF()
+            self.generateIndividualPagesForAllSF()
 
             self.generateMainPage()
 
