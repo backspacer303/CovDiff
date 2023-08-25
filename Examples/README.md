@@ -96,7 +96,7 @@ ninja -j1
 U izvornom kodu projekta *LLVM* je napravljena namerna greška ubacivanjem dela koda koji briše jednu instrukciju iz prvog osnovnog bloka. Deo koda je ubačen u okviru prolaza [*RemoveRedundantDebugValues*](https://llvm.org/doxygen/RemoveRedundantDebugValues_8cpp.html). Kako prolaz obrađuje samo debag informacije, ostale instrukcije moraju ostati nepromenjene, pa iz tog razloga ubačen deo koda predstavlja grešku.
 
 ### U prolaz *RemoveRedundantDebugValues* je ubačen sledeći kod
-![Greška u RemoveRedundantDebugValues prolazu](../screenshots/greksa_u_LLVMu.png)
+![Greška u RemoveRedundantDebugValues prolazu](../screenshots/greska_u_LLVMu.png)
 
 Formirana su dva test primera na međureprezentaciji *LLVM IR* na osnovu koda jednostavne funkcije koja se može videti ispod:
 ```C
